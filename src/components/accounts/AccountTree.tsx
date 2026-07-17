@@ -45,6 +45,11 @@ export interface AccountTreeProps {
   showBalances?: boolean
 
   /**
+   * Optional map of calculated balances (overrides node.balance)
+   */
+  balances?: Map<string, number>
+
+  /**
    * Custom className
    */
   className?: string
@@ -58,6 +63,7 @@ interface TreeNodeProps {
   onSelect?: (account: Account) => void
   selectedId?: string
   showBalances: boolean
+  balances?: Map<string, number>
 }
 
 /**
@@ -75,10 +81,13 @@ function formatBalance(balance: number): string {
 /**
  * Tree node component with expand/collapse
  */
-const TreeNode: FC<TreeNodeProps> = ({ node, onSelect, selectedId, showBalances }) => {
+const TreeNode: FC<TreeNodeProps> = ({ node, onSelect, selectedId, showBalances, balances }) => {
   const [isExpanded, setIsExpanded] = useState(true)
   const hasChildren = node.children.length > 0
   const isSelected = selectedId === node.id
+
+  // Use balance from map if provided, otherwise use node.balance
+  const displayBalance = balances?.get(node.id) ?? node.balance
 
   const handleClick = () => {
     onSelect?.(node)
@@ -139,7 +148,7 @@ const TreeNode: FC<TreeNodeProps> = ({ node, onSelect, selectedId, showBalances 
 
           {showBalances && (
             <div className={styles.nodeBalance}>
-              {formatBalance(node.balance)}
+              {formatBalance(displayBalance)}
             </div>
           )}
         </div>
@@ -154,6 +163,7 @@ const TreeNode: FC<TreeNodeProps> = ({ node, onSelect, selectedId, showBalances 
               onSelect={onSelect}
               selectedId={selectedId}
               showBalances={showBalances}
+              balances={balances}
             />
           ))}
         </div>
@@ -196,9 +206,10 @@ function groupNodesByType(nodes: AccountTreeNode[]): Map<AccountType, AccountTre
 /**
  * Calculate total balance for a group
  */
-function calculateGroupBalance(nodes: AccountTreeNode[]): number {
+function calculateGroupBalance(nodes: AccountTreeNode[], balances?: Map<string, number>): number {
   return nodes.reduce((sum, node) => {
-    const nodeTotal = node.balance + calculateGroupBalance(node.children)
+    const nodeBalance = balances?.get(node.id) ?? node.balance
+    const nodeTotal = nodeBalance + calculateGroupBalance(node.children, balances)
     return sum + nodeTotal
   }, 0)
 }
@@ -224,6 +235,7 @@ export const AccountTree: FC<AccountTreeProps> = ({
   selectedId,
   groupByType = false,
   showBalances = true,
+  balances,
   className,
 }) => {
   const content = useMemo(() => {
@@ -237,6 +249,7 @@ export const AccountTree: FC<AccountTreeProps> = ({
               onSelect={onSelect}
               selectedId={selectedId}
               showBalances={showBalances}
+              balances={balances}
             />
           ))}
         </div>
@@ -262,7 +275,7 @@ export const AccountTree: FC<AccountTreeProps> = ({
           const groupNodes = groups.get(type)
           if (!groupNodes || groupNodes.length === 0) return null
 
-          const totalBalance = calculateGroupBalance(groupNodes)
+          const totalBalance = calculateGroupBalance(groupNodes, balances)
 
           return (
             <div key={type} className={styles.typeGroup}>
@@ -284,6 +297,7 @@ export const AccountTree: FC<AccountTreeProps> = ({
                     onSelect={onSelect}
                     selectedId={selectedId}
                     showBalances={showBalances}
+                    balances={balances}
                   />
                 ))}
               </div>
@@ -292,7 +306,7 @@ export const AccountTree: FC<AccountTreeProps> = ({
         })}
       </div>
     )
-  }, [nodes, groupByType, onSelect, selectedId, showBalances])
+  }, [nodes, groupByType, onSelect, selectedId, showBalances, balances])
 
   if (nodes.length === 0) {
     return (

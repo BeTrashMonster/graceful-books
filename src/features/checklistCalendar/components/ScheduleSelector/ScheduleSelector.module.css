@@ -1,0 +1,222 @@
+/**
+ * ScheduleSelector Component Styles
+ */
+
+.scheduleSelector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2, 8px);
+  padding-top: var(--spacing-2, 8px);
+  margin-top: var(--spacing-2, 8px);
+  border-top: 1px solid var(--color-border-light, #e5e7eb);
+}
+
+.label {
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+  margin-top: var(--spacing-1, 4px);
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--color-primary, #8b5cf6);
+  cursor: pointer;
+}
+
+.checkboxLabel span {
+  user-select: none;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2, 8px);
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-primary, #111827);
+  cursor: pointer;
+}
+
+.radioLabel input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--color-primary, #8b5cf6);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.radioLabel span {
+  user-select: none;
+  white-space: nowrap;
+}
+
+.inlineSelect {
+  padding: 4px 8px;
+  font-size: var(--text-xs, 0.75rem);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-sm, 4px);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #111827);
+  cursor: pointer;
+  min-width: 80px;
+}
+
+.inlineSelect:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--color-surface-muted, #f9fafb);
+}
+
+.inlineSelect:focus {
+  outline: none;
+  border-color: var(--color-primary, #8b5cf6);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+}
+
+.selectRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  flex-wrap: wrap;
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-primary, #111827);
+}
+
+.select {
+  padding: 6px 10px;
+  font-size: var(--text-xs, 0.75rem);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-sm, 4px);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #111827);
+  cursor: pointer;
+}
+
+.select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--color-surface-muted, #f9fafb);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary, #8b5cf6);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+}
+
+/* Month Grid - Simple 12-month layout */
+.monthGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2, 8px);
+}
+
+.monthRow {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.monthButton {
+  padding: 6px 10px;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 500;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-sm, 4px);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #111827);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 42px;
+  text-align: center;
+}
+
+.monthButton:hover:not(:disabled) {
+  border-color: var(--color-primary, #8b5cf6);
+  background: var(--color-primary-lighter, #f3f0ff);
+}
+
+.monthButton.selected {
+  background: var(--color-primary, #8b5cf6);
+  border-color: var(--color-primary, #8b5cf6);
+  color: white;
+}
+
+.monthButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Hint text */
+.hint {
+  margin: 0;
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-tertiary, #9ca3af);
+  font-style: italic;
+}
+
+/* Biweekly start date */
+.startDateRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1, 4px);
+  margin-top: var(--spacing-2, 8px);
+  padding: var(--spacing-2, 8px);
+  background: var(--color-surface-muted, #f9fafb);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.startDateLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.dateInput {
+  padding: 4px 8px;
+  font-size: var(--text-xs, 0.75rem);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-sm, 4px);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #111827);
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: var(--color-primary, #8b5cf6);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .radioLabel {
+    flex-wrap: wrap;
+  }
+
+  .selectRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .monthRow {
+    flex-wrap: wrap;
+  }
+}

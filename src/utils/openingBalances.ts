@@ -1,13 +1,12 @@
 /**
  * Opening Balance Journal Entry Generation
  *
- * Creates GAAP-compliant opening balance journal entries.
- * - Equipment (assets): Splits to member capital accounts based on ownership
- * - Loans (liabilities): Offsets to member distribution accounts based on ownership
+ * Creates opening balance journal entries using "Ask Future Me" as the offset account.
+ * Users can later review and recategorize these entries to the correct accounts.
  */
 
 import { nanoid } from 'nanoid'
-import type { EntityConfiguration, Account, JournalEntry, JournalEntryLine } from '../types'
+import type { Account, JournalEntry, JournalEntryLine } from '../types'
 
 export interface OpeningBalanceItem {
   accountId: string
@@ -20,19 +19,20 @@ export interface OpeningBalanceItem {
 /**
  * Create opening balance journal entries
  *
- * For assets (equipment): Debit Asset, Credit Member Capital (split by %)
- * For liabilities (loans): Debit Member Distributions (split by %), Credit Liability
+ * All opening balances offset to "Ask Future Me" expense account.
+ * This allows users to easily review and recategorize later.
+ *
+ * For assets (equipment): Debit Asset, Credit "Ask Future Me"
+ * For liabilities (loans): Debit "Ask Future Me", Credit Liability
  *
  * @param items - Opening balance items with account IDs
- * @param entityConfig - Entity configuration with ownership info
- * @param memberCapitalAccounts - The created member capital/distribution account objects
+ * @param askFutureMeAccount - The "Ask Future Me" offset account
  * @param companyId - Company ID
  * @returns Array of journal entries to create
  */
 export function generateOpeningBalanceJournalEntries(
   items: OpeningBalanceItem[],
-  entityConfig: EntityConfiguration,
-  memberCapitalAccounts: Account[],
+  askFutureMeAccount: Account,
   companyId: string
 ): Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>[] {
   const entries: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>[] = []
@@ -41,7 +41,7 @@ export function generateOpeningBalanceJournalEntries(
     const lines: JournalEntryLine[] = []
 
     if (item.type === 'equipment') {
-      // Asset: Debit Equipment, Credit Member Capital (split)
+      // Asset: Debit Equipment, Credit "Ask Future Me"
       lines.push({
         id: nanoid(),
         accountId: item.accountId,
@@ -50,45 +50,23 @@ export function generateOpeningBalanceJournalEntries(
         memo: `Opening balance - ${item.accountName}`,
       })
 
-      // Credit each member's capital account based on ownership percentage
-      entityConfig.owners.forEach((owner) => {
-        const memberCapitalAccount = memberCapitalAccounts.find(
-          (acc) => acc.name.includes(owner.name) && acc.name.includes('Capital') && !acc.name.includes('Distributions')
-        )
-
-        if (memberCapitalAccount) {
-          const ownerAmount = Math.round(item.amount * (owner.ownershipPercentage / 100))
-          lines.push({
-            id: nanoid(),
-            accountId: memberCapitalAccount.id,
-            debit: 0,
-            credit: ownerAmount,
-            memo: `Opening balance equity - ${item.accountName}`,
-          })
-        }
+      lines.push({
+        id: nanoid(),
+        accountId: askFutureMeAccount.id,
+        debit: 0,
+        credit: item.amount,
+        memo: `Opening balance offset - ${item.accountName}`,
       })
     } else if (item.type === 'credit-card' || item.type === 'loan') {
-      // Liability: Debit Member Distributions (split), Credit Liability
-
-      // Debit each member's distribution account based on ownership percentage
-      entityConfig.owners.forEach((owner) => {
-        const memberDistributionAccount = memberCapitalAccounts.find(
-          (acc) => acc.name.includes(owner.name) && acc.name.includes('Distributions')
-        )
-
-        if (memberDistributionAccount) {
-          const ownerAmount = Math.round(item.amount * (owner.ownershipPercentage / 100))
-          lines.push({
-            id: nanoid(),
-            accountId: memberDistributionAccount.id,
-            debit: ownerAmount,
-            credit: 0,
-            memo: `Opening balance draw - ${item.accountName}`,
-          })
-        }
+      // Liability: Debit "Ask Future Me", Credit Liability
+      lines.push({
+        id: nanoid(),
+        accountId: askFutureMeAccount.id,
+        debit: item.amount,
+        credit: 0,
+        memo: `Opening balance offset - ${item.accountName}`,
       })
 
-      // Credit the liability account
       lines.push({
         id: nanoid(),
         accountId: item.accountId,
@@ -98,9 +76,8 @@ export function generateOpeningBalanceJournalEntries(
       })
     }
 
-    // Create the journal entry ONLY if we have at least 2 line items
-    // (otherwise it will fail validation)
-    if (lines.length >= 2) {
+    // Create the journal entry
+    if (lines.length === 2) {
       const memoPrefix = item.type === 'equipment' ? 'Opening balance - Equipment' :
                          item.type === 'loan' ? 'Opening balance - Loan' :
                          'Opening balance - Liability'
@@ -112,10 +89,8 @@ export function generateOpeningBalanceJournalEntries(
         memo: `${memoPrefix}: ${item.accountName}`,
         status: 'posted',
         lines,
-        createdBy: 'system', // TODO: Use actual user ID when auth is implemented
+        createdBy: 'system',
       })
-    } else {
-      console.warn(`Skipping opening balance entry for ${item.accountName} - insufficient line items (need 2+, got ${lines.length})`)
     }
   })
 

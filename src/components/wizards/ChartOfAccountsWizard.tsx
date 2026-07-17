@@ -28,7 +28,7 @@ import {
   calculateWizardProgress,
 } from '../../utils/wizardState'
 import { INDUSTRY_TEMPLATES, getTemplateById } from '../../data/industryTemplates'
-import { batchCreateAccounts } from '../../store/accounts'
+import { batchCreateAccounts, updateAccount } from '../../store/accounts'
 import { createTransaction } from '../../store/transactions'
 import { getEntityConfig } from '../../data/demoEntityConfig'
 import { generateOpeningBalanceJournalEntries, parseDollarsToCents, type OpeningBalanceItem } from '../../utils/openingBalances'
@@ -283,6 +283,17 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
       )
       accountsToCreate.push(...equityAccounts)
 
+      // Add "Ask Future Me" expense account - used as offset for opening balances
+      // This account starts with "A" so it appears first in P&L, making it easy to find
+      accountsToCreate.push({
+        companyId,
+        name: 'Ask Future Me',
+        accountNumber: '6000',
+        type: 'expense',
+        description: 'Temporary holding account for transactions that need to be categorized. Review and move these to the correct accounts.',
+        isActive: true,
+      })
+
       // Sort accounts alphabetically within each type for clean organization
       // Order by: type, then name
       const typeOrder = ['asset', 'liability', 'equity', 'income', 'expense', 'cost-of-goods-sold', 'other-income', 'other-expense']
@@ -360,36 +371,51 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
 
         // Create journal entries if we have opening balances
         if (openingBalances.length > 0) {
-          const entityConfig = getEntityConfig(companyId)
-          const memberCapitalAccounts = result.successful.filter(
-            (acc) => acc.type === 'equity' && acc.name.includes('Capital') && !acc.name.includes('Distributions')
+          // Find the "Ask Future Me" account to use as offset
+          const askFutureMeAccount = result.successful.find(
+            (acc) => acc.name === 'Ask Future Me'
           )
 
-          console.log('Creating opening balance journal entries:', {
-            openingBalancesCount: openingBalances.length,
-            openingBalances,
-            memberCapitalAccountsCount: memberCapitalAccounts.length,
-            memberCapitalAccounts: memberCapitalAccounts.map(acc => ({ id: acc.id, name: acc.name })),
-            entityConfig,
-          })
+          if (!askFutureMeAccount) {
+            console.error('Ask Future Me account not found - cannot create opening balance entries')
+          } else {
+            console.log('Creating opening balance journal entries:', {
+              openingBalancesCount: openingBalances.length,
+              openingBalances,
+              askFutureMeAccount: { id: askFutureMeAccount.id, name: askFutureMeAccount.name },
+            })
 
-          const journalEntries = generateOpeningBalanceJournalEntries(
-            openingBalances,
-            entityConfig,
-            memberCapitalAccounts,
-            companyId
-          )
+            const journalEntries = generateOpeningBalanceJournalEntries(
+              openingBalances,
+              askFutureMeAccount,
+              companyId
+            )
 
-          console.log('Generated journal entries:', journalEntries)
+            console.log('Generated journal entries:', journalEntries)
 
-          // Create each journal entry
-          for (const entry of journalEntries) {
-            console.log('Creating journal entry:', entry)
-            const entryResult = await createTransaction(entry)
-            if (!entryResult.success) {
-              console.error('Failed to create opening balance entry:', entryResult.error)
-            } else {
-              console.log('Successfully created journal entry:', entryResult.data)
+            // Create each journal entry
+            for (const entry of journalEntries) {
+              console.log('Creating journal entry:', entry)
+              const entryResult = await createTransaction(entry)
+              if (!entryResult.success) {
+                console.error('Failed to create opening balance entry:', entryResult.error)
+              } else {
+                console.log('Successfully created journal entry:', entryResult.data)
+              }
+            }
+
+            // Update account balances to reflect opening balances
+            // This ensures the account.balance field matches the journal entries
+            for (const item of openingBalances) {
+              // Convert cents to dollars for the balance field
+              const balanceInDollars = item.amount / 100
+              console.log(`Updating account ${item.accountName} balance to ${balanceInDollars}`)
+              const updateResult = await updateAccount(item.accountId, companyId, {
+                balance: balanceInDollars,
+              })
+              if (!updateResult.success) {
+                console.error(`Failed to update account balance for ${item.accountName}:`, updateResult.error)
+              }
             }
           }
         }

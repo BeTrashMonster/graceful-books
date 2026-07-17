@@ -22,6 +22,10 @@ import type {
   TaskPriority,
 } from '../../../../db/schema/checklistCalendar.schema';
 import { CHECKLIST_COLORS } from '../../../../db/schema/checklistCalendar.schema';
+import { DayPicker } from '../DayPicker';
+import { ScheduleSelector } from '../ScheduleSelector';
+import type { ScheduleConfig } from '../ScheduleSelector';
+import { getTaskDaysDescription } from '../../utils/recurrence';
 import {
   getChecklists,
   createChecklist,
@@ -107,17 +111,64 @@ function ChecklistForm({ checklist, onSave, onCancel }: ChecklistFormProps) {
     checklist?.exclude_weekends ?? false
   );
 
+  // Schedule configuration state
+  const [scheduleConfig, setScheduleConfig] = useState<ScheduleConfig>({
+    weeklyDays: checklist?.weekly_days || [5], // Default to Friday
+    isEveryOtherWeek: false,
+    monthlyScheduleType: checklist?.monthly_week !== null ? 'weekday' : 'day',
+    monthlyDay: checklist?.monthly_day || 15,
+    monthlyWeek: checklist?.monthly_week || 1,
+    monthlyDayOfWeek: checklist?.monthly_day_of_week || 1,
+    quarterlyMonths: checklist?.recurrence_months || [3, 6, 9, 12], // Default: last month of each quarter
+    quarterlyDay: checklist?.quarterly_day || -1, // Default: last day
+    annualMonth: checklist?.annual_month || 12,
+    annualDay: checklist?.annual_day || 31,
+  });
+
+  const handleScheduleChange = (update: Partial<ScheduleConfig>) => {
+    setScheduleConfig((prev) => ({ ...prev, ...update }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 
-    onSave({
+    // Build save data with schedule config based on recurrence type
+    const saveData: Partial<AdminChecklist> = {
       name: name.trim(),
       description: description.trim() || undefined,
       color,
       recurrence_type: recurrence,
       exclude_weekends: excludeWeekends,
-    });
+    };
+
+    // Add scheduling fields based on recurrence type
+    switch (recurrence) {
+      case 'weekly':
+        saveData.weekly_days = scheduleConfig.weeklyDays;
+        break;
+      case 'monthly':
+        if (scheduleConfig.monthlyScheduleType === 'day') {
+          saveData.monthly_day = scheduleConfig.monthlyDay;
+          saveData.monthly_week = null;
+          saveData.monthly_day_of_week = null;
+        } else {
+          saveData.monthly_day = null;
+          saveData.monthly_week = scheduleConfig.monthlyWeek;
+          saveData.monthly_day_of_week = scheduleConfig.monthlyDayOfWeek;
+        }
+        break;
+      case 'quarterly':
+        saveData.recurrence_months = scheduleConfig.quarterlyMonths;
+        saveData.quarterly_day = scheduleConfig.quarterlyDay;
+        break;
+      case 'annual':
+        saveData.annual_month = scheduleConfig.annualMonth;
+        saveData.annual_day = scheduleConfig.annualDay;
+        break;
+    }
+
+    onSave(saveData);
   };
 
   return (
@@ -179,6 +230,13 @@ function ChecklistForm({ checklist, onSave, onCancel }: ChecklistFormProps) {
         </div>
       </div>
 
+      {/* Schedule Selector - shows schedule options based on recurrence type */}
+      <ScheduleSelector
+        recurrenceType={recurrence}
+        config={scheduleConfig}
+        onChange={handleScheduleChange}
+      />
+
       <div className={styles.formGroup}>
         <label className={styles.weekendCheckbox}>
           <input
@@ -204,14 +262,21 @@ function ChecklistForm({ checklist, onSave, onCancel }: ChecklistFormProps) {
 
 interface TaskFormProps {
   task?: AdminTask;
+  checklist?: AdminChecklist;
   onSave: (data: Partial<AdminTask>) => void;
   onCancel: () => void;
 }
 
-function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
+function TaskForm({ task, checklist, onSave, onCancel }: TaskFormProps) {
   const [title, setTitle] = useState(task?.title || '');
   const [description, setDescription] = useState(task?.description || '');
   const [priority, setPriority] = useState<TaskPriority>(task?.priority || 'medium');
+  const [daysOfWeek, setDaysOfWeek] = useState<number[] | null>(task?.days_of_week ?? null);
+
+  // Show day picker for daily/weekly checklists
+  const showDayPicker =
+    checklist &&
+    (checklist.recurrence_type === 'daily' || checklist.recurrence_type === 'weekly');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,6 +286,7 @@ function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
       title: title.trim(),
       description: description.trim() || undefined,
       priority,
+      days_of_week: daysOfWeek,
     });
   };
 
@@ -247,6 +313,43 @@ function TaskForm({ task, onSave, onCancel }: TaskFormProps) {
           </option>
         ))}
       </select>
+
+      {showDayPicker && (
+        <div className={styles.taskDayPicker}>
+          <label className={styles.taskDayPickerLabel}>
+            Days of week
+            {daysOfWeek !== null && (
+              <button
+                type="button"
+                className={styles.resetDaysButton}
+                onClick={() => setDaysOfWeek(null)}
+              >
+                Reset
+              </button>
+            )}
+          </label>
+          <DayPicker
+            selectedDays={
+              daysOfWeek ??
+              (checklist.recurrence_type === 'weekly'
+                ? checklist.weekly_days || []
+                : [0, 1, 2, 3, 4, 5, 6])
+            }
+            onChange={(days) => setDaysOfWeek(days)}
+            inheritedDays={checklist.weekly_days || []}
+            isInherited={daysOfWeek === null}
+            compact
+            hideQuickActions
+          />
+          {daysOfWeek === null && (
+            <span className={styles.inheritedNote}>
+              {checklist.recurrence_type === 'daily'
+                ? 'Shows every day'
+                : 'Inherits from checklist'}
+            </span>
+          )}
+        </div>
+      )}
 
       <div className={styles.taskFormActions}>
         <button type="button" className={styles.taskCancelButton} onClick={onCancel}>
@@ -348,6 +451,15 @@ export function ChecklistManager({
           color: data.color,
           recurrenceType: data.recurrence_type || 'weekly',
           excludeWeekends: data.exclude_weekends,
+          // Schedule fields
+          weeklyDays: data.weekly_days,
+          monthlyDay: data.monthly_day,
+          monthlyWeek: data.monthly_week,
+          monthlyDayOfWeek: data.monthly_day_of_week,
+          recurrenceMonths: data.recurrence_months,
+          quarterlyDay: data.quarterly_day,
+          annualMonth: data.annual_month,
+          annualDay: data.annual_day,
         });
 
         if (result.success) {
@@ -375,6 +487,17 @@ export function ChecklistManager({
           color: data.color,
           recurrenceType: data.recurrence_type,
           excludeWeekends: data.exclude_weekends,
+          // Schedule fields
+          weeklyDays: data.weekly_days,
+          monthlyDay: data.monthly_day,
+          monthlyWeek: data.monthly_week,
+          monthlyDayOfWeek: data.monthly_day_of_week,
+          recurrenceMonths: data.recurrence_months,
+          quarterlyDay: data.quarterly_day,
+          annualMonth: data.annual_month,
+          annualDay: data.annual_day,
+          // Default to future-only changes
+          effectiveFrom: new Date(),
         });
 
         if (result.success) {
@@ -447,6 +570,7 @@ export function ChecklistManager({
           title: data.title!,
           description: data.description,
           priority: data.priority,
+          daysOfWeek: data.days_of_week,
         });
 
         if (result.success) {
@@ -467,7 +591,13 @@ export function ChecklistManager({
       if (!editingTask) return;
 
       try {
-        const result = await updateTask(editingTask.task.id, data);
+        const result = await updateTask(editingTask.task.id, {
+          title: data.title,
+          description: data.description,
+          priority: data.priority,
+          daysOfWeek: data.days_of_week,
+          userId: USER_ID,
+        });
 
         if (result.success) {
           setEditingTask(null);
@@ -709,6 +839,7 @@ export function ChecklistManager({
                               {editingTask?.task.id === task.id ? (
                                 <TaskForm
                                   task={task}
+                                  checklist={checklist}
                                   onSave={handleUpdateTask}
                                   onCancel={() => setEditingTask(null)}
                                 />
@@ -751,6 +882,7 @@ export function ChecklistManager({
                           {/* Add task */}
                           {addingTaskTo === checklist.id ? (
                             <TaskForm
+                              checklist={checklist}
                               onSave={(data) => handleCreateTask(checklist.id, data)}
                               onCancel={() => setAddingTaskTo(null)}
                             />

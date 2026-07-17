@@ -10,6 +10,7 @@
 
 import type {
   AdminChecklist,
+  AdminTask,
   ChecklistRecurrenceType,
   PeriodType,
 } from '../../../db/schema/checklistCalendar.schema';
@@ -142,7 +143,10 @@ export function getPeriodTypeForRecurrence(
 // =============================================================================
 
 /**
- * Check if a checklist is due on a specific date
+ * Check if a checklist is due on a specific date.
+ *
+ * For non-daily/weekly checklists with exclude_weekends enabled:
+ * - If the scheduled date falls on a weekend, the checklist appears on the next Monday
  */
 export function isChecklistDueOnDate(
   checklist: AdminChecklist,
@@ -161,40 +165,302 @@ export function isChecklistDueOnDate(
     }
   }
 
-  // Check exclude_weekends - don't show on Saturday (6) or Sunday (0)
-  if (checklist.exclude_weekends) {
-    const dayOfWeek = date.getDay();
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
+  const dayOfWeek = date.getDay();
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+  // For daily - check specific days if set, otherwise all days
+  if (checklist.recurrence_type === 'daily') {
+    // If weekly_days is set for daily, use it to determine which days to show
+    if (checklist.weekly_days && checklist.weekly_days.length > 0 && checklist.weekly_days.length < 7) {
+      return checklist.weekly_days.includes(dayOfWeek);
+    }
+    // Otherwise fall back to exclude_weekends check
+    if (checklist.exclude_weekends && isWeekend) {
+      return false;
+    }
+    return true;
+  }
+
+  // For weekly - users select specific days, weekends handled by selection
+  if (checklist.recurrence_type === 'weekly') {
+    if (checklist.exclude_weekends && isWeekend) {
+      return false;
+    }
+    return isWeeklyDue(checklist, date);
+  }
+
+  // For monthly, quarterly, annual, custom - handle weekend shifting
+  let isScheduledDate = false;
+
+  switch (checklist.recurrence_type) {
+    case 'monthly':
+      isScheduledDate = isMonthlyDue(checklist, date);
+      break;
+    case 'quarterly':
+      isScheduledDate = isQuarterlyDue(checklist, date);
+      break;
+    case 'annual':
+      isScheduledDate = isAnnualDue(checklist, date);
+      break;
+    case 'custom':
+      isScheduledDate = isCustomIntervalDue(checklist, date);
+      break;
+    case 'one-time':
+      return false;
+    default:
+      return false;
+  }
+
+  // If it's the scheduled date
+  if (isScheduledDate) {
+    if (checklist.exclude_weekends && isWeekend) {
+      // Don't show on weekend - will show on Monday instead
+      return false;
+    }
+    return true;
+  }
+
+  // If today is Monday and exclude_weekends is enabled, check if task was
+  // scheduled for the previous Saturday or Sunday
+  if (checklist.exclude_weekends && dayOfWeek === 1) {
+    const saturday = new Date(date);
+    saturday.setDate(saturday.getDate() - 2);
+
+    const sunday = new Date(date);
+    sunday.setDate(sunday.getDate() - 1);
+
+    let wasScheduledOnWeekend = false;
+
+    switch (checklist.recurrence_type) {
+      case 'monthly':
+        wasScheduledOnWeekend = isMonthlyDue(checklist, saturday) || isMonthlyDue(checklist, sunday);
+        break;
+      case 'quarterly':
+        wasScheduledOnWeekend = isQuarterlyDue(checklist, saturday) || isQuarterlyDue(checklist, sunday);
+        break;
+      case 'annual':
+        wasScheduledOnWeekend = isAnnualDue(checklist, saturday) || isAnnualDue(checklist, sunday);
+        break;
+      case 'custom':
+        wasScheduledOnWeekend = isCustomIntervalDue(checklist, saturday) || isCustomIntervalDue(checklist, sunday);
+        break;
+    }
+
+    if (wasScheduledOnWeekend) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Get the next Monday after a given date
+ */
+export function getNextMonday(date: Date): Date {
+  const d = new Date(date);
+  const dayOfWeek = d.getDay();
+  // Saturday (6) -> add 2 days, Sunday (0) -> add 1 day
+  const daysToAdd = dayOfWeek === 6 ? 2 : dayOfWeek === 0 ? 1 : 0;
+  d.setDate(d.getDate() + daysToAdd);
+  return d;
+}
+
+/**
+ * Check if a specific task is due on a date.
+ * Takes into account task-level day overrides and weekend adjustments.
+ *
+ * For non-daily tasks with exclude_weekends enabled:
+ * - If the scheduled day falls on a weekend, the task appears on the next Monday
+ *
+ * @param task - The task to check
+ * @param checklist - The parent checklist
+ * @param date - The date to check
+ * @returns true if the task should appear on this date
+ */
+export function isTaskDueOnDate(
+  task: AdminTask,
+  checklist: AdminChecklist,
+  date: Date
+): boolean {
+  // If checklist is archived, task is not due
+  if (checklist.is_archived) {
+    return false;
+  }
+
+  // Check effective_from on checklist
+  if (checklist.effective_from) {
+    const effectiveDate = startOfDay(new Date(checklist.effective_from));
+    const targetDate = startOfDay(date);
+    if (targetDate < effectiveDate) {
       return false;
     }
   }
 
-  switch (checklist.recurrence_type) {
-    case 'daily':
-      return true;
+  // Determine exclude_weekends: task override or checklist default
+  const excludeWeekends = task.exclude_weekends ?? checklist.exclude_weekends;
 
-    case 'weekly':
-      return isWeeklyDue(checklist, date);
+  // For daily recurrence - check specific days if set
+  if (checklist.recurrence_type === 'daily') {
+    const dayOfWeek = date.getDay();
 
-    case 'monthly':
-      return isMonthlyDue(checklist, date);
+    // If task has specific days set, only show on those days
+    if (task.days_of_week !== null && task.days_of_week.length > 0) {
+      return task.days_of_week.includes(dayOfWeek);
+    }
 
-    case 'quarterly':
-      return isQuarterlyDue(checklist, date);
+    // Check checklist-level daily days (stored in weekly_days)
+    if (checklist.weekly_days && checklist.weekly_days.length > 0 && checklist.weekly_days.length < 7) {
+      return checklist.weekly_days.includes(dayOfWeek);
+    }
 
-    case 'annual':
-      return isAnnualDue(checklist, date);
-
-    case 'custom':
-      return isCustomIntervalDue(checklist, date);
-
-    case 'one-time':
-      // One-time tasks are handled at the task level, not checklist level
+    // Fall back to exclude_weekends check
+    if (excludeWeekends && (dayOfWeek === 0 || dayOfWeek === 6)) {
       return false;
+    }
 
+    // Otherwise show every day
+    return true;
+  }
+
+  // For weekly recurrence - users select specific days, weekends handled by selection
+  if (checklist.recurrence_type === 'weekly') {
+    if (excludeWeekends) {
+      const dayOfWeek = date.getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        return false;
+      }
+    }
+    // Use task's days_of_week if set, otherwise checklist's
+    const daysOfWeek = task.days_of_week ?? checklist.weekly_days;
+    if (!daysOfWeek || daysOfWeek.length === 0) {
+      return false;
+    }
+    return daysOfWeek.includes(date.getDay());
+  }
+
+  // For monthly, quarterly, annual, custom recurrence:
+  // These have specific scheduled dates. If exclude_weekends is true and
+  // the scheduled date falls on a weekend, show on the next Monday instead.
+
+  // First, check if the current date is the scheduled date
+  let isScheduledDate = false;
+
+  switch (checklist.recurrence_type) {
+    case 'monthly':
+      isScheduledDate = isMonthlyDue(checklist, date);
+      break;
+    case 'quarterly':
+      isScheduledDate = isQuarterlyDue(checklist, date);
+      break;
+    case 'annual':
+      isScheduledDate = isAnnualDue(checklist, date);
+      break;
+    case 'custom':
+      isScheduledDate = isCustomIntervalDue(checklist, date);
+      break;
+    case 'one-time':
+      // One-time tasks use scheduled_date on the task, not checklist recurrence
+      return false;
     default:
       return false;
   }
+
+  // If it's the scheduled date
+  if (isScheduledDate) {
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+    if (excludeWeekends && isWeekend) {
+      // Don't show on the weekend - will show on Monday instead
+      return false;
+    }
+
+    // Apply task-level day restrictions if specified
+    if (task.days_of_week !== null && task.days_of_week.length > 0) {
+      return task.days_of_week.includes(date.getDay());
+    }
+
+    return true;
+  }
+
+  // If it's NOT the scheduled date but today is Monday, check if the task was
+  // supposed to be on the previous Saturday or Sunday
+  if (excludeWeekends && date.getDay() === 1) {
+    // Check Saturday (2 days ago)
+    const saturday = new Date(date);
+    saturday.setDate(saturday.getDate() - 2);
+
+    // Check Sunday (1 day ago)
+    const sunday = new Date(date);
+    sunday.setDate(sunday.getDate() - 1);
+
+    let wasScheduledOnWeekend = false;
+
+    switch (checklist.recurrence_type) {
+      case 'monthly':
+        wasScheduledOnWeekend = isMonthlyDue(checklist, saturday) || isMonthlyDue(checklist, sunday);
+        break;
+      case 'quarterly':
+        wasScheduledOnWeekend = isQuarterlyDue(checklist, saturday) || isQuarterlyDue(checklist, sunday);
+        break;
+      case 'annual':
+        wasScheduledOnWeekend = isAnnualDue(checklist, saturday) || isAnnualDue(checklist, sunday);
+        break;
+      case 'custom':
+        wasScheduledOnWeekend = isCustomIntervalDue(checklist, saturday) || isCustomIntervalDue(checklist, sunday);
+        break;
+    }
+
+    if (wasScheduledOnWeekend) {
+      // Apply task-level day restrictions if specified
+      if (task.days_of_week !== null && task.days_of_week.length > 0) {
+        return task.days_of_week.includes(date.getDay());
+      }
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Get human-readable description of task's day configuration
+ */
+export function getTaskDaysDescription(
+  task: AdminTask,
+  checklist: AdminChecklist
+): string {
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  if (task.days_of_week === null) {
+    return 'Inherits from checklist';
+  }
+
+  if (task.days_of_week.length === 0) {
+    return 'No days selected';
+  }
+
+  if (task.days_of_week.length === 7) {
+    return 'Every day';
+  }
+
+  if (
+    task.days_of_week.length === 5 &&
+    [1, 2, 3, 4, 5].every((d) => task.days_of_week!.includes(d))
+  ) {
+    return 'Weekdays';
+  }
+
+  if (
+    task.days_of_week.length === 2 &&
+    [0, 6].every((d) => task.days_of_week!.includes(d))
+  ) {
+    return 'Weekends';
+  }
+
+  const days = task.days_of_week.sort((a, b) => a - b).map((d) => dayNames[d]);
+  return days.join(', ');
 }
 
 /**
@@ -267,15 +533,45 @@ export function isNthWeekdayOfMonth(
 
 /**
  * Check if a quarterly checklist is due on a date
+ *
+ * Supports two modes:
+ * 1. recurrence_months: Flexible array of months (1-12) when this checklist is due
+ * 2. quarterly_month: Legacy mode - which month in each quarter (1, 2, or 3)
  */
 export function isQuarterlyDue(checklist: AdminChecklist, date: Date): boolean {
-  const { quarterly_month, quarterly_day } = checklist;
+  const { recurrence_months, quarterly_month, quarterly_day } = checklist;
 
+  const month = date.getMonth() + 1; // 1-12
+
+  // Mode 1: Flexible month selection (new approach)
+  if (recurrence_months && recurrence_months.length > 0) {
+    // Check if the current month is in the selected months
+    if (!recurrence_months.includes(month)) {
+      return false;
+    }
+
+    // Check the day
+    if (quarterly_day === null) {
+      // If no day specified, default to 1st of month
+      return date.getDate() === 1;
+    }
+
+    // Handle last day (-1)
+    if (quarterly_day === -1) {
+      return date.getDate() === getLastDayOfMonth(date);
+    }
+
+    // Handle specific day (with overflow protection)
+    const lastDay = getLastDayOfMonth(date);
+    const targetDay = Math.min(quarterly_day, lastDay);
+    return date.getDate() === targetDay;
+  }
+
+  // Mode 2: Legacy quarterly_month approach (1st, 2nd, or 3rd month of each quarter)
   if (quarterly_month === null || quarterly_day === null) {
     return false;
   }
 
-  const month = date.getMonth() + 1; // 1-12
   const monthInQuarter = ((month - 1) % 3) + 1; // 1, 2, or 3
 
   // Check if this is the right month in the quarter
@@ -506,6 +802,24 @@ export function getRecurrenceDescription(checklist: AdminChecklist): string {
       return 'Monthly';
 
     case 'quarterly':
+      // Flexible months mode
+      if (checklist.recurrence_months && checklist.recurrence_months.length > 0) {
+        const monthNames = [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+        const selectedMonths = checklist.recurrence_months
+          .sort((a, b) => a - b)
+          .map(m => monthNames[m - 1]);
+        const day = checklist.quarterly_day
+          ? (checklist.quarterly_day === -1 ? 'last day' : getOrdinal(checklist.quarterly_day))
+          : '1st';
+        if (selectedMonths.length <= 4) {
+          return `${day} of ${selectedMonths.join(', ')}`;
+        }
+        return `${day} of ${selectedMonths.length} months`;
+      }
+      // Legacy quarterly_month mode
       if (checklist.quarterly_month && checklist.quarterly_day) {
         const monthNames = ['first', 'second', 'third'];
         const monthName = monthNames[checklist.quarterly_month - 1];

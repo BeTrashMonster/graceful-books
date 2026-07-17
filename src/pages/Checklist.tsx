@@ -13,6 +13,7 @@ import {
   AdminCalendarPage,
   SetupWizard,
   ChecklistManager,
+  CreateChecklistModal,
   createChecklist,
   createTask,
   getChecklists,
@@ -25,6 +26,7 @@ import type { WizardChecklist } from '../features/checklistCalendar';
 export default function Checklist() {
   const [showWizard, setShowWizard] = useState(false);
   const [showManager, setShowManager] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [hasChecklists, setHasChecklists] = useState<boolean | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -53,15 +55,66 @@ export default function Checklist() {
     const userId = 'demo-user';
 
     for (const wc of wizardChecklists) {
+      // Build recurrence-specific fields based on recurrence type and wizard config
+      // These are required for the calendar to know which dates to show tasks
+      const recurrenceFields: {
+        weeklyDays?: number[];
+        monthlyDay?: number;
+        monthlyWeek?: number;
+        monthlyDayOfWeek?: number;
+        recurrenceMonths?: number[];
+        quarterlyDay?: number;
+        annualMonth?: number;
+        annualDay?: number;
+        customIntervalValue?: number;
+        customIntervalUnit?: 'days' | 'weeks' | 'months';
+        customStartDate?: number;
+      } = {};
+
+      // Determine actual recurrence type (may change if "every other week" is selected)
+      let actualRecurrence = wc.recurrence;
+
+      switch (wc.recurrence) {
+        case 'weekly':
+          if (wc.isEveryOtherWeek) {
+            // Convert to custom interval for biweekly
+            actualRecurrence = 'custom';
+            recurrenceFields.customIntervalValue = 2;
+            recurrenceFields.customIntervalUnit = 'weeks';
+            recurrenceFields.customStartDate = Date.now();
+          } else {
+            recurrenceFields.weeklyDays = wc.weeklyDays;
+          }
+          break;
+        case 'monthly':
+          if (wc.monthlyScheduleType === 'day') {
+            recurrenceFields.monthlyDay = wc.monthlyDay;
+          } else {
+            // "Second Tuesday" style
+            recurrenceFields.monthlyWeek = wc.monthlyWeek;
+            recurrenceFields.monthlyDayOfWeek = wc.monthlyDayOfWeek;
+          }
+          break;
+        case 'quarterly':
+          recurrenceFields.recurrenceMonths = wc.quarterlyMonths;
+          recurrenceFields.quarterlyDay = wc.quarterlyDay;
+          break;
+        case 'annual':
+          recurrenceFields.annualMonth = wc.annualMonth;
+          recurrenceFields.annualDay = wc.annualDay;
+          break;
+      }
+
       // Create the checklist
       const checklistResult = await createChecklist({
         companyId,
         name: wc.name,
         description: wc.description,
         color: wc.color,
-        recurrenceType: wc.recurrence,
+        recurrenceType: actualRecurrence,
         excludeWeekends: wc.excludeWeekends,
         isTemplate: false,
+        ...recurrenceFields,
       });
 
       if (checklistResult.success) {
@@ -74,6 +127,7 @@ export default function Checklist() {
             title: wt.title,
             description: wt.description,
             priority: wt.priority,
+            daysOfWeek: wt.daysOfWeek,
           });
         }
       }
@@ -94,6 +148,13 @@ export default function Checklist() {
   // IMPORTANT: All hooks must be called before any conditional returns
   const handleManagerClose = useCallback(() => {
     setShowManager(false);
+    setRefreshKey((k) => k + 1);
+  }, []);
+
+  // Handle custom checklist created
+  const handleChecklistCreated = useCallback(() => {
+    setShowCreateModal(false);
+    setHasChecklists(true);
     setRefreshKey((k) => k + 1);
   }, []);
 
@@ -131,6 +192,13 @@ export default function Checklist() {
         onRefresh={() => setRefreshKey((k) => k + 1)}
       />
 
+      {/* Create Checklist Modal */}
+      <CreateChecklistModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onCreated={handleChecklistCreated}
+      />
+
       {/* Admin Calendar */}
       <AdminCalendarPage
         key={refreshKey}
@@ -166,7 +234,7 @@ export default function Checklist() {
           </button>
           <button
             type="button"
-            onClick={() => setShowWizard(true)}
+            onClick={() => setShowCreateModal(true)}
             style={{
               padding: '12px 20px',
               fontSize: '14px',
@@ -179,7 +247,7 @@ export default function Checklist() {
               boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
             }}
           >
-            + Add Checklists
+            + New Checklist
           </button>
         </div>
       )}

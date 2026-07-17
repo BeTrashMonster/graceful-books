@@ -22,6 +22,8 @@ import type {
   TaskPriority,
 } from '../../../db/schema/checklistCalendar.schema';
 import type { CommentWithMeta, TaskWithSubTasks } from '../services';
+import { DayPicker } from './DayPicker';
+import { getTaskDaysDescription } from '../utils/recurrence';
 import styles from './TaskDetailModal.module.css';
 
 // =============================================================================
@@ -133,6 +135,11 @@ export interface TaskDetailModalProps {
    * Callback when task is deleted
    */
   onDelete?: () => void;
+
+  /**
+   * Callback when task days_of_week is updated
+   */
+  onUpdateDaysOfWeek?: (daysOfWeek: number[] | null) => void;
 
   /**
    * Available team members for assignment
@@ -298,6 +305,7 @@ export function TaskDetailModal({
   onDeleteComment,
   onFeatureLinkClick,
   onDelete,
+  onUpdateDaysOfWeek,
   teamMembers = [],
   priorityColors,
   canDelete = false,
@@ -542,6 +550,77 @@ export function TaskDetailModal({
               </div>
             )}
           </div>
+
+          {/* Days of Week Section - for daily/weekly checklists */}
+          {(checklist.recurrence_type === 'daily' ||
+            checklist.recurrence_type === 'weekly') && (
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h3 className={styles.sectionTitle}>Days of Week</h3>
+                {onUpdateDaysOfWeek && task.task.days_of_week !== null && (
+                  <button
+                    type="button"
+                    className={styles.resetButton}
+                    onClick={() => onUpdateDaysOfWeek(null)}
+                  >
+                    Reset to checklist default
+                  </button>
+                )}
+              </div>
+              <div className={styles.daysOfWeekContent}>
+                {task.task.days_of_week === null ? (
+                  <div className={styles.inheritedDays}>
+                    <span className={styles.inheritedLabel}>
+                      {checklist.recurrence_type === 'daily'
+                        ? 'Shows every day'
+                        : `Inheriting from checklist: ${getTaskDaysDescription(task.task, checklist)}`}
+                    </span>
+                    <DayPicker
+                      selectedDays={
+                        checklist.recurrence_type === 'weekly'
+                          ? checklist.weekly_days || []
+                          : [0, 1, 2, 3, 4, 5, 6]
+                      }
+                      onChange={() => {}}
+                      disabled
+                      compact
+                      hideQuickActions
+                    />
+                    {onUpdateDaysOfWeek && (
+                      <button
+                        type="button"
+                        className={styles.customizeButton}
+                        onClick={() =>
+                          onUpdateDaysOfWeek(
+                            checklist.recurrence_type === 'weekly'
+                              ? checklist.weekly_days || []
+                              : [1, 2, 3, 4, 5]
+                          )
+                        }
+                      >
+                        Customize for this task
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className={styles.customDays}>
+                    <span className={styles.customLabel}>
+                      Custom schedule: {getTaskDaysDescription(task.task, checklist)}
+                    </span>
+                    <DayPicker
+                      selectedDays={task.task.days_of_week}
+                      onChange={(days) =>
+                        onUpdateDaysOfWeek?.(days.length > 0 ? days : null)
+                      }
+                      inheritedDays={checklist.weekly_days || []}
+                      disabled={!onUpdateDaysOfWeek}
+                      compact
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Description/SOP Section */}
           <div className={styles.section}>

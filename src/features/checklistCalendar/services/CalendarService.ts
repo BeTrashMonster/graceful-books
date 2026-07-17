@@ -21,6 +21,7 @@ import type {
 import { logger } from '../../../utils/logger';
 import {
   isChecklistDueOnDate,
+  isTaskDueOnDate,
   getDatesInRange,
   getDatesInMonth,
   formatDateISO,
@@ -151,10 +152,27 @@ export async function getTasksForDate(
       checklists = checklists.filter((c) => checklistSet.has(c.id));
     }
 
-    // Filter checklists that are due on this date
-    const dueChecklists = checklists.filter((c) =>
-      isChecklistDueOnDate(c, date)
-    );
+    // Filter checklists that might have tasks due on this date
+    // For daily/weekly checklists, we include them if they pass basic checks
+    // (not archived, effective_from ok) and let task-level filtering handle day selection
+    const dueChecklists = checklists.filter((c) => {
+      // For daily/weekly, use permissive check - individual tasks may have different days
+      if (c.recurrence_type === 'daily' || c.recurrence_type === 'weekly') {
+        // Check effective_from
+        if (c.effective_from) {
+          const effectiveDate = new Date(c.effective_from);
+          effectiveDate.setHours(0, 0, 0, 0);
+          const targetDate = new Date(date);
+          targetDate.setHours(0, 0, 0, 0);
+          if (targetDate < effectiveDate) {
+            return false;
+          }
+        }
+        return true; // Task-level isTaskDueOnDate will handle day filtering
+      }
+      // For other recurrence types, use standard checklist-level check
+      return isChecklistDueOnDate(c, date);
+    });
 
     // Get tasks for due checklists
     const calendarTasks: CalendarTask[] = [];
@@ -187,6 +205,10 @@ export async function getTasksForDate(
 
       // Get completion status and sub-tasks
       for (const task of tasks) {
+        // Check if this task is due on this date (handles task-level day overrides)
+        if (!isTaskDueOnDate(task, checklist, date)) {
+          continue;
+        }
         const periodType = getPeriodTypeForRecurrence(checklist.recurrence_type);
         const periodValue = getPeriodValue(date, periodType);
 
@@ -212,6 +234,11 @@ export async function getTasksForDate(
 
         const subTasks: CalendarTask[] = [];
         for (const subTask of subTaskEntities) {
+          // Check if this sub-task is due on this date
+          if (!isTaskDueOnDate(subTask, checklist, date)) {
+            continue;
+          }
+
           const subCompletion = await db.adminTaskCompletions
             .where('[task_id+period_type+period_value]')
             .equals([subTask.id, periodType, periodValue])

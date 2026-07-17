@@ -8,6 +8,7 @@
 import { type FC, useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAccounts } from '../hooks/useAccounts'
+import { useAuth } from '../contexts/AuthContext'
 import { AccountRegister } from '../components/accounts/AccountRegister'
 import { PageLoader } from '../components/loading/PageLoader'
 import type { Account } from '../types'
@@ -15,8 +16,9 @@ import type { Account } from '../types'
 export const AccountRegisterPage: FC = () => {
   const { accountId } = useParams<{ accountId: string }>()
   const navigate = useNavigate()
+  const { companyId } = useAuth()
   const { accounts, isLoading } = useAccounts({
-    companyId: 'demo-company', // TODO: Get from auth context
+    companyId,
     isActive: undefined,
     includeDeleted: false,
   })
@@ -64,7 +66,7 @@ export const AccountRegisterPage: FC = () => {
     return <PageLoader />
   }
 
-  return <AccountRegister account={account} companyId="demo-company" />
+  return <AccountRegister account={account} companyId={companyId || ''} />
 }
 
 export default AccountRegisterPage

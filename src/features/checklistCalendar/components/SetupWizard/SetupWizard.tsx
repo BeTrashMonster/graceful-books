@@ -16,6 +16,9 @@ import type {
   TaskPriority,
 } from '../../../../db/schema/checklistCalendar.schema';
 import { CHECKLIST_COLORS } from '../../../../db/schema/checklistCalendar.schema';
+import { DayPicker } from '../DayPicker';
+import { ScheduleSelector } from '../ScheduleSelector';
+import type { ScheduleConfig } from '../ScheduleSelector';
 import styles from './SetupWizard.module.css';
 
 // =============================================================================
@@ -29,6 +32,7 @@ export interface WizardTask {
   priority: TaskPriority;
   recurrence: ChecklistRecurrenceType;
   enabled: boolean;
+  daysOfWeek: number[] | null; // null = inherit from checklist
 }
 
 export interface WizardChecklist {
@@ -40,6 +44,18 @@ export interface WizardChecklist {
   tasks: WizardTask[];
   enabled: boolean;
   excludeWeekends: boolean;
+
+  // Scheduling configuration
+  weeklyDays: number[];
+  isEveryOtherWeek: boolean;
+  monthlyScheduleType: 'day' | 'weekday';
+  monthlyDay: number;
+  monthlyWeek: number;
+  monthlyDayOfWeek: number;
+  quarterlyMonths: number[]; // Array of months (1-12) for flexible quarterly scheduling
+  quarterlyDay: number;
+  annualMonth: number;
+  annualDay: number;
 }
 
 export interface SetupWizardProps {
@@ -77,6 +93,17 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
     recurrence: 'daily',
     enabled: true,
     excludeWeekends: true, // Default to weekdays only for daily tasks
+    // Scheduling defaults (not used for daily, but required by type)
+    weeklyDays: [5],
+    isEveryOtherWeek: false,
+    monthlyScheduleType: 'day',
+    monthlyDay: -1,
+    monthlyWeek: 1,
+    monthlyDayOfWeek: 1,
+    quarterlyMonths: [3, 6, 9, 12],
+    quarterlyDay: -1,
+    annualMonth: 12,
+    annualDay: 31,
     tasks: [
       {
         id: 'daily-1',
@@ -85,6 +112,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'daily',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'daily-2',
@@ -93,6 +121,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'daily',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'daily-3',
@@ -101,6 +130,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'medium',
         recurrence: 'daily',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'daily-4',
@@ -109,6 +139,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'medium',
         recurrence: 'daily',
         enabled: true,
+        daysOfWeek: null,
       },
     ],
   },
@@ -120,6 +151,17 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
     recurrence: 'weekly',
     enabled: true,
     excludeWeekends: false,
+    // Scheduling defaults
+    weeklyDays: [5], // Friday
+    isEveryOtherWeek: false,
+    monthlyScheduleType: 'day',
+    monthlyDay: -1,
+    monthlyWeek: 1,
+    monthlyDayOfWeek: 1,
+    quarterlyMonths: [3, 6, 9, 12],
+    quarterlyDay: -1,
+    annualMonth: 12,
+    annualDay: 31,
     tasks: [
       {
         id: 'weekly-1',
@@ -128,6 +170,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'weekly',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'weekly-2',
@@ -136,6 +179,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'weekly',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'weekly-3',
@@ -144,6 +188,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'medium',
         recurrence: 'weekly',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'weekly-4',
@@ -160,6 +205,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'low',
         recurrence: 'weekly',
         enabled: true,
+        daysOfWeek: null,
       },
     ],
   },
@@ -171,6 +217,17 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
     recurrence: 'monthly',
     enabled: true,
     excludeWeekends: false,
+    // Scheduling defaults
+    weeklyDays: [5],
+    isEveryOtherWeek: false,
+    monthlyScheduleType: 'day',
+    monthlyDay: -1, // Last day of month
+    monthlyWeek: 1,
+    monthlyDayOfWeek: 1,
+    quarterlyMonths: [3, 6, 9, 12],
+    quarterlyDay: -1,
+    annualMonth: 12,
+    annualDay: 31,
     tasks: [
       {
         id: 'monthly-1',
@@ -179,6 +236,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'monthly',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'monthly-2',
@@ -187,6 +245,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'monthly',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'monthly-3',
@@ -195,6 +254,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'medium',
         recurrence: 'monthly',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'monthly-4',
@@ -203,6 +263,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'medium',
         recurrence: 'monthly',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'monthly-5',
@@ -219,6 +280,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'monthly',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'monthly-7',
@@ -227,6 +289,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'monthly',
         enabled: true,
+        daysOfWeek: null,
       },
     ],
   },
@@ -238,6 +301,17 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
     recurrence: 'quarterly',
     enabled: true,
     excludeWeekends: false,
+    // Scheduling defaults
+    weeklyDays: [5],
+    isEveryOtherWeek: false,
+    monthlyScheduleType: 'day',
+    monthlyDay: -1,
+    monthlyWeek: 1,
+    monthlyDayOfWeek: 1,
+    quarterlyMonths: [3, 6, 9, 12], // Third month of quarter
+    quarterlyDay: -1, // Last day
+    annualMonth: 12,
+    annualDay: 31,
     tasks: [
       {
         id: 'quarterly-1',
@@ -246,6 +320,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'quarterly',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'quarterly-2',
@@ -254,6 +329,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'quarterly',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'quarterly-3',
@@ -262,6 +338,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'medium',
         recurrence: 'quarterly',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'quarterly-4',
@@ -281,6 +358,17 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
     recurrence: 'annual',
     enabled: true,
     excludeWeekends: false,
+    // Scheduling defaults
+    weeklyDays: [5],
+    isEveryOtherWeek: false,
+    monthlyScheduleType: 'day',
+    monthlyDay: -1,
+    monthlyWeek: 1,
+    monthlyDayOfWeek: 1,
+    quarterlyMonths: [3, 6, 9, 12],
+    quarterlyDay: -1,
+    annualMonth: 12, // December
+    annualDay: 31, // 31st
     tasks: [
       {
         id: 'annual-1',
@@ -289,6 +377,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'annual',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'annual-2',
@@ -297,6 +386,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'annual',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'annual-3',
@@ -305,6 +395,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'high',
         recurrence: 'annual',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'annual-4',
@@ -313,6 +404,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'low',
         recurrence: 'annual',
         enabled: true,
+        daysOfWeek: null,
       },
       {
         id: 'annual-5',
@@ -321,6 +413,7 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         priority: 'medium',
         recurrence: 'annual',
         enabled: true,
+        daysOfWeek: null,
       },
     ],
   },
@@ -395,6 +488,7 @@ interface ChecklistSelectionStepProps {
   checklists: WizardChecklist[];
   onToggleChecklist: (id: string) => void;
   onToggleWeekends: (id: string) => void;
+  onUpdateSchedule: (id: string, config: Partial<ScheduleConfig>) => void;
   onBack: () => void;
   onNext: () => void;
 }
@@ -403,6 +497,7 @@ function ChecklistSelectionStep({
   checklists,
   onToggleChecklist,
   onToggleWeekends,
+  onUpdateSchedule,
   onBack,
   onNext,
 }: ChecklistSelectionStepProps) {
@@ -439,7 +534,7 @@ function ChecklistSelectionStep({
             <span className={styles.taskCount}>
               {checklist.tasks.filter((t) => t.enabled).length} tasks
             </span>
-            {checklist.enabled && (
+            {checklist.enabled && checklist.recurrence === 'daily' && (
               <label
                 className={styles.weekendToggle}
                 onClick={(e) => e.stopPropagation()}
@@ -454,6 +549,40 @@ function ChecklistSelectionStep({
                 />
                 <span>Include Sat/Sun</span>
               </label>
+            )}
+            {checklist.enabled && checklist.recurrence !== 'daily' && (
+              <div onClick={(e) => e.stopPropagation()}>
+                <ScheduleSelector
+                  recurrenceType={checklist.recurrence}
+                  config={{
+                    weeklyDays: checklist.weeklyDays,
+                    isEveryOtherWeek: checklist.isEveryOtherWeek,
+                    monthlyScheduleType: checklist.monthlyScheduleType,
+                    monthlyDay: checklist.monthlyDay,
+                    monthlyWeek: checklist.monthlyWeek,
+                    monthlyDayOfWeek: checklist.monthlyDayOfWeek,
+                    quarterlyMonths: checklist.quarterlyMonths,
+                    quarterlyDay: checklist.quarterlyDay,
+                    annualMonth: checklist.annualMonth,
+                    annualDay: checklist.annualDay,
+                  }}
+                  onChange={(config) => onUpdateSchedule(checklist.id, config)}
+                />
+                {/* Show exclude weekends for monthly/quarterly/annual (not weekly - users select days directly) */}
+                {checklist.recurrence !== 'weekly' && (
+                  <label
+                    className={styles.weekendToggle}
+                    style={{ marginTop: '8px' }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checklist.excludeWeekends}
+                      onChange={() => onToggleWeekends(checklist.id)}
+                    />
+                    <span>Exclude Sat/Sun (shifts to Monday)</span>
+                  </label>
+                )}
+              </div>
             )}
           </label>
         ))}
@@ -503,6 +632,7 @@ function TaskCustomizationStep({
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editPriority, setEditPriority] = useState<TaskPriority>('medium');
+  const [editDaysOfWeek, setEditDaysOfWeek] = useState<number[] | null>(null);
 
   const enabledChecklists = checklists.filter((c) => c.enabled);
   const totalTasks = enabledChecklists.reduce(
@@ -517,6 +647,7 @@ function TaskCustomizationStep({
     setEditTitle(task.title);
     setEditDescription(task.description || '');
     setEditPriority(task.priority);
+    setEditDaysOfWeek(task.daysOfWeek);
   };
 
   const handleSaveEdit = () => {
@@ -525,6 +656,7 @@ function TaskCustomizationStep({
         title: editTitle,
         description: editDescription,
         priority: editPriority,
+        daysOfWeek: editDaysOfWeek,
       });
       setEditingTask(null);
     }
@@ -539,6 +671,7 @@ function TaskCustomizationStep({
     setEditTitle('');
     setEditDescription('');
     setEditPriority('medium');
+    setEditDaysOfWeek(null);
   };
 
   const handleSaveNewTask = () => {
@@ -549,6 +682,7 @@ function TaskCustomizationStep({
         priority: editPriority,
         recurrence: checklists.find(c => c.id === addingToChecklist)?.recurrence || 'daily',
         enabled: true,
+        daysOfWeek: editDaysOfWeek,
       });
       setAddingToChecklist(null);
     }
@@ -603,6 +737,34 @@ function TaskCustomizationStep({
                 <option value="none">None</option>
               </select>
             </div>
+            {/* Day picker for daily/weekly tasks */}
+            {editingTask && (editingTask.task.recurrence === 'daily' || editingTask.task.recurrence === 'weekly') && (
+              <div className={styles.editField}>
+                <label className={styles.editLabel}>
+                  Days of Week
+                  {editDaysOfWeek !== null && (
+                    <button
+                      type="button"
+                      className={styles.resetLink}
+                      onClick={() => setEditDaysOfWeek(null)}
+                    >
+                      Reset
+                    </button>
+                  )}
+                </label>
+                <DayPicker
+                  selectedDays={editDaysOfWeek ?? [0, 1, 2, 3, 4, 5, 6]}
+                  onChange={(days) => setEditDaysOfWeek(days)}
+                  isInherited={editDaysOfWeek === null}
+                  compact
+                />
+                {editDaysOfWeek === null && (
+                  <span className={styles.inheritedHint}>
+                    {editingTask.task.recurrence === 'daily' ? 'Shows every day' : 'Inherits from checklist'}
+                  </span>
+                )}
+              </div>
+            )}
             <div className={styles.editActions}>
               <button type="button" className={styles.secondaryButton} onClick={handleCancelEdit}>
                 Cancel
@@ -654,6 +816,40 @@ function TaskCustomizationStep({
                 <option value="none">None</option>
               </select>
             </div>
+            {/* Day picker for daily/weekly tasks */}
+            {addingToChecklist && (() => {
+              const checklist = checklists.find(c => c.id === addingToChecklist);
+              if (checklist && (checklist.recurrence === 'daily' || checklist.recurrence === 'weekly')) {
+                return (
+                  <div className={styles.editField}>
+                    <label className={styles.editLabel}>
+                      Days of Week
+                      {editDaysOfWeek !== null && (
+                        <button
+                          type="button"
+                          className={styles.resetLink}
+                          onClick={() => setEditDaysOfWeek(null)}
+                        >
+                          Reset
+                        </button>
+                      )}
+                    </label>
+                    <DayPicker
+                      selectedDays={editDaysOfWeek ?? [0, 1, 2, 3, 4, 5, 6]}
+                      onChange={(days) => setEditDaysOfWeek(days)}
+                      isInherited={editDaysOfWeek === null}
+                      compact
+                    />
+                    {editDaysOfWeek === null && (
+                      <span className={styles.inheritedHint}>
+                        {checklist.recurrence === 'daily' ? 'Shows every day' : 'Inherits from checklist'}
+                      </span>
+                    )}
+                  </div>
+                );
+              }
+              return null;
+            })()}
             <div className={styles.editActions}>
               <button type="button" className={styles.secondaryButton} onClick={handleCancelAdd}>
                 Cancel
@@ -845,6 +1041,15 @@ export function SetupWizard({
     );
   }, []);
 
+  // Update schedule configuration for a checklist
+  const handleUpdateSchedule = useCallback((id: string, config: Partial<ScheduleConfig>) => {
+    setChecklists((prev) =>
+      prev.map((c) =>
+        c.id === id ? { ...c, ...config } : c
+      )
+    );
+  }, []);
+
   // Toggle task enabled state
   const handleToggleTask = useCallback((checklistId: string, taskId: string) => {
     setChecklists((prev) =>
@@ -945,6 +1150,7 @@ export function SetupWizard({
             checklists={checklists}
             onToggleChecklist={handleToggleChecklist}
             onToggleWeekends={handleToggleWeekends}
+            onUpdateSchedule={handleUpdateSchedule}
             onBack={goBack}
             onNext={goNext}
           />

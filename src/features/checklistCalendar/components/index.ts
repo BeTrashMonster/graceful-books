@@ -24,3 +24,12 @@ export type { ChecklistManagerProps } from './ChecklistManager';
 
 export { DayDetailPanel } from './DayDetailPanel';
 export type { DayDetailPanelProps } from './DayDetailPanel';
+
+export { DayPicker } from './DayPicker';
+export type { DayPickerProps } from './DayPicker';
+
+export { ScheduleSelector } from './ScheduleSelector';
+export type { ScheduleSelectorProps, ScheduleConfig } from './ScheduleSelector';
+
+export { CreateChecklistModal } from './CreateChecklistModal';
+export type { CreateChecklistModalProps } from './CreateChecklistModal';

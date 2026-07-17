@@ -64,6 +64,7 @@ export function AdminCalendarPage({
     updateTaskDescription,
     updateTaskPriority,
     updateTaskFeatureLink,
+    updateTaskDaysOfWeek,
     addSubTask,
     toggleSubTask,
     deleteSubTask,
@@ -196,6 +197,7 @@ export function AdminCalendarPage({
           onDeleteComment={removeComment}
           onFeatureLinkClick={handleFeatureLinkClick}
           onDelete={deleteTask}
+          onUpdateDaysOfWeek={updateTaskDaysOfWeek}
           canDelete
         />
       )}

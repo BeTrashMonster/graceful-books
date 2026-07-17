@@ -54,6 +54,7 @@ export interface CreateChecklistInput {
   // Quarterly options
   quarterlyMonth?: number | null;
   quarterlyDay?: number | null;
+  recurrenceMonths?: number[] | null; // Flexible month selection for quarterly
 
   // Annual options
   annualMonth?: number | null;
@@ -90,6 +91,7 @@ export interface UpdateChecklistInput {
   monthlyDayOfWeek?: number | null;
   quarterlyMonth?: number | null;
   quarterlyDay?: number | null;
+  recurrenceMonths?: number[] | null; // Flexible month selection for quarterly
   annualMonth?: number | null;
   annualDay?: number | null;
   customIntervalValue?: number | null;
@@ -97,6 +99,7 @@ export interface UpdateChecklistInput {
   customStartDate?: Date | null;
   order?: number;
   excludeWeekends?: boolean;
+  effectiveFrom?: Date | null; // For schedule changes, when they take effect
 }
 
 /**
@@ -148,6 +151,7 @@ export async function createChecklist(
       monthly_day_of_week: input.monthlyDayOfWeek ?? null,
       quarterly_month: input.quarterlyMonth ?? null,
       quarterly_day: input.quarterlyDay ?? null,
+      recurrence_months: input.recurrenceMonths ?? null,
       annual_month: input.annualMonth ?? null,
       annual_day: input.annualDay ?? null,
       custom_interval_value: input.customIntervalValue ?? null,
@@ -403,6 +407,10 @@ export async function updateChecklist(
         input.quarterlyDay !== undefined
           ? input.quarterlyDay
           : existing.quarterly_day,
+      recurrence_months:
+        input.recurrenceMonths !== undefined
+          ? input.recurrenceMonths
+          : existing.recurrence_months,
       annual_month:
         input.annualMonth !== undefined
           ? input.annualMonth
@@ -426,6 +434,10 @@ export async function updateChecklist(
         input.excludeWeekends !== undefined
           ? input.excludeWeekends
           : existing.exclude_weekends,
+      effective_from:
+        input.effectiveFrom !== undefined
+          ? input.effectiveFrom?.getTime() ?? null
+          : existing.effective_from,
       updated_at: now,
       version_vector: incrementVersionVector(existing.version_vector, deviceId),
     };

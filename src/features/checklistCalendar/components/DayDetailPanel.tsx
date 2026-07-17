@@ -140,11 +140,12 @@ export function DayDetailPanel({
           </div>
         ) : (
           tasksByChecklist.map(({ checklist, tasks }) => (
-            <div key={checklist.id} className={styles.checklistGroup}>
-              <div
-                className={styles.checklistHeader}
-                style={{ '--checklist-color': checklist.color } as React.CSSProperties}
-              >
+            <div
+              key={checklist.id}
+              className={styles.checklistGroup}
+              style={{ '--checklist-color': checklist.color } as React.CSSProperties}
+            >
+              <div className={styles.checklistHeader}>
                 <span
                   className={styles.checklistDot}
                   style={{ backgroundColor: checklist.color }}

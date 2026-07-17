@@ -9,16 +9,24 @@
  * - Filter by type and status
  * - Sort by various criteria
  * - Toggle between card and tree views
+ * - Display amounts for selectable date range
  * - WCAG 2.1 AA accessible
  */
 
-import { type FC, useState, useMemo } from 'react'
+import { type FC, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Input } from '../forms/Input'
 import { Select, type SelectOption } from '../forms/Select'
 import { Button } from '../core/Button'
 import { AccountCard } from './AccountCard'
 import { AccountTree } from './AccountTree'
+import { DateRangePopover } from './DateRangePopover'
+import { useAccountBalances } from '../../hooks/useAccountBalances'
+import {
+  type DateRangePeriod,
+  getDateRangeForPeriod,
+  getPeriodOptions,
+} from '../../utils/dateRanges'
 import type { Account } from '../../types'
 import type { AccountTreeNode } from '../../hooks/useAccounts'
 import styles from './AccountList.module.css'
@@ -76,13 +84,35 @@ export const AccountList: FC<AccountListProps> = ({
   const [sortBy, setSortBy] = useState<SortBy>('number')
   const [viewMode, setViewMode] = useState<ViewMode>('card')
 
+  // Date range state for "Display Amounts For" feature
+  const [selectedPeriod, setSelectedPeriod] = useState<DateRangePeriod>('all-time')
+  const [customDateRange, setCustomDateRange] = useState<{ startDate: Date; endDate: Date } | undefined>()
+  const [showCustomDatePopover, setShowCustomDatePopover] = useState(false)
+  const periodSelectRef = useRef<HTMLDivElement>(null)
+
+  // Calculate the actual date range based on selection
+  const dateRange = useMemo(() => {
+    return getDateRangeForPeriod(selectedPeriod, customDateRange)
+  }, [selectedPeriod, customDateRange])
+
+  // Get balances: Balance Sheet uses account.balance, Income Statement calculates from transactions
+  const calculatedBalances = useAccountBalances(accounts, dateRange)
+
+  // Merge calculated balances with accounts
+  const accountsWithBalances = useMemo(() => {
+    return accounts.map((account) => ({
+      ...account,
+      balance: calculatedBalances.get(account.id) ?? account.balance,
+    }))
+  }, [accounts, calculatedBalances])
+
   const handleViewRegister = (account: Account) => {
     navigate(`/accounts/${account.id}/register`)
   }
 
   // Filter and sort accounts
   const filteredAccounts = useMemo(() => {
-    let filtered = [...accounts]
+    let filtered = [...accountsWithBalances]
 
     // Search filter
     if (searchTerm) {
@@ -127,7 +157,7 @@ export const AccountList: FC<AccountListProps> = ({
     })
 
     return filtered
-  }, [accounts, searchTerm, filterType, filterStatus, sortBy])
+  }, [accountsWithBalances, searchTerm, filterType, filterStatus, sortBy])
 
   const typeOptions: SelectOption[] = [
     { value: 'all', label: 'All Types' },
@@ -154,6 +184,28 @@ export const AccountList: FC<AccountListProps> = ({
     { value: 'balance', label: 'Balance' },
   ]
 
+  const periodOptions: SelectOption[] = getPeriodOptions().map((opt) => ({
+    value: opt.value,
+    label: opt.label,
+  }))
+
+  // Handle period selection
+  const handlePeriodChange = (value: string) => {
+    const period = value as DateRangePeriod
+    if (period === 'custom') {
+      setShowCustomDatePopover(true)
+    } else {
+      setSelectedPeriod(period)
+      setCustomDateRange(undefined)
+    }
+  }
+
+  // Handle custom date range apply
+  const handleCustomDateApply = (startDate: Date, endDate: Date) => {
+    setCustomDateRange({ startDate, endDate })
+    setSelectedPeriod('custom')
+    setShowCustomDatePopover(false)
+  }
 
   if (isLoading) {
     return (
@@ -234,6 +286,24 @@ export const AccountList: FC<AccountListProps> = ({
         <p className={styles.resultsCount}>
           {filteredAccounts.length} {filteredAccounts.length === 1 ? 'account' : 'accounts'}
         </p>
+
+        <div className={styles.periodSelector} ref={periodSelectRef}>
+          <span className={styles.periodLabel}>Display Amounts For:</span>
+          <Select
+            value={selectedPeriod}
+            onChange={(e) => handlePeriodChange(e.target.value)}
+            options={periodOptions}
+            aria-label="Display amounts for period"
+          />
+          <DateRangePopover
+            isOpen={showCustomDatePopover}
+            onClose={() => setShowCustomDatePopover(false)}
+            onApply={handleCustomDateApply}
+            initialStartDate={customDateRange?.startDate}
+            initialEndDate={customDateRange?.endDate}
+            anchorRef={periodSelectRef as React.RefObject<HTMLElement>}
+          />
+        </div>
       </div>
 
       {filteredAccounts.length === 0 ? (
@@ -264,6 +334,7 @@ export const AccountList: FC<AccountListProps> = ({
               nodes={treeNodes}
               groupByType
               showBalances
+              balances={calculatedBalances}
               onSelect={handleViewRegister}
             />
           )}

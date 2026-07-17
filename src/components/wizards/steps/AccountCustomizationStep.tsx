@@ -56,6 +56,30 @@ interface ExpenseEntry {
 }
 
 /**
+ * Validate that a date string is a valid date in YYYY-MM-DD format
+ */
+const isValidDate = (dateStr: string): boolean => {
+  if (!dateStr) return false
+
+  // Must be in YYYY-MM-DD format
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false
+
+  const [year, month, day] = dateStr.split('-').map(Number)
+
+  // Check year is reasonable (1900-2100)
+  if (year < 1900 || year > 2100) return false
+
+  // Check month is valid
+  if (month < 1 || month > 12) return false
+
+  // Check day is valid for the month
+  const daysInMonth = new Date(year, month, 0).getDate()
+  if (day < 1 || day > daysInMonth) return false
+
+  return true
+}
+
+/**
  * Parse date input and handle 2-digit years intelligently
  * Examples:
  *   123120 -> 2020-12-31 (assumes current century)
@@ -101,6 +125,13 @@ const parseSmartDate = (input: string): string => {
   return input
 }
 
+// Error tracking for field-level validation
+interface FieldError {
+  id: string
+  field: 'name' | 'value' | 'date' | 'balance'
+  message: string
+}
+
 export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   template,
   customizations: _initialCustomizations,
@@ -111,8 +142,19 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
 }) => {
   const [currentPart, setCurrentPart] = useState(1)
   const [initialized, setInitialized] = useState(false)
-  const [equipmentErrors, setEquipmentErrors] = useState<Set<string>>(new Set())
+  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([])
   const isGeneratingCustomizationsRef = useRef(false)
+
+  // Helper to check if a specific field has an error
+  const hasFieldError = (id: string, field: string) => {
+    return fieldErrors.some(e => e.id === id && e.field === field)
+  }
+
+  // Helper to get error message for a field
+  const getFieldErrorMessage = (id: string, field: string) => {
+    const error = fieldErrors.find(e => e.id === id && e.field === field)
+    return error?.message
+  }
 
   // Part 1: Bank Accounts
   const [bankAccounts, setBankAccounts] = useState<BankAccountEntry[]>([
@@ -181,8 +223,17 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   ])
 
   // Part 6: Cost of Goods Sold
-  const [includeCogs, setIncludeCogs] = useState(false)
-  const [cogsItems, setCogsItems] = useState<IncomeEntry[]>([
+  const [commonCogs, setCommonCogs] = useState({
+    directLabor: false,
+    packagingLabeling: false,
+    postageShipping: false,
+    productPurchases: false,
+    rawIngredients: false,
+    smallToolsEquipment: false,
+    subcontractors: false,
+    suppliesMaterials: false,
+  })
+  const [customCogs, setCustomCogs] = useState<IncomeEntry[]>([
     { id: crypto.randomUUID(), name: '' }
   ])
 
@@ -207,8 +258,8 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         if (savedFormData.incomeSources) setIncomeSources(savedFormData.incomeSources)
         if (savedFormData.commonExpenses) setCommonExpenses({...commonExpenses, ...savedFormData.commonExpenses})
         if (savedFormData.customExpenses) setCustomExpenses(savedFormData.customExpenses)
-        if (savedFormData.includeCogs !== undefined) setIncludeCogs(savedFormData.includeCogs)
-        if (savedFormData.cogsItems) setCogsItems(savedFormData.cogsItems)
+        if (savedFormData.commonCogs) setCommonCogs({...commonCogs, ...savedFormData.commonCogs})
+        if (savedFormData.customCogs) setCustomCogs(savedFormData.customCogs)
       }
       setInitialized(true)
     }
@@ -234,8 +285,8 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         creditCards,
         loans,
         incomeSources,
-        includeCogs,
-        cogsItems,
+        commonCogs,
+        customCogs,
         commonExpenses,
         customExpenses,
       }
@@ -262,8 +313,8 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     creditCards,
     loans,
     incomeSources,
-    includeCogs,
-    cogsItems,
+    commonCogs,
+    customCogs,
     commonExpenses,
     customExpenses,
     onUpdate,
@@ -279,27 +330,121 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   }, [currentPart])
 
   const handlePartNext = () => {
-    // Validate Part 2 (Equipment) before proceeding
-    if (currentPart === 2 && includeEquipment) {
-      const invalidItems = new Set<string>()
+    // Validate Part 2 (Other Assets) before proceeding
+    if (currentPart === 2) {
+      const errors: FieldError[] = []
 
-      equipmentItems.forEach(item => {
-        // If they started filling out an item, they must complete it
-        const hasAnyData = item.name.trim() || item.value.trim() || item.date.trim()
+      // Validate equipment
+      if (includeEquipment) {
+        equipmentItems.forEach(item => {
+          const hasAnyData = item.name.trim() || item.value.trim() || item.date.trim()
+          if (hasAnyData) {
+            if (!item.name.trim()) {
+              errors.push({ id: item.id, field: 'name', message: 'Name is required' })
+            }
+            if (!item.value.trim()) {
+              errors.push({ id: item.id, field: 'value', message: 'Value is required' })
+            }
+            if (!item.date.trim()) {
+              errors.push({ id: item.id, field: 'date', message: 'Date is required' })
+            } else if (!isValidDate(item.date)) {
+              errors.push({ id: item.id, field: 'date', message: 'Invalid date (use MM/DD/YY)' })
+            }
+          }
+        })
+      }
+
+      // Validate vehicles
+      if (includeVehicles) {
+        vehicleItems.forEach(item => {
+          const hasAnyData = item.name.trim() || item.value.trim() || item.date.trim()
+          if (hasAnyData) {
+            if (!item.name.trim()) {
+              errors.push({ id: item.id, field: 'name', message: 'Name is required' })
+            }
+            if (!item.value.trim()) {
+              errors.push({ id: item.id, field: 'value', message: 'Value is required' })
+            }
+            if (!item.date.trim()) {
+              errors.push({ id: item.id, field: 'date', message: 'Date is required' })
+            } else if (!isValidDate(item.date)) {
+              errors.push({ id: item.id, field: 'date', message: 'Invalid date (use MM/DD/YY)' })
+            }
+          }
+        })
+      }
+
+      // Validate property
+      if (includeProperty) {
+        propertyItems.forEach(item => {
+          const hasAnyData = item.name.trim() || item.value.trim() || item.date.trim()
+          if (hasAnyData) {
+            if (!item.name.trim()) {
+              errors.push({ id: item.id, field: 'name', message: 'Name is required' })
+            }
+            if (!item.value.trim()) {
+              errors.push({ id: item.id, field: 'value', message: 'Value is required' })
+            }
+            if (!item.date.trim()) {
+              errors.push({ id: item.id, field: 'date', message: 'Date is required' })
+            } else if (!isValidDate(item.date)) {
+              errors.push({ id: item.id, field: 'date', message: 'Invalid date (use MM/DD/YY)' })
+            }
+          }
+        })
+      }
+
+      if (errors.length > 0) {
+        setFieldErrors(errors)
+        // Scroll to first error after state updates
+        setTimeout(() => {
+          const firstErrorElement = document.querySelector('[aria-invalid="true"]')
+          if (firstErrorElement) {
+            firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            ;(firstErrorElement as HTMLElement).focus()
+          }
+        }, 50)
+        return
+      }
+
+      setFieldErrors([])
+    }
+
+    // Validate Part 4 (Loans) before proceeding
+    if (currentPart === 4) {
+      const errors: FieldError[] = []
+
+      loans.forEach(loan => {
+        const hasAnyData = loan.name.trim() || loan.balance.trim() || loan.date.trim()
         if (hasAnyData) {
-          if (!item.name.trim() || !item.value.trim() || !item.date.trim()) {
-            invalidItems.add(item.id)
+          if (!loan.name.trim()) {
+            errors.push({ id: loan.id, field: 'name', message: 'Name is required' })
+          }
+          if (!loan.balance.trim()) {
+            errors.push({ id: loan.id, field: 'balance', message: 'Balance is required' })
+          }
+          if (!loan.date.trim()) {
+            errors.push({ id: loan.id, field: 'date', message: 'Date is required' })
+          } else if (!isValidDate(loan.date)) {
+            errors.push({ id: loan.id, field: 'date', message: 'Invalid date (use MM/DD/YY)' })
           }
         }
       })
 
-      if (invalidItems.size > 0) {
-        setEquipmentErrors(invalidItems)
-        alert('Please complete all equipment fields (name, value, and purchase date) or remove empty items before continuing.')
+      if (errors.length > 0) {
+        setFieldErrors(errors)
+        // Scroll to first error after state updates
+        setTimeout(() => {
+          const firstErrorElement = document.querySelector('[aria-invalid="true"]')
+          if (firstErrorElement) {
+            firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            ;(firstErrorElement as HTMLElement).focus()
+          }
+        }, 50)
         return
       }
 
-      setEquipmentErrors(new Set())
+      setFieldErrors([])
     }
 
     if (currentPart < 7) {
@@ -451,18 +596,83 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     })
 
     // COST OF GOODS SOLD
-    if (includeCogs) {
-      cogsItems.forEach((item) => {
-        if (item.name.trim()) {
-          cogsAccounts.push({
-            templateAccountName: 'Cost of Goods Sold',
-            name: item.name.trim(),
-            isIncluded: true,
-            type: 'cost-of-goods-sold',
-          })
-        }
+    // Common COGS
+    if (commonCogs.directLabor) {
+      cogsAccounts.push({
+        templateAccountName: 'Cost of Goods Sold',
+        name: 'COGS - Direct Labor',
+        isIncluded: true,
+        type: 'cost-of-goods-sold',
       })
     }
+    if (commonCogs.packagingLabeling) {
+      cogsAccounts.push({
+        templateAccountName: 'Cost of Goods Sold',
+        name: 'COGS - Packaging + Labeling',
+        isIncluded: true,
+        type: 'cost-of-goods-sold',
+      })
+    }
+    if (commonCogs.postageShipping) {
+      cogsAccounts.push({
+        templateAccountName: 'Cost of Goods Sold',
+        name: 'COGS - Postage + Shipping',
+        isIncluded: true,
+        type: 'cost-of-goods-sold',
+      })
+    }
+    if (commonCogs.productPurchases) {
+      cogsAccounts.push({
+        templateAccountName: 'Cost of Goods Sold',
+        name: 'COGS - Product Purchases',
+        isIncluded: true,
+        type: 'cost-of-goods-sold',
+      })
+    }
+    if (commonCogs.rawIngredients) {
+      cogsAccounts.push({
+        templateAccountName: 'Cost of Goods Sold',
+        name: 'COGS - Raw Ingredients',
+        isIncluded: true,
+        type: 'cost-of-goods-sold',
+      })
+    }
+    if (commonCogs.smallToolsEquipment) {
+      cogsAccounts.push({
+        templateAccountName: 'Cost of Goods Sold',
+        name: 'COGS - Small Tools + Equipment',
+        isIncluded: true,
+        type: 'cost-of-goods-sold',
+      })
+    }
+    if (commonCogs.subcontractors) {
+      cogsAccounts.push({
+        templateAccountName: 'Cost of Goods Sold',
+        name: 'COGS - Subcontractors',
+        isIncluded: true,
+        type: 'cost-of-goods-sold',
+      })
+    }
+    if (commonCogs.suppliesMaterials) {
+      cogsAccounts.push({
+        templateAccountName: 'Cost of Goods Sold',
+        name: 'COGS - Supplies + Materials',
+        isIncluded: true,
+        type: 'cost-of-goods-sold',
+      })
+    }
+
+    // Custom COGS
+    customCogs.forEach((item) => {
+      if (item.name.trim()) {
+        cogsAccounts.push({
+          templateAccountName: 'Cost of Goods Sold',
+          name: item.name.trim(),
+          isIncluded: true,
+          type: 'cost-of-goods-sold',
+        })
+      }
+    })
 
     // EXPENSES
     // Common expenses
@@ -730,8 +940,8 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       creditCards,
       loans,
       incomeSources,
-      includeCogs,
-      cogsItems,
+      commonCogs,
+      customCogs,
       commonExpenses,
       customExpenses,
     }
@@ -897,24 +1107,28 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
             <p className={styles.equipmentInstructions}>
               Enter each piece of equipment with its purchase date, name, and value.
             </p>
-            {equipmentItems.map((item, index) => {
-              const hasError = equipmentErrors.has(item.id)
-              const hasAnyData = item.name.trim() || item.value.trim() || item.date.trim()
-
-              return (
+            {equipmentItems.map((item, index) => (
               <div key={item.id} className={styles.equipmentRow}>
                 <Input
                   value={item.date}
                   onChange={(e) => {
-                    const parsed = parseSmartDate(e.target.value)
                     const updated = [...equipmentItems]
-                    updated[index] = { ...item, date: parsed }
+                    updated[index] = { ...item, date: e.target.value }
                     setEquipmentItems(updated)
-                    setEquipmentErrors(new Set())
+                    setFieldErrors(prev => prev.filter(err => !(err.id === item.id && err.field === 'date')))
+                  }}
+                  onBlur={(e) => {
+                    const parsed = parseSmartDate(e.target.value)
+                    if (parsed !== e.target.value) {
+                      const updated = [...equipmentItems]
+                      updated[index] = { ...item, date: parsed }
+                      setEquipmentItems(updated)
+                    }
                   }}
                   placeholder="MM/DD/YY"
                   type="text"
-                  hasError={!!(hasError && hasAnyData && !item.date.trim())}
+                  hasError={hasFieldError(item.id, 'date')}
+                  error={getFieldErrorMessage(item.id, 'date')}
                 />
                 <Input
                   value={item.name}
@@ -922,10 +1136,11 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     const updated = [...equipmentItems]
                     updated[index] = { ...item, name: e.target.value }
                     setEquipmentItems(updated)
-                    setEquipmentErrors(new Set())
+                    setFieldErrors(prev => prev.filter(err => !(err.id === item.id && err.field === 'name')))
                   }}
                   placeholder="Professional Camera"
-                  hasError={!!(hasError && hasAnyData && !item.name.trim())}
+                  hasError={hasFieldError(item.id, 'name')}
+                  error={getFieldErrorMessage(item.id, 'name')}
                 />
                 <Input
                   value={item.value}
@@ -933,11 +1148,12 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     const updated = [...equipmentItems]
                     updated[index] = { ...item, value: e.target.value }
                     setEquipmentItems(updated)
-                    setEquipmentErrors(new Set())
+                    setFieldErrors(prev => prev.filter(err => !(err.id === item.id && err.field === 'value')))
                   }}
                   placeholder="$3,500.00"
                   type="text"
-                  hasError={!!(hasError && hasAnyData && !item.value.trim())}
+                  hasError={hasFieldError(item.id, 'value')}
+                  error={getFieldErrorMessage(item.id, 'value')}
                 />
                 {equipmentItems.length > 1 && (
                   <button
@@ -952,8 +1168,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                   </button>
                 )}
               </div>
-              )
-            })}
+            ))}
             <Button
               variant="outline"
               size="sm"
@@ -981,13 +1196,23 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                 <Input
                   value={item.date}
                   onChange={(e) => {
-                    const parsed = parseSmartDate(e.target.value)
                     const updated = [...vehicleItems]
-                    updated[index] = { ...item, date: parsed }
+                    updated[index] = { ...item, date: e.target.value }
                     setVehicleItems(updated)
+                    setFieldErrors(prev => prev.filter(err => !(err.id === item.id && err.field === 'date')))
+                  }}
+                  onBlur={(e) => {
+                    const parsed = parseSmartDate(e.target.value)
+                    if (parsed !== e.target.value) {
+                      const updated = [...vehicleItems]
+                      updated[index] = { ...item, date: parsed }
+                      setVehicleItems(updated)
+                    }
                   }}
                   placeholder="MM/DD/YY"
                   type="text"
+                  hasError={hasFieldError(item.id, 'date')}
+                  error={getFieldErrorMessage(item.id, 'date')}
                 />
                 <Input
                   value={item.name}
@@ -995,8 +1220,11 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     const updated = [...vehicleItems]
                     updated[index] = { ...item, name: e.target.value }
                     setVehicleItems(updated)
+                    setFieldErrors(prev => prev.filter(err => !(err.id === item.id && err.field === 'name')))
                   }}
-                  placeholder="2020 Ford Transit"
+                  placeholder="2020 Toyota Tacoma"
+                  hasError={hasFieldError(item.id, 'name')}
+                  error={getFieldErrorMessage(item.id, 'name')}
                 />
                 <Input
                   value={item.value}
@@ -1004,9 +1232,12 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     const updated = [...vehicleItems]
                     updated[index] = { ...item, value: e.target.value }
                     setVehicleItems(updated)
+                    setFieldErrors(prev => prev.filter(err => !(err.id === item.id && err.field === 'value')))
                   }}
                   placeholder="$25,000.00"
                   type="text"
+                  hasError={hasFieldError(item.id, 'value')}
+                  error={getFieldErrorMessage(item.id, 'value')}
                 />
                 {vehicleItems.length > 1 && (
                   <button
@@ -1049,13 +1280,23 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                 <Input
                   value={item.date}
                   onChange={(e) => {
-                    const parsed = parseSmartDate(e.target.value)
                     const updated = [...propertyItems]
-                    updated[index] = { ...item, date: parsed }
+                    updated[index] = { ...item, date: e.target.value }
                     setPropertyItems(updated)
+                    setFieldErrors(prev => prev.filter(err => !(err.id === item.id && err.field === 'date')))
+                  }}
+                  onBlur={(e) => {
+                    const parsed = parseSmartDate(e.target.value)
+                    if (parsed !== e.target.value) {
+                      const updated = [...propertyItems]
+                      updated[index] = { ...item, date: parsed }
+                      setPropertyItems(updated)
+                    }
                   }}
                   placeholder="MM/DD/YY"
                   type="text"
+                  hasError={hasFieldError(item.id, 'date')}
+                  error={getFieldErrorMessage(item.id, 'date')}
                 />
                 <Input
                   value={item.name}
@@ -1063,8 +1304,11 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     const updated = [...propertyItems]
                     updated[index] = { ...item, name: e.target.value }
                     setPropertyItems(updated)
+                    setFieldErrors(prev => prev.filter(err => !(err.id === item.id && err.field === 'name')))
                   }}
                   placeholder="Office Building"
+                  hasError={hasFieldError(item.id, 'name')}
+                  error={getFieldErrorMessage(item.id, 'name')}
                 />
                 <Input
                   value={item.value}
@@ -1072,9 +1316,12 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     const updated = [...propertyItems]
                     updated[index] = { ...item, value: e.target.value }
                     setPropertyItems(updated)
+                    setFieldErrors(prev => prev.filter(err => !(err.id === item.id && err.field === 'value')))
                   }}
                   placeholder="$150,000.00"
                   type="text"
+                  hasError={hasFieldError(item.id, 'value')}
+                  error={getFieldErrorMessage(item.id, 'value')}
                 />
                 {propertyItems.length > 1 && (
                   <button
@@ -1207,13 +1454,23 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
             <Input
               value={loan.date}
               onChange={(e) => {
-                const parsed = parseSmartDate(e.target.value)
                 const updated = [...loans]
-                updated[index] = { ...loan, date: parsed }
+                updated[index] = { ...loan, date: e.target.value }
                 setLoans(updated)
+                setFieldErrors(prev => prev.filter(err => !(err.id === loan.id && err.field === 'date')))
+              }}
+              onBlur={(e) => {
+                const parsed = parseSmartDate(e.target.value)
+                if (parsed !== e.target.value) {
+                  const updated = [...loans]
+                  updated[index] = { ...loan, date: parsed }
+                  setLoans(updated)
+                }
               }}
               placeholder="MM/DD/YY"
               type="text"
+              hasError={hasFieldError(loan.id, 'date')}
+              error={getFieldErrorMessage(loan.id, 'date')}
             />
             <Input
               value={loan.name}
@@ -1221,8 +1478,11 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                 const updated = [...loans]
                 updated[index] = { ...loan, name: e.target.value }
                 setLoans(updated)
+                setFieldErrors(prev => prev.filter(err => !(err.id === loan.id && err.field === 'name')))
               }}
               placeholder="SBA Loan"
+              hasError={hasFieldError(loan.id, 'name')}
+              error={getFieldErrorMessage(loan.id, 'name')}
             />
             <Input
               value={loan.balance}
@@ -1230,9 +1490,12 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                 const updated = [...loans]
                 updated[index] = { ...loan, balance: e.target.value }
                 setLoans(updated)
+                setFieldErrors(prev => prev.filter(err => !(err.id === loan.id && err.field === 'balance')))
               }}
               placeholder="$0.00"
               type="text"
+              hasError={hasFieldError(loan.id, 'balance')}
+              error={getFieldErrorMessage(loan.id, 'balance')}
             />
             {loans.length > 1 && (
               <button
@@ -1320,64 +1583,81 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     </>
   )
 
-  const renderPart6 = () => (
+  const renderPart6 = () => {
+    // Create sorted COGS options for proper column display
+    const cogsOptions = [
+      { key: 'directLabor', label: 'COGS - Direct Labor' },
+      { key: 'packagingLabeling', label: 'COGS - Packaging + Labeling' },
+      { key: 'postageShipping', label: 'COGS - Postage + Shipping' },
+      { key: 'productPurchases', label: 'COGS - Product Purchases' },
+      { key: 'rawIngredients', label: 'COGS - Raw Ingredients' },
+      { key: 'smallToolsEquipment', label: 'COGS - Small Tools + Equipment' },
+      { key: 'subcontractors', label: 'COGS - Subcontractors' },
+      { key: 'suppliesMaterials', label: 'COGS - Supplies + Materials' },
+    ]
+
+    // Sort alphabetically - CSS grid-auto-flow: column handles column-wise layout
+    cogsOptions.sort((a, b) => a.label.localeCompare(b.label))
+
+    return (
     <>
       <div className={styles.partHeader}>
         <h3 className={styles.partTitle}>Part 6 of 7: Cost of Goods Sold</h3>
         <p className={styles.partDescription}>
-          Track the direct costs of producing your products or services.
+          Check what applies to your business, and add any custom categories below.
         </p>
       </div>
 
-      <div className={styles.optionalSection}>
-        <Checkbox
-          label="I have costs directly tied to what I sell"
-          checked={includeCogs}
-          onChange={() => setIncludeCogs(!includeCogs)}
-          helperText="Materials, supplies, labor, or other costs that go directly into your products or services"
-        />
-        {includeCogs && (
-          <div className={styles.indentedInput}>
-            <p className={styles.inputSectionHelper}>
-              List your cost of goods sold categories.
-            </p>
-            {cogsItems.map((item, index) => (
-              <div key={item.id} className={styles.inputRow}>
-                <Input
-                  value={item.name}
-                  onChange={(e) => {
-                    const updated = [...cogsItems]
-                    updated[index] = { ...item, name: e.target.value }
-                    setCogsItems(updated)
-                  }}
-                  placeholder="e.g., COGS - Materials, COGS - Packaging"
-                  fullWidth
-                />
-                {cogsItems.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCogsItems(cogsItems.filter((_, i) => i !== index))
-                    }}
-                    className={styles.removeButton}
-                    aria-label="Remove"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            ))}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setCogsItems([...cogsItems, { id: crypto.randomUUID(), name: '' }])
+      <div className={styles.checkboxGridSmall}>
+        {cogsOptions.map(option => (
+          <Checkbox
+            key={option.key}
+            label={option.label}
+            checked={commonCogs[option.key as keyof typeof commonCogs]}
+            onChange={() => setCommonCogs({
+              ...commonCogs,
+              [option.key]: !commonCogs[option.key as keyof typeof commonCogs]
+            })}
+          />
+        ))}
+      </div>
+
+      <div className={styles.customExpensesSection}>
+        <h4 className={styles.sectionSubtitle}>Custom COGS</h4>
+        {customCogs.map((item, index) => (
+          <div key={item.id} className={styles.inputRow}>
+            <Input
+              value={item.name}
+              onChange={(e) => {
+                const updated = [...customCogs]
+                updated[index] = { ...item, name: e.target.value }
+                setCustomCogs(updated)
               }}
-            >
-              + Add another cost category
-            </Button>
+              placeholder="e.g., COGS - Research + Development, COGS - Food, COGS - Beverage"
+              fullWidth
+            />
+            {customCogs.length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomCogs(customCogs.filter((_, i) => i !== index))
+                }}
+                className={styles.removeButton}
+                aria-label="Remove"
+              >
+                ✕
+              </button>
+            )}
           </div>
-        )}
+        ))}
+        <Button
+          variant="outline"
+          onClick={() => {
+            setCustomCogs([...customCogs, { id: crypto.randomUUID(), name: '' }])
+          }}
+        >
+          + Add custom COGS
+        </Button>
       </div>
 
       <div className={styles.helpNote}>
@@ -1385,6 +1665,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       </div>
     </>
   )
+  }
 
   const renderPart7 = () => {
     // Create sorted expense options for proper column display

@@ -95,6 +95,7 @@ export interface UseCalendarReturn {
   updateTaskDescription: (description: string) => Promise<void>;
   updateTaskPriority: (priority: 'high' | 'medium' | 'low' | 'none') => Promise<void>;
   updateTaskFeatureLink: (link: string | null, label: string | null) => Promise<void>;
+  updateTaskDaysOfWeek: (daysOfWeek: number[] | null) => Promise<void>;
   addSubTask: (title: string) => Promise<void>;
   toggleSubTask: (subTaskId: string) => Promise<void>;
   deleteSubTask: (subTaskId: string) => Promise<void>;
@@ -389,6 +390,37 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn
     [selectedTask]
   );
 
+  const updateTaskDaysOfWeek = useCallback(
+    async (daysOfWeek: number[] | null) => {
+      if (!selectedTask) return;
+
+      try {
+        const result = await updateTask(selectedTask.task.id, {
+          daysOfWeek,
+          userId: userId || 'demo-user',
+        });
+        if (result.success) {
+          setSelectedTask((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  task: {
+                    ...prev.task,
+                    days_of_week: daysOfWeek,
+                  },
+                }
+              : null
+          );
+          // Refresh the calendar to reflect the change
+          await loadCalendarData();
+        }
+      } catch {
+        setError('Failed to update task days');
+      }
+    },
+    [selectedTask, userId, loadCalendarData]
+  );
+
   const addSubTask = useCallback(
     async (title: string) => {
       if (!selectedTask) return;
@@ -591,6 +623,7 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn
     updateTaskDescription,
     updateTaskPriority,
     updateTaskFeatureLink,
+    updateTaskDaysOfWeek,
     addSubTask,
     toggleSubTask,
     deleteSubTask,

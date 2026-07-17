@@ -122,11 +122,26 @@
 
 /* Checklist Group */
 .checklistGroup {
-  margin-bottom: var(--spacing-4, 16px);
+  margin-bottom: var(--spacing-3, 12px);
+  padding: var(--spacing-3, 12px);
+  border-radius: var(--radius-lg, 12px);
+  /* Light tinted background using the checklist color */
+  background: color-mix(in srgb, var(--checklist-color, #8b5cf6) 8%, white 92%);
+  /* Subtle left border accent */
+  border-left: 3px solid var(--checklist-color, #8b5cf6);
+  /* Soft shadow for depth */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .checklistGroup:last-child {
   margin-bottom: 0;
+}
+
+/* Fallback for browsers that don't support color-mix */
+@supports not (background: color-mix(in srgb, red 50%, blue 50%)) {
+  .checklistGroup {
+    background: var(--color-surface-muted, #f9fafb);
+  }
 }
 
 .checklistHeader {
@@ -135,7 +150,7 @@
   gap: var(--spacing-2, 8px);
   margin-bottom: var(--spacing-2, 8px);
   padding-bottom: var(--spacing-2, 8px);
-  border-bottom: 1px solid var(--color-border-light, #e5e7eb);
+  border-bottom: 1px solid color-mix(in srgb, var(--checklist-color, #8b5cf6) 15%, white 85%);
 }
 
 .checklistDot {
@@ -174,13 +189,13 @@
   align-items: flex-start;
   gap: var(--spacing-2, 8px);
   padding: var(--spacing-2, 8px);
-  background: var(--color-surface-muted, #f9fafb);
+  background: rgba(255, 255, 255, 0.7);
   border-radius: var(--radius-md, 8px);
   transition: background-color 0.15s ease;
 }
 
 .taskItem:hover {
-  background: var(--color-surface-hover, #f3f4f6);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .taskItem.completed {
@@ -264,7 +279,7 @@
   margin-left: 26px;
   margin-top: 2px;
   padding-left: var(--spacing-3, 12px);
-  border-left: 2px solid var(--color-border-light, #e5e7eb);
+  border-left: 2px solid color-mix(in srgb, var(--checklist-color, #8b5cf6) 30%, white 70%);
 }
 
 .subTaskItem {
@@ -272,13 +287,13 @@
   align-items: center;
   gap: var(--spacing-2, 8px);
   padding: var(--spacing-1, 4px) var(--spacing-2, 8px);
-  background: var(--color-surface, #ffffff);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: var(--radius-sm, 4px);
   transition: background-color 0.15s ease;
 }
 
 .subTaskItem:hover {
-  background: var(--color-surface-muted, #f9fafb);
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .subTaskItem.completed {

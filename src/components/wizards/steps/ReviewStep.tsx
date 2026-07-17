@@ -67,8 +67,8 @@ export const ReviewStep: FC<ReviewStepProps> = ({
     'liability',
     'equity',
     'income',
-    'expense',
     'cost-of-goods-sold',
+    'expense',
     'other-income',
     'other-expense',
   ]
@@ -103,12 +103,6 @@ export const ReviewStep: FC<ReviewStepProps> = ({
 
   return (
     <div className={styles.reviewStep}>
-      <div className={styles.intro}>
-        <p className={styles.introText}>
-          Here's what we're about to create. Take a moment to make sure everything looks good.
-        </p>
-      </div>
-
       <div className={styles.summary}>
         {typeOrder.map((type) => {
           const accounts = accountsByType[type]

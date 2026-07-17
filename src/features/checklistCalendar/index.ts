@@ -144,6 +144,7 @@ export {
   TaskDetailModal,
   SetupWizard,
   ChecklistManager,
+  CreateChecklistModal,
 } from './components';
 
 export type {
@@ -155,6 +156,7 @@ export type {
   WizardChecklist,
   WizardTask,
   ChecklistManagerProps,
+  CreateChecklistModalProps,
 } from './components';
 
 // Hooks

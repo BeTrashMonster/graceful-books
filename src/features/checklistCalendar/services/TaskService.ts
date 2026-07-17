@@ -48,6 +48,9 @@ export interface CreateTaskInput {
   parentTaskId?: string | null;
   scheduledDate?: Date | null;
   userId: string;
+  // Task-level recurrence overrides
+  daysOfWeek?: number[] | null;
+  taskExcludeWeekends?: boolean | null;
 }
 
 /**
@@ -65,6 +68,9 @@ export interface UpdateTaskInput {
   scheduledDate?: Date | null;
   order?: number;
   userId: string;
+  // Task-level recurrence overrides
+  daysOfWeek?: number[] | null;
+  taskExcludeWeekends?: boolean | null;
 }
 
 /**
@@ -176,6 +182,8 @@ export async function createTask(
       feature_link_label: input.featureLinkLabel ?? null,
       order: maxOrder + 1,
       scheduled_date: input.scheduledDate?.getTime() ?? null,
+      days_of_week: input.daysOfWeek ?? null,
+      exclude_weekends: input.taskExcludeWeekends ?? null,
       is_archived: false,
       created_by: input.userId,
       updated_by: null,
@@ -603,6 +611,14 @@ export async function updateTask(
         input.scheduledDate !== undefined
           ? input.scheduledDate?.getTime() ?? null
           : existing.scheduled_date,
+      days_of_week:
+        input.daysOfWeek !== undefined
+          ? input.daysOfWeek
+          : existing.days_of_week,
+      exclude_weekends:
+        input.taskExcludeWeekends !== undefined
+          ? input.taskExcludeWeekends
+          : existing.exclude_weekends,
       order: input.order ?? existing.order,
       updated_by: input.userId,
       updated_at: now,

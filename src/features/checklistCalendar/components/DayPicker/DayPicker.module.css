@@ -1,0 +1,95 @@
+.dayPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dayButtons {
+  display: flex;
+  gap: 4px;
+}
+
+.dayButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border, #e0e0e0);
+  background: transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #666);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dayButton:hover:not(.disabled) {
+  border-color: var(--color-primary, #8b5cf6);
+  background: var(--color-primary-light, #f3f0ff);
+  color: var(--color-primary, #8b5cf6);
+}
+
+.dayButton.selected {
+  background: var(--color-primary, #8b5cf6);
+  border-color: var(--color-primary, #8b5cf6);
+  color: white;
+}
+
+.dayButton.selected:hover:not(.disabled) {
+  background: var(--color-primary-dark, #7c3aed);
+  border-color: var(--color-primary-dark, #7c3aed);
+}
+
+.dayButton.weekend {
+  color: var(--color-text-tertiary, #999);
+}
+
+.dayButton.weekend.selected {
+  color: white;
+}
+
+.dayButton.inherited {
+  border-style: dashed;
+  opacity: 0.7;
+}
+
+.dayButton.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quickActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quickButton {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-text-secondary, #666);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quickButton:hover {
+  background: var(--color-background-hover, #f5f5f5);
+  border-color: var(--color-primary, #8b5cf6);
+  color: var(--color-primary, #8b5cf6);
+}
+
+/* Compact mode */
+.compact .dayButton {
+  width: 26px;
+  height: 26px;
+  font-size: 0.75rem;
+  border-width: 1.5px;
+}
+
+.compact .dayButtons {
+  gap: 3px;
+}

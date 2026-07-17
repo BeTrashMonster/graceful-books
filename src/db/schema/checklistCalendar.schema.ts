@@ -83,6 +83,11 @@ export interface AdminChecklist extends BaseEntity {
   quarterly_month: number | null; // 1, 2, or 3
   quarterly_day: number | null; // Day within that month
 
+  // Flexible month selection (for quarterly with prep/follow-up months)
+  // Array of months (1-12) when this checklist should run
+  // If set, overrides quarterly_month for more flexible scheduling
+  recurrence_months: number[] | null;
+
   // For annual: which month (1-12) + day rules
   annual_month: number | null; // 1-12
   annual_day: number | null; // Day within that month
@@ -151,6 +156,10 @@ export interface AdminTask extends BaseEntity {
 
   // One-time task specific date (Unix timestamp)
   scheduled_date: number | null;
+
+  // Task-level recurrence overrides (null means inherit from checklist)
+  days_of_week: number[] | null; // 0=Sunday through 6=Saturday
+  exclude_weekends: boolean | null; // Override checklist's exclude_weekends
 
   // Status
   is_archived: boolean;
@@ -344,6 +353,7 @@ export const createDefaultAdminChecklist = (
     monthly_day_of_week: null,
     quarterly_month: null,
     quarterly_day: null,
+    recurrence_months: null,
     annual_month: null,
     annual_day: null,
     custom_interval_value: null,
@@ -390,6 +400,8 @@ export const createDefaultAdminTask = (
     feature_link_label: null,
     order: 0,
     scheduled_date: null,
+    days_of_week: null,
+    exclude_weekends: null,
     is_archived: false,
     created_by: userId,
     updated_by: null,
@@ -484,6 +496,16 @@ export const validateAdminTask = (task: Partial<AdminTask>): string[] => {
 
   if (!task.title || task.title.trim() === '') {
     errors.push('title is required');
+  }
+
+  // Validate days_of_week if provided
+  if (task.days_of_week !== null && task.days_of_week !== undefined) {
+    if (task.days_of_week.length > 0) {
+      const invalidDays = task.days_of_week.filter((d) => d < 0 || d > 6);
+      if (invalidDays.length > 0) {
+        errors.push('days_of_week must contain values 0-6');
+      }
+    }
   }
 
   return errors;
