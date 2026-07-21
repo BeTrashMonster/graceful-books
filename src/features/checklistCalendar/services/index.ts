@@ -10,3 +10,4 @@ export * from './CompletionService';
 export * from './CommentService';
 export * from './CalendarService';
 export * from './PreferencesService';
+export * from './ProcedureService';

@@ -15,10 +15,14 @@ export type {
   UserChecklistPreferences,
   ChecklistWizardProgress,
   ChecklistRecurrenceType,
+  ChecklistType,
   TaskPriority,
   PeriodType,
   CustomIntervalUnit,
   TaskViewMode,
+  ProcedureInstance,
+  ProcedureTaskCompletion,
+  ProcedureInstanceStatus,
 } from '../../db/schema/checklistCalendar.schema';
 
 // Schema utilities
@@ -110,6 +114,16 @@ export {
   setWeekStartsOn,
   setEmailReminders,
   deletePreferences,
+  // ProcedureService
+  startProcedure,
+  getProcedureInstance,
+  getProcedureInstanceWithTasks,
+  getProcedureInstances,
+  completeProcedureTask,
+  uncompleteProcedureTask,
+  completeProcedureInstance,
+  cancelProcedureInstance,
+  getProcedureTemplates,
 } from './services';
 
 // Service types - renamed to avoid conflicts with components
@@ -134,6 +148,7 @@ export type {
   AgendaItem,
   UpdatePreferencesInput,
   PriorityColors,
+  ProcedureInstanceWithTasks,
 } from './services';
 
 // Components
@@ -145,6 +160,9 @@ export {
   SetupWizard,
   ChecklistManager,
   CreateChecklistModal,
+  ProceduresTab,
+  StartProcedureModal,
+  ProcedureInstanceView,
 } from './components';
 
 export type {
@@ -157,6 +175,9 @@ export type {
   WizardTask,
   ChecklistManagerProps,
   CreateChecklistModalProps,
+  ProceduresTabProps,
+  StartProcedureModalProps,
+  ProcedureInstanceViewProps,
 } from './components';
 
 // Hooks

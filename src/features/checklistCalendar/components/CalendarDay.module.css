@@ -175,6 +175,56 @@
   font-size: 10px;
 }
 
+/* Past day styling */
+.pastDay {
+  background: var(--color-surface-muted, #fafafa);
+}
+
+.pastDay:hover {
+  background: var(--color-surface-hover, #f5f5f5);
+}
+
+.pastDay .dateNumber {
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Past day summary - centered progress circle */
+.pastDaySummary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: var(--spacing-1, 4px);
+}
+
+.progressCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface, #ffffff);
+  border: 2px solid var(--color-border, #e5e7eb);
+  transition: all 0.2s ease;
+}
+
+.progressCircle.complete {
+  background: var(--color-success-light, #d1fae5);
+  border-color: var(--color-success, #10b981);
+}
+
+.progressFraction {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.progressCircle.complete .progressFraction {
+  color: var(--color-success-dark, #059669);
+  font-size: 14px;
+}
+
 /* Completion badge */
 .completionBadge {
   display: inline-flex;
@@ -218,6 +268,19 @@
   .taskCheckbox {
     display: none;
   }
+
+  .progressCircle {
+    width: 32px;
+    height: 32px;
+  }
+
+  .progressFraction {
+    font-size: 10px;
+  }
+
+  .progressCircle.complete .progressFraction {
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -241,6 +304,19 @@
 
   .completionBadge {
     display: none;
+  }
+
+  .progressCircle {
+    width: 26px;
+    height: 26px;
+  }
+
+  .progressFraction {
+    font-size: 9px;
+  }
+
+  .progressCircle.complete .progressFraction {
+    font-size: 10px;
   }
 }
 

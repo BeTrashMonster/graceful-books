@@ -2,7 +2,9 @@
  * Checklist Page
  *
  * Main page for the Admin Calendar - calendar-centric task and SOP management.
- * This replaces the previous checklist implementation with the new calendar view.
+ * Features two tabs:
+ * - Schedule: Calendar view for recurring scheduled tasks
+ * - Procedures: SOPs and procedure instance management
  *
  * @see Roadmaps/ROADMAP_CHECKLIST_CALENDAR.md
  */
@@ -14,19 +16,24 @@ import {
   SetupWizard,
   ChecklistManager,
   CreateChecklistModal,
+  ProceduresTab,
   createChecklist,
   createTask,
   getChecklists,
 } from '../features/checklistCalendar';
 import type { WizardChecklist } from '../features/checklistCalendar';
 
+type TabType = 'schedule' | 'procedures';
+
 /**
- * Main Checklist page component - now using Admin Calendar
+ * Main Checklist page component - now using Admin Calendar with tabs
  */
 export default function Checklist() {
+  const [activeTab, setActiveTab] = useState<TabType>('schedule');
   const [showWizard, setShowWizard] = useState(false);
   const [showManager, setShowManager] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createModalType, setCreateModalType] = useState<'scheduled' | 'procedure'>('scheduled');
   const [hasChecklists, setHasChecklists] = useState<boolean | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -111,6 +118,7 @@ export default function Checklist() {
         name: wc.name,
         description: wc.description,
         color: wc.color,
+        checklistType: wc.checklistType,
         recurrenceType: actualRecurrence,
         excludeWeekends: wc.excludeWeekends,
         isTemplate: false,
@@ -135,7 +143,7 @@ export default function Checklist() {
 
     setShowWizard(false);
     setHasChecklists(true);
-    // Refresh the calendar to show the new checklists
+    // Refresh to show the new checklists
     setRefreshKey((k) => k + 1);
   }, []);
 
@@ -145,7 +153,6 @@ export default function Checklist() {
   }, []);
 
   // Handle manager close with refresh
-  // IMPORTANT: All hooks must be called before any conditional returns
   const handleManagerClose = useCallback(() => {
     setShowManager(false);
     setRefreshKey((k) => k + 1);
@@ -156,6 +163,18 @@ export default function Checklist() {
     setShowCreateModal(false);
     setHasChecklists(true);
     setRefreshKey((k) => k + 1);
+  }, []);
+
+  // Handle create button click - opens modal with appropriate type
+  const handleCreateClick = useCallback(() => {
+    setCreateModalType(activeTab === 'procedures' ? 'procedure' : 'scheduled');
+    setShowCreateModal(true);
+  }, [activeTab]);
+
+  // Handle create procedure template
+  const handleCreateProcedureTemplate = useCallback(() => {
+    setCreateModalType('procedure');
+    setShowCreateModal(true);
   }, []);
 
   // Loading state - must come AFTER all hooks
@@ -197,46 +216,99 @@ export default function Checklist() {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreated={handleChecklistCreated}
+        defaultType={createModalType}
       />
 
-      {/* Admin Calendar */}
-      <AdminCalendarPage
-        key={refreshKey}
-        userId="demo-user"
-        userName="Demo User"
-      />
+      {/* Page Header with Tabs */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '20px 24px',
+        borderBottom: '1px solid var(--color-border, #e5e7eb)',
+        background: 'var(--color-surface, #ffffff)',
+      }}>
+        {/* Title and Tab Toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <h1 style={{
+            margin: 0,
+            fontSize: '24px',
+            fontWeight: 700,
+            color: 'var(--color-text-primary, #111827)',
+          }}>
+            Checklists
+          </h1>
 
-      {/* Quick actions */}
-      {hasChecklists && !showWizard && !showManager && (
-        <div style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          display: 'flex',
-          gap: '12px',
-        }}>
+          {/* Tab Toggle */}
+          <div style={{
+            display: 'flex',
+            gap: '4px',
+            padding: '4px',
+            background: 'var(--color-surface-muted, #f3f4f6)',
+            borderRadius: '10px',
+          }}>
+            <button
+              type="button"
+              onClick={() => setActiveTab('schedule')}
+              style={{
+                padding: '10px 20px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: activeTab === 'schedule' ? 'var(--color-primary, #8b5cf6)' : 'var(--color-text-secondary, #6b7280)',
+                background: activeTab === 'schedule' ? 'white' : 'transparent',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                boxShadow: activeTab === 'schedule' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Schedule
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('procedures')}
+              style={{
+                padding: '10px 20px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: activeTab === 'procedures' ? 'var(--color-primary, #8b5cf6)' : 'var(--color-text-secondary, #6b7280)',
+                background: activeTab === 'procedures' ? 'white' : 'transparent',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                boxShadow: activeTab === 'procedures' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Procedures
+            </button>
+          </div>
+        </div>
+
+        {/* Header actions */}
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
             type="button"
             onClick={() => setShowManager(true)}
             style={{
-              padding: '12px 20px',
+              padding: '8px 16px',
               fontSize: '14px',
               fontWeight: 500,
-              color: 'var(--color-primary, #8b5cf6)',
-              background: 'white',
-              border: '1px solid var(--color-primary, #8b5cf6)',
+              color: 'var(--color-text-secondary, #6b7280)',
+              background: 'transparent',
+              border: '1px solid var(--color-border, #e5e7eb)',
               borderRadius: '8px',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
             }}
           >
-            Manage Checklists
+            Manage
           </button>
           <button
             type="button"
-            onClick={() => setShowCreateModal(true)}
+            onClick={handleCreateClick}
             style={{
-              padding: '12px 20px',
+              padding: '8px 16px',
               fontSize: '14px',
               fontWeight: 500,
               color: 'white',
@@ -244,12 +316,29 @@ export default function Checklist() {
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
             }}
           >
-            + New Checklist
+            + Add {activeTab === 'procedures' ? 'Procedure' : 'Checklist'}
           </button>
         </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'schedule' ? (
+        <AdminCalendarPage
+          key={refreshKey}
+          userId="demo-user"
+          userName="Demo User"
+          hideHeader
+        />
+      ) : (
+        <ProceduresTab
+          companyId="demo-company"
+          userId="demo-user"
+          userName="Demo User"
+          onCreateTemplate={handleCreateProcedureTemplate}
+          refreshKey={refreshKey}
+        />
       )}
     </div>
   );

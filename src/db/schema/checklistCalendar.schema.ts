@@ -32,6 +32,16 @@ export type ChecklistRecurrenceType =
   | 'one-time'; // Non-recurring, specific date
 
 /**
+ * Checklist type - scheduled (calendar-based) or procedure (SOP/manual trigger)
+ */
+export type ChecklistType = 'scheduled' | 'procedure';
+
+/**
+ * Procedure instance status
+ */
+export type ProcedureInstanceStatus = 'in_progress' | 'completed' | 'cancelled';
+
+/**
  * Task priority levels
  */
 export type TaskPriority = 'high' | 'medium' | 'low' | 'none';
@@ -68,7 +78,10 @@ export interface AdminChecklist extends BaseEntity {
   color: string; // Hex color for calendar display (user-editable)
   icon: string | null; // Optional icon identifier
 
-  // Recurrence type determines when tasks appear
+  // Checklist type - 'scheduled' for calendar-based, 'procedure' for SOPs
+  checklist_type: ChecklistType;
+
+  // Recurrence type determines when tasks appear (for scheduled checklists)
   recurrence_type: ChecklistRecurrenceType;
 
   // For weekly: which day(s) of the week (0=Sunday, 1=Monday, ..., 6=Saturday)
@@ -121,7 +134,7 @@ export interface AdminChecklist extends BaseEntity {
  * Dexie.js schema definition for AdminChecklists table
  */
 export const adminChecklistsSchema =
-  'id, company_id, recurrence_type, is_archived, order, updated_at, deleted_at';
+  'id, company_id, checklist_type, recurrence_type, is_archived, order, updated_at, deleted_at';
 
 // =============================================================================
 // ENTITY: AdminTask
@@ -302,6 +315,79 @@ export const checklistWizardProgressSchema =
   'id, user_id, company_id, [user_id+company_id], is_completed, updated_at, deleted_at';
 
 // =============================================================================
+// ENTITY: ProcedureInstance
+// =============================================================================
+
+/**
+ * An instance of a procedure (SOP) that has been started.
+ * Each time someone clicks "Start" on a procedure template, a new instance is created.
+ */
+export interface ProcedureInstance extends BaseEntity {
+  checklist_id: string; // FK to AdminChecklist (the procedure template)
+  company_id: string; // FK to company
+
+  // Identity - user-provided label (e.g., "John Smith", "Acme Corp")
+  name: string; // ENCRYPTED - Label for this specific instance
+
+  // Status tracking
+  status: ProcedureInstanceStatus;
+  started_at: number; // Unix timestamp
+  started_by: string; // userId
+  started_by_name: string; // Denormalized for display
+  completed_at: number | null; // Unix timestamp when completed/cancelled
+  completed_by: string | null; // userId who completed/cancelled
+
+  // Task selection - which tasks from template are included in this instance
+  // If null, all tasks are included (backwards compatible)
+  selected_task_ids: string[] | null;
+
+  // Progress tracking (denormalized for quick display)
+  total_tasks: number;
+  completed_tasks: number;
+
+  // CRDT
+  version_vector: VersionVector;
+}
+
+/**
+ * Dexie.js schema definition for ProcedureInstances table
+ */
+export const procedureInstancesSchema =
+  'id, checklist_id, company_id, status, started_at, completed_at, updated_at, deleted_at';
+
+// =============================================================================
+// ENTITY: ProcedureTaskCompletion
+// =============================================================================
+
+/**
+ * Tracks completion of tasks within a procedure instance.
+ * Unlike AdminTaskCompletion (which tracks recurring completions),
+ * this tracks one-time completion within a specific instance.
+ */
+export interface ProcedureTaskCompletion extends BaseEntity {
+  instance_id: string; // FK to ProcedureInstance
+  task_id: string; // FK to AdminTask
+  company_id: string; // FK to company (for indexing)
+
+  // Completion details
+  completed_at: number; // Unix timestamp
+  completed_by: string; // userId
+  completed_by_name: string; // Denormalized for display
+
+  // Optional notes on this completion
+  notes: string | null; // ENCRYPTED
+
+  // CRDT
+  version_vector: VersionVector;
+}
+
+/**
+ * Dexie.js schema definition for ProcedureTaskCompletions table
+ */
+export const procedureTaskCompletionsSchema =
+  'id, instance_id, task_id, company_id, [instance_id+task_id], completed_at, updated_at, deleted_at';
+
+// =============================================================================
 // DEFAULT VALUES
 // =============================================================================
 
@@ -336,7 +422,8 @@ export const createDefaultAdminChecklist = (
   companyId: string,
   name: string,
   recurrenceType: ChecklistRecurrenceType,
-  deviceId: string
+  deviceId: string,
+  checklistType: ChecklistType = 'scheduled'
 ): Partial<AdminChecklist> => {
   const now = Date.now();
 
@@ -346,6 +433,7 @@ export const createDefaultAdminChecklist = (
     description: null,
     color: CHECKLIST_COLORS[0].value, // Default to blue
     icon: null,
+    checklist_type: checklistType,
     recurrence_type: recurrenceType,
     weekly_days: null,
     monthly_day: null,
@@ -521,3 +609,69 @@ export const ADMIN_TASK_COMPLETIONS_TABLE = 'adminTaskCompletions';
 export const ADMIN_TASK_COMMENTS_TABLE = 'adminTaskComments';
 export const USER_CHECKLIST_PREFERENCES_TABLE = 'userChecklistPreferences';
 export const CHECKLIST_WIZARD_PROGRESS_TABLE = 'checklistWizardProgress';
+export const PROCEDURE_INSTANCES_TABLE = 'procedureInstances';
+export const PROCEDURE_TASK_COMPLETIONS_TABLE = 'procedureTaskCompletions';
+
+// =============================================================================
+// PROCEDURE HELPERS
+// =============================================================================
+
+/**
+ * Create default ProcedureInstance
+ */
+export const createDefaultProcedureInstance = (
+  checklistId: string,
+  companyId: string,
+  name: string,
+  userId: string,
+  userName: string,
+  totalTasks: number,
+  deviceId: string
+): Partial<ProcedureInstance> => {
+  const now = Date.now();
+
+  return {
+    checklist_id: checklistId,
+    company_id: companyId,
+    name,
+    status: 'in_progress',
+    started_at: now,
+    started_by: userId,
+    started_by_name: userName,
+    completed_at: null,
+    completed_by: null,
+    total_tasks: totalTasks,
+    completed_tasks: 0,
+    created_at: now,
+    updated_at: now,
+    deleted_at: null,
+    version_vector: { [deviceId]: 1 },
+  };
+};
+
+/**
+ * Validate ProcedureInstance
+ */
+export const validateProcedureInstance = (
+  instance: Partial<ProcedureInstance>
+): string[] => {
+  const errors: string[] = [];
+
+  if (!instance.checklist_id) {
+    errors.push('checklist_id is required');
+  }
+
+  if (!instance.company_id) {
+    errors.push('company_id is required');
+  }
+
+  if (!instance.name || instance.name.trim() === '') {
+    errors.push('name is required');
+  }
+
+  if (!instance.started_by) {
+    errors.push('started_by is required');
+  }
+
+  return errors;
+};

@@ -93,6 +93,15 @@ export function CalendarDay({
     hasMediumPriority,
   } = day;
 
+  // Determine if this day is in the past (before today)
+  const isPastDay = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dayDate = new Date(date);
+    dayDate.setHours(0, 0, 0, 0);
+    return dayDate < today;
+  }, [date]);
+
   // Get visible tasks and count of hidden tasks
   const { visibleTasks, hiddenCount } = useMemo(() => {
     const visible = tasks.slice(0, maxVisibleTasks);
@@ -137,6 +146,7 @@ export function CalendarDay({
         isToday && styles.today,
         isSelected && styles.selected,
         isFocused && styles.focused,
+        isPastDay && isCurrentMonth && styles.pastDay,
         className
       )}
       onClick={onClick}
@@ -154,8 +164,8 @@ export function CalendarDay({
       <div className={styles.dateHeader}>
         <span className={styles.dateNumber}>{date.getDate()}</span>
 
-        {/* Priority indicators */}
-        {(hasHighPriority || hasMediumPriority) && (
+        {/* Priority indicators - only show for today/future */}
+        {!isPastDay && (hasHighPriority || hasMediumPriority) && (
           <div className={styles.priorityIndicators} aria-hidden="true">
             {hasHighPriority && (
               <span className={clsx(styles.priorityDot, styles.high)} />
@@ -167,8 +177,22 @@ export function CalendarDay({
         )}
       </div>
 
-      {/* Tasks list */}
-      {totalTasks > 0 ? (
+      {/* Past day - show simplified progress summary */}
+      {isPastDay && isCurrentMonth && totalTasks > 0 && (
+        <div className={styles.pastDaySummary}>
+          <div className={clsx(
+            styles.progressCircle,
+            percentComplete === 100 && styles.complete
+          )}>
+            <span className={styles.progressFraction}>
+              {percentComplete === 100 ? '✓' : `${completedTasks}/${totalTasks}`}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Today and future days - show full task list */}
+      {!isPastDay && totalTasks > 0 && (
         <div className={styles.tasksContainer}>
           {visibleTasks.map((calendarTask) => (
             <div
@@ -204,16 +228,17 @@ export function CalendarDay({
             </div>
           )}
         </div>
-      ) : (
-        isCurrentMonth && (
-          <div className={styles.emptyDay} aria-hidden="true">
-            {/* Empty day - could add "+" icon for adding tasks */}
-          </div>
-        )
       )}
 
-      {/* Completion badge for days with tasks */}
-      {totalTasks > 0 && isCurrentMonth && (
+      {/* Empty day for today/future */}
+      {!isPastDay && totalTasks === 0 && isCurrentMonth && (
+        <div className={styles.emptyDay} aria-hidden="true">
+          {/* Empty day - could add "+" icon for adding tasks */}
+        </div>
+      )}
+
+      {/* Completion badge for today/future days with tasks */}
+      {!isPastDay && totalTasks > 0 && isCurrentMonth && (
         <div
           className={clsx(
             styles.completionBadge,

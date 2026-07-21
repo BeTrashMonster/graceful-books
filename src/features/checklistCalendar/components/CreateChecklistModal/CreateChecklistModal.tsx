@@ -5,9 +5,9 @@
  * Allows users to create their own checklists beyond the wizard templates.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import clsx from 'clsx';
-import type { ChecklistRecurrenceType, TaskPriority } from '../../../../db/schema/checklistCalendar.schema';
+import type { ChecklistRecurrenceType, ChecklistType, TaskPriority } from '../../../../db/schema/checklistCalendar.schema';
 import { CHECKLIST_COLORS } from '../../../../db/schema/checklistCalendar.schema';
 import { ScheduleSelector } from '../ScheduleSelector';
 import type { ScheduleConfig } from '../ScheduleSelector';
@@ -22,6 +22,8 @@ export interface CreateChecklistModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreated: () => void;
+  /** Default checklist type - 'scheduled' for calendar or 'procedure' for SOPs */
+  defaultType?: ChecklistType;
 }
 
 interface TaskInput {
@@ -61,9 +63,18 @@ export function CreateChecklistModal({
   isOpen,
   onClose,
   onCreated,
+  defaultType = 'scheduled',
 }: CreateChecklistModalProps) {
   // Step state
   const [step, setStep] = useState<1 | 2>(1);
+
+  // Checklist type (scheduled for calendar, procedure for SOPs)
+  const [checklistType, setChecklistType] = useState<ChecklistType>(defaultType);
+
+  // Sync checklistType when defaultType prop changes
+  useEffect(() => {
+    setChecklistType(defaultType);
+  }, [defaultType]);
 
   // Checklist details
   const [name, setName] = useState('');
@@ -186,9 +197,11 @@ export function CreateChecklistModal({
         companyId: COMPANY_ID,
         name: name.trim(),
         color,
-        recurrenceType: actualRecurrence,
-        excludeWeekends,
-        ...scheduleFields,
+        checklistType,
+        // For procedures, use 'none' recurrence since they're triggered manually
+        recurrenceType: checklistType === 'procedure' ? 'none' : actualRecurrence,
+        excludeWeekends: checklistType === 'procedure' ? false : excludeWeekends,
+        ...(checklistType === 'scheduled' ? scheduleFields : {}),
       });
 
       if (!checklistResult.success) {
@@ -222,6 +235,7 @@ export function CreateChecklistModal({
 
   const resetForm = useCallback(() => {
     setStep(1);
+    setChecklistType(defaultType);
     setName('');
     setColor(CHECKLIST_COLORS[0].value);
     setRecurrence('weekly');
@@ -244,7 +258,7 @@ export function CreateChecklistModal({
     setNewTaskTitle('');
     setNewTaskDescription('');
     setError(null);
-  }, []);
+  }, [defaultType]);
 
   const handleClose = useCallback(() => {
     resetForm();
@@ -261,7 +275,9 @@ export function CreateChecklistModal({
       <div className={styles.modal}>
         {/* Header */}
         <div className={styles.header}>
-          <h2 className={styles.title}>Create New Checklist</h2>
+          <h2 className={styles.title}>
+            Create New {checklistType === 'procedure' ? 'Procedure' : 'Checklist'}
+          </h2>
           <button
             type="button"
             className={styles.closeButton}
@@ -303,15 +319,50 @@ export function CreateChecklistModal({
         <div className={styles.content}>
           {step === 1 ? (
             <>
+              {/* Type Toggle */}
+              <div className={styles.field}>
+                <label className={styles.label}>Type</label>
+                <div className={styles.typeToggle}>
+                  <button
+                    type="button"
+                    className={clsx(
+                      styles.typeOption,
+                      checklistType === 'scheduled' && styles.selected
+                    )}
+                    onClick={() => setChecklistType('scheduled')}
+                  >
+                    <span className={styles.typeLabel}>Scheduled</span>
+                    <span className={styles.typeDesc}>Recurring tasks on calendar</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={clsx(
+                      styles.typeOption,
+                      checklistType === 'procedure' && styles.selected
+                    )}
+                    onClick={() => setChecklistType('procedure')}
+                  >
+                    <span className={styles.typeLabel}>Procedure</span>
+                    <span className={styles.typeDesc}>SOPs started when needed</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Name */}
               <div className={styles.field}>
-                <label className={styles.label}>Checklist Name *</label>
+                <label className={styles.label}>
+                  {checklistType === 'procedure' ? 'Procedure Name *' : 'Checklist Name *'}
+                </label>
                 <input
                   type="text"
                   className={styles.input}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g., Payroll Tasks, Client Onboarding"
+                  placeholder={
+                    checklistType === 'procedure'
+                      ? 'e.g., Client Onboarding, Employee Setup'
+                      : 'e.g., Payroll Tasks, Month-End Close'
+                  }
                   autoFocus
                 />
               </div>
@@ -334,54 +385,69 @@ export function CreateChecklistModal({
                 </div>
               </div>
 
-              {/* Recurrence */}
-              <div className={styles.field}>
-                <label className={styles.label}>Recurrence</label>
-                <div className={styles.recurrenceOptions}>
-                  {RECURRENCE_OPTIONS.map((opt) => (
-                    <label
-                      key={opt.value}
-                      className={clsx(
-                        styles.recurrenceOption,
-                        recurrence === opt.value && styles.selected
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="recurrence"
-                        value={opt.value}
-                        checked={recurrence === opt.value}
-                        onChange={() => setRecurrence(opt.value)}
-                      />
-                      <div className={styles.recurrenceContent}>
-                        <span className={styles.recurrenceLabel}>{opt.label}</span>
-                        <span className={styles.recurrenceDesc}>{opt.description}</span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              {/* Recurrence - only for scheduled checklists */}
+              {checklistType === 'scheduled' && (
+                <>
+                  <div className={styles.field}>
+                    <label className={styles.label}>Recurrence</label>
+                    <div className={styles.recurrenceOptions}>
+                      {RECURRENCE_OPTIONS.map((opt) => (
+                        <label
+                          key={opt.value}
+                          className={clsx(
+                            styles.recurrenceOption,
+                            recurrence === opt.value && styles.selected
+                          )}
+                        >
+                          <input
+                            type="radio"
+                            name="recurrence"
+                            value={opt.value}
+                            checked={recurrence === opt.value}
+                            onChange={() => setRecurrence(opt.value)}
+                          />
+                          <div className={styles.recurrenceContent}>
+                            <span className={styles.recurrenceLabel}>{opt.label}</span>
+                            <span className={styles.recurrenceDesc}>{opt.description}</span>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
 
-              {/* Schedule Selector - always show */}
-              <div className={styles.field}>
-                <ScheduleSelector
-                  recurrenceType={recurrence}
-                  config={scheduleConfig}
-                  onChange={handleScheduleChange}
-                />
-              </div>
-
-              {/* Exclude Weekends - only for monthly/quarterly/annual */}
-              {showExcludeWeekends && (
-                <div className={styles.field}>
-                  <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      checked={excludeWeekends}
-                      onChange={(e) => setExcludeWeekends(e.target.checked)}
+                  {/* Schedule Selector */}
+                  <div className={styles.field}>
+                    <ScheduleSelector
+                      recurrenceType={recurrence}
+                      config={scheduleConfig}
+                      onChange={handleScheduleChange}
                     />
-                    <span>Exclude Sat/Sun (tasks shift to Monday)</span>
-                  </label>
+                  </div>
+
+                  {/* Exclude Weekends - only for monthly/quarterly/annual */}
+                  {showExcludeWeekends && (
+                    <div className={styles.field}>
+                      <label className={styles.checkboxLabel}>
+                        <input
+                          type="checkbox"
+                          checked={excludeWeekends}
+                          onChange={(e) => setExcludeWeekends(e.target.checked)}
+                        />
+                        <span>Exclude Sat/Sun (tasks shift to Monday)</span>
+                      </label>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Procedure info */}
+              {checklistType === 'procedure' && (
+                <div className={styles.procedureInfo}>
+                  <p>
+                    Procedures are step-by-step processes that you start when needed.
+                    Each time you start a procedure, you can label it (e.g., "John Smith"
+                    for employee onboarding) to track multiple instances.
+                  </p>
                 </div>
               )}
             </>
@@ -498,7 +564,9 @@ export function CreateChecklistModal({
                 onClick={handleCreate}
                 disabled={isCreating || tasks.length === 0}
               >
-                {isCreating ? 'Creating...' : `Create Checklist (${tasks.length} tasks)`}
+                {isCreating
+                  ? 'Creating...'
+                  : `Create ${checklistType === 'procedure' ? 'Procedure' : 'Checklist'} (${tasks.length} tasks)`}
               </button>
             </>
           )}

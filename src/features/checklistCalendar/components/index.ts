@@ -33,3 +33,12 @@ export type { ScheduleSelectorProps, ScheduleConfig } from './ScheduleSelector';
 
 export { CreateChecklistModal } from './CreateChecklistModal';
 export type { CreateChecklistModalProps } from './CreateChecklistModal';
+
+export { ProceduresTab } from './ProceduresTab';
+export type { ProceduresTabProps } from './ProceduresTab';
+
+export { StartProcedureModal } from './StartProcedureModal';
+export type { StartProcedureModalProps } from './StartProcedureModal';
+
+export { ProcedureInstanceView } from './ProcedureInstanceView';
+export type { ProcedureInstanceViewProps } from './ProcedureInstanceView';

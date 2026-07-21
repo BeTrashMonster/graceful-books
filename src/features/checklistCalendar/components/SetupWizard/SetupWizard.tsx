@@ -13,6 +13,7 @@ import { useState, useCallback } from 'react';
 import clsx from 'clsx';
 import type {
   ChecklistRecurrenceType,
+  ChecklistType,
   TaskPriority,
 } from '../../../../db/schema/checklistCalendar.schema';
 import { CHECKLIST_COLORS } from '../../../../db/schema/checklistCalendar.schema';
@@ -40,12 +41,13 @@ export interface WizardChecklist {
   name: string;
   description?: string;
   color: string;
+  checklistType: ChecklistType; // 'scheduled' or 'procedure'
   recurrence: ChecklistRecurrenceType;
   tasks: WizardTask[];
   enabled: boolean;
   excludeWeekends: boolean;
 
-  // Scheduling configuration
+  // Scheduling configuration (only for scheduled checklists)
   weeklyDays: number[];
   isEveryOtherWeek: boolean;
   monthlyScheduleType: 'day' | 'weekday';
@@ -84,26 +86,31 @@ export interface SetupWizardProps {
 // DEFAULT TEMPLATE
 // =============================================================================
 
+// Default scheduling fields for all checklists
+const DEFAULT_SCHEDULE_FIELDS = {
+  weeklyDays: [5],
+  isEveryOtherWeek: false,
+  monthlyScheduleType: 'day' as const,
+  monthlyDay: -1,
+  monthlyWeek: 1,
+  monthlyDayOfWeek: 1,
+  quarterlyMonths: [3, 6, 9, 12],
+  quarterlyDay: -1,
+  annualMonth: 12,
+  annualDay: 31,
+};
+
 const DEFAULT_CHECKLISTS: WizardChecklist[] = [
   {
     id: 'daily',
     name: 'Daily Tasks',
     description: 'Tasks to complete every business day',
     color: CHECKLIST_COLORS[0].value,
+    checklistType: 'scheduled',
     recurrence: 'daily',
     enabled: true,
     excludeWeekends: true, // Default to weekdays only for daily tasks
-    // Scheduling defaults (not used for daily, but required by type)
-    weeklyDays: [5],
-    isEveryOtherWeek: false,
-    monthlyScheduleType: 'day',
-    monthlyDay: -1,
-    monthlyWeek: 1,
-    monthlyDayOfWeek: 1,
-    quarterlyMonths: [3, 6, 9, 12],
-    quarterlyDay: -1,
-    annualMonth: 12,
-    annualDay: 31,
+    ...DEFAULT_SCHEDULE_FIELDS,
     tasks: [
       {
         id: 'daily-1',
@@ -148,20 +155,12 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
     name: 'Weekly Tasks',
     description: 'Tasks to complete each week',
     color: CHECKLIST_COLORS[1].value,
+    checklistType: 'scheduled',
     recurrence: 'weekly',
     enabled: true,
     excludeWeekends: false,
-    // Scheduling defaults
+    ...DEFAULT_SCHEDULE_FIELDS,
     weeklyDays: [5], // Friday
-    isEveryOtherWeek: false,
-    monthlyScheduleType: 'day',
-    monthlyDay: -1,
-    monthlyWeek: 1,
-    monthlyDayOfWeek: 1,
-    quarterlyMonths: [3, 6, 9, 12],
-    quarterlyDay: -1,
-    annualMonth: 12,
-    annualDay: 31,
     tasks: [
       {
         id: 'weekly-1',
@@ -214,20 +213,12 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
     name: 'Monthly Close Tasks',
     description: 'Month-end closing procedures',
     color: CHECKLIST_COLORS[2].value,
+    checklistType: 'scheduled',
     recurrence: 'monthly',
     enabled: true,
     excludeWeekends: false,
-    // Scheduling defaults
-    weeklyDays: [5],
-    isEveryOtherWeek: false,
-    monthlyScheduleType: 'day',
+    ...DEFAULT_SCHEDULE_FIELDS,
     monthlyDay: -1, // Last day of month
-    monthlyWeek: 1,
-    monthlyDayOfWeek: 1,
-    quarterlyMonths: [3, 6, 9, 12],
-    quarterlyDay: -1,
-    annualMonth: 12,
-    annualDay: 31,
     tasks: [
       {
         id: 'monthly-1',
@@ -298,20 +289,13 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
     name: 'Quarterly Tasks',
     description: 'End-of-quarter procedures',
     color: CHECKLIST_COLORS[3].value,
+    checklistType: 'scheduled',
     recurrence: 'quarterly',
     enabled: true,
     excludeWeekends: false,
-    // Scheduling defaults
-    weeklyDays: [5],
-    isEveryOtherWeek: false,
-    monthlyScheduleType: 'day',
-    monthlyDay: -1,
-    monthlyWeek: 1,
-    monthlyDayOfWeek: 1,
+    ...DEFAULT_SCHEDULE_FIELDS,
     quarterlyMonths: [3, 6, 9, 12], // Third month of quarter
     quarterlyDay: -1, // Last day
-    annualMonth: 12,
-    annualDay: 31,
     tasks: [
       {
         id: 'quarterly-1',
@@ -355,18 +339,11 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
     name: 'Annual Tasks',
     description: 'Year-end procedures and filings',
     color: CHECKLIST_COLORS[4].value,
+    checklistType: 'scheduled',
     recurrence: 'annual',
     enabled: true,
     excludeWeekends: false,
-    // Scheduling defaults
-    weeklyDays: [5],
-    isEveryOtherWeek: false,
-    monthlyScheduleType: 'day',
-    monthlyDay: -1,
-    monthlyWeek: 1,
-    monthlyDayOfWeek: 1,
-    quarterlyMonths: [3, 6, 9, 12],
-    quarterlyDay: -1,
+    ...DEFAULT_SCHEDULE_FIELDS,
     annualMonth: 12, // December
     annualDay: 31, // 31st
     tasks: [
@@ -412,6 +389,228 @@ const DEFAULT_CHECKLISTS: WizardChecklist[] = [
         description: 'Request updated W-9 forms from vendors',
         priority: 'medium',
         recurrence: 'annual',
+        enabled: true,
+        daysOfWeek: null,
+      },
+    ],
+  },
+  // ==========================================================================
+  // PROCEDURE TEMPLATES (SOPs)
+  // ==========================================================================
+  {
+    id: 'client-onboarding',
+    name: 'Client Onboarding',
+    description: 'Complete process for new client setup',
+    color: CHECKLIST_COLORS[5].value, // Teal
+    checklistType: 'procedure',
+    recurrence: 'one-time',
+    enabled: false,
+    excludeWeekends: false,
+    ...DEFAULT_SCHEDULE_FIELDS,
+    tasks: [
+      {
+        id: 'client-1',
+        title: 'Send engagement letter',
+        description: 'Prepare and send the engagement letter for client signature',
+        priority: 'high',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'client-2',
+        title: 'Collect signed engagement letter',
+        description: 'Receive and file the signed engagement letter',
+        priority: 'high',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'client-3',
+        title: 'Set up client folder',
+        description: 'Create client folder structure in the system',
+        priority: 'medium',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'client-4',
+        title: 'Request bank access',
+        description: 'Request read-only access to client bank accounts',
+        priority: 'high',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'client-5',
+        title: 'Import opening balances',
+        description: 'Set up chart of accounts and import opening balances',
+        priority: 'high',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'client-6',
+        title: 'Set up recurring transactions',
+        description: 'Configure any recurring transactions or templates',
+        priority: 'medium',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'client-7',
+        title: 'Schedule kickoff call',
+        description: 'Schedule and conduct initial kickoff meeting with client',
+        priority: 'medium',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+    ],
+  },
+  {
+    id: 'employee-onboarding',
+    name: 'Employee Onboarding',
+    description: 'New team member setup checklist',
+    color: CHECKLIST_COLORS[6].value, // Red
+    checklistType: 'procedure',
+    recurrence: 'one-time',
+    enabled: false,
+    excludeWeekends: false,
+    ...DEFAULT_SCHEDULE_FIELDS,
+    tasks: [
+      {
+        id: 'emp-1',
+        title: 'Send offer letter',
+        description: 'Prepare and send employment offer letter',
+        priority: 'high',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'emp-2',
+        title: 'Collect I-9 documentation',
+        description: 'Verify identity and work authorization documents',
+        priority: 'high',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'emp-3',
+        title: 'Complete W-4 form',
+        description: 'Have employee complete federal tax withholding form',
+        priority: 'high',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'emp-4',
+        title: 'Set up payroll',
+        description: 'Add employee to payroll system with correct details',
+        priority: 'high',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'emp-5',
+        title: 'Order equipment',
+        description: 'Request necessary equipment (laptop, monitors, etc.)',
+        priority: 'medium',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'emp-6',
+        title: 'Create email account',
+        description: 'Set up company email and add to distribution lists',
+        priority: 'medium',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'emp-7',
+        title: 'Set up system access',
+        description: 'Grant access to necessary systems and software',
+        priority: 'medium',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'emp-8',
+        title: 'Schedule orientation',
+        description: 'Plan and conduct new employee orientation',
+        priority: 'medium',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+    ],
+  },
+  {
+    id: 'contractor-setup',
+    name: 'Contractor Setup',
+    description: '1099 contractor onboarding process',
+    color: CHECKLIST_COLORS[7].value, // Yellow
+    checklistType: 'procedure',
+    recurrence: 'one-time',
+    enabled: false,
+    excludeWeekends: false,
+    ...DEFAULT_SCHEDULE_FIELDS,
+    tasks: [
+      {
+        id: 'cont-1',
+        title: 'Send contract agreement',
+        description: 'Prepare and send contractor agreement for signature',
+        priority: 'high',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'cont-2',
+        title: 'Collect W-9 form',
+        description: 'Request and file W-9 for tax reporting',
+        priority: 'high',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'cont-3',
+        title: 'Set up in vendor system',
+        description: 'Add contractor as vendor for payment processing',
+        priority: 'medium',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'cont-4',
+        title: 'Grant system access',
+        description: 'Provide any necessary system access (if applicable)',
+        priority: 'low',
+        recurrence: 'one-time',
+        enabled: true,
+        daysOfWeek: null,
+      },
+      {
+        id: 'cont-5',
+        title: 'Document payment terms',
+        description: 'Record payment schedule and method preferences',
+        priority: 'medium',
+        recurrence: 'one-time',
         enabled: true,
         daysOfWeek: null,
       },
@@ -502,16 +701,27 @@ function ChecklistSelectionStep({
   onNext,
 }: ChecklistSelectionStepProps) {
   const enabledCount = checklists.filter((c) => c.enabled).length;
+  const scheduledChecklists = checklists.filter((c) => c.checklistType === 'scheduled');
+  const procedureChecklists = checklists.filter((c) => c.checklistType === 'procedure');
 
   return (
     <div className={styles.stepContent}>
       <h2 className={styles.stepTitle}>Choose Your Checklists</h2>
       <p className={styles.stepDescription}>
-        Select which recurring checklists you'd like to set up. You can customize tasks in the next step.
+        Select recurring schedules and procedure templates you'd like to set up.
       </p>
 
+      {/* Scheduled Checklists Section */}
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}>📅</span>
+        <div className={styles.sectionHeaderText}>
+          <span className={styles.sectionHeaderTitle}>Scheduled</span>
+          <span className={styles.sectionHeaderSubtitle}>Tasks that repeat on a regular schedule</span>
+        </div>
+      </div>
+
       <div className={styles.checklistGrid}>
-        {checklists.map((checklist) => (
+        {scheduledChecklists.map((checklist) => (
           <label
             key={checklist.id}
             className={clsx(
@@ -584,6 +794,44 @@ function ChecklistSelectionStep({
                 )}
               </div>
             )}
+          </label>
+        ))}
+      </div>
+
+      {/* Procedures Section */}
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}>📖</span>
+        <div className={styles.sectionHeaderText}>
+          <span className={styles.sectionHeaderTitle}>Procedures</span>
+          <span className={styles.sectionHeaderSubtitle}>Step-by-step processes you start when the need arises</span>
+        </div>
+      </div>
+
+      <div className={styles.checklistGrid}>
+        {procedureChecklists.map((checklist) => (
+          <label
+            key={checklist.id}
+            className={clsx(
+              styles.checklistCard,
+              styles.procedureCard,
+              checklist.enabled && styles.selected
+            )}
+            style={{ '--checklist-color': checklist.color } as React.CSSProperties}
+          >
+            <input
+              type="checkbox"
+              checked={checklist.enabled}
+              onChange={() => onToggleChecklist(checklist.id)}
+              className={styles.hiddenCheckbox}
+            />
+            <div className={styles.checklistHeader}>
+              <span className={styles.checklistName}>{checklist.name}</span>
+              <span className={styles.checklistBadge}>procedure</span>
+            </div>
+            <p className={styles.checklistDescription}>{checklist.description}</p>
+            <span className={styles.taskCount}>
+              {checklist.tasks.filter((t) => t.enabled).length} steps
+            </span>
           </label>
         ))}
       </div>

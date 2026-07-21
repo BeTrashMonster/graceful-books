@@ -30,6 +30,11 @@ export interface AdminCalendarPageProps {
    * Current user name
    */
   userName?: string;
+
+  /**
+   * Hide the header (for when embedded in a page with its own header)
+   */
+  hideHeader?: boolean;
 }
 
 // =============================================================================
@@ -39,6 +44,7 @@ export interface AdminCalendarPageProps {
 export function AdminCalendarPage({
   userId = 'demo-user',
   userName = 'Demo User',
+  hideHeader = false,
 }: AdminCalendarPageProps) {
   const navigate = useNavigate();
 
@@ -119,25 +125,27 @@ export function AdminCalendarPage({
 
   return (
     <div className={styles.page}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>Admin Calendar</h1>
-          <p className={styles.subtitle}>
-            Manage your recurring tasks and checklists
-          </p>
-        </div>
-        <div className={styles.headerActions}>
-          <button
-            type="button"
-            className={styles.viewToggle}
-            onClick={toggleViewMode}
-            aria-pressed={viewMode === 'incomplete'}
-          >
-            {viewMode === 'incomplete' ? 'Show All Tasks' : 'Show Incomplete Only'}
-          </button>
-        </div>
-      </header>
+      {/* Header - can be hidden when embedded */}
+      {!hideHeader && (
+        <header className={styles.header}>
+          <div className={styles.headerContent}>
+            <h1 className={styles.title}>Admin Calendar</h1>
+            <p className={styles.subtitle}>
+              Manage your recurring tasks and checklists
+            </p>
+          </div>
+          <div className={styles.headerActions}>
+            <button
+              type="button"
+              className={styles.viewToggle}
+              onClick={toggleViewMode}
+              aria-pressed={viewMode === 'incomplete'}
+            >
+              {viewMode === 'incomplete' ? 'Show All Tasks' : 'Show Incomplete Only'}
+            </button>
+          </div>
+        </header>
+      )}
 
       {/* Error banner */}
       {error && (

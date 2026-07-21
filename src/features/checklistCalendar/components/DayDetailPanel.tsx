@@ -192,13 +192,21 @@ export function DayDetailPanel({
                             </span>
                           )}
                         </span>
-                        {calendarTask.task.priority !== 'none' && (
-                          <span className={clsx(
-                            styles.priorityBadge,
-                            styles[calendarTask.task.priority]
-                          )}>
-                            {calendarTask.task.priority}
+                        {/* Show procedure instance name(s) for procedure tasks */}
+                        {calendarTask.procedureInstances && calendarTask.procedureInstances.length > 0 ? (
+                          <span className={styles.procedureBadge}>
+                            {calendarTask.procedureInstances.map(i => i.name).join(', ')}
                           </span>
+                        ) : (
+                          /* Show priority badge for non-procedure tasks */
+                          calendarTask.task.priority !== 'none' && (
+                            <span className={clsx(
+                              styles.priorityBadge,
+                              styles[calendarTask.task.priority]
+                            )}>
+                              {calendarTask.task.priority}
+                            </span>
+                          )
                         )}
                       </div>
                     </div>

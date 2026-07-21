@@ -255,6 +255,67 @@
   accent-color: var(--color-primary, #8b5cf6);
 }
 
+/* Type Toggle */
+.typeToggle {
+  display: flex;
+  gap: var(--spacing-2, 8px);
+}
+
+.typeOption {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: var(--spacing-3, 12px);
+  background: var(--color-surface, #ffffff);
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.typeOption:hover {
+  border-color: var(--color-primary-light, #d8b4fe);
+  background: var(--color-surface-muted, #f9fafb);
+}
+
+.typeOption.selected {
+  border-color: var(--color-primary, #8b5cf6);
+  background: var(--color-primary-lighter, #f3e8ff);
+}
+
+.typeLabel {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.typeDesc {
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.typeOption.selected .typeLabel {
+  color: var(--color-primary-dark, #7c3aed);
+}
+
+/* Procedure Info */
+.procedureInfo {
+  padding: var(--spacing-4, 16px);
+  background: var(--color-surface-muted, #f9fafb);
+  border-radius: var(--radius-md, 8px);
+  border: 1px dashed var(--color-border, #e5e7eb);
+}
+
+.procedureInfo p {
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.6;
+}
+
 /* Task Section */
 .taskSection {
   display: flex;

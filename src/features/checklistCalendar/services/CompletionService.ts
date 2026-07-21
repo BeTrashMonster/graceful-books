@@ -13,19 +13,142 @@
 import { nanoid } from 'nanoid';
 import { db } from '../../../db/database';
 import type { DatabaseResult } from '../../../store/types';
-import type {
-  AdminTaskCompletion,
-  PeriodType,
-} from '../../../db/schema/checklistCalendar.schema';
+import type { AdminTaskCompletion } from '../../../db/schema/checklistCalendar.schema';
 import { getDeviceId } from '../../../utils/device';
 import { logger } from '../../../utils/logger';
 import {
   getPeriodValue,
   getPeriodTypeForRecurrence,
-  formatDateISO,
 } from '../utils/recurrence';
 
 const completionLogger = logger.child('CompletionService');
+
+// =============================================================================
+// PROCEDURE SYNC HELPERS (to avoid circular imports)
+// =============================================================================
+
+/**
+ * Sync completion to procedure instance if applicable
+ * This is defined here to avoid circular imports with ProcedureService
+ */
+async function syncToProcedureInstance(
+  taskId: string,
+  companyId: string,
+  userId: string,
+  userName: string,
+  isComplete: boolean,
+  notes?: string | null
+): Promise<void> {
+  try {
+    // Get the task to find its checklist
+    const task = await db.adminTasks.get(taskId);
+    if (!task) return;
+
+    // Get the checklist to check if it's a procedure
+    const checklist = await db.adminChecklists.get(task.checklist_id);
+    if (!checklist || checklist.checklist_type !== 'procedure') return;
+
+    // Find active procedure instances for this checklist
+    const activeInstances = await db.procedureInstances
+      .where('checklist_id')
+      .equals(checklist.id)
+      .filter((i) => !i.deleted_at && i.status === 'in_progress')
+      .toArray();
+
+    // Only sync if there's exactly one active instance (to avoid ambiguity)
+    if (activeInstances.length !== 1) {
+      if (activeInstances.length > 1) {
+        completionLogger.info('Multiple active procedure instances found, skipping sync', {
+          taskId,
+          checklistId: checklist.id,
+          instanceCount: activeInstances.length,
+        });
+      }
+      return;
+    }
+
+    const instance = activeInstances[0]!;
+    const { getDeviceId } = await import('../../../utils/device');
+    const { incrementVersionVector } = await import('../../../db/crdt');
+    const deviceId = await getDeviceId();
+    const now = Date.now();
+
+    const instanceId = instance.id;
+    const instanceCompletedTasks = instance.completed_tasks;
+    const instanceVersionVector = instance.version_vector;
+
+    if (isComplete) {
+      // Check if task is already completed in this instance
+      const existingCompletion = await db.procedureTaskCompletions
+        .where('[instance_id+task_id]')
+        .equals([instanceId, taskId])
+        .filter((c) => !c.deleted_at)
+        .first();
+
+      if (!existingCompletion) {
+        // Create procedure task completion
+        const { nanoid } = await import('nanoid');
+        const completion = {
+          id: nanoid(),
+          instance_id: instanceId,
+          task_id: taskId,
+          company_id: companyId,
+          completed_at: now,
+          completed_by: userId,
+          completed_by_name: userName,
+          notes: notes ?? null,
+          created_at: now,
+          updated_at: now,
+          deleted_at: null,
+          version_vector: { [deviceId]: 1 },
+        };
+
+        await db.procedureTaskCompletions.add(completion);
+
+        // Update instance progress
+        await db.procedureInstances.update(instanceId, {
+          completed_tasks: instanceCompletedTasks + 1,
+          updated_at: now,
+          version_vector: incrementVersionVector(instanceVersionVector, deviceId),
+        });
+
+        completionLogger.info('Synced calendar completion to procedure', {
+          taskId,
+          instanceId,
+        });
+      }
+    } else {
+      // Find and delete the procedure completion
+      const completion = await db.procedureTaskCompletions
+        .where('[instance_id+task_id]')
+        .equals([instanceId, taskId])
+        .filter((c) => !c.deleted_at)
+        .first();
+
+      if (completion) {
+        await db.procedureTaskCompletions.update(completion.id, {
+          deleted_at: now,
+          updated_at: now,
+        });
+
+        // Update instance progress
+        await db.procedureInstances.update(instanceId, {
+          completed_tasks: Math.max(0, instanceCompletedTasks - 1),
+          updated_at: now,
+          version_vector: incrementVersionVector(instanceVersionVector, deviceId),
+        });
+
+        completionLogger.info('Synced calendar uncompletion to procedure', {
+          taskId,
+          instanceId,
+        });
+      }
+    }
+  } catch (error) {
+    completionLogger.error('Failed to sync to procedure instance', { error, taskId });
+    // Don't throw - this is a secondary operation
+  }
+}
 
 // =============================================================================
 // TYPES
@@ -283,6 +406,16 @@ export async function toggleTaskCompletion(
       if (!result.success) {
         return result as { success: false; error: { code: 'NOT_FOUND' | 'VALIDATION_ERROR' | 'CONSTRAINT_VIOLATION' | 'ENCRYPTION_ERROR' | 'CONFLICT_ERROR' | 'UNBALANCED_TRANSACTION' | 'UNKNOWN_ERROR'; message: string } };
       }
+
+      // Sync to procedure instance if applicable
+      await syncToProcedureInstance(
+        input.taskId,
+        input.companyId,
+        input.userId,
+        input.userName,
+        false
+      );
+
       return {
         success: true,
         data: { isComplete: false },
@@ -293,6 +426,17 @@ export async function toggleTaskCompletion(
       if (!result.success) {
         return result as { success: false; error: { code: 'NOT_FOUND' | 'VALIDATION_ERROR' | 'CONSTRAINT_VIOLATION' | 'ENCRYPTION_ERROR' | 'CONFLICT_ERROR' | 'UNBALANCED_TRANSACTION' | 'UNKNOWN_ERROR'; message: string } };
       }
+
+      // Sync to procedure instance if applicable
+      await syncToProcedureInstance(
+        input.taskId,
+        input.companyId,
+        input.userId,
+        input.userName,
+        true,
+        input.notes
+      );
+
       return {
         success: true,
         data: { isComplete: true, completion: result.data },

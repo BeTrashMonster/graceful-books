@@ -1,0 +1,292 @@
+/**
+ * StartProcedureModal Component Styles
+ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-4, 16px);
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--radius-xl, 16px);
+  padding: var(--spacing-6, 24px);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.title {
+  margin: 0 0 var(--spacing-5, 20px);
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.field {
+  margin-bottom: var(--spacing-4, 16px);
+}
+
+.label {
+  display: block;
+  margin-bottom: var(--spacing-1, 4px);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.input {
+  width: 100%;
+  padding: var(--spacing-3, 12px);
+  font-size: var(--text-base, 1rem);
+  color: var(--color-text-primary, #111827);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary, #8b5cf6);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.input:disabled {
+  background: var(--color-surface-muted, #f9fafb);
+  cursor: not-allowed;
+}
+
+.input::placeholder {
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.hint {
+  margin: var(--spacing-1, 4px) 0 0;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Task Selection Section */
+.taskSection {
+  margin-bottom: var(--spacing-4, 16px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  overflow: hidden;
+}
+
+.taskHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-2, 8px) var(--spacing-3, 12px);
+  background: var(--color-surface-muted, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.taskLabel {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.taskActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1, 4px);
+}
+
+.textButton {
+  padding: 2px 6px;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 500;
+  color: var(--color-primary, #8b5cf6);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.textButton:hover:not(:disabled) {
+  background: var(--color-primary-light, #f3e8ff);
+}
+
+.textButton:disabled {
+  color: var(--color-text-tertiary, #9ca3af);
+  cursor: not-allowed;
+}
+
+.separator {
+  color: var(--color-border, #e5e7eb);
+  font-size: var(--text-xs, 0.75rem);
+}
+
+.taskList {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: var(--spacing-2, 8px);
+}
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  padding: var(--spacing-2, 8px);
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.taskItem:hover {
+  background: var(--color-surface-hover, #f3f4f6);
+}
+
+.taskCheckbox {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary, #8b5cf6);
+  cursor: pointer;
+}
+
+.taskTitle {
+  flex: 1;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-primary, #111827);
+  word-break: break-word;
+}
+
+.priorityDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.priorityHigh {
+  background: var(--color-danger, #ef4444);
+}
+
+.priorityMedium {
+  background: var(--color-warning, #f97316);
+}
+
+.priorityLow {
+  background: var(--color-primary, #8b5cf6);
+}
+
+.loading,
+.noTasks {
+  padding: var(--spacing-4, 16px);
+  text-align: center;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.error {
+  margin: 0 0 var(--spacing-4, 16px);
+  padding: var(--spacing-2, 8px) var(--spacing-3, 12px);
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-danger, #ef4444);
+  background: var(--color-danger-light, #fee2e2);
+  border-radius: var(--radius-md, 8px);
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-3, 12px);
+  justify-content: flex-end;
+}
+
+.cancelButton {
+  padding: var(--spacing-3, 12px) var(--spacing-5, 20px);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: var(--color-surface-hover, #f3f4f6);
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submitButton {
+  padding: var(--spacing-3, 12px) var(--spacing-5, 20px);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 600;
+  color: white;
+  background: var(--color-primary, #8b5cf6);
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: var(--color-primary-hover, #7c3aed);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .modal {
+    padding: var(--spacing-4, 16px);
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .modal {
+    animation: none;
+  }
+}

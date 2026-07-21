@@ -263,6 +263,21 @@
   color: var(--color-primary, #4b006e);
 }
 
+/* Procedure instance badge */
+.procedureBadge {
+  padding: 2px 8px;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 600;
+  background: linear-gradient(135deg, #fdf8e6 0%, #fcf3d9 100%);
+  color: #8b6914;
+  border: 1px solid #d4a853;
+  border-radius: var(--radius-md, 8px);
+  white-space: nowrap;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Subtask count badge */
 .subTaskCount {
   margin-left: var(--spacing-1, 4px);

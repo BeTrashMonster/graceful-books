@@ -16,6 +16,7 @@ import type { DatabaseResult } from '../../../store/types';
 import type {
   AdminChecklist,
   ChecklistRecurrenceType,
+  ChecklistType,
 } from '../../../db/schema/checklistCalendar.schema';
 import {
   createDefaultAdminChecklist,
@@ -41,6 +42,7 @@ export interface CreateChecklistInput {
   description?: string | null;
   color?: string;
   icon?: string | null;
+  checklistType?: ChecklistType; // 'scheduled' (default) or 'procedure'
   recurrenceType: ChecklistRecurrenceType;
 
   // Weekly options
@@ -144,6 +146,7 @@ export async function createChecklist(
       description: input.description ?? null,
       color: input.color ?? CHECKLIST_COLORS[0].value,
       icon: input.icon ?? null,
+      checklist_type: input.checklistType ?? 'scheduled',
       recurrence_type: input.recurrenceType,
       weekly_days: input.weeklyDays ?? null,
       monthly_day: input.monthlyDay ?? null,

@@ -45,6 +45,8 @@ export interface CalendarTask {
   isComplete: boolean;
   completion?: AdminTaskCompletion;
   subTasks: CalendarTask[];
+  /** For procedure tasks, the active instance(s) this task belongs to */
+  procedureInstances?: Array<{ id: string; name: string }>;
 }
 
 /**
@@ -260,12 +262,30 @@ export async function getTasksForDate(
           });
         }
 
+        // For procedure checklists, get active instance(s)
+        let procedureInstances: Array<{ id: string; name: string }> | undefined;
+        if (checklist.checklist_type === 'procedure') {
+          const activeInstances = await db.procedureInstances
+            .where('checklist_id')
+            .equals(checklist.id)
+            .filter((i) => !i.deleted_at && i.status === 'in_progress')
+            .toArray();
+
+          if (activeInstances.length > 0) {
+            procedureInstances = activeInstances.map((i) => ({
+              id: i.id,
+              name: i.name,
+            }));
+          }
+        }
+
         calendarTasks.push({
           task,
           checklist,
           isComplete,
           completion,
           subTasks,
+          procedureInstances,
         });
       }
     }
@@ -328,12 +348,30 @@ export async function getTasksForDate(
         continue;
       }
 
+      // For procedure checklists, get active instance(s)
+      let procedureInstances: Array<{ id: string; name: string }> | undefined;
+      if (checklist.checklist_type === 'procedure') {
+        const activeInstances = await db.procedureInstances
+          .where('checklist_id')
+          .equals(checklist.id)
+          .filter((i) => !i.deleted_at && i.status === 'in_progress')
+          .toArray();
+
+        if (activeInstances.length > 0) {
+          procedureInstances = activeInstances.map((i) => ({
+            id: i.id,
+            name: i.name,
+          }));
+        }
+      }
+
       calendarTasks.push({
         task,
         checklist,
         isComplete,
         completion,
         subTasks: [],
+        procedureInstances,
       });
     }
 
