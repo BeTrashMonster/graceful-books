@@ -211,17 +211,6 @@ export const AccountForm: FC<AccountFormProps> = ({
 
   return (
     <form className={styles.accountForm} onSubmit={handleSubmit} noValidate>
-      <div className={styles.formHeader}>
-        <h2 className={styles.formTitle}>
-          {isEditMode ? 'Edit Account' : 'Create New Account'}
-        </h2>
-        <p className={styles.formDescription}>
-          {isEditMode
-            ? 'Update account information below'
-            : 'Add a new account to your chart of accounts'}
-        </p>
-      </div>
-
       <div className={styles.formBody}>
         <Input
           label="Account Name"

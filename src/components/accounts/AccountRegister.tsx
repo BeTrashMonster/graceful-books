@@ -29,6 +29,11 @@ export interface AccountRegisterProps {
    * Company ID
    */
   companyId: string
+
+  /**
+   * Child accounts for roll-up view (parent accounts only)
+   */
+  childAccounts?: Account[]
 }
 
 interface RegisterLine {
@@ -47,6 +52,7 @@ interface RegisterLine {
 export const AccountRegister: FC<AccountRegisterProps> = ({
   account,
   companyId,
+  childAccounts = [],
 }) => {
   const navigate = useNavigate()
   const { transactions, isLoading, loadTransactions } = useTransactions()
@@ -54,12 +60,29 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
 
-  // Load transactions for this account
+  // Determine if this is a parent account (has children)
+  const isParentAccount = childAccounts.length > 0
+
+  // Build set of account IDs to include in register
+  const accountIdsToInclude = useMemo(() => {
+    if (isParentAccount) {
+      // For parent accounts, include all child account IDs
+      return new Set(childAccounts.map(child => child.id))
+    }
+    // For regular accounts, just this account
+    return new Set([account.id])
+  }, [account.id, childAccounts, isParentAccount])
+
+  // Load transactions for this account (or all accounts for roll-up)
   useEffect(() => {
     const filter: TransactionFilter = {
       companyId,
-      accountId: account.id,
       status: 'posted',
+    }
+
+    // For parent accounts, don't filter by accountId - we'll filter in the component
+    if (!isParentAccount) {
+      filter.accountId = account.id
     }
 
     if (fromDate) {
@@ -71,7 +94,7 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
     }
 
     loadTransactions(filter)
-  }, [companyId, account.id, fromDate, toDate, loadTransactions])
+  }, [companyId, account.id, fromDate, toDate, loadTransactions, isParentAccount])
 
   // Build register lines with running balance
   const registerLines = useMemo(() => {
@@ -84,35 +107,43 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
     )
 
     sorted.forEach((transaction) => {
-      // Find the line for this account
-      const line = transaction.lines.find(l => l.accountId === account.id)
-      if (!line) return
+      // Find lines for any of the accounts we're tracking
+      const matchingLines = transaction.lines.filter(l => accountIdsToInclude.has(l.accountId))
+      if (matchingLines.length === 0) return
 
-      const debit = line.debit
-      const credit = line.credit
+      // Sum up debits and credits from all matching lines
+      let totalDebit = 0
+      let totalCredit = 0
+      const memos: string[] = []
+
+      matchingLines.forEach(line => {
+        totalDebit += line.debit
+        totalCredit += line.credit
+        if (line.memo) memos.push(line.memo)
+      })
 
       // Update running balance based on account type
       // Assets and Expenses increase with debits
       // Liabilities, Equity, and Income increase with credits
       if (['asset', 'expense', 'cost-of-goods-sold', 'other-expense'].includes(account.type)) {
-        runningBalance += debit - credit
+        runningBalance += totalDebit - totalCredit
       } else {
-        runningBalance += credit - debit
+        runningBalance += totalCredit - totalDebit
       }
 
       lines.push({
         date: new Date(transaction.date),
         transactionId: transaction.id,
         reference: transaction.reference,
-        memo: line.memo || transaction.memo,
-        debit,
-        credit,
+        memo: memos.length > 0 ? memos.join('; ') : transaction.memo,
+        debit: totalDebit,
+        credit: totalCredit,
         balance: runningBalance,
       })
     })
 
     return lines
-  }, [transactions, account])
+  }, [transactions, account, accountIdsToInclude])
 
   const handlePrint = () => {
     window.print()
@@ -194,8 +225,16 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
                 <span className={styles.accountNumber}>{account.accountNumber}</span>
               )}
               {account.name}
+              {isParentAccount && (
+                <span className={styles.rollupBadge}>Roll-up View</span>
+              )}
             </h1>
             <p className={styles.accountType}>{account.type}</p>
+            {isParentAccount && (
+              <p className={styles.childAccountsList}>
+                Includes: {childAccounts.map(c => c.name).join(', ')}
+              </p>
+            )}
             {account.description && (
               <p className={styles.accountDescription}>{account.description}</p>
             )}

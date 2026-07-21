@@ -43,46 +43,65 @@ export function SimpleTransactionForm({
     transaction.date.toISOString().split('T')[0] || ''
   )
 
-  // Categorize accounts for easier selection
+  // Build set of parent account IDs (accounts that have children can't be posted to)
+  const parentAccountIds = useMemo(
+    () =>
+      new Set(
+        accounts
+          .filter((acc) => acc.parentAccountId)
+          .map((acc) => acc.parentAccountId)
+      ),
+    [accounts]
+  )
+
+  // Helper to check if account is selectable (not a parent)
+  const isSelectable = (acc: Account) => !parentAccountIds.has(acc.id)
+
+  // Categorize accounts for easier selection (excluding parent accounts)
   const bankAccounts = useMemo(
     () =>
       accounts.filter(
         (acc) =>
+          isSelectable(acc) &&
           acc.type === 'asset' &&
           (acc.name.toLowerCase().includes('checking') ||
             acc.name.toLowerCase().includes('savings') ||
             acc.name.toLowerCase().includes('cash'))
       ),
-    [accounts]
+    [accounts, parentAccountIds]
   )
 
   const expenseAccounts = useMemo(
     () =>
       accounts.filter(
         (acc) =>
-          acc.type === 'expense' ||
-          acc.type === 'cost-of-goods-sold' ||
-          acc.type === 'other-expense'
+          isSelectable(acc) &&
+          (acc.type === 'expense' ||
+            acc.type === 'cost-of-goods-sold' ||
+            acc.type === 'other-expense')
       ),
-    [accounts]
+    [accounts, parentAccountIds]
   )
 
   const incomeAccounts = useMemo(
     () =>
       accounts.filter(
-        (acc) => acc.type === 'income' || acc.type === 'other-income'
+        (acc) =>
+          isSelectable(acc) &&
+          (acc.type === 'income' || acc.type === 'other-income')
       ),
-    [accounts]
+    [accounts, parentAccountIds]
   )
 
   const creditCardAccounts = useMemo(
     () =>
       accounts.filter(
         (acc) =>
+          isSelectable(acc) &&
           acc.type === 'liability' &&
           acc.name.toLowerCase().includes('credit')
       ),
-    [accounts]
+    [accounts, parentAccountIds]
   )
 
   const handleTransactionTypeChange = (

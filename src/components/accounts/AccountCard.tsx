@@ -14,7 +14,7 @@
  * - WCAG 2.1 AA accessible
  */
 
-import { type FC, type MouseEvent } from 'react'
+import { type FC, type MouseEvent, useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import { Button } from '../core/Button'
@@ -122,10 +122,34 @@ export const AccountCard: FC<AccountCardProps> = ({
   variant = 'default',
 }) => {
   const navigate = useNavigate()
+  const [showEditMenu, setShowEditMenu] = useState(false)
+  const editMenuRef = useRef<HTMLDivElement>(null)
+
+  // Close edit menu when clicking outside
+  useEffect(() => {
+    if (!showEditMenu) return
+    const handleClickOutside = (e: globalThis.MouseEvent) => {
+      if (editMenuRef.current && !editMenuRef.current.contains(e.target as Node)) {
+        setShowEditMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showEditMenu])
 
   const handleEdit = (e: MouseEvent, acc: Account = account) => {
     e.stopPropagation()
+    setShowEditMenu(false)
     onEdit?.(acc)
+  }
+
+  const handleEditButtonClick = (e: MouseEvent) => {
+    e.stopPropagation()
+    if (subAccounts.length > 0) {
+      setShowEditMenu(!showEditMenu)
+    } else {
+      onEdit?.(account)
+    }
   }
 
   const handleDelete = (e: MouseEvent, acc: Account = account) => {
@@ -168,17 +192,20 @@ export const AccountCard: FC<AccountCardProps> = ({
     >
       <div className={styles.header}>
         <div className={styles.titleSection}>
-          {account.accountNumber && (
-            <span className={styles.accountNumber} aria-label="Account number">
-              {account.accountNumber}
-            </span>
-          )}
-          <h3 className={styles.accountName}>{account.name}</h3>
-          {!account.isActive && (
-            <span className={styles.inactiveBadge} aria-label="Inactive account">
-              Inactive
-            </span>
-          )}
+          <h3 className={styles.accountName}>
+            {account.accountNumber && (
+              <span className={styles.accountNumber} aria-label="Account number">
+                {account.accountNumber}
+              </span>
+            )}
+            {account.accountNumber && <span className={styles.separator}>·</span>}
+            {account.name}
+            {!account.isActive && (
+              <span className={styles.inactiveBadge} aria-label="Inactive account">
+                Inactive
+              </span>
+            )}
+          </h3>
         </div>
         <div className={styles.balanceSection}>
           <span className={styles.balance} aria-label="Current balance">
@@ -187,36 +214,8 @@ export const AccountCard: FC<AccountCardProps> = ({
         </div>
       </div>
 
-      <div className={styles.body}>
-        <div className={styles.metadata}>
-          <span
-            className={clsx(styles.typeBadge, styles[`type-${account.type}`])}
-            aria-label="Account type"
-          >
-            {getAccountTypeLabel(account.type)}
-          </span>
-
-          {account.subType && (
-            <span className={styles.subType} aria-label="Account sub-type">
-              {account.subType}
-            </span>
-          )}
-
-          {parentAccountName && (
-            <span className={styles.parentAccount} aria-label="Parent account">
-              Sub-account of: {parentAccountName}
-            </span>
-          )}
-        </div>
-
-        {account.description && variant === 'default' && (
-          <p className={styles.description}>{account.description}</p>
-        )}
-      </div>
-
       {subAccounts.length > 0 && (
         <div className={styles.subAccounts}>
-          <div className={styles.subAccountsHeader}>Sub-accounts</div>
           {subAccounts.map((subAccount) => (
             <div key={subAccount.id} className={styles.subAccountRow}>
               <div className={styles.subAccountInfo}>
@@ -266,14 +265,49 @@ export const AccountCard: FC<AccountCardProps> = ({
           >
             View Register
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => handleEdit(e)}
-            aria-label={`Edit ${account.name}`}
-          >
-            Edit
-          </Button>
+          <div className={styles.editButtonWrapper} ref={editMenuRef}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleEditButtonClick}
+              aria-label={`Edit ${account.name}`}
+              aria-expanded={showEditMenu}
+              aria-haspopup={subAccounts.length > 0 ? 'menu' : undefined}
+            >
+              Edit{subAccounts.length > 0 ? ' ▾' : ''}
+            </Button>
+            {showEditMenu && subAccounts.length > 0 && (
+              <div className={styles.editMenu} role="menu">
+                <button
+                  type="button"
+                  className={styles.editMenuItem}
+                  onClick={(e) => handleEdit(e, account)}
+                  role="menuitem"
+                >
+                  <span className={styles.editMenuIcon}>📁</span>
+                  <span className={styles.editMenuText}>
+                    <strong>{account.name}</strong>
+                    <small>Parent Account</small>
+                  </span>
+                </button>
+                {subAccounts.map((sub) => (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    className={styles.editMenuItem}
+                    onClick={(e) => handleEdit(e, sub)}
+                    role="menuitem"
+                  >
+                    <span className={styles.editMenuIcon}>📄</span>
+                    <span className={styles.editMenuText}>
+                      {sub.accountNumber && <small>{sub.accountNumber} · </small>}
+                      {sub.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

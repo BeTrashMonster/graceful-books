@@ -34,9 +34,16 @@ export function LineItemInput({
   const [localDebit, setLocalDebit] = useState(lineItem.debit.toString())
   const [localCredit, setLocalCredit] = useState(lineItem.credit.toString())
 
-  // Format account options for select
+  // Build set of parent account IDs (accounts that have children)
+  const parentAccountIds = new Set(
+    accounts
+      .filter((acc) => acc.parentAccountId)
+      .map((acc) => acc.parentAccountId)
+  )
+
+  // Format account options for select - exclude parent accounts (they can't be posted to)
   const accountOptions = accounts
-    .filter((acc) => acc.isActive)
+    .filter((acc) => acc.isActive && !parentAccountIds.has(acc.id))
     .map((acc) => ({
       value: acc.id,
       label: `${acc.accountNumber ? acc.accountNumber + ' - ' : ''}${acc.name}`,

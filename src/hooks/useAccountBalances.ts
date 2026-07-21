@@ -27,6 +27,17 @@ function isIncomeStatementAccount(accountType: AccountType): boolean {
 }
 
 /**
+ * Check if account is the Retained Earnings account
+ * Retained Earnings is auto-generated with name "Retained Earnings" and account number "3900"
+ */
+function isRetainedEarningsAccount(account: Account): boolean {
+  return (
+    account.type === 'equity' &&
+    (account.name === 'Retained Earnings' || account.accountNumber === '3900')
+  )
+}
+
+/**
  * Hook to calculate account balances for a date range
  */
 export function useAccountBalances(
@@ -78,8 +89,55 @@ export function useAccountBalances(
     const incomeStatementAccounts = accounts.filter(a => isIncomeStatementAccount(a.type))
     console.log('[useAccountBalances] Income Statement accounts:', incomeStatementAccounts.map(a => ({ id: a.id, name: a.name, type: a.type })))
 
+    // First, calculate Retained Earnings if that account exists
+    // Retained Earnings = Cumulative Net Income from inception through end date
+    // Net Income = Total Revenue - Total Expenses
+    const retainedEarningsAccount = accounts.find(isRetainedEarningsAccount)
+    let retainedEarningsBalance = new Decimal(0)
+
+    if (retainedEarningsAccount && transactions && transactions.length > 0) {
+      // Calculate cumulative net income from ALL transactions up to end date
+      const endTime = dateRange.endDate.getTime()
+
+      for (const transaction of transactions) {
+        const txnDate = transaction.date instanceof Date
+          ? transaction.date
+          : new Date(transaction.date)
+        const txnTime = txnDate.getTime()
+
+        // Include all transactions from beginning of time up to end date
+        if (txnTime <= endTime) {
+          for (const line of transaction.lines) {
+            // Find the account for this line
+            const lineAccount = accounts.find(a => a.id === line.accountId)
+            if (!lineAccount) continue
+
+            const debit = new Decimal(line.debit || 0)
+            const credit = new Decimal(line.credit || 0)
+
+            // Revenue increases Retained Earnings (credits are positive for income)
+            if (lineAccount.type === 'income' || lineAccount.type === 'other-income') {
+              retainedEarningsBalance = retainedEarningsBalance.plus(credit).minus(debit)
+            }
+            // Expenses decrease Retained Earnings (debits are positive for expenses)
+            else if (
+              lineAccount.type === 'expense' ||
+              lineAccount.type === 'cost-of-goods-sold' ||
+              lineAccount.type === 'other-expense'
+            ) {
+              retainedEarningsBalance = retainedEarningsBalance.minus(debit).plus(credit)
+            }
+          }
+        }
+      }
+    }
+
     accounts.forEach((account) => {
-      if (isIncomeStatementAccount(account.type)) {
+      if (isRetainedEarningsAccount(account)) {
+        // Retained Earnings: Use the calculated cumulative net income
+        // Transaction amounts are stored in cents, convert to dollars
+        balanceMap.set(account.id, retainedEarningsBalance.dividedBy(100).toNumber())
+      } else if (isIncomeStatementAccount(account.type)) {
         // Income Statement accounts: Calculate from transactions in the period
         let balance = new Decimal(0)
 
@@ -115,7 +173,8 @@ export function useAccountBalances(
           }
         }
 
-        balanceMap.set(account.id, balance.toNumber())
+        // Transaction amounts are stored in cents, convert to dollars for display
+        balanceMap.set(account.id, balance.dividedBy(100).toNumber())
       } else {
         // Balance Sheet accounts: Use existing account.balance
         balanceMap.set(account.id, account.balance)

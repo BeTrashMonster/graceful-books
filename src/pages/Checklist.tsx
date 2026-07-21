@@ -254,12 +254,12 @@ export default function Checklist() {
                 padding: '10px 20px',
                 fontSize: '14px',
                 fontWeight: 600,
-                color: activeTab === 'schedule' ? 'var(--color-primary, #8b5cf6)' : 'var(--color-text-secondary, #6b7280)',
-                background: activeTab === 'schedule' ? 'white' : 'transparent',
+                color: activeTab === 'schedule' ? 'white' : 'var(--color-text-secondary, #6b7280)',
+                background: activeTab === 'schedule' ? '#d4af37' : 'transparent',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                boxShadow: activeTab === 'schedule' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
+                boxShadow: activeTab === 'schedule' ? '0 2px 8px rgba(212, 175, 55, 0.4)' : 'none',
                 transition: 'all 0.15s ease',
               }}
             >
@@ -272,12 +272,12 @@ export default function Checklist() {
                 padding: '10px 20px',
                 fontSize: '14px',
                 fontWeight: 600,
-                color: activeTab === 'procedures' ? 'var(--color-primary, #8b5cf6)' : 'var(--color-text-secondary, #6b7280)',
-                background: activeTab === 'procedures' ? 'white' : 'transparent',
+                color: activeTab === 'procedures' ? 'white' : 'var(--color-text-secondary, #6b7280)',
+                background: activeTab === 'procedures' ? '#d4af37' : 'transparent',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                boxShadow: activeTab === 'procedures' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
+                boxShadow: activeTab === 'procedures' ? '0 2px 8px rgba(212, 175, 55, 0.4)' : 'none',
                 transition: 'all 0.15s ease',
               }}
             >

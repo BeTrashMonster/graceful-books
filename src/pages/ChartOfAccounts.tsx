@@ -201,6 +201,10 @@ export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId: propsComp
           onClose={handleCloseModal}
           title={modalState.type === 'create' ? 'Create Account' : 'Edit Account'}
           closeOnBackdropClick={false}
+          headerStyle={{
+            background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+            color: 'white',
+          }}
         >
           <AccountForm
             account={modalState.type === 'edit' ? modalState.account : undefined}

@@ -3,9 +3,10 @@
  *
  * Page wrapper for the AccountRegister component.
  * Loads the account data and passes it to the register view.
+ * For parent accounts, shows a roll-up of all child account transactions.
  */
 
-import { type FC, useEffect, useState } from 'react'
+import { type FC, useEffect, useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAccounts } from '../hooks/useAccounts'
 import { useAuth } from '../contexts/AuthContext'
@@ -25,6 +26,12 @@ export const AccountRegisterPage: FC = () => {
 
   const [account, setAccount] = useState<Account | null>(null)
   const [notFound, setNotFound] = useState(false)
+
+  // Find child accounts for parent accounts (roll-up view)
+  const childAccounts = useMemo(() => {
+    if (!accountId || accounts.length === 0) return []
+    return accounts.filter(acc => acc.parentAccountId === accountId)
+  }, [accounts, accountId])
 
   useEffect(() => {
     // Reset states when starting fresh
@@ -66,7 +73,13 @@ export const AccountRegisterPage: FC = () => {
     return <PageLoader />
   }
 
-  return <AccountRegister account={account} companyId={companyId || ''} />
+  return (
+    <AccountRegister
+      account={account}
+      companyId={companyId || ''}
+      childAccounts={childAccounts}
+    />
+  )
 }
 
 export default AccountRegisterPage
