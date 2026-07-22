@@ -646,16 +646,32 @@ export async function queryTransactions(
   context?: EncryptionContext
 ): Promise<DatabaseResult<JournalEntry[]>> {
   try {
+    console.log('[queryTransactions] Starting query with:', { companyId, filter })
+
     // SECURITY: Validate companyId is provided
     const companyIdError = validateCompanyId(companyId)
     if (companyIdError) {
+      console.log('[queryTransactions] companyId validation failed:', companyIdError)
       return { success: false, error: companyIdError }
+    }
+
+    // Debug: First get ALL transactions in the database to see what exists
+    const allTxns = await db.transactions.toArray()
+    console.log('[queryTransactions] ALL transactions in database:', allTxns.length)
+    if (allTxns.length > 0) {
+      console.log('[queryTransactions] Transaction details:', allTxns.map(t => ({
+        id: t.id,
+        companyId: t.companyId,
+        status: t.status,
+        deletedAt: t.deletedAt,
+      })))
     }
 
     let query = db.transactions.toCollection()
 
     // SECURITY: Always filter by companyId first (required)
     if (filter?.status) {
+      console.log('[queryTransactions] Using compound index [companyId+status] with:', [companyId, filter.status])
       query = db.transactions
         .where('[companyId+status]')
         .equals([companyId, filter.status])
@@ -667,6 +683,7 @@ export async function queryTransactions(
           [companyId, filter.toDate]
         )
     } else {
+      console.log('[queryTransactions] Using simple companyId index:', companyId)
       query = db.transactions.where('companyId').equals(companyId)
     }
 

@@ -49,6 +49,31 @@ export function generateEquityAccounts(
         isActive: true,
       })
       accountNumber += 100
+
+      // Flex Account for personal/business fund mixing
+      // Use owner name if available, otherwise generic
+      if (owners.length > 0 && owners[0]) {
+        accounts.push({
+          companyId,
+          name: `${owners[0].name} - Flex Account (${owners[0].ownershipPercentage}%)`,
+          accountNumber: String(accountNumber),
+          type: 'equity',
+          subtype: 'flex-account',
+          description: `Tracks when ${owners[0].name} uses personal funds for business or business funds for personal use`,
+          isActive: true,
+        })
+      } else {
+        accounts.push({
+          companyId,
+          name: "Owner's Flex Account",
+          accountNumber: String(accountNumber),
+          type: 'equity',
+          subtype: 'flex-account',
+          description: 'Tracks when personal funds are used for business or business funds for personal use',
+          isActive: true,
+        })
+      }
+      accountNumber += 100
       break
 
     case 'single-member-llc':
@@ -71,6 +96,31 @@ export function generateEquityAccounts(
         description: 'Money withdrawn by member for personal use',
         isActive: true,
       })
+      accountNumber += 100
+
+      // Flex Account for personal/business fund mixing
+      // Use owner name if available, otherwise generic
+      if (owners.length > 0 && owners[0]) {
+        accounts.push({
+          companyId,
+          name: `${owners[0].name} - Flex Account (${owners[0].ownershipPercentage}%)`,
+          accountNumber: String(accountNumber),
+          type: 'equity',
+          subtype: 'flex-account',
+          description: `Tracks when ${owners[0].name} uses personal funds for business or business funds for personal use`,
+          isActive: true,
+        })
+      } else {
+        accounts.push({
+          companyId,
+          name: "Member's Flex Account",
+          accountNumber: String(accountNumber),
+          type: 'equity',
+          subtype: 'flex-account',
+          description: 'Tracks when personal funds are used for business or business funds for personal use',
+          isActive: true,
+        })
+      }
       accountNumber += 100
       break
 
@@ -100,6 +150,21 @@ export function generateEquityAccounts(
           accountNumber: String(accountNumber),
           type: 'equity',
           description: `Distributions to ${owner.name}`,
+          isActive: true,
+        })
+        accountNumber += 10
+      })
+
+      // Add Flex Accounts for each owner
+      accountNumber = 3200
+      owners.forEach((owner, _index) => {
+        accounts.push({
+          companyId,
+          name: `${owner.name} - Flex Account (${owner.ownershipPercentage}%)`,
+          accountNumber: String(accountNumber),
+          type: 'equity',
+          subtype: 'flex-account',
+          description: `Tracks when ${owner.name} uses personal funds for business or business funds for personal use`,
           isActive: true,
         })
         accountNumber += 10

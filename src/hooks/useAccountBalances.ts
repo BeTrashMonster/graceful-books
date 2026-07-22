@@ -42,19 +42,40 @@ function isRetainedEarningsAccount(account: Account): boolean {
  */
 export function useAccountBalances(
   accounts: Account[],
-  dateRange: DateRange
+  dateRange: DateRange,
+  overrideCompanyId?: string
 ): Map<string, number> {
-  const { companyId } = useAuth()
+  const { companyId: authCompanyId } = useAuth()
+
+  // Use override companyId if provided, otherwise fall back to auth context
+  const companyId = overrideCompanyId || authCompanyId
+
+  // DEBUG: Log companyId resolution
+  console.log('[useAccountBalances] RENDER - authCompanyId:', authCompanyId, 'override:', overrideCompanyId, 'using:', companyId)
 
   // Get ALL posted/reconciled transactions for the company
   const transactions = useLiveQuery(
     async () => {
-      if (!companyId) return []
+      console.log('[useAccountBalances] Query starting with companyId:', companyId)
+      if (!companyId) {
+        console.log('[useAccountBalances] No companyId - returning empty array')
+        return []
+      }
+
+      // Debug: First get ALL transactions in the database to see what exists
+      const allTxns = await db.transactions.toArray()
+      console.log('[useAccountBalances] ALL transactions in database:', allTxns.length)
+      if (allTxns.length > 0) {
+        console.log('[useAccountBalances] Transaction companyIds in DB:', allTxns.map(t => t.companyId))
+        console.log('[useAccountBalances] Querying for companyId:', companyId)
+      }
 
       const txns = await db.transactions
         .where('companyId')
         .equals(companyId)
         .toArray()
+
+      console.log('[useAccountBalances] Transactions matching companyId:', txns.length)
 
       // Filter to posted/reconciled and not deleted
       return txns.filter(txn =>

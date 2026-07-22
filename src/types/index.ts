@@ -99,6 +99,7 @@ export type AccountSubType =
   | 'other-asset'
   | 'current-liability'
   | 'long-term-liability'
+  | 'flex-account'
 
 /**
  * Chart of Accounts - Individual Account
@@ -125,6 +126,24 @@ export interface Account {
 export type TransactionStatus = 'draft' | 'posted' | 'void' | 'reconciled'
 
 /**
+ * Transaction type for categorization and workflow routing
+ * This enables proper infrastructure for checks, bills, invoices, etc.
+ */
+export type TransactionType =
+  | 'expense'           // Paid expense (any payment method)
+  | 'check'             // Expense paid by check
+  | 'bill'              // Unpaid expense (creates AP)
+  | 'bill-payment'      // Payment of a bill
+  | 'income'            // Money received
+  | 'deposit'           // Bank deposit
+  | 'invoice'           // Money owed to us (AR)
+  | 'invoice-payment'   // Customer payment on invoice
+  | 'transfer'          // Money moved between accounts
+  | 'credit-card-payment' // Payment to credit card
+  | 'journal-entry'     // Manual journal entry
+  | 'opening-balance'   // Opening balance entry
+
+/**
  * Journal Entry (base transaction type)
  */
 export interface JournalEntry {
@@ -140,6 +159,16 @@ export interface JournalEntry {
   createdAt: Date
   updatedAt: Date
   deletedAt?: Date
+
+  // Transaction type and workflow fields
+  transactionType?: TransactionType
+  vendorId?: string          // Link to vendor (for expenses/bills)
+  customerId?: string        // Link to customer (for income/invoices)
+  checkNumber?: string       // For check transactions
+  dueDate?: Date             // For bills/invoices
+  paymentTerms?: string      // e.g., "Net 30", "Due on receipt"
+  linkedTransactionId?: string  // Links bill-payment to bill, invoice-payment to invoice
+  personalAccountRef?: string   // Reference to personal account used (for flex account transactions)
 }
 
 /**

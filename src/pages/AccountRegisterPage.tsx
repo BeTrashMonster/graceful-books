@@ -17,7 +17,12 @@ import type { Account } from '../types'
 export const AccountRegisterPage: FC = () => {
   const { accountId } = useParams<{ accountId: string }>()
   const navigate = useNavigate()
-  const { companyId } = useAuth()
+  const { companyId: authCompanyId } = useAuth()
+
+  // Use auth companyId with fallback to 'demo-company' for compatibility
+  // TODO: Remove fallback once proper auth is implemented
+  const companyId = authCompanyId || 'demo-company'
+
   const { accounts, isLoading } = useAccounts({
     companyId,
     isActive: undefined,

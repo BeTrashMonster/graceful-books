@@ -2,7 +2,7 @@
  * Simple Transaction Form
  *
  * Beginner-friendly transaction entry that hides double-entry accounting complexity.
- * "So simple a 9th grader could do it" while handling all GAAP behind the scenes.
+ * Compact layout with fields side-by-side for efficient data entry.
  */
 
 import { useState, useMemo } from 'react'
@@ -20,6 +20,8 @@ export interface SimpleTransactionFormProps {
   onCancel: () => void
   isLoading?: boolean
   error?: string
+  /** Pre-select a transaction type when opening the form */
+  defaultTransactionType?: TransactionType
 }
 
 type TransactionType = 'spent' | 'received' | 'transfer' | 'paid-credit' | ''
@@ -32,8 +34,9 @@ export function SimpleTransactionForm({
   onCancel,
   isLoading = false,
   error,
+  defaultTransactionType = '',
 }: SimpleTransactionFormProps) {
-  const [transactionType, setTransactionType] = useState<TransactionType>('')
+  const [transactionType, setTransactionType] = useState<TransactionType>(defaultTransactionType)
   const [amount, setAmount] = useState<string>('')
   const [fromAccount, setFromAccount] = useState<string>('')
   const [toAccount, setToAccount] = useState<string>('')
@@ -217,66 +220,37 @@ export function SimpleTransactionForm({
 
   const canSave = transactionType && amount && parseFloat(amount) > 0
 
+  // Determine which fields to show based on transaction type
+  const showTypeSelector = !defaultTransactionType
+
   return (
     <div className={styles.simpleForm}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Add a Transaction</h2>
-        <p className={styles.subtitle}>
-          We'll handle the accounting magic behind the scenes!
-        </p>
-      </div>
+      {/* Error Message */}
+      {error && (
+        <div className={styles.error}>
+          <strong>Oops!</strong> {error}
+        </div>
+      )}
 
-      {/* Date */}
-      <div className={styles.field}>
-        <label htmlFor="date" className={styles.label}>
-          When did this happen?
-        </label>
-        <Input
-          id="date"
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          disabled={isLoading}
-        />
-      </div>
-
-      {/* Transaction Type */}
-      <div className={styles.field}>
-        <label htmlFor="type" className={styles.label}>
-          What happened?
-        </label>
-        <Select
-          id="type"
-          value={transactionType}
-          onChange={handleTransactionTypeChange}
-          disabled={isLoading}
-          options={[
-            { value: '', label: 'Choose one...' },
-            { value: 'spent', label: 'I spent money' },
-            { value: 'received', label: 'I received money' },
-            { value: 'transfer', label: 'I moved money between accounts' },
-            { value: 'paid-credit', label: 'I paid my credit card' },
-          ]}
-        />
-      </div>
-
-      {/* Amount */}
-      {transactionType && (
-        <div className={styles.field}>
-          <label htmlFor="amount" className={styles.label}>
-            How much?
-          </label>
-          <div className={styles.amountInput}>
-            <span className={styles.currencySymbol}>$</span>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              min="0"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
+      {/* Transaction Type (only if not pre-selected) */}
+      {showTypeSelector && (
+        <div className={styles.fieldGrid} style={{ marginBottom: '1rem' }}>
+          <div className={styles.field}>
+            <label htmlFor="type" className={styles.label}>
+              Transaction Type
+            </label>
+            <Select
+              id="type"
+              value={transactionType}
+              onChange={handleTransactionTypeChange}
               disabled={isLoading}
+              options={[
+                { value: '', label: 'Choose one...' },
+                { value: 'spent', label: 'I spent money' },
+                { value: 'received', label: 'I received money' },
+                { value: 'transfer', label: 'Transfer between accounts' },
+                { value: 'paid-credit', label: 'Credit card payment' },
+              ]}
             />
           </div>
         </div>
@@ -284,10 +258,42 @@ export function SimpleTransactionForm({
 
       {/* Spent Money Fields */}
       {transactionType === 'spent' && (
-        <>
+        <div className={styles.fieldGrid}>
+          <div className={styles.field}>
+            <label htmlFor="date" className={styles.label}>
+              Date
+            </label>
+            <Input
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="amount" className={styles.label}>
+              Amount
+            </label>
+            <div className={styles.amountInput}>
+              <span className={styles.currencySymbol}>$</span>
+              <Input
+                id="amount"
+                type="number"
+                step="0.01"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
           <div className={styles.field}>
             <label htmlFor="from-account" className={styles.label}>
-              From which account?
+              Paid From
             </label>
             <Select
               id="from-account"
@@ -295,7 +301,7 @@ export function SimpleTransactionForm({
               onChange={(e) => setFromAccount(e.target.value)}
               disabled={isLoading}
               options={[
-                { value: '', label: 'Choose account...' },
+                { value: '', label: 'Select account...' },
                 ...bankAccounts.map((acc) => ({
                   value: acc.id,
                   label: `${acc.accountNumber ? acc.accountNumber + ' - ' : ''}${acc.name}`,
@@ -306,7 +312,7 @@ export function SimpleTransactionForm({
 
           <div className={styles.field}>
             <label htmlFor="category" className={styles.label}>
-              What did you spend it on?
+              Category
             </label>
             <Select
               id="category"
@@ -314,26 +320,69 @@ export function SimpleTransactionForm({
               onChange={(e) => setCategory(e.target.value)}
               disabled={isLoading}
               options={[
-                { value: '', label: 'Choose category...' },
+                { value: '', label: 'Select category...' },
                 ...expenseAccounts.map((acc) => ({
                   value: acc.id,
                   label: `${acc.accountNumber ? acc.accountNumber + ' - ' : ''}${acc.name}`,
                 })),
               ]}
             />
-            <p className={styles.helpText}>
-              This helps you track where your money goes
-            </p>
           </div>
-        </>
+
+          <div className={`${styles.field} ${styles.fieldFullWidth}`}>
+            <label htmlFor="description" className={styles.label}>
+              Description (optional)
+            </label>
+            <Input
+              id="description"
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What was this for?"
+              disabled={isLoading}
+            />
+          </div>
+        </div>
       )}
 
       {/* Received Money Fields */}
       {transactionType === 'received' && (
-        <>
+        <div className={styles.fieldGrid}>
+          <div className={styles.field}>
+            <label htmlFor="date" className={styles.label}>
+              Date
+            </label>
+            <Input
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="amount" className={styles.label}>
+              Amount
+            </label>
+            <div className={styles.amountInput}>
+              <span className={styles.currencySymbol}>$</span>
+              <Input
+                id="amount"
+                type="number"
+                step="0.01"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
           <div className={styles.field}>
             <label htmlFor="to-account" className={styles.label}>
-              Into which account?
+              Deposited To
             </label>
             <Select
               id="to-account"
@@ -341,7 +390,7 @@ export function SimpleTransactionForm({
               onChange={(e) => setToAccount(e.target.value)}
               disabled={isLoading}
               options={[
-                { value: '', label: 'Choose account...' },
+                { value: '', label: 'Select account...' },
                 ...bankAccounts.map((acc) => ({
                   value: acc.id,
                   label: `${acc.accountNumber ? acc.accountNumber + ' - ' : ''}${acc.name}`,
@@ -352,7 +401,7 @@ export function SimpleTransactionForm({
 
           <div className={styles.field}>
             <label htmlFor="category" className={styles.label}>
-              Where did it come from?
+              Income Source
             </label>
             <Select
               id="category"
@@ -360,26 +409,69 @@ export function SimpleTransactionForm({
               onChange={(e) => setCategory(e.target.value)}
               disabled={isLoading}
               options={[
-                { value: '', label: 'Choose category...' },
+                { value: '', label: 'Select source...' },
                 ...incomeAccounts.map((acc) => ({
                   value: acc.id,
                   label: `${acc.accountNumber ? acc.accountNumber + ' - ' : ''}${acc.name}`,
                 })),
               ]}
             />
-            <p className={styles.helpText}>
-              This helps you track your revenue streams
-            </p>
           </div>
-        </>
+
+          <div className={`${styles.field} ${styles.fieldFullWidth}`}>
+            <label htmlFor="description" className={styles.label}>
+              Description (optional)
+            </label>
+            <Input
+              id="description"
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What was this for?"
+              disabled={isLoading}
+            />
+          </div>
+        </div>
       )}
 
       {/* Transfer Fields */}
       {transactionType === 'transfer' && (
-        <>
+        <div className={styles.fieldGrid}>
+          <div className={styles.field}>
+            <label htmlFor="date" className={styles.label}>
+              Date
+            </label>
+            <Input
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="amount" className={styles.label}>
+              Amount
+            </label>
+            <div className={styles.amountInput}>
+              <span className={styles.currencySymbol}>$</span>
+              <Input
+                id="amount"
+                type="number"
+                step="0.01"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
           <div className={styles.field}>
             <label htmlFor="from-account" className={styles.label}>
-              From which account?
+              From Account
             </label>
             <Select
               id="from-account"
@@ -387,7 +479,7 @@ export function SimpleTransactionForm({
               onChange={(e) => setFromAccount(e.target.value)}
               disabled={isLoading}
               options={[
-                { value: '', label: 'Choose account...' },
+                { value: '', label: 'Select account...' },
                 ...bankAccounts.map((acc) => ({
                   value: acc.id,
                   label: `${acc.accountNumber ? acc.accountNumber + ' - ' : ''}${acc.name}`,
@@ -398,7 +490,7 @@ export function SimpleTransactionForm({
 
           <div className={styles.field}>
             <label htmlFor="to-account" className={styles.label}>
-              To which account?
+              To Account
             </label>
             <Select
               id="to-account"
@@ -406,7 +498,7 @@ export function SimpleTransactionForm({
               onChange={(e) => setToAccount(e.target.value)}
               disabled={isLoading}
               options={[
-                { value: '', label: 'Choose account...' },
+                { value: '', label: 'Select account...' },
                 ...bankAccounts
                   .filter((acc) => acc.id !== fromAccount)
                   .map((acc) => ({
@@ -416,15 +508,61 @@ export function SimpleTransactionForm({
               ]}
             />
           </div>
-        </>
+
+          <div className={`${styles.field} ${styles.fieldFullWidth}`}>
+            <label htmlFor="description" className={styles.label}>
+              Description (optional)
+            </label>
+            <Input
+              id="description"
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What was this for?"
+              disabled={isLoading}
+            />
+          </div>
+        </div>
       )}
 
-      {/* Paid Credit Card Fields */}
+      {/* Pay Credit Card Fields */}
       {transactionType === 'paid-credit' && (
-        <>
+        <div className={styles.fieldGrid}>
+          <div className={styles.field}>
+            <label htmlFor="date" className={styles.label}>
+              Date
+            </label>
+            <Input
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="amount" className={styles.label}>
+              Payment Amount
+            </label>
+            <div className={styles.amountInput}>
+              <span className={styles.currencySymbol}>$</span>
+              <Input
+                id="amount"
+                type="number"
+                step="0.01"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
           <div className={styles.field}>
             <label htmlFor="from-account" className={styles.label}>
-              From which bank account?
+              Paid From
             </label>
             <Select
               id="from-account"
@@ -432,7 +570,7 @@ export function SimpleTransactionForm({
               onChange={(e) => setFromAccount(e.target.value)}
               disabled={isLoading}
               options={[
-                { value: '', label: 'Choose account...' },
+                { value: '', label: 'Select account...' },
                 ...bankAccounts.map((acc) => ({
                   value: acc.id,
                   label: `${acc.accountNumber ? acc.accountNumber + ' - ' : ''}${acc.name}`,
@@ -443,7 +581,7 @@ export function SimpleTransactionForm({
 
           <div className={styles.field}>
             <label htmlFor="category" className={styles.label}>
-              Which credit card did you pay?
+              Credit Card
             </label>
             <Select
               id="category"
@@ -451,7 +589,7 @@ export function SimpleTransactionForm({
               onChange={(e) => setCategory(e.target.value)}
               disabled={isLoading}
               options={[
-                { value: '', label: 'Choose card...' },
+                { value: '', label: 'Select card...' },
                 ...creditCardAccounts.map((acc) => ({
                   value: acc.id,
                   label: `${acc.accountNumber ? acc.accountNumber + ' - ' : ''}${acc.name}`,
@@ -459,33 +597,20 @@ export function SimpleTransactionForm({
               ]}
             />
           </div>
-        </>
-      )}
 
-      {/* Description */}
-      {transactionType && (
-        <div className={styles.field}>
-          <label htmlFor="description" className={styles.label}>
-            Any notes? (optional)
-          </label>
-          <Input
-            id="description"
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="e.g., Office supplies for project"
-            disabled={isLoading}
-          />
-          <p className={styles.helpText}>
-            This helps you remember what the transaction was for
-          </p>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className={styles.error}>
-          <strong>Oops!</strong> {error}
+          <div className={`${styles.field} ${styles.fieldFullWidth}`}>
+            <label htmlFor="description" className={styles.label}>
+              Description (optional)
+            </label>
+            <Input
+              id="description"
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Payment reference or notes"
+              disabled={isLoading}
+            />
+          </div>
         </div>
       )}
 
@@ -505,18 +630,8 @@ export function SimpleTransactionForm({
           disabled={!canSave || isLoading}
           className={styles.saveButton}
         >
-          {isLoading ? 'Saving...' : 'Save Transaction'}
+          {isLoading ? 'Saving...' : 'Save'}
         </button>
-      </div>
-
-      {/* Educational Note */}
-      <div className={styles.educationalNote}>
-        <p>
-          <strong>Behind the scenes:</strong> We're recording this using
-          double-entry accounting, which keeps your books balanced and
-          accurate. You don't need to worry about debits and credits - we've
-          got you covered!
-        </p>
       </div>
     </div>
   )

@@ -20,7 +20,8 @@ export default function Dashboard() {
   const { companyId } = useAuth();
 
   // Fallback to demo company ID if not authenticated (development only)
-  const activeCompanyId = companyId || 'demo-company-id';
+  // IMPORTANT: Must match the fallback in ChartOfAccounts.tsx and other pages
+  const activeCompanyId = companyId || 'demo-company';
 
   // Fetch dashboard metrics
   const metrics = useDashboardMetrics({ companyId: activeCompanyId });

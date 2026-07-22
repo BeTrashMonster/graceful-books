@@ -321,10 +321,19 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
       setCreatedAccounts(result.successful)
 
       // Create opening balance journal entries if we have form data with balances
+      console.log('=== OPENING BALANCE CHECK ===')
+      console.log('data.customizationFormData exists:', !!data.customizationFormData)
+      console.log('data.customizationFormData:', data.customizationFormData)
+
       if (data.customizationFormData) {
         const formData = data.customizationFormData
         const openingBalances: OpeningBalanceItem[] = []
         const createdAccountsMap = new Map(result.successful.map(acc => [acc.name, acc]))
+
+        console.log('Created accounts map:', Array.from(createdAccountsMap.keys()))
+        console.log('formData.includeEquipment:', formData.includeEquipment)
+        console.log('formData.equipmentItems:', formData.equipmentItems)
+        console.log('formData.loans:', formData.loans)
 
         // Extract equipment opening balances
         if (formData.includeEquipment && formData.equipmentItems) {
@@ -370,6 +379,10 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
         }
 
         // Create journal entries if we have opening balances
+        console.log('=== OPENING BALANCES COLLECTED ===')
+        console.log('Opening balances count:', openingBalances.length)
+        console.log('Opening balances:', openingBalances)
+
         if (openingBalances.length > 0) {
           // Find the "Ask Future Me" account to use as offset
           const askFutureMeAccount = result.successful.find(
@@ -379,7 +392,10 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
           if (!askFutureMeAccount) {
             console.error('Ask Future Me account not found - cannot create opening balance entries')
           } else {
+            console.log('[ChartOfAccountsWizard] === CREATING TRANSACTIONS ===')
+            console.log('[ChartOfAccountsWizard] Using companyId:', companyId)
             console.log('Creating opening balance journal entries:', {
+              companyId,
               openingBalancesCount: openingBalances.length,
               openingBalances,
               askFutureMeAccount: { id: askFutureMeAccount.id, name: askFutureMeAccount.name },

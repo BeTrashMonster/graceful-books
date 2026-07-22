@@ -138,8 +138,11 @@ export const AccountList: FC<AccountListProps> = ({
     return getDateRangeForPeriod(selectedPeriod, customDateRange)
   }, [selectedPeriod, customDateRange])
 
+  // Derive companyId from accounts (they all share the same companyId)
+  const companyId = accounts.length > 0 ? accounts[0].companyId : undefined
+
   // Get balances: Balance Sheet uses account.balance, Income Statement calculates from transactions
-  const calculatedBalances = useAccountBalances(accounts, dateRange)
+  const calculatedBalances = useAccountBalances(accounts, dateRange, companyId)
 
   // Merge calculated balances with accounts
   // For parent accounts, calculate balance as sum of sub-accounts

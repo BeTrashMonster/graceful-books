@@ -30,10 +30,17 @@ export function TransactionList({
   }
 
   const getTotalAmount = (transaction: JournalEntry): number => {
-    return transaction.lines.reduce(
+    const rawAmount = transaction.lines.reduce(
       (sum, line) => sum + (line.debit || line.credit),
       0
     ) / 2 // Divide by 2 since debits + credits = 2x transaction amount
+
+    // Opening balance transactions are stored in cents, regular transactions in dollars
+    // Detect by checking reference field
+    if (transaction.reference === 'OPENING') {
+      return rawAmount / 100 // Convert cents to dollars
+    }
+    return rawAmount
   }
 
   const getStatusColor = (status: string): string => {

@@ -82,6 +82,13 @@ export function useTransactions(): UseTransactionsReturn {
     try {
       // SECURITY: Require companyId for authorization
       const targetCompanyId = filter.companyId || companyId
+      console.log('[useTransactions] loadTransactions called with:', {
+        filterCompanyId: filter.companyId,
+        authCompanyId: companyId,
+        targetCompanyId,
+        status: filter.status,
+        accountId: filter.accountId,
+      })
       if (!targetCompanyId) {
         setError('Not authenticated - companyId required')
         return
@@ -90,6 +97,11 @@ export function useTransactions(): UseTransactionsReturn {
       // Remove companyId from filter as it's now a required parameter
       const { companyId: _, ...filterWithoutCompanyId } = filter
       const result = await queryTransactions(targetCompanyId, filterWithoutCompanyId)
+      console.log('[useTransactions] queryTransactions result:', {
+        success: result.success,
+        count: result.success ? result.data.length : 0,
+        error: result.success ? null : result.error,
+      })
 
       if (result.success) {
         setTransactions(result.data)
