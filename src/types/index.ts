@@ -183,6 +183,7 @@ export interface JournalEntryLine {
   classId?: string
   categoryId?: string
   tags?: string[]
+  isLocked?: boolean  // True if line is locked for reconciliation
 }
 
 /**

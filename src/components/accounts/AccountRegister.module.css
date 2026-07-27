@@ -183,6 +183,23 @@
   background-color: #eff6ff;
 }
 
+.statusColumn {
+  width: 32px;
+  padding: 0.5rem !important;
+  text-align: center;
+}
+
+.reconciledIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: #ccfbf1;
+  color: #0f766e;
+  border-radius: 0.25rem;
+}
+
 .amountColumn {
   text-align: right;
   font-variant-numeric: tabular-nums;

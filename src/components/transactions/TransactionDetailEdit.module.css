@@ -1,0 +1,201 @@
+/**
+ * TransactionDetailEdit Styles
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Error */
+.error {
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  color: #991b1b;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+/* Fields */
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Section */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+/* Lines Table */
+.linesTable {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.linesHeader {
+  display: grid;
+  grid-template-columns: 1fr 100px 100px 150px 40px;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #f9fafb;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.accountHeader,
+.amountHeader,
+.memoHeader,
+.lockHeader {
+  text-align: left;
+}
+
+.amountHeader {
+  text-align: right;
+}
+
+.lineRow {
+  display: grid;
+  grid-template-columns: 1fr 100px 100px 150px 40px;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  align-items: center;
+}
+
+.lineRow:last-child {
+  border-bottom: none;
+}
+
+.accountCell {
+  min-width: 0;
+}
+
+.amountCell {
+  min-width: 0;
+}
+
+.amountCell input {
+  text-align: right;
+}
+
+.memoCell {
+  min-width: 0;
+}
+
+.lockCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lockIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #ccfbf1;
+  color: #0f766e;
+  border-radius: 0.25rem;
+}
+
+.lockIcon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Balance Indicator */
+.balanceIndicator {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.balanced {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.unbalanced {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.difference {
+  font-weight: 600;
+}
+
+.balancedText {
+  font-weight: 600;
+  margin-left: auto;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .linesHeader {
+    display: none;
+  }
+
+  .lineRow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .amountCell {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .amountCell::before {
+    content: attr(data-label);
+    font-size: 0.75rem;
+    color: #6b7280;
+    min-width: 50px;
+  }
+
+  .balanceIndicator {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .balancedText {
+    margin-left: 0;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

@@ -53,12 +53,12 @@ export function validateTransaction(
 
   // Check minimum line items
   if (requireMinimumLines && lines.length < 2) {
-    errors.push('Transaction must have at least 2 line items')
+    errors.push('Please add at least 2 accounts (e.g., one for the expense category and one for the payment source)')
   }
 
   // Check for empty transaction
   if (lines.length === 0) {
-    errors.push('Transaction must have at least one line item')
+    errors.push('No accounts selected. Please select at least one expense category and payment source.')
     return {
       isValid: false,
       errors,
@@ -89,13 +89,13 @@ export function validateTransaction(
   // Check if balanced
   if (!allowUnbalanced && !isBalanced) {
     errors.push(
-      `Transaction is not balanced. Debits: $${totalDebits.toFixed(2)}, Credits: $${totalCredits.toFixed(2)}, Difference: $${Math.abs(difference).toFixed(2)}`
+      `The amounts don't add up correctly. Debits: $${totalDebits.toFixed(2)}, Credits: $${totalCredits.toFixed(2)}, Difference: $${Math.abs(difference).toFixed(2)}`
     )
   }
 
   // Check for zero amount transaction
   if (totalDebits === 0 && totalCredits === 0) {
-    errors.push('Transaction has no amounts entered')
+    errors.push('Please enter an amount for this transaction')
   }
 
   // Check for duplicate accounts (warning only)
@@ -127,7 +127,7 @@ export function validateLineItem(line: JournalEntryLine): LineItemValidationResu
 
   // Check for account ID
   if (!line.accountId || line.accountId.trim() === '') {
-    errors.push('Account is required')
+    errors.push('Please select an account')
   }
 
   // Check debit and credit amounts
@@ -136,26 +136,26 @@ export function validateLineItem(line: JournalEntryLine): LineItemValidationResu
 
   // Must have either debit or credit (but not both)
   if (debit === 0 && credit === 0) {
-    errors.push('Amount must be greater than zero')
+    errors.push('Please enter an amount greater than zero')
   }
 
   if (debit > 0 && credit > 0) {
-    errors.push('Cannot have both debit and credit on the same line')
+    errors.push('Each line can only have one amount (either debit or credit, not both)')
   }
 
   // Amounts must be positive
   if (debit < 0) {
-    errors.push('Debit amount cannot be negative')
+    errors.push('Amounts cannot be negative')
   }
 
   if (credit < 0) {
-    errors.push('Credit amount cannot be negative')
+    errors.push('Amounts cannot be negative')
   }
 
   // Check for reasonable amounts (not greater than 1 trillion)
   const MAX_AMOUNT = 1_000_000_000_000
   if (debit > MAX_AMOUNT || credit > MAX_AMOUNT) {
-    errors.push('Amount exceeds maximum allowed value')
+    errors.push('Amount is too large')
   }
 
   return {

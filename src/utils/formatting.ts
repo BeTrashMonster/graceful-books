@@ -6,18 +6,16 @@
 
 /**
  * Format a number as USD currency
- * @param amountInCents - Amount in cents (stored format)
+ * @param amount - Amount in dollars
  * @returns Formatted currency string
  */
-export function formatCurrency(amountInCents: number): string {
-  const dollars = amountInCents / 100
-
+export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(dollars)
+  }).format(amount)
 }
 
 /**

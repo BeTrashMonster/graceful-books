@@ -124,20 +124,54 @@ export default function Transactions() {
     const incomeAccountIds = new Set(
       accounts.filter((a) => ['income', 'other-income'].includes(a.type)).map((a) => a.id)
     )
+    // Credit card accounts: liability accounts that are credit cards
+    // Match by name patterns or account number convention (2xxx range for liabilities)
     const creditCardAccountIds = new Set(
       accounts
-        .filter((a) => a.type === 'liability' && a.name.toLowerCase().includes('credit'))
+        .filter((a) => {
+          if (a.type !== 'liability') return false
+          const nameLower = a.name.toLowerCase()
+          // Check common credit card name patterns
+          if (nameLower.includes('credit') ||
+              nameLower.includes('visa') ||
+              nameLower.includes('mastercard') ||
+              nameLower.includes('amex') ||
+              nameLower.includes('american express') ||
+              nameLower.includes('discover') ||
+              nameLower.includes('card')) {
+            return true
+          }
+          // Fallback: if it's a current liability (subType), include it
+          if (a.subType === 'current-liability') {
+            return true
+          }
+          return false
+        })
         .map((a) => a.id)
     )
+
+    // Bank accounts: asset accounts that are cash/bank
+    // Match by name patterns or account number convention (1xxx range for assets)
     const bankAccountIds = new Set(
       accounts
-        .filter(
-          (a) =>
-            a.type === 'asset' &&
-            (a.name.toLowerCase().includes('checking') ||
-              a.name.toLowerCase().includes('savings') ||
-              a.name.toLowerCase().includes('cash'))
-        )
+        .filter((a) => {
+          if (a.type !== 'asset') return false
+          const nameLower = a.name.toLowerCase()
+          // Check common bank account name patterns
+          if (nameLower.includes('checking') ||
+              nameLower.includes('savings') ||
+              nameLower.includes('cash') ||
+              nameLower.includes('bank') ||
+              nameLower.includes('money market') ||
+              nameLower.includes('petty')) {
+            return true
+          }
+          // Fallback: if it's a current asset (subType), include it
+          if (a.subType === 'current-asset') {
+            return true
+          }
+          return false
+        })
         .map((a) => a.id)
     )
 
@@ -219,15 +253,29 @@ export default function Transactions() {
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     )[0]
 
-    // Calculate credit card balance (simplified - sum of all credit transactions)
-    const creditCardBalance = accounts
-      .filter((a) => creditCardAccountIds.has(a.id))
-      .reduce((sum, a) => sum + a.balance, 0)
+    // Calculate credit card balance from transactions
+    // For liability accounts: credits increase balance (charges), debits decrease (payments)
+    let creditCardBalance = 0
+    const postedTransactions = transactions.filter((txn) => txn.status === 'posted' || txn.status === 'reconciled')
 
-    // Calculate bank balances
-    const bankBalance = accounts
-      .filter((a) => bankAccountIds.has(a.id))
-      .reduce((sum, a) => sum + a.balance, 0)
+    postedTransactions.forEach((txn) => {
+      txn.lines.forEach((line) => {
+        if (creditCardAccountIds.has(line.accountId)) {
+          creditCardBalance += line.credit - line.debit
+        }
+      })
+    })
+
+    // Calculate bank balances from transactions
+    // For asset accounts: debits increase balance (deposits), credits decrease (withdrawals)
+    let bankBalance = 0
+    postedTransactions.forEach((txn) => {
+      txn.lines.forEach((line) => {
+        if (bankAccountIds.has(line.accountId)) {
+          bankBalance += line.debit - line.credit
+        }
+      })
+    })
 
     return {
       spent: {
@@ -296,18 +344,20 @@ export default function Transactions() {
     clearError()
   }
 
-  const handleSave = async () => {
-    if (!currentTransaction) return
+  const handleSave = async (transactionToSave?: JournalEntry) => {
+    // Use the passed transaction (to avoid race condition) or fall back to state
+    const txn = transactionToSave || currentTransaction
+    if (!txn) return
 
     if (editingTransaction) {
-      const result = await updateExistingTransaction(currentTransaction.id, currentTransaction)
+      const result = await updateExistingTransaction(txn.id, txn)
       if (result) {
         setEditingTransaction(null)
         setSelectedType(null)
         loadTransactions({ companyId: activeCompanyId })
       }
     } else {
-      const result = await createNewTransaction(currentTransaction)
+      const result = await createNewTransaction(txn)
       if (result) {
         setSelectedType(null)
         setShowAdvancedForm(false)

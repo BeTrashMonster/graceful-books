@@ -16,7 +16,7 @@ export interface SimpleTransactionFormProps {
   transaction: JournalEntry
   accounts: Account[]
   onChange: (transaction: JournalEntry) => void
-  onSave: () => void
+  onSave: (transaction: JournalEntry) => void
   onCancel: () => void
   isLoading?: boolean
   error?: string
@@ -206,16 +206,22 @@ export function SimpleTransactionForm({
         return
     }
 
-    // Update the transaction with the generated lines
-    onChange({
+    // Parse date correctly to avoid timezone issues
+    const [year, month, day] = date.split('-').map(Number)
+    const parsedDate = new Date(year, month - 1, day, 12, 0, 0) // noon local time
+
+    // Build the transaction with the generated lines - set status to 'posted' so it appears in registers
+    const updatedTransaction: JournalEntry = {
       ...transaction,
-      date: new Date(date),
+      status: 'posted',
+      date: parsedDate,
       memo: description,
       lines,
-    })
+    }
 
-    // Trigger save
-    onSave()
+    onChange(updatedTransaction)
+    // Pass transaction directly to avoid race condition with React state
+    onSave(updatedTransaction)
   }
 
   const canSave = transactionType && amount && parseFloat(amount) > 0
@@ -228,7 +234,12 @@ export function SimpleTransactionForm({
       {/* Error Message */}
       {error && (
         <div className={styles.error}>
-          <strong>Oops!</strong> {error}
+          <strong className={styles.errorTitle}>Please fix the following:</strong>
+          <ul className={styles.errorList}>
+            {error.split(', ').map((err, i) => (
+              <li key={i}>{err}</li>
+            ))}
+          </ul>
         </div>
       )}
 

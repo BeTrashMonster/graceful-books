@@ -18,7 +18,7 @@ export interface TransactionFormProps {
   transaction: JournalEntry
   accounts: Account[]
   onChange: (transaction: JournalEntry) => void
-  onSave: () => void
+  onSave: (transaction: JournalEntry) => void
   onCancel: () => void
   isLoading?: boolean
   error?: string
@@ -94,6 +94,17 @@ export function TransactionForm({
   }
 
   const canEdit = transaction.status === 'draft'
+
+  // Set status to 'posted' before saving so transaction appears in registers
+  const handleSaveAndPost = () => {
+    const updatedTransaction: JournalEntry = {
+      ...transaction,
+      status: 'posted',
+    }
+    onChange(updatedTransaction)
+    // Pass transaction directly to avoid race condition with React state
+    onSave(updatedTransaction)
+  }
 
   return (
     <div className="transaction-form" style={{ maxWidth: '1200px' }}>
@@ -277,7 +288,7 @@ export function TransactionForm({
         {canEdit && (
           <button
             type="button"
-            onClick={onSave}
+            onClick={handleSaveAndPost}
             disabled={isLoading}
             style={{
               padding: '0.75rem 1.5rem',

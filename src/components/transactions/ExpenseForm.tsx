@@ -24,7 +24,7 @@ export interface ExpenseFormProps {
   accounts: Account[]
   companyId: string
   onChange: (transaction: JournalEntry) => void
-  onSave: () => void
+  onSave: (transaction: JournalEntry) => void
   onCancel: () => void
   isLoading?: boolean
   error?: string
@@ -226,13 +226,11 @@ export function ExpenseForm({
   // Build and save the transaction
   const handleSave = () => {
     const amountNum = parseFloat(totalAmount) || 0
-    if (amountNum === 0) return
 
-    // Validate category lines
+    // Validate category lines - need at least one with both categoryId and amount
     const validLines = categoryLines.filter(
       (line) => line.categoryId && parseFloat(line.amount) > 0
     )
-    if (validLines.length === 0) return
 
     // Determine transaction type for tagging
     let transactionType: TransactionType = 'expense'
@@ -278,22 +276,48 @@ export function ExpenseForm({
       }
     }
 
-    // Build the transaction
+    // Parse date correctly to avoid timezone issues
+    // "2026-07-27" should be July 27, not July 26 due to UTC conversion
+    const [year, month, day] = date.split('-').map(Number)
+    const parsedDate = new Date(year, month - 1, day, 12, 0, 0) // noon local time
+
+    // Parse due date the same way if present
+    let parsedDueDate: Date | undefined
+    if (expenseType === 'bill' && dueDate) {
+      const [dYear, dMonth, dDay] = dueDate.split('-').map(Number)
+      parsedDueDate = new Date(dYear, dMonth - 1, dDay, 12, 0, 0)
+    }
+
+    // Debug: Log the journal lines being created
+    console.log('[ExpenseForm] Creating transaction:', {
+      expenseType,
+      totalAmount: amountNum,
+      paidFromAccount,
+      validLines: validLines.length,
+      journalLines: journalLines.map(l => ({
+        accountId: l.accountId,
+        debit: l.debit,
+        credit: l.credit,
+      })),
+    })
+
+    // Build the transaction - set status to 'posted' so it appears in registers
     const updatedTransaction: JournalEntry = {
       ...transaction,
-      date: new Date(date),
+      status: 'posted',
+      date: parsedDate,
       reference: expenseType === 'check' ? checkNumber : reference || undefined,
       memo: memo || undefined,
       lines: journalLines,
       transactionType,
       vendorId: vendorId || undefined,
       checkNumber: expenseType === 'check' ? checkNumber : undefined,
-      dueDate: expenseType === 'bill' && dueDate ? new Date(dueDate) : undefined,
+      dueDate: parsedDueDate,
       personalAccountRef: selectedPaymentIsFlexAccount ? personalAccountRef || undefined : undefined,
     }
 
     onChange(updatedTransaction)
-    onSave()
+    onSave(updatedTransaction)
   }
 
   // Validation
@@ -308,7 +332,12 @@ export function ExpenseForm({
       {/* Error Message */}
       {error && (
         <div className={styles.error}>
-          <strong>Oops!</strong> {error}
+          <strong className={styles.errorTitle}>Please fix the following:</strong>
+          <ul className={styles.errorList}>
+            {error.split(', ').map((err, i) => (
+              <li key={i}>{err}</li>
+            ))}
+          </ul>
         </div>
       )}
 

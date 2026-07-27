@@ -46,7 +46,7 @@ export interface UseTransactionsReturn {
 
   // CRUD operations
   loadTransactions: (filter: TransactionFilter) => Promise<void>
-  loadTransaction: (id: string) => Promise<void>
+  loadTransaction: (id: string, companyId?: string) => Promise<void>
   createNewTransaction: (transaction: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>) => Promise<JournalEntry | null>
   updateExistingTransaction: (id: string, updates: Partial<JournalEntry>) => Promise<JournalEntry | null>
   removeTransaction: (id: string) => Promise<boolean>
@@ -117,19 +117,22 @@ export function useTransactions(): UseTransactionsReturn {
 
   /**
    * Load a single transaction by ID
+   * @param id - Transaction ID
+   * @param overrideCompanyId - Optional company ID (uses auth context if not provided)
    */
-  const loadTransaction = useCallback(async (id: string) => {
+  const loadTransaction = useCallback(async (id: string, overrideCompanyId?: string) => {
     setIsLoading(true)
     setError(null)
 
     try {
       // SECURITY: Require companyId for authorization
-      if (!companyId) {
+      const targetCompanyId = overrideCompanyId || companyId
+      if (!targetCompanyId) {
         setError('Not authenticated - companyId required')
         return
       }
 
-      const result = await getTransaction(id, companyId)
+      const result = await getTransaction(id, targetCompanyId)
 
       if (result.success) {
         setCurrentTransaction(result.data)

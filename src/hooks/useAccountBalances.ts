@@ -50,32 +50,17 @@ export function useAccountBalances(
   // Use override companyId if provided, otherwise fall back to auth context
   const companyId = overrideCompanyId || authCompanyId
 
-  // DEBUG: Log companyId resolution
-  console.log('[useAccountBalances] RENDER - authCompanyId:', authCompanyId, 'override:', overrideCompanyId, 'using:', companyId)
-
   // Get ALL posted/reconciled transactions for the company
   const transactions = useLiveQuery(
     async () => {
-      console.log('[useAccountBalances] Query starting with companyId:', companyId)
       if (!companyId) {
-        console.log('[useAccountBalances] No companyId - returning empty array')
         return []
-      }
-
-      // Debug: First get ALL transactions in the database to see what exists
-      const allTxns = await db.transactions.toArray()
-      console.log('[useAccountBalances] ALL transactions in database:', allTxns.length)
-      if (allTxns.length > 0) {
-        console.log('[useAccountBalances] Transaction companyIds in DB:', allTxns.map(t => t.companyId))
-        console.log('[useAccountBalances] Querying for companyId:', companyId)
       }
 
       const txns = await db.transactions
         .where('companyId')
         .equals(companyId)
         .toArray()
-
-      console.log('[useAccountBalances] Transactions matching companyId:', txns.length)
 
       // Filter to posted/reconciled and not deleted
       return txns.filter(txn =>
@@ -90,25 +75,6 @@ export function useAccountBalances(
   // Calculate balances
   const balances = useMemo(() => {
     const balanceMap = new Map<string, number>()
-
-    // Debug: log transaction count
-    console.log('[useAccountBalances] Transactions found:', transactions?.length || 0)
-    console.log('[useAccountBalances] Date range:', dateRange.startDate, 'to', dateRange.endDate)
-
-    // Log transaction details
-    if (transactions && transactions.length > 0) {
-      transactions.forEach((txn, i) => {
-        console.log(`[useAccountBalances] Txn ${i}:`, {
-          date: txn.date,
-          status: txn.status,
-          lines: txn.lines.map(l => ({ accountId: l.accountId, debit: l.debit, credit: l.credit }))
-        })
-      })
-    }
-
-    // Log income statement accounts we're looking for
-    const incomeStatementAccounts = accounts.filter(a => isIncomeStatementAccount(a.type))
-    console.log('[useAccountBalances] Income Statement accounts:', incomeStatementAccounts.map(a => ({ id: a.id, name: a.name, type: a.type })))
 
     // First, calculate Retained Earnings if that account exists
     // Retained Earnings = Cumulative Net Income from inception through end date
@@ -128,13 +94,17 @@ export function useAccountBalances(
 
         // Include all transactions from beginning of time up to end date
         if (txnTime <= endTime) {
+          // Opening Balance transactions are stored in cents, others in dollars
+          const isOpeningBalance = transaction.reference === 'OPENING'
+          const divisor = isOpeningBalance ? 100 : 1
+
           for (const line of transaction.lines) {
             // Find the account for this line
             const lineAccount = accounts.find(a => a.id === line.accountId)
             if (!lineAccount) continue
 
-            const debit = new Decimal(line.debit || 0)
-            const credit = new Decimal(line.credit || 0)
+            const debit = new Decimal(line.debit || 0).dividedBy(divisor)
+            const credit = new Decimal(line.credit || 0).dividedBy(divisor)
 
             // Revenue increases Retained Earnings (credits are positive for income)
             if (lineAccount.type === 'income' || lineAccount.type === 'other-income') {
@@ -156,10 +126,9 @@ export function useAccountBalances(
     accounts.forEach((account) => {
       if (isRetainedEarningsAccount(account)) {
         // Retained Earnings: Use the calculated cumulative net income
-        // Transaction amounts are stored in cents, convert to dollars
-        balanceMap.set(account.id, retainedEarningsBalance.dividedBy(100).toNumber())
-      } else if (isIncomeStatementAccount(account.type)) {
-        // Income Statement accounts: Calculate from transactions in the period
+        balanceMap.set(account.id, retainedEarningsBalance.toNumber())
+      } else {
+        // Calculate balance from transactions for ALL accounts
         let balance = new Decimal(0)
 
         if (transactions && transactions.length > 0) {
@@ -175,18 +144,27 @@ export function useAccountBalances(
             const txnTime = txnDate.getTime()
 
             if (txnTime >= startTime && txnTime <= endTime) {
+              // Opening Balance transactions are stored in cents, others in dollars
+              const isOpeningBalance = transaction.reference === 'OPENING'
+              const divisor = isOpeningBalance ? 100 : 1
+
               for (const line of transaction.lines) {
                 if (line.accountId === account.id) {
-                  const debit = new Decimal(line.debit || 0)
-                  const credit = new Decimal(line.credit || 0)
+                  const debit = new Decimal(line.debit || 0).dividedBy(divisor)
+                  const credit = new Decimal(line.credit || 0).dividedBy(divisor)
 
-                  // For Income: credits increase (positive)
-                  // For Expenses/COGS: debits increase (positive)
-                  if (account.type === 'income' || account.type === 'other-income') {
-                    balance = balance.plus(credit).minus(debit)
-                  } else {
-                    // expense, cost-of-goods-sold, other-expense
+                  // Assets and Expenses: debits increase, credits decrease
+                  // Liabilities, Equity, and Income: credits increase, debits decrease
+                  if (
+                    account.type === 'asset' ||
+                    account.type === 'expense' ||
+                    account.type === 'cost-of-goods-sold' ||
+                    account.type === 'other-expense'
+                  ) {
                     balance = balance.plus(debit).minus(credit)
+                  } else {
+                    // liability, equity, income, other-income
+                    balance = balance.plus(credit).minus(debit)
                   }
                 }
               }
@@ -194,11 +172,7 @@ export function useAccountBalances(
           }
         }
 
-        // Transaction amounts are stored in cents, convert to dollars for display
-        balanceMap.set(account.id, balance.dividedBy(100).toNumber())
-      } else {
-        // Balance Sheet accounts: Use existing account.balance
-        balanceMap.set(account.id, account.balance)
+        balanceMap.set(account.id, balance.toNumber())
       }
     })
 

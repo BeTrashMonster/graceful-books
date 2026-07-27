@@ -58,17 +58,37 @@
 }
 
 .error {
-  padding: 0.875rem 1rem;
+  padding: 1rem 1.25rem;
   background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
+  border: 2px solid #dc2626;
+  border-radius: 0.5rem;
   color: #991b1b;
   margin-bottom: 1rem;
   font-size: 0.875rem;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
 }
 
-.error strong {
+.errorTitle {
+  display: block;
   font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #7f1d1d;
+  font-size: 0.9375rem;
+}
+
+.errorList {
+  margin: 0;
+  padding-left: 1.25rem;
+  list-style-type: disc;
+}
+
+.errorList li {
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.errorList li:last-child {
+  margin-bottom: 0;
 }
 
 .actions {

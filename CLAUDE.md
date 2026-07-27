@@ -185,6 +185,31 @@ Architecture should support (but not block on):
 - **Testing:** Vitest + React Testing Library
 - **E2E Testing:** Playwright
 
+## Brand & Visual Design
+
+### Color Palette (Autumn/Professional)
+The brand uses sophisticated, muted autumn colors - NOT bright spring colors. All UI should feel upscale and professional.
+
+**Primary Brand Colors:**
+- **Royal Blue:** #1e3a5f to #2c5282
+- **Burgundy:** #742a2a to #9b2c2c
+- **Royal Purple:** #4b006e to #6b21a8
+- **Forest Green:** #1a4731 to #276749
+- **Rust:** #7c2d12 to #9a3412
+- **Amber:** #92400e to #b45309
+- **Teal:** #134e4a to #0f766e
+- **Slate:** #334155 to #475569
+- **Gold:** #92400e to #d4af37
+- **Navy:** #1e1b4b to #312e81
+
+### Design Guidelines
+- **No emojis** - Professional, upscale experience
+- **No bright/spring colors** - Avoid bright red (#dc2626), bright green (#16a34a), bright blue (#2563eb), etc.
+- **Sophisticated gradients** - Use the brand colors in subtle gradients
+- **Professional typography** - Clean, readable, confident
+- **Empowering tone** - Users should feel excited and capable, not childish
+- **Subtle animations** - Smooth, professional transitions (not bouncy or playful)
+
 ## Important Notes for Agents
 
 1. **Tech stack chosen** - React + TypeScript + Vite with custom components
@@ -195,4 +220,5 @@ Architecture should support (but not block on):
 6. **Plain English** - Avoid accounting jargon without explanation
 7. **GAAP compliance** - Beneath the friendly UI, accounting must be professional-grade
 8. **Accessibility first** - WCAG 2.1 AA compliance is not optional
-9. **🚨 SECURITY: Before running `npm install`, ALWAYS run `npm audit` first** - See `NPM_INSTALL_CHECKLIST.md` for detailed security protocol. This is non-negotiable for a zero-knowledge security platform.
+9. **SECURITY: Before running `npm install`, ALWAYS run `npm audit` first** - See `NPM_INSTALL_CHECKLIST.md` for detailed security protocol. This is non-negotiable for a zero-knowledge security platform.
+10. **Brand colors only** - Use the autumn/professional color palette. No bright spring colors or emojis.

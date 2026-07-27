@@ -10,11 +10,12 @@
  * - Date range filtering
  */
 
-import { type FC, useState, useEffect, useMemo } from 'react'
+import { type FC, useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../core/Button'
 import { Input } from '../forms/Input'
 import { useTransactions, type TransactionFilter } from '../../hooks/useTransactions'
+import { TransactionDetailDrawer } from '../transactions/TransactionDetailDrawer'
 import type { Account } from '../../types'
 import { formatCurrency, formatDate } from '../../utils/formatting'
 import styles from './AccountRegister.module.css'
@@ -44,6 +45,7 @@ interface RegisterLine {
   debit: number
   credit: number
   balance: number
+  isReconciled?: boolean
 }
 
 /**
@@ -59,6 +61,8 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
 
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
+  const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null)
+  const [selectedRunningBalance, setSelectedRunningBalance] = useState<number | undefined>(undefined)
 
   // Determine if this is a parent account (has children)
   const isParentAccount = childAccounts.length > 0
@@ -77,7 +81,7 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
   useEffect(() => {
     const filter: TransactionFilter = {
       companyId,
-      status: 'posted',
+      // Don't filter by status here - we'll filter in the component to include both posted and reconciled
     }
 
     // For parent accounts, don't filter by accountId - we'll filter in the component
@@ -97,12 +101,16 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
   }, [companyId, account.id, fromDate, toDate, loadTransactions, isParentAccount])
 
   // Build register lines with running balance
+  // Only include posted and reconciled transactions (not draft or void)
   const registerLines = useMemo(() => {
     const lines: RegisterLine[] = []
     let runningBalance = 0
 
+    // Filter to only include posted and reconciled transactions
+    const filtered = transactions.filter(t => t.status === 'posted' || t.status === 'reconciled')
+
     // Sort transactions by date
-    const sorted = [...transactions].sort((a, b) =>
+    const sorted = [...filtered].sort((a, b) =>
       new Date(a.date).getTime() - new Date(b.date).getTime()
     )
 
@@ -111,14 +119,18 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
       const matchingLines = transaction.lines.filter(l => accountIdsToInclude.has(l.accountId))
       if (matchingLines.length === 0) return
 
+      // Opening Balance transactions are stored in cents, others in dollars
+      const isOpeningBalance = transaction.reference === 'OPENING'
+      const divisor = isOpeningBalance ? 100 : 1
+
       // Sum up debits and credits from all matching lines
       let totalDebit = 0
       let totalCredit = 0
       const memos: string[] = []
 
       matchingLines.forEach(line => {
-        totalDebit += line.debit
-        totalCredit += line.credit
+        totalDebit += line.debit / divisor
+        totalCredit += line.credit / divisor
         if (line.memo) memos.push(line.memo)
       })
 
@@ -139,6 +151,7 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
         debit: totalDebit,
         credit: totalCredit,
         balance: runningBalance,
+        isReconciled: transaction.status === 'reconciled',
       })
     })
 
@@ -149,12 +162,31 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
     window.print()
   }
 
-  const handleRowClick = (transactionId: string) => {
-    // TODO: Navigate to transaction detail when that feature is implemented
-    // navigate(`/transactions/${transactionId}`)
-    console.log('Transaction clicked:', transactionId)
-    alert('Transaction detail view coming soon!')
-  }
+  const handleRowClick = useCallback((transactionId: string, balance: number) => {
+    setSelectedTransactionId(transactionId)
+    setSelectedRunningBalance(balance)
+  }, [])
+
+  const handleDrawerClose = useCallback(() => {
+    setSelectedTransactionId(null)
+    setSelectedRunningBalance(undefined)
+  }, [])
+
+  const handleTransactionChanged = useCallback(() => {
+    // Reload transactions after update/void/delete
+    const filter: TransactionFilter = { companyId }
+    if (!isParentAccount) {
+      filter.accountId = account.id
+    }
+    if (fromDate) {
+      filter.fromDate = new Date(fromDate)
+    }
+    if (toDate) {
+      filter.toDate = new Date(toDate)
+    }
+    loadTransactions(filter)
+    handleDrawerClose()
+  }, [companyId, account.id, fromDate, toDate, loadTransactions, isParentAccount, handleDrawerClose])
 
   // Determine column labels based on GAAP rules
   const getColumnLabels = () => {
@@ -188,9 +220,9 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
       formatDate(line.date),
       line.reference || '',
       line.memo || '',
-      line.debit ? (line.debit / 100).toFixed(2) : '',
-      line.credit ? (line.credit / 100).toFixed(2) : '',
-      (line.balance / 100).toFixed(2),
+      line.debit ? line.debit.toFixed(2) : '',
+      line.credit ? line.credit.toFixed(2) : '',
+      line.balance.toFixed(2),
     ])
 
     const csvContent = [
@@ -297,6 +329,7 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
           <table>
             <thead>
               <tr>
+                <th className={styles.statusColumn}></th>
                 <th>Date</th>
                 <th>Reference</th>
                 <th>Memo</th>
@@ -309,10 +342,29 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
               {registerLines.map((line, index) => (
                 <tr
                   key={`${line.transactionId}-${index}`}
-                  onClick={() => handleRowClick(line.transactionId)}
+                  onClick={() => handleRowClick(line.transactionId, line.balance)}
                   className={styles.clickableRow}
                   style={{ cursor: 'pointer' }}
                 >
+                  <td className={styles.statusColumn}>
+                    {line.isReconciled && (
+                      <span className={styles.reconciledIndicator} title="Reconciled">
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          aria-label="Reconciled"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </span>
+                    )}
+                  </td>
                   <td>{formatDate(line.date)}</td>
                   <td>{line.reference || '—'}</td>
                   <td>{line.memo || '—'}</td>
@@ -330,6 +382,7 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
             </tbody>
             <tfoot>
               <tr className={styles.totalRow}>
+                <td className={styles.statusColumn}></td>
                 <td colSpan={3}>Current Balance</td>
                 <td className={styles.amountColumn}>
                   {formatCurrency(
@@ -349,6 +402,18 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
           </table>
         </div>
       )}
+
+      {/* Transaction Detail Drawer */}
+      <TransactionDetailDrawer
+        isOpen={!!selectedTransactionId}
+        onClose={handleDrawerClose}
+        transactionId={selectedTransactionId || ''}
+        companyId={companyId}
+        runningBalance={selectedRunningBalance}
+        onTransactionUpdated={handleTransactionChanged}
+        onTransactionVoided={handleTransactionChanged}
+        onTransactionDeleted={handleTransactionChanged}
+      />
     </div>
   )
 }
