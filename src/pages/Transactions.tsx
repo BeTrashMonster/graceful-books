@@ -7,14 +7,18 @@
  * Requirements: B2 - Transaction Entry - Basic
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Breadcrumbs } from '../components/navigation/Breadcrumbs'
 import { TransactionForm } from '../components/transactions/TransactionForm'
 import { SimpleTransactionForm } from '../components/transactions/SimpleTransactionForm'
 import { ExpenseForm } from '../components/transactions/ExpenseForm'
+import { RecentActivityTable } from '../components/transactions/RecentActivityTable'
+import { TransactionDetailDrawer } from '../components/transactions/TransactionDetailDrawer'
 import { Modal } from '../components/modals/Modal'
 import { useTransactions, useNewTransaction } from '../hooks/useTransactions'
 import { useAccounts } from '../hooks/useAccounts'
+import { useVendors } from '../hooks/useVendors'
+import { useCustomers } from '../hooks/useCustomers'
 import { useAuth } from '../contexts/AuthContext'
 import type { JournalEntry } from '../types'
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns'
@@ -39,8 +43,8 @@ const TRANSACTION_TYPES: TransactionTypeCard[] = [
   },
   {
     type: 'received',
-    title: 'Record Income',
-    subtitle: 'Capture sales and revenue',
+    title: 'Record Income or Deposits',
+    subtitle: 'Capture money coming in',
     color: '#1a4731', // Forest Green
     gradient: 'linear-gradient(135deg, #1a4731 0%, #276749 100%)',
   },
@@ -53,8 +57,8 @@ const TRANSACTION_TYPES: TransactionTypeCard[] = [
   },
   {
     type: 'paid-credit',
-    title: 'Pay Credit Card',
-    subtitle: 'Make a payment toward your balance',
+    title: 'Pay Credit Card or Liability',
+    subtitle: 'Make a payment toward any balance you owe',
     color: '#4b006e', // Royal Purple
     gradient: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
   },
@@ -86,9 +90,16 @@ export default function Transactions() {
     isActive: true,
   })
 
+  // Load vendors and customers for the activity table
+  const { vendors } = useVendors({ companyId: activeCompanyId })
+  const { customers } = useCustomers({ companyId: activeCompanyId })
+
   const [selectedType, setSelectedType] = useState<TransactionType>(null)
   const [showAdvancedForm, setShowAdvancedForm] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<JournalEntry | null>(null)
+
+  // State for transaction detail drawer
+  const [viewingTransactionId, setViewingTransactionId] = useState<string | null>(null)
 
   // Load transactions on mount
   useEffect(() => {
@@ -378,6 +389,21 @@ export default function Transactions() {
     setCurrentTransaction(transaction)
   }
 
+  // Handle clicking on a transaction in the activity table
+  const handleTransactionClick = useCallback((transaction: JournalEntry) => {
+    setViewingTransactionId(transaction.id)
+  }, [])
+
+  // Handle closing the transaction detail drawer
+  const handleCloseDetailDrawer = useCallback(() => {
+    setViewingTransactionId(null)
+  }, [])
+
+  // Handle transaction updates from the drawer
+  const handleTransactionUpdated = useCallback(() => {
+    loadTransactions({ companyId: activeCompanyId })
+  }, [loadTransactions, activeCompanyId])
+
   const renderInsight = (type: TransactionType) => {
     if (!type) return null
 
@@ -482,17 +508,8 @@ export default function Transactions() {
     }
   }
 
-  // Get 5 most recent transactions
-  const recentTransactions = useMemo(() => {
-    return [...transactions]
-      .filter((txn) => txn.reference !== 'OPENING') // Exclude opening balances
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 5)
-  }, [transactions])
-
   return (
     <div className="page">
-      <Breadcrumbs />
       <div className="page-header">
         <h1 className="page-title">Record a Transaction</h1>
         <p className="page-description">
@@ -627,74 +644,15 @@ export default function Transactions() {
         </div>
 
         {/* Recent Activity */}
-        {recentTransactions.length > 0 && (
-          <div
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '0.5rem',
-              border: '1px solid #e5e4e3',
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                padding: '1rem 1.5rem',
-                borderBottom: '1px solid #e5e4e3',
-                backgroundColor: '#fafaf9',
-              }}
-            >
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  color: '#374151',
-                }}
-              >
-                Recent Activity
-              </h2>
-            </div>
-            <div>
-              {recentTransactions.map((txn, index) => {
-                const amount =
-                  txn.lines.reduce((sum, line) => sum + (line.debit || line.credit), 0) / 2
-                const displayAmount = txn.reference === 'OPENING' ? amount / 100 : amount
-
-                return (
-                  <div
-                    key={txn.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '1rem 1.5rem',
-                      borderBottom: index < recentTransactions.length - 1 ? '1px solid #f3f4f6' : 'none',
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 500, color: '#111827', fontSize: '0.9375rem' }}>
-                        {txn.memo || 'Transaction'}
-                      </div>
-                      <div style={{ fontSize: '0.8125rem', color: '#6b7280', marginTop: '0.125rem' }}>
-                        {format(new Date(txn.date), 'MMM d, yyyy')}
-                      </div>
-                    </div>
-                    <div
-                      style={{
-                        fontWeight: 600,
-                        fontFamily: 'ui-monospace, SFMono-Regular, monospace',
-                        color: '#111827',
-                        fontSize: '0.9375rem',
-                      }}
-                    >
-                      {formatCurrencyFull(displayAmount)}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
+        <RecentActivityTable
+          transactions={transactions}
+          vendors={vendors}
+          customers={customers}
+          onTransactionClick={handleTransactionClick}
+          initialPageSize={10}
+          showFilters={true}
+          showExport={true}
+        />
       </div>
 
       {/* Simple Transaction Modal */}
@@ -816,6 +774,19 @@ export default function Transactions() {
             />
           )}
         </Modal>
+      )}
+
+      {/* Transaction Detail Drawer */}
+      {viewingTransactionId && (
+        <TransactionDetailDrawer
+          isOpen={true}
+          onClose={handleCloseDetailDrawer}
+          transactionId={viewingTransactionId}
+          companyId={activeCompanyId}
+          onTransactionUpdated={handleTransactionUpdated}
+          onTransactionVoided={handleTransactionUpdated}
+          onTransactionDeleted={handleTransactionUpdated}
+        />
       )}
     </div>
   )

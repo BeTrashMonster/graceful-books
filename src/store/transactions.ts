@@ -118,6 +118,15 @@ function toTransactionEntity(
     lastModifiedAt: now,
     linesHash: generateLinesHash(transaction.lines),
     isBalanced,
+    // Additional transaction fields
+    transactionType: transaction.transactionType,
+    vendorId: transaction.vendorId,
+    customerId: transaction.customerId,
+    checkNumber: transaction.checkNumber,
+    dueDate: transaction.dueDate,
+    paymentTerms: transaction.paymentTerms,
+    linkedTransactionId: transaction.linkedTransactionId,
+    personalAccountRef: transaction.personalAccountRef,
     _encrypted: {
       memo: true,
       lines: true,
@@ -142,6 +151,15 @@ function fromTransactionEntity(entity: TransactionEntity): JournalEntry {
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,
     deletedAt: entity.deletedAt,
+    // Additional transaction fields
+    transactionType: entity.transactionType,
+    vendorId: entity.vendorId,
+    customerId: entity.customerId,
+    checkNumber: entity.checkNumber,
+    dueDate: entity.dueDate,
+    paymentTerms: entity.paymentTerms,
+    linkedTransactionId: entity.linkedTransactionId,
+    personalAccountRef: entity.personalAccountRef,
   }
 }
 

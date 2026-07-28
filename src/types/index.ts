@@ -140,6 +140,7 @@ export type TransactionType =
   | 'invoice-payment'   // Customer payment on invoice
   | 'transfer'          // Money moved between accounts
   | 'credit-card-payment' // Payment to credit card
+  | 'liability-payment' // Payment to any liability account
   | 'journal-entry'     // Manual journal entry
   | 'opening-balance'   // Opening balance entry
 

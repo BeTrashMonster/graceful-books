@@ -38,8 +38,30 @@ const TYPE_LABELS: Record<TransactionType, string> = {
   'invoice-payment': 'Invoice Payment',
   transfer: 'Transfer',
   'credit-card-payment': 'Credit Card Payment',
+  'liability-payment': 'Liability Payment',
   'journal-entry': 'Journal Entry',
   'opening-balance': 'Opening Balance',
+}
+
+/**
+ * Maps transaction type to color category for styling
+ */
+type ColorCategory = 'rust' | 'green' | 'blue' | 'purple' | 'neutral'
+
+const TYPE_COLORS: Record<TransactionType, ColorCategory> = {
+  expense: 'rust',
+  check: 'rust',
+  bill: 'rust',
+  'bill-payment': 'rust',
+  income: 'green',
+  deposit: 'green',
+  invoice: 'green',
+  'invoice-payment': 'green',
+  transfer: 'blue',
+  'credit-card-payment': 'purple',
+  'liability-payment': 'purple',
+  'journal-entry': 'neutral',
+  'opening-balance': 'neutral',
 }
 
 /**
@@ -50,11 +72,14 @@ export const TransactionTypeBadge: FC<TransactionTypeBadgeProps> = ({
   size = 'md',
   className,
 }) => {
+  const colorCategory = TYPE_COLORS[type] || 'neutral'
+
   return (
     <span
       className={clsx(
         styles.badge,
         styles[size],
+        styles[colorCategory],
         className
       )}
       aria-label={`Transaction type: ${TYPE_LABELS[type]}`}
