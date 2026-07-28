@@ -12,6 +12,8 @@ import { Breadcrumbs } from '../components/navigation/Breadcrumbs'
 import { TransactionForm } from '../components/transactions/TransactionForm'
 import { SimpleTransactionForm } from '../components/transactions/SimpleTransactionForm'
 import { ExpenseForm } from '../components/transactions/ExpenseForm'
+import { BillPaidForm } from '../components/transactions/BillPaidForm'
+import { InvoicePaidForm } from '../components/transactions/InvoicePaidForm'
 import { RecentActivityTable } from '../components/transactions/RecentActivityTable'
 import { TransactionDetailDrawer } from '../components/transactions/TransactionDetailDrawer'
 import { Modal } from '../components/modals/Modal'
@@ -24,6 +26,7 @@ import type { JournalEntry } from '../types'
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns'
 
 type TransactionType = 'spent' | 'received' | 'transfer' | 'paid-credit' | null
+type SecondaryAction = 'bill-paid' | 'invoice-paid' | null
 
 interface TransactionTypeCard {
   type: TransactionType
@@ -31,6 +34,10 @@ interface TransactionTypeCard {
   subtitle: string
   color: string
   gradient: string
+  secondaryAction?: {
+    type: SecondaryAction
+    label: string
+  }
 }
 
 const TRANSACTION_TYPES: TransactionTypeCard[] = [
@@ -40,13 +47,21 @@ const TRANSACTION_TYPES: TransactionTypeCard[] = [
     subtitle: 'Track purchases and business costs',
     color: '#7c2d12', // Rust
     gradient: 'linear-gradient(135deg, #7c2d12 0%, #9a3412 100%)',
+    secondaryAction: {
+      type: 'bill-paid',
+      label: '+ Bill Paid',
+    },
   },
   {
     type: 'received',
-    title: 'Record Income or Deposits',
+    title: 'Record Invoice or Deposit',
     subtitle: 'Capture money coming in',
     color: '#1a4731', // Forest Green
     gradient: 'linear-gradient(135deg, #1a4731 0%, #276749 100%)',
+    secondaryAction: {
+      type: 'invoice-paid',
+      label: '+ Invoice Paid',
+    },
   },
   {
     type: 'transfer',
@@ -95,6 +110,7 @@ export default function Transactions() {
   const { customers } = useCustomers({ companyId: activeCompanyId })
 
   const [selectedType, setSelectedType] = useState<TransactionType>(null)
+  const [selectedSecondaryAction, setSelectedSecondaryAction] = useState<SecondaryAction>(null)
   const [showAdvancedForm, setShowAdvancedForm] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<JournalEntry | null>(null)
 
@@ -343,9 +359,26 @@ export default function Transactions() {
   const handleSelectType = (type: TransactionType) => {
     if (!type) return
     setSelectedType(type)
+    setSelectedSecondaryAction(null)
     const newTransaction = useNewTransaction(activeCompanyId, activeUserId)
     setCurrentTransaction(newTransaction)
     clearError()
+  }
+
+  const handleSecondaryAction = (action: SecondaryAction, e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent card click
+    if (!action) return
+    setSelectedSecondaryAction(action)
+    clearError()
+  }
+
+  // Handle saving multiple bill-paid transactions
+  const handleSaveBillPayments = async (paymentTransactions: JournalEntry[]) => {
+    for (const txn of paymentTransactions) {
+      await createNewTransaction(txn)
+    }
+    setSelectedSecondaryAction(null)
+    loadTransactions({ companyId: activeCompanyId })
   }
 
   const handleOpenAdvanced = () => {
@@ -379,6 +412,7 @@ export default function Transactions() {
 
   const handleCancel = () => {
     setSelectedType(null)
+    setSelectedSecondaryAction(null)
     setShowAdvancedForm(false)
     setEditingTransaction(null)
     setCurrentTransaction(null)
@@ -528,20 +562,16 @@ export default function Transactions() {
           }}
         >
           {TRANSACTION_TYPES.map((card) => (
-            <button
+            <div
               key={card.type}
-              onClick={() => handleSelectType(card.type)}
               style={{
                 padding: '1.75rem',
                 background: card.gradient,
-                border: 'none',
                 borderRadius: '0.75rem',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'all 0.2s ease',
                 position: 'relative',
                 overflow: 'hidden',
                 minHeight: '180px',
+                transition: 'all 0.2s ease',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px)'
@@ -553,17 +583,47 @@ export default function Transactions() {
               }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                <h3
-                  style={{
-                    margin: '0 0 0.5rem 0',
-                    fontSize: '1.375rem',
-                    fontWeight: 700,
-                    color: 'white',
-                    letterSpacing: '-0.01em',
-                  }}
-                >
-                  {card.title}
-                </h3>
+                {/* Header row with title and secondary action */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: '1.375rem',
+                      fontWeight: 700,
+                      color: 'white',
+                      letterSpacing: '-0.01em',
+                    }}
+                  >
+                    {card.title}
+                  </h3>
+                  {card.secondaryAction && (
+                    <button
+                      onClick={(e) => handleSecondaryAction(card.secondaryAction!.type, e)}
+                      style={{
+                        padding: '0.375rem 0.75rem',
+                        backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                        border: '1px solid rgba(255, 255, 255, 0.25)',
+                        borderRadius: '0.375rem',
+                        color: 'rgba(255, 255, 255, 0.9)',
+                        fontSize: '0.75rem',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        whiteSpace: 'nowrap',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)'
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)'
+                      }}
+                    >
+                      {card.secondaryAction.label}
+                    </button>
+                  )}
+                </div>
                 <p
                   style={{
                     margin: '0 0 1.25rem 0',
@@ -577,24 +637,37 @@ export default function Transactions() {
                   {renderInsight(card.type)}
                 </div>
               </div>
-              <div
+              {/* Main action button */}
+              <button
+                onClick={() => handleSelectType(card.type)}
                 style={{
                   position: 'absolute',
                   bottom: '1.25rem',
                   right: '1.25rem',
-                  padding: '0.625rem 1.25rem',
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  padding: '0.875rem 1.75rem',
+                  backgroundColor: 'rgba(255, 255, 255, 0.18)',
                   backdropFilter: 'blur(4px)',
                   color: 'white',
                   borderRadius: '0.5rem',
-                  fontSize: '0.875rem',
+                  fontSize: '1rem',
                   fontWeight: 600,
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  letterSpacing: '0.01em',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.28)'
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.18)'
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)'
                 }}
               >
                 Add Entry
-              </div>
-            </button>
+              </button>
+            </div>
           ))}
         </div>
 
@@ -787,6 +860,60 @@ export default function Transactions() {
           onTransactionVoided={handleTransactionUpdated}
           onTransactionDeleted={handleTransactionUpdated}
         />
+      )}
+
+      {/* Bill Paid Modal */}
+      {selectedSecondaryAction === 'bill-paid' && (
+        <Modal
+          isOpen={true}
+          onClose={handleCancel}
+          title="Bill Paid"
+          size="xl"
+          closeOnBackdropClick={false}
+          headerStyle={{
+            background: 'linear-gradient(135deg, #7c2d12 0%, #9a3412 100%)',
+            color: 'white',
+          }}
+        >
+          <BillPaidForm
+            transactions={transactions}
+            accounts={accounts}
+            vendors={vendors}
+            companyId={activeCompanyId}
+            userId={activeUserId}
+            onSave={handleSaveBillPayments}
+            onCancel={handleCancel}
+            isLoading={isLoading}
+            error={error || undefined}
+          />
+        </Modal>
+      )}
+
+      {/* Invoice Paid Modal */}
+      {selectedSecondaryAction === 'invoice-paid' && (
+        <Modal
+          isOpen={true}
+          onClose={handleCancel}
+          title="Invoice Paid"
+          size="xl"
+          closeOnBackdropClick={false}
+          headerStyle={{
+            background: 'linear-gradient(135deg, #1a4731 0%, #276749 100%)',
+            color: 'white',
+          }}
+        >
+          <InvoicePaidForm
+            transactions={transactions}
+            accounts={accounts}
+            customers={customers}
+            companyId={activeCompanyId}
+            userId={activeUserId}
+            onSave={handleSaveBillPayments}
+            onCancel={handleCancel}
+            isLoading={isLoading}
+            error={error || undefined}
+          />
+        </Modal>
       )}
     </div>
   )

@@ -1,0 +1,873 @@
+/**
+ * InvoicePaidForm Styles
+ *
+ * Professional, organized layout for invoice payment workflow
+ * Uses autumn color palette per brand guidelines
+ * Uses Forest Green theme for income/payments received
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Error Message */
+.error {
+  padding: 0.875rem 1rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #991b1b;
+  font-size: 0.875rem;
+}
+
+.errorTitle {
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+/* Payment Details Section */
+.paymentDetails {
+  background-color: #fafaf9;
+  border: 1px solid #e5e4e3;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.sectionTitle {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.paymentFieldsRow1 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.paymentFieldsRow2 {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem;
+}
+
+.fieldWide {
+  display: flex;
+  flex-direction: column;
+}
+
+.amountInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currencyPrefix {
+  position: absolute;
+  left: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.amountInputWrapper input {
+  padding-left: 1.5rem !important;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.375rem;
+}
+
+/* Filters Section */
+.filters {
+  display: flex;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #f8f8f7;
+  border: 1px solid #e5e4e3;
+  border-radius: 0.5rem;
+}
+
+.filterGroupCustomers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 180px;
+}
+
+.filterGroupRight {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  flex: 1;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 140px;
+}
+
+.filterLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Multi-select Dropdown */
+.multiSelectDropdown {
+  position: relative;
+}
+
+.dropdownTrigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-width: 160px;
+  padding: 0.5rem 0.75rem;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dropdownTrigger:hover:not(:disabled) {
+  border-color: #1a4731;
+}
+
+.dropdownTrigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dropdownTriggerText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdownArrow {
+  font-size: 0.75rem;
+  color: #6b7280;
+  transition: transform 0.15s ease;
+  margin-left: 0.5rem;
+}
+
+.dropdownArrow.open {
+  transform: rotate(180deg);
+}
+
+.dropdownPanel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.25rem;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  min-width: 180px;
+}
+
+.dropdownActions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dropdownActionBtn {
+  flex: 1;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #1a4731;
+  background: none;
+  border: 1px solid #1a4731;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dropdownActionBtn:hover {
+  background-color: rgba(26, 71, 49, 0.1);
+}
+
+.dropdownList {
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 0.375rem;
+}
+
+.dropdownList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdownList::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.dropdownList::-webkit-scrollbar-thumb {
+  background: #c9a227;
+  border-radius: 3px;
+}
+
+.dropdownList::-webkit-scrollbar-thumb:hover {
+  background: #d4af37;
+}
+
+.dropdownCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.8125rem;
+  color: #374151;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  transition: background-color 0.1s ease;
+}
+
+.dropdownCheckbox:hover {
+  background-color: #f9fafb;
+}
+
+.dropdownCheckbox input {
+  accent-color: #1a4731;
+  cursor: pointer;
+}
+
+.noCustomers {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  font-style: italic;
+  padding: 0.5rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.checkboxLabel input {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: #1a4731;
+  margin-top: 0.125rem;
+}
+
+.brandCheckbox {
+  accent-color: #1a4731;
+}
+
+.checkboxText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.checkboxSubtext {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* Selection Actions */
+.selectionActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.selectAllButton,
+.clearAllButton {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.selectAllButton {
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%);
+  color: #1a4731;
+  border: 1px solid #c9a227;
+}
+
+.selectAllButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.2) 0%, rgba(212, 175, 55, 0.25) 100%);
+  border-color: #d4af37;
+}
+
+.selectAllButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.clearAllButton {
+  background: none;
+  color: #1a4731;
+  border: 1px solid #d1d5db;
+}
+
+.clearAllButton:hover:not(:disabled) {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.clearAllButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.selectionCount {
+  margin-left: auto;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+/* Invoices List */
+.invoicesList {
+  border: 1px solid #e5e4e3;
+  border-radius: 0.5rem;
+  background-color: white;
+  min-height: 120px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.invoicesList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.invoicesList::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.invoicesList::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #c9a227 0%, #d4af37 100%);
+  border-radius: 4px;
+  border: 1px solid #b8941f;
+}
+
+.invoicesList::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d4af37 0%, #e6c458 100%);
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  color: #9ca3af;
+  font-size: 0.9375rem;
+}
+
+.invoiceItem {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.1s ease;
+}
+
+.invoiceItem:last-child {
+  border-bottom: none;
+}
+
+.invoiceItem:hover {
+  background-color: #fafaf9;
+}
+
+.invoiceItem.selected {
+  background-color: rgba(26, 71, 49, 0.08);
+}
+
+.invoiceItem.depositItem {
+  border-left: 3px solid #1a4731;
+}
+
+.invoiceCheckbox {
+  display: flex;
+  align-items: center;
+}
+
+.invoiceCheckbox input {
+  width: 1.125rem;
+  height: 1.125rem;
+  cursor: pointer;
+  accent-color: #1a4731;
+}
+
+.invoiceInfo {
+  min-width: 0;
+}
+
+.invoiceHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.invoiceCustomer {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.9375rem;
+}
+
+.invoiceType,
+.invoiceTypeTag {
+  display: inline-flex;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.invoiceTypeTag {
+  background: linear-gradient(135deg, #1a4731 0%, #276749 100%);
+  color: white;
+}
+
+.depositType {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.invoiceDetails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.invoiceDate {
+  font-weight: 500;
+}
+
+.invoiceReference {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', monospace;
+  font-size: 0.75rem;
+}
+
+.invoiceMemo {
+  color: #9ca3af;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.invoiceAmounts {
+  text-align: right;
+  min-width: 100px;
+}
+
+.amountRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.amountLabel {
+  color: #6b7280;
+}
+
+.amountValue {
+  color: #374151;
+  font-weight: 500;
+}
+
+.amountPaid {
+  color: #059669;
+  font-weight: 500;
+}
+
+.amountDue {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* Payment Amount Field (shown when selected) */
+.paymentAmountField {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid #1a4731;
+}
+
+.paymentAmountLabel {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.paymentAmountInput {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100px;
+}
+
+.currencySymbol {
+  position: absolute;
+  left: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.paymentAmountInput input {
+  padding-left: 1.25rem !important;
+  text-align: right;
+}
+
+/* Discrepancies Section */
+.discrepanciesSection {
+  background-color: #d1fae5;
+  border: 1px solid #10b981;
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+}
+
+.discrepancyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.625rem;
+}
+
+.discrepancyTitle {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #065f46;
+}
+
+.addAnotherDiscrepancy {
+  padding: 0.25rem 0.625rem;
+  background: none;
+  border: 1px dashed #10b981;
+  border-radius: 0.25rem;
+  color: #065f46;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.addAnotherDiscrepancy:hover:not(:disabled) {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-style: solid;
+}
+
+.addAnotherDiscrepancy:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.discrepancyRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.discrepancyRow:last-child {
+  margin-bottom: 0;
+}
+
+.discrepancyRow select {
+  flex: 1;
+}
+
+.discrepancyAmount {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 120px;
+}
+
+.discrepancyAmount input {
+  padding-left: 1.5rem !important;
+  text-align: right;
+}
+
+.removeDiscrepancyButton {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  color: #9ca3af;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.removeDiscrepancyButton:hover:not(:disabled) {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e4e3;
+  gap: 1rem;
+}
+
+.totalSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.totalRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.totalLabel {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.totalAmount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.differenceRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.differenceLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.differenceAmount {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.differenceAmount.positive {
+  color: #059669;
+}
+
+.differenceAmount.negative {
+  color: #dc2626;
+}
+
+.addDiscrepancyButton {
+  padding: 0.375rem 0.75rem;
+  background-color: #d1fae5;
+  border: 1px solid #10b981;
+  border-radius: 0.375rem;
+  color: #065f46;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.addDiscrepancyButton:hover:not(:disabled) {
+  background-color: #a7f3d0;
+  border-color: #059669;
+}
+
+.addDiscrepancyButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.balanceWarning {
+  font-size: 0.8125rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.cancelButton,
+.saveButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancelButton {
+  background-color: transparent;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.saveButton {
+  background: linear-gradient(135deg, #1a4731 0%, #276749 100%);
+  color: white;
+  border: none;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #276749 0%, #2d8659 100%);
+}
+
+.cancelButton:disabled,
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .paymentFieldsRow1 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .paymentFieldsRow2 {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .filterGroupCustomers {
+    width: 100%;
+  }
+
+  .filterGroupRight {
+    width: 100%;
+  }
+
+  .discrepancyRow {
+    flex-wrap: wrap;
+  }
+
+  .discrepancyRow select {
+    min-width: 100%;
+  }
+
+  .differenceRow {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .paymentFieldsRow1 {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filterGroup {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .invoiceItem {
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+  }
+
+  .invoiceAmounts {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .paymentAmountField {
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+    padding-left: 2rem;
+    border-left: none;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .cancelButton,
+  .saveButton {
+    width: 100%;
+  }
+}
