@@ -68,7 +68,7 @@ const DATE_RANGE_OPTIONS = [
 ]
 
 // Sort configuration
-type SortField = 'date' | 'type' | 'reference' | 'vendor' | 'amount'
+type SortField = 'date' | 'type' | 'reference' | 'vendor' | 'amount' | 'created'
 type SortDirection = 'asc' | 'desc'
 
 export interface RecentActivityTableProps {
@@ -154,8 +154,8 @@ export const RecentActivityTable: FC<RecentActivityTableProps> = ({
   const [customStartDate, setCustomStartDate] = useState<string>('')
   const [customEndDate, setCustomEndDate] = useState<string>('')
 
-  // State for sorting
-  const [sortField, setSortField] = useState<SortField>('date')
+  // State for sorting - default to most recently created first
+  const [sortField, setSortField] = useState<SortField>('created')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
   // Create lookup maps for vendors and customers
@@ -245,6 +245,10 @@ export const RecentActivityTable: FC<RecentActivityTableProps> = ({
       let comparison = 0
 
       switch (sortField) {
+        case 'created':
+          // Sort by creation timestamp (when entry was recorded)
+          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          break
         case 'date':
           comparison = new Date(a.date).getTime() - new Date(b.date).getTime()
           break
@@ -283,7 +287,8 @@ export const RecentActivityTable: FC<RecentActivityTableProps> = ({
       setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
     } else {
       setSortField(field)
-      setSortDirection(field === 'date' ? 'desc' : 'asc')
+      // Default to descending for date/time fields (most recent first)
+      setSortDirection(field === 'date' || field === 'created' ? 'desc' : 'asc')
     }
   }, [sortField])
 

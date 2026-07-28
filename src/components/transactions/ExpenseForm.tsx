@@ -15,6 +15,7 @@ import type { Vendor } from '../../types/vendor.types'
 import { Input } from '../forms/Input'
 import { Select } from '../forms/Select'
 import { VendorSelect } from '../vendors/VendorSelect'
+import { AccountAutocomplete } from '../accounts/AccountAutocomplete'
 import { VendorModal } from '../vendors/VendorModal'
 import { useNewLineItem } from '../../hooks/useTransactions'
 import styles from './ExpenseForm.module.css'
@@ -64,8 +65,10 @@ export function ExpenseForm({
   const [showVendorModal, setShowVendorModal] = useState(false)
   const [personalAccountRef, setPersonalAccountRef] = useState<string>('')
 
-  // Multi-line categories
+  // Multi-line categories (default to 3 lines for easier entry)
   const [categoryLines, setCategoryLines] = useState<CategoryLine[]>([
+    { id: crypto.randomUUID(), categoryId: '', amount: '', memo: '' },
+    { id: crypto.randomUUID(), categoryId: '', amount: '', memo: '' },
     { id: crypto.randomUUID(), categoryId: '', amount: '', memo: '' },
   ])
 
@@ -98,6 +101,23 @@ export function ExpenseForm({
     [accounts, isSelectable]
   )
 
+  // Bank accounts only (checking, savings) - for Check type
+  const bankAccounts = useMemo(
+    () =>
+      accounts.filter(
+        (acc) =>
+          isSelectable(acc) &&
+          acc.isActive &&
+          acc.subType !== 'flex-account' &&
+          acc.type === 'asset' &&
+          (acc.name.toLowerCase().includes('checking') ||
+            acc.name.toLowerCase().includes('savings') ||
+            acc.subType === 'checking' ||
+            acc.subType === 'savings')
+      ),
+    [accounts, isSelectable]
+  )
+
   // Payment accounts: Bank accounts and Credit Cards (NOT including flex accounts - those are separate)
   const paymentAccounts = useMemo(
     () =>
@@ -119,6 +139,12 @@ export function ExpenseForm({
           )
       ),
     [accounts, isSelectable]
+  )
+
+  // Get the appropriate payment accounts based on expense type
+  const availablePaymentAccounts = useMemo(
+    () => (expenseType === 'check' ? bankAccounts : paymentAccounts),
+    [expenseType, bankAccounts, paymentAccounts]
   )
 
   // Helper to extract owner name from flex account for context-aware labels
@@ -161,6 +187,49 @@ export function ExpenseForm({
       ),
     [accounts, isSelectable]
   )
+
+  // ALL accounts for category selection (user requested full access)
+  // Grouped by account type for easier navigation
+  const allSelectableAccounts = useMemo(
+    () =>
+      accounts.filter(
+        (acc) =>
+          isSelectable(acc) &&
+          acc.isActive &&
+          acc.subType !== 'flex-account'
+      ),
+    [accounts, isSelectable]
+  )
+
+  // Group accounts by type for the dropdown
+  const groupedAccounts = useMemo(() => {
+    const groups: Record<string, Account[]> = {}
+    const typeLabels: Record<string, string> = {
+      'asset': 'Assets',
+      'liability': 'Liabilities',
+      'equity': 'Equity',
+      'income': 'Income',
+      'expense': 'Expenses',
+      'cost-of-goods-sold': 'Cost of Goods Sold',
+      'other-income': 'Other Income',
+      'other-expense': 'Other Expense',
+    }
+
+    for (const acc of allSelectableAccounts) {
+      const groupKey = typeLabels[acc.type] || acc.type
+      if (!groups[groupKey]) {
+        groups[groupKey] = []
+      }
+      groups[groupKey].push(acc)
+    }
+
+    // Sort accounts within each group
+    for (const key of Object.keys(groups)) {
+      groups[key].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    }
+
+    return groups
+  }, [allSelectableAccounts])
 
   // Calculate total from category lines
   const calculatedTotal = useMemo(() => {
@@ -427,16 +496,16 @@ export function ExpenseForm({
                 disabled={isLoading}
                 options={[
                   { value: '', label: 'Select account...' },
-                  // Regular payment accounts
-                  ...paymentAccounts.map((acc) => ({
+                  // Regular payment accounts (bank only for checks, all for expense)
+                  ...availablePaymentAccounts.map((acc) => ({
                     value: acc.id,
                     label: `${acc.accountNumber ? acc.accountNumber + ' - ' : ''}${acc.name}`,
                   })),
-                  // Flex accounts with "Paid Personally" label
-                  ...flexAccounts.map((acc) => ({
+                  // Flex accounts with "Paid Personally" label (only for expense type, not checks)
+                  ...(expenseType !== 'check' ? flexAccounts.map((acc) => ({
                     value: acc.id,
                     label: `${getFlexAccountOwnerName(acc)} - Paid Personally`,
-                  })),
+                  })) : []),
                 ]}
               />
             </div>
@@ -524,25 +593,16 @@ export function ExpenseForm({
             <div key={line.id} className={styles.categoryLine}>
               <div className={styles.categoryLineMain}>
                 <div className={styles.categorySelect}>
-                  <Select
+                  <AccountAutocomplete
                     value={line.categoryId}
-                    onChange={(e) =>
-                      updateCategoryLine(line.id, 'categoryId', e.target.value)
+                    onChange={(accountId) =>
+                      updateCategoryLine(line.id, 'categoryId', accountId)
                     }
+                    accounts={allSelectableAccounts}
+                    placeholder="Search categories..."
                     disabled={isLoading}
-                    options={[
-                      { value: '', label: 'Select category...' },
-                      // Regular expense accounts
-                      ...expenseAccounts.map((acc) => ({
-                        value: acc.id,
-                        label: `${acc.accountNumber ? acc.accountNumber + ' - ' : ''}${acc.name}`,
-                      })),
-                      // Flex accounts with "Personal Item" label
-                      ...flexAccounts.map((acc) => ({
-                        value: acc.id,
-                        label: `${getFlexAccountOwnerName(acc)} - Personal Item`,
-                      })),
-                    ]}
+                    flexAccounts={flexAccounts}
+                    getFlexLabel={(acc) => `${getFlexAccountOwnerName(acc)} - Personal Item`}
                   />
                 </div>
                 <div className={styles.categoryAmount}>

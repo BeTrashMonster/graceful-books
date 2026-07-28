@@ -13,3 +13,6 @@ export type { AccountTreeProps } from './AccountTree'
 
 export { AccountList } from './AccountList'
 export type { AccountListProps } from './AccountList'
+
+export { AccountAutocomplete } from './AccountAutocomplete'
+export type { AccountAutocompleteProps } from './AccountAutocomplete'
