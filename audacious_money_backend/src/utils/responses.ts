@@ -164,9 +164,15 @@ export function unauthorized(c: Context, code: string, message: string): Respons
 /**
  * Forbidden error (403)
  */
-export function forbidden(c: Context, code: string, message: string): Response {
+export function forbidden(
+  c: Context,
+  code: string,
+  message: string,
+  data?: Record<string, unknown>
+): Response {
   const response: ApiResponse = {
     error: { code, message },
+    ...(data && { data }),
   };
   return c.json(response, 403);
 }
