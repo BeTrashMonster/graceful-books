@@ -88,7 +88,7 @@ export async function requireNotFrozen(
   // Check user's subscription status
   try {
     const result = await db.query(
-      `SELECT up.status, up.current_period_end
+      `SELECT up.status, up.current_period_end, up.trial_ends_at
        FROM user_products up
        WHERE up.user_id = $1
        ORDER BY up.created_at DESC
@@ -107,14 +107,27 @@ export async function requireNotFrozen(
     // Check if status indicates frozen state
     const isFrozen = FROZEN_STATUSES.includes(status);
 
-    // Also check if trial has expired (status might still be 'trialing' but period ended)
+    // Check if trial has expired
+    // - current_period_end: Set by Stripe webhooks for paid subscriptions
+    // - trial_ends_at: Set during workshop signup for workshop trials
+    // We check BOTH because workshop trials use trial_ends_at, not current_period_end
+    const now = new Date();
     const periodEnd = subscription.current_period_end;
-    const isExpired = periodEnd && new Date(periodEnd) < new Date();
+    const trialEndsAt = subscription.trial_ends_at;
+
+    const isPeriodExpired = periodEnd && new Date(periodEnd) < now;
+    const isTrialDateExpired = trialEndsAt && new Date(trialEndsAt) < now;
+    const isExpired = isPeriodExpired || isTrialDateExpired;
     const isTrialExpired = status === 'trialing' && isExpired;
 
     if (isFrozen || isTrialExpired) {
+      const expirationSource = isPeriodExpired
+        ? `current_period_end: ${periodEnd}`
+        : isTrialDateExpired
+          ? `trial_ends_at: ${trialEndsAt}`
+          : 'status';
       console.log(
-        `[FrozenState] Blocked ${method} ${path} for user ${userId} (status: ${status}, expired: ${isExpired})`
+        `[FrozenState] Blocked ${method} ${path} for user ${userId} (status: ${status}, expired: ${isExpired}, source: ${expirationSource})`
       );
 
       return forbidden(
