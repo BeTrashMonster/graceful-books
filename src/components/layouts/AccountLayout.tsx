@@ -41,8 +41,17 @@ export function AccountLayout() {
       if (session) {
         const sessionData = JSON.parse(session);
         const products = sessionData.products || [];
-        const hasCPG = products.some((p: any) => p.slug === 'cpu-cpg-calculator');
-        const hasBookkeeping = products.some((p: any) => p.slug === 'bookkeeping-suite');
+
+        // Check for all possible product slugs
+        const hasCPG = products.some((p: any) =>
+          p.slug === 'cpu-cpg-calculator' ||
+          p.slug === 'cpg' ||
+          p.slug === 'cpu-calculator'
+        );
+        const hasBookkeeping = products.some((p: any) =>
+          p.slug === 'bookkeeping-suite' ||
+          p.slug === 'bookkeeping'
+        );
 
         // If they have bookkeeping, go to dashboard
         if (hasBookkeeping) return '/dashboard';
@@ -52,8 +61,8 @@ export function AccountLayout() {
     } catch (error) {
       console.error('Error determining back path:', error);
     }
-    // Default fallback
-    return '/dashboard';
+    // Default fallback - CPG is more common for users without bookkeeping
+    return '/cpg';
   };
 
   // Load company name from session
