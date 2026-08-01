@@ -773,10 +773,9 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
     if (cpgProductResult.rowCount > 0) {
       const cpgProductId = cpgProductResult.rows[0].id;
 
-      // Calculate trial end date
+      // Calculate trial end date using workshop's timezone
       const trialStartDate = new Date(workshop.trialStartDatetime || workshop.workshopStartDatetime);
-      const trialEndDate = new Date(trialStartDate);
-      trialEndDate.setDate(trialEndDate.getDate() + workshop.trialDurationDays);
+      const trialEndDate = calculateTrialExpiration(workshop, trialStartDate);
 
       // Assign product with trialing status
       await db.query(
@@ -788,11 +787,13 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
           cpgProductId,
           'trialing', // Set as trialing so they can access after countdown
           workshop.accessGrantDatetime, // When they can first access
-          trialEndDate // When trial expires
+          trialEndDate // When trial expires (end of day in workshop timezone)
         ]
       );
 
-      console.log('[Workshops] Assigned CPG product to user:', user.id, 'Trial ends:', trialEndDate);
+      console.log('[Workshops] Assigned CPG product to user:', user.id,
+        'Timezone:', workshop.primaryTimezone || 'America/Los_Angeles',
+        'Trial ends:', trialEndDate.toISOString());
     } else {
       console.error('[Workshops] CPG product not found!');
     }

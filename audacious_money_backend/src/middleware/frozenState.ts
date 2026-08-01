@@ -18,7 +18,13 @@
  */
 
 import { Context, Next } from 'hono';
+import { toZonedTime } from 'date-fns-tz';
 import { forbidden, ErrorCodes } from '../utils/responses.js';
+
+/**
+ * Default timezone - PST (Pacific Standard Time)
+ */
+const DEFAULT_TIMEZONE = 'America/Los_Angeles';
 
 /**
  * Subscription statuses that indicate a frozen account
@@ -121,13 +127,16 @@ export async function requireNotFrozen(
     const isTrialExpired = status === 'trialing' && isExpired;
 
     if (isFrozen || isTrialExpired) {
+      // Log times in PST for clarity
+      const nowPST = toZonedTime(now, DEFAULT_TIMEZONE);
       const expirationSource = isPeriodExpired
-        ? `current_period_end: ${periodEnd}`
+        ? `current_period_end: ${toZonedTime(new Date(periodEnd), DEFAULT_TIMEZONE).toISOString()}`
         : isTrialDateExpired
-          ? `trial_ends_at: ${trialEndsAt}`
+          ? `trial_ends_at: ${toZonedTime(new Date(trialEndsAt), DEFAULT_TIMEZONE).toISOString()}`
           : 'status';
       console.log(
-        `[FrozenState] Blocked ${method} ${path} for user ${userId} (status: ${status}, expired: ${isExpired}, source: ${expirationSource})`
+        `[FrozenState] Blocked ${method} ${path} for user ${userId}`,
+        `(status: ${status}, now_PST: ${nowPST.toISOString()}, source: ${expirationSource})`
       );
 
       return forbidden(

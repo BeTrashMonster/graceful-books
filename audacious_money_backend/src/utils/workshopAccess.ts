@@ -4,8 +4,15 @@
  * Helper functions for determining workshop access, trial status, and enrollment eligibility
  */
 
-import { toZonedTime } from 'date-fns-tz';
+import { toZonedTime, fromZonedTime } from 'date-fns-tz';
+import { addDays, startOfDay, endOfDay } from 'date-fns';
 import type { Workshop, WorkshopEnrollment } from '../types/workshop.types.js';
+
+/**
+ * Default timezone - PST (Pacific Standard Time)
+ * Used when workshop doesn't specify a timezone
+ */
+const DEFAULT_TIMEZONE = 'America/Los_Angeles';
 
 // =============================================================================
 // ACCESS CONTROL FUNCTIONS
@@ -43,13 +50,36 @@ export function hasTrialStarted(enrollment: WorkshopEnrollment, workshop: Worksh
 /**
  * Calculate trial expiration date for a user
  *
- * @param workshop - Workshop configuration
+ * IMPORTANT: This calculation honors the workshop's timezone.
+ * If workshop is PST and trial is 30 days, it expires at end of day 30 in PST.
+ *
+ * @param workshop - Workshop configuration (includes primaryTimezone)
  * @param trialStartedAt - When the user's trial started
- * @returns Date when trial expires
+ * @returns Date when trial expires (end of the last trial day in workshop timezone)
  */
 export function calculateTrialExpiration(workshop: Workshop, trialStartedAt: Date): Date {
-  const expiration = new Date(trialStartedAt);
-  expiration.setDate(expiration.getDate() + workshop.trialDurationDays);
+  const timezone = workshop.primaryTimezone || DEFAULT_TIMEZONE;
+
+  // Convert trial start to workshop timezone
+  const trialStartInTz = toZonedTime(trialStartedAt, timezone);
+
+  // Add trial duration days
+  const trialEndInTz = addDays(trialStartInTz, workshop.trialDurationDays);
+
+  // Trial expires at END of the last day (11:59:59 PM in workshop timezone)
+  const endOfTrialDay = endOfDay(trialEndInTz);
+
+  // Convert back to a proper Date object that represents this moment
+  const expiration = fromZonedTime(endOfTrialDay, timezone);
+
+  console.log(`[WorkshopAccess] Trial calculation:`, {
+    timezone,
+    trialStartedAt: trialStartedAt.toISOString(),
+    trialDurationDays: workshop.trialDurationDays,
+    trialEndInTz: trialEndInTz.toISOString(),
+    expiration: expiration.toISOString(),
+  });
+
   return expiration;
 }
 
@@ -57,15 +87,29 @@ export function calculateTrialExpiration(workshop: Workshop, trialStartedAt: Dat
  * Check if user's trial has expired
  *
  * @param enrollment - User's workshop enrollment record
+ * @param timezone - Optional timezone for logging (defaults to PST)
  * @returns true if trial has expired, false otherwise
  */
-export function isTrialExpired(enrollment: WorkshopEnrollment): boolean {
+export function isTrialExpired(enrollment: WorkshopEnrollment, timezone?: string): boolean {
   if (!enrollment.trialExpiresAt) return false;
 
+  const tz = timezone || DEFAULT_TIMEZONE;
   const now = new Date();
   const expiresAt = new Date(enrollment.trialExpiresAt);
+  const expired = now > expiresAt;
 
-  return now > expiresAt;
+  // Log in workshop timezone for clarity
+  const nowInTz = toZonedTime(now, tz);
+  const expiresInTz = toZonedTime(expiresAt, tz);
+
+  console.log(`[WorkshopAccess] Trial expiration check:`, {
+    timezone: tz,
+    nowInTimezone: nowInTz.toISOString(),
+    expiresInTimezone: expiresInTz.toISOString(),
+    expired,
+  });
+
+  return expired;
 }
 
 /**
