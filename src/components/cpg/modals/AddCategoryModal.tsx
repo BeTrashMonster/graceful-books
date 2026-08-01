@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { Modal } from '../../modals/Modal';
 import { Input } from '../../forms/Input';
 import { Button } from '../../core/Button';
+import { FrozenGuardButton } from '../../frozen/FrozenGuardButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../db/database';
 import { createDefaultCPGCategory, validateCPGCategory } from '../../../db/schema/cpg.schema';
@@ -161,9 +162,9 @@ export function AddCategoryModal({ isOpen, onClose, onSuccess }: AddCategoryModa
           <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
+          <FrozenGuardButton variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? 'Adding...' : 'Add Category'}
-          </Button>
+          </FrozenGuardButton>
         </div>
       }
     >

@@ -53,6 +53,7 @@ export const ErrorCodes = {
   // Business Logic
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
   ACCOUNT_SUSPENDED: 'ACCOUNT_SUSPENDED',
+  ACCOUNT_FROZEN: 'ACCOUNT_FROZEN',
   ALREADY_SUBSCRIBED: 'ALREADY_SUBSCRIBED',
   INVALID_DISCOUNT: 'INVALID_DISCOUNT',
   INVALID_CHARITY: 'INVALID_CHARITY',
@@ -86,6 +87,7 @@ export const ErrorMessages = {
   // Business Logic
   INVALID_CREDENTIALS: 'Invalid email or password',
   ACCOUNT_SUSPENDED: 'Your account has been suspended',
+  ACCOUNT_FROZEN: 'Your account is frozen. Please subscribe to continue.',
 
   // System
   INTERNAL_ERROR: 'An unexpected error occurred',

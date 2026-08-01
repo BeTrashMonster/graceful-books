@@ -1,0 +1,153 @@
+/**
+ * FrozenStateModal Styles
+ *
+ * Professional, supportive design that doesn't feel punitive.
+ */
+
+.container {
+  padding: 2rem;
+  text-align: center;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* Icon */
+.iconWrapper {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, rgba(116, 42, 42, 0.1) 0%, rgba(154, 52, 18, 0.1) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
+  color: #742a2a;
+}
+
+/* Typography */
+.title {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  line-height: 1.3;
+}
+
+.explanation {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  color: #4a4a5a;
+  line-height: 1.6;
+}
+
+.encouragement {
+  margin: 0 0 1.5rem;
+  font-size: 0.9375rem;
+  color: #276749;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.primaryButton {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #742a2a 0%, #9a3412 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primaryButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(116, 42, 42, 0.3);
+}
+
+.primaryButton:focus {
+  outline: 2px solid #742a2a;
+  outline-offset: 2px;
+}
+
+.primaryButton:active {
+  transform: translateY(0);
+}
+
+.secondaryButton {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.secondaryButton:focus {
+  outline: 2px solid #475569;
+  outline-offset: 2px;
+}
+
+/* Dismiss link */
+.dismissButton {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.dismissButton:hover {
+  color: #64748b;
+}
+
+.dismissButton:focus {
+  outline: 2px solid #94a3b8;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .explanation,
+  .encouragement {
+    font-size: 0.9375rem;
+  }
+}

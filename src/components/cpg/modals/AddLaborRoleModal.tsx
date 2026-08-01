@@ -9,6 +9,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Modal } from '../../modals/Modal';
 import { Input } from '../../forms/Input';
 import { Button } from '../../core/Button';
+import { FrozenGuardButton } from '../../frozen/FrozenGuardButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import { LaborRoleService } from '../../../services/cpg/laborRole.service';
 import { db } from '../../../db/database';
@@ -246,13 +247,13 @@ export function AddLaborRoleModal({
           <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button variant="purple" onClick={handleSubmit} disabled={isSubmitting}>
+          <FrozenGuardButton variant="purple" onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting
               ? 'Saving...'
               : editingRole
               ? 'Update Role'
               : 'Add Role'}
-          </Button>
+          </FrozenGuardButton>
         </div>
       }
     >

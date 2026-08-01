@@ -13,8 +13,10 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '../../../../components/core/Button';
+import { FrozenGuardButton } from '../../../../components/frozen/FrozenGuardButton';
 import { Loading } from '../../../../components/feedback/Loading';
 import { useAuth } from '../../../../contexts/AuthContext';
+import { useFrozenState } from '../../../../contexts/FrozenStateContext';
 import { db } from '../../../../db/database';
 import { LaborRoleService } from '../../../../services/cpg/laborRole.service';
 import { AddLaborRoleModal } from '../../../../components/cpg/modals/AddLaborRoleModal';
@@ -25,6 +27,18 @@ import styles from './LaborRolesTab.module.css';
 export function LaborRolesTab() {
   const { companyId, deviceId } = useAuth();
   const { formatCurrency } = useCPGSettings();
+  const { isFrozen, openReactivationFlow } = useFrozenState();
+
+  // Helper to guard write actions on plain HTML buttons
+  const guardAction = <T extends unknown[]>(action: (...args: T) => void) => {
+    return (...args: T) => {
+      if (isFrozen) {
+        openReactivationFlow();
+        return;
+      }
+      action(...args);
+    };
+  };
   const [roles, setRoles] = useState<CPGLaborRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -126,9 +140,9 @@ export function LaborRolesTab() {
   return (
     <div className={styles.container}>
       <div className={styles.headerActions}>
-        <Button variant="purple" onClick={handleAddRole}>
+        <FrozenGuardButton variant="purple" onClick={handleAddRole}>
           + Add Labor Role
-        </Button>
+        </FrozenGuardButton>
       </div>
 
       {error && (
@@ -180,7 +194,7 @@ export function LaborRolesTab() {
                   <td className={styles.actions}>
                     <button
                       className={styles.actionButton}
-                      onClick={() => handleEditRole(role)}
+                      onClick={guardAction(() => handleEditRole(role))}
                       title="Edit role"
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -190,7 +204,7 @@ export function LaborRolesTab() {
                     </button>
                     <button
                       className={styles.deleteButton}
-                      onClick={() => setConfirmDeleteRole(role)}
+                      onClick={guardAction(() => setConfirmDeleteRole(role))}
                       disabled={deletingRoleId === role.id}
                       title="Delete role"
                     >
@@ -245,13 +259,13 @@ export function LaborRolesTab() {
               <Button variant="outline" onClick={() => setConfirmDeleteRole(null)}>
                 Cancel
               </Button>
-              <Button
+              <FrozenGuardButton
                 variant="danger"
                 onClick={handleDeleteRole}
                 disabled={deletingRoleId !== null}
               >
                 {deletingRoleId ? 'Deleting...' : 'Delete Role'}
-              </Button>
+              </FrozenGuardButton>
             </div>
           </div>
         </div>

@@ -89,6 +89,21 @@ export function CPGSettings() {
   const [reportingSectionExpanded, setReportingSectionExpanded] = useState(false);
   const [dataSectionExpanded, setDataSectionExpanded] = useState(false);
 
+  // Handle scroll to section (e.g., from frozen state modal "Export Data" button)
+  useEffect(() => {
+    const scrollTarget = sessionStorage.getItem('scrollToSection');
+    if (scrollTarget) {
+      sessionStorage.removeItem('scrollToSection');
+      // Wait for page to render, then scroll
+      setTimeout(() => {
+        const element = document.getElementById(scrollTarget);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, []);
+
   // Charity selection state
   const [currentCharitySelection, setCurrentCharitySelection] = useState<CharitySelection | null>(null);
   const [isLoadingCharity, setIsLoadingCharity] = useState(true);

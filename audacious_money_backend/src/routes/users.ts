@@ -8,6 +8,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import type { HonoEnv } from '../types/hono.js';
 import { requireAuth } from '../middleware/auth.js';
+import { requireNotFrozen } from '../middleware/frozenState.js';
 import {
   success,
   badRequest,
@@ -38,6 +39,10 @@ const users = new Hono<HonoEnv>();
 
 // All routes require authentication
 users.use('*', requireAuth);
+
+// Block write operations when account is frozen
+// (except for reactivation, payment, and subscription endpoints)
+users.use('*', requireNotFrozen);
 
 /**
  * POST /users/me/products
@@ -837,6 +842,280 @@ users.get('/me/invoices', async (c) => {
     return success(c, { invoices: formattedInvoices });
   } catch (error) {
     console.error('[Users] Get invoices error:', error);
+    throw error;
+  }
+});
+
+// =============================================================================
+// REACTIVATION ENDPOINTS
+// =============================================================================
+
+/**
+ * GET /users/me/reactivate/status
+ *
+ * Get the user's reactivation status (whether they need to reactivate and why)
+ */
+users.get('/me/reactivate/status', async (c) => {
+  const userId = c.get('userId');
+  const db = c.get('db');
+
+  try {
+    // Check for workshop enrollment with expired trial
+    const workshopResult = await db.query(
+      `SELECT we.id, we.workshop_id, we.trial_expires_at, we.converted_to_paid_at, we.status,
+              w.stripe_price_id, w.workshop_name
+       FROM workshop_enrollments we
+       JOIN workshops w ON we.workshop_id = w.id
+       WHERE we.user_id = $1
+       ORDER BY we.enrolled_at DESC
+       LIMIT 1`,
+      [userId]
+    );
+
+    const workshopEnrollment = workshopResult.rows[0];
+
+    // Check for regular subscription
+    const subscriptionResult = await db.query(
+      `SELECT up.id, up.status, up.trial_ends_at, up.trial_converted, up.stripe_subscription_id,
+              p.id as product_id, p.stripe_price_id, p.price_monthly
+       FROM user_products up
+       JOIN products p ON up.product_id = p.id
+       WHERE up.user_id = $1
+       ORDER BY up.activated_at DESC
+       LIMIT 1`,
+      [userId]
+    );
+
+    const subscription = subscriptionResult.rows[0];
+
+    // Determine reactivation status
+    let needsReactivation = false;
+    let reason: string | null = null;
+    let canResume = false;
+    let workshopId: string | null = null;
+    let productId: string | null = null;
+    let priceInCents: number | null = null;
+
+    // Check workshop trial expiration
+    if (workshopEnrollment && !workshopEnrollment.converted_to_paid_at) {
+      const now = new Date();
+      const trialExpiresAt = new Date(workshopEnrollment.trial_expires_at);
+      if (now > trialExpiresAt) {
+        needsReactivation = true;
+        reason = 'workshop_trial_expired';
+        workshopId = workshopEnrollment.workshop_id;
+        // Workshop price would come from stripe_price_id lookup
+      }
+    }
+
+    // Check regular subscription trial expiration (if not a workshop user)
+    if (!needsReactivation && subscription && !subscription.trial_converted) {
+      const now = new Date();
+      const trialEndsAt = subscription.trial_ends_at ? new Date(subscription.trial_ends_at) : null;
+      if (trialEndsAt && now > trialEndsAt) {
+        needsReactivation = true;
+        reason = 'subscription_trial_expired';
+        productId = subscription.product_id;
+        priceInCents = subscription.price_monthly ? Math.round(subscription.price_monthly * 100) : null;
+      }
+    }
+
+    // Check for cancelled subscription
+    if (!needsReactivation && subscription && subscription.status === 'cancelled') {
+      needsReactivation = true;
+      reason = 'subscription_cancelled';
+      productId = subscription.product_id;
+      priceInCents = subscription.price_monthly ? Math.round(subscription.price_monthly * 100) : null;
+      // Can potentially resume if it was a soft cancel
+      canResume = !!subscription.stripe_subscription_id;
+    }
+
+    // Check for expired subscription
+    if (!needsReactivation && subscription && subscription.status === 'expired') {
+      needsReactivation = true;
+      reason = 'subscription_expired';
+      productId = subscription.product_id;
+      priceInCents = subscription.price_monthly ? Math.round(subscription.price_monthly * 100) : null;
+    }
+
+    return success(c, {
+      needsReactivation,
+      reason,
+      canResume,
+      workshopId,
+      productId,
+      priceInCents,
+    });
+  } catch (error) {
+    console.error('[Users] Get reactivation status error:', error);
+    throw error;
+  }
+});
+
+/**
+ * POST /users/me/reactivate/checkout
+ *
+ * Create a Stripe checkout session for account reactivation
+ * Works for both workshop and regular signup users
+ */
+const reactivateCheckoutSchema = z.object({
+  charityId: z.string().uuid('Invalid charity ID'),
+  workshopId: z.string().uuid('Invalid workshop ID').optional(),
+  productId: z.string().uuid('Invalid product ID').optional(),
+});
+
+users.post('/me/reactivate/checkout', async (c) => {
+  const userId = c.get('userId');
+  const userEmail = c.get('userEmail');
+  const db = c.get('db');
+
+  // Validate request body
+  const parseResult = reactivateCheckoutSchema.safeParse(await c.req.json());
+  if (!parseResult.success) {
+    return badRequest(
+      c,
+      ErrorCodes.VALIDATION_ERROR,
+      'Invalid request data',
+      parseResult.error.errors
+    );
+  }
+
+  const { charityId, workshopId, productId: requestedProductId } = parseResult.data;
+
+  try {
+    // Verify charity exists and is active
+    const charityResult = await db.query(
+      `SELECT id, name FROM charities WHERE id = $1 AND active = true AND status = 'VERIFIED'`,
+      [charityId]
+    );
+
+    if (charityResult.rows.length === 0) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Invalid or inactive charity selected');
+    }
+
+    let priceId: string;
+    let productSlug: string;
+    let enrollmentId: string | null = null;
+
+    // Determine pricing based on user type
+    if (workshopId) {
+      // Workshop user: get price from workshop
+      const workshopResult = await db.query(
+        `SELECT w.stripe_price_id, w.workshop_name, we.id as enrollment_id
+         FROM workshops w
+         JOIN workshop_enrollments we ON we.workshop_id = w.id
+         WHERE w.id = $1 AND we.user_id = $2`,
+        [workshopId, userId]
+      );
+
+      if (workshopResult.rows.length === 0) {
+        return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Workshop enrollment not found');
+      }
+
+      const workshop = workshopResult.rows[0];
+
+      if (!workshop.stripe_price_id) {
+        return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Workshop does not have pricing configured');
+      }
+
+      priceId = workshop.stripe_price_id;
+      productSlug = 'workshop';
+      enrollmentId = workshop.enrollment_id;
+    } else {
+      // Regular user: get price from their previous subscription or requested product
+      let productIdToUse = requestedProductId;
+
+      // If no product specified, try to get from previous subscription
+      if (!productIdToUse) {
+        const prevSubscription = await db.query(
+          `SELECT product_id FROM user_products WHERE user_id = $1 ORDER BY activated_at DESC LIMIT 1`,
+          [userId]
+        );
+
+        if (prevSubscription.rows.length > 0) {
+          productIdToUse = prevSubscription.rows[0].product_id;
+        }
+      }
+
+      // If still no product, use default product
+      if (!productIdToUse) {
+        const defaultProduct = await db.query(
+          `SELECT id, stripe_price_id, slug FROM products WHERE slug = 'audacious-money' AND active = true`
+        );
+        if (defaultProduct.rows.length > 0) {
+          productIdToUse = defaultProduct.rows[0].id;
+        }
+      }
+
+      if (!productIdToUse) {
+        return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'No product found for subscription');
+      }
+
+      // Get product details
+      const productResult = await db.query(
+        `SELECT id, stripe_price_id, slug FROM products WHERE id = $1 AND active = true`,
+        [productIdToUse]
+      );
+
+      if (productResult.rows.length === 0) {
+        return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Product not found');
+      }
+
+      const product = productResult.rows[0];
+
+      if (!product.stripe_price_id) {
+        return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Product does not have pricing configured');
+      }
+
+      priceId = product.stripe_price_id;
+      productSlug = product.slug;
+    }
+
+    // Close any existing charity selection and create new one
+    // First, mark current selection as ended
+    await db.query(
+      `UPDATE user_charity_selections
+       SET effective_until = NOW()
+       WHERE user_id = $1 AND effective_until IS NULL`,
+      [userId]
+    );
+
+    // Then insert new selection
+    await db.query(
+      `INSERT INTO user_charity_selections (user_id, charity_id, selected_at, effective_from)
+       VALUES ($1, $2, NOW(), NOW())`,
+      [userId, charityId]
+    );
+
+    // Construct success and cancel URLs
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3006';
+    const successUrl = `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&reactivation=true`;
+    const cancelUrl = `${frontendUrl}/dashboard?reactivation_cancelled=true`;
+
+    // Create Stripe checkout session
+    const session = await createCheckoutSession({
+      priceId,
+      userId,
+      userEmail,
+      successUrl,
+      cancelUrl,
+      metadata: {
+        reactivation: 'true',
+        charityId,
+        productSlug,
+        workshopId: workshopId || '',
+        enrollmentId: enrollmentId || '',
+      },
+    });
+
+    console.log(`[Users] Created reactivation checkout session: ${session.id} for user ${userId}`);
+
+    return success(c, {
+      sessionId: session.id,
+      url: session.url,
+    });
+  } catch (error) {
+    console.error('[Users] Create reactivation checkout error:', error);
     throw error;
   }
 });

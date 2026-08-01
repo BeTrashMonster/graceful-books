@@ -23,6 +23,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/core/Button';
+import { FrozenGuardButton } from '../../components/frozen/FrozenGuardButton';
 import { AddInvoiceModal } from '../../components/cpg/modals/AddInvoiceModal';
 // import { CPUTimeline } from '../../components/cpg/CPUTimeline'; // Unused for now
 import { CategoryManager } from '../../components/cpg/CategoryManager';
@@ -411,7 +412,7 @@ export default function CPUTracker() {
 
           <div className={styles.headerActions}>
             {invoices.some(inv => !inv.calculated_cpus) && (
-              <Button
+              <FrozenGuardButton
                 variant="outline"
                 size="md"
                 onClick={handleManualRecalculate}
@@ -419,7 +420,7 @@ export default function CPUTracker() {
                 iconBefore={<span aria-hidden="true">🔧</span>}
               >
                 {isRecalculating ? 'Recalculating...' : 'Fix Missing Costs'}
-              </Button>
+              </FrozenGuardButton>
             )}
 
             <Button
@@ -430,14 +431,14 @@ export default function CPUTracker() {
               Manage Categories
             </Button>
 
-            <Button
+            <FrozenGuardButton
               variant="gold"
               size="md"
               onClick={() => setShowInvoiceForm(true)}
               iconBefore={<span aria-hidden="true">+</span>}
             >
               Add Purchased Materials
-            </Button>
+            </FrozenGuardButton>
           </div>
         </div>
       </div>
@@ -606,14 +607,14 @@ export default function CPUTracker() {
             <p className={styles.emptyInvoicesText}>
               You're all set! Now you can start entering invoices to track your costs.
             </p>
-            <Button
+            <FrozenGuardButton
               variant="gold"
               size="lg"
               onClick={() => setShowInvoiceForm(true)}
               iconBefore={<span aria-hidden="true">+</span>}
             >
               Enter Your First Material Purchase
-            </Button>
+            </FrozenGuardButton>
           </div>
         )}
       </div>

@@ -1,0 +1,146 @@
+/**
+ * ReactivationFlow Styles
+ *
+ * Handles processing/loading state and error state styling.
+ */
+
+/* =============================================================================
+   PROCESSING STATE
+   ============================================================================= */
+
+.processingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid #e2e8f0;
+  border-top-color: #276749;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.processingTitle {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.processingMessage {
+  margin: 0;
+  font-size: 1rem;
+  color: #64748b;
+}
+
+/* =============================================================================
+   ERROR STATE
+   ============================================================================= */
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.errorIcon {
+  width: 3rem;
+  height: 3rem;
+  color: #991b1b;
+  margin-bottom: 1rem;
+}
+
+.errorIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.errorTitle {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.errorMessage {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.errorActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 280px;
+}
+
+.retryButton {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #742a2a 0%, #9a3412 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retryButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(116, 42, 42, 0.3);
+}
+
+.retryButton:focus {
+  outline: 2px solid #742a2a;
+  outline-offset: 2px;
+}
+
+.cancelButton {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: #64748b;
+  border: none;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cancelButton:hover {
+  color: #475569;
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 480px) {
+  .processingContainer,
+  .errorContainer {
+    padding: 1.5rem;
+  }
+
+  .processingTitle,
+  .errorTitle {
+    font-size: 1.125rem;
+  }
+}

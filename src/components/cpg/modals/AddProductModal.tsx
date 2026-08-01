@@ -11,6 +11,7 @@ import { nanoid } from 'nanoid';
 import { Modal } from '../../modals/Modal';
 import { Input } from '../../forms/Input';
 import { Button } from '../../core/Button';
+import { FrozenGuardButton } from '../../frozen/FrozenGuardButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../db/database';
 import {
@@ -755,13 +756,13 @@ export function AddProductModal({
           <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button variant="gold" onClick={handleSubmit} disabled={isSubmitting}>
+          <FrozenGuardButton variant="gold" onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting
               ? 'Saving...'
               : editingProduct
               ? 'Update Product'
               : 'Add Product'}
-          </Button>
+          </FrozenGuardButton>
         </div>
       }
     >

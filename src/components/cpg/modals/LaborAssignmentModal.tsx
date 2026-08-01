@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { Modal } from '../../modals/Modal';
 import { Input } from '../../forms/Input';
 import { Button } from '../../core/Button';
+import { FrozenGuardButton } from '../../frozen/FrozenGuardButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import { LaborRoleService } from '../../../services/cpg/laborRole.service';
 import { db } from '../../../db/database';
@@ -357,9 +358,9 @@ export function LaborAssignmentModal({
                 )}
 
                 <div className={laborStyles.footer}>
-                  <Button variant="purple" onClick={handleAddAssignment}>
+                  <FrozenGuardButton variant="purple" onClick={handleAddAssignment}>
                     + Assign Labor Role
-                  </Button>
+                  </FrozenGuardButton>
                 </div>
               </>
             )}
@@ -519,13 +520,13 @@ export function LaborAssignmentModal({
                   <Button variant="outline" onClick={() => setShowAddForm(false)}>
                     Cancel
                   </Button>
-                  <Button variant="purple" type="submit" disabled={isSubmitting}>
+                  <FrozenGuardButton variant="purple" type="submit" disabled={isSubmitting}>
                     {isSubmitting
                       ? 'Saving...'
                       : editingAssignment
                       ? 'Update Assignment'
                       : 'Add Assignment'}
-                  </Button>
+                  </FrozenGuardButton>
                 </div>
               </form>
             )}
@@ -569,9 +570,9 @@ export function LaborAssignmentModal({
                   <Button variant="outline" onClick={() => setShowQuickAdd(false)}>
                     Cancel
                   </Button>
-                  <Button variant="gold" type="submit" disabled={quickAddSubmitting}>
+                  <FrozenGuardButton variant="gold" type="submit" disabled={quickAddSubmitting}>
                     {quickAddSubmitting ? 'Creating...' : 'Create & Select Role'}
-                  </Button>
+                  </FrozenGuardButton>
                 </div>
               </form>
             )}

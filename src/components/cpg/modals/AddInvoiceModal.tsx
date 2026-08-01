@@ -10,6 +10,7 @@ import { Modal } from '../../modals/Modal';
 import { Input } from '../../forms/Input';
 import { Autocomplete } from '../../forms/Autocomplete';
 import { Button } from '../../core/Button';
+import { FrozenGuardButton } from '../../frozen/FrozenGuardButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import { db } from '../../../db/database';
@@ -773,12 +774,12 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           <Button variant="outline" onClick={handleClose} disabled={isSubmitting || isLoadingInvoice}>
             Cancel
           </Button>
-          <Button variant="gold" onClick={handleSubmit} disabled={isSubmitting || isLoadingInvoice}>
+          <FrozenGuardButton variant="gold" onClick={handleSubmit} disabled={isSubmitting || isLoadingInvoice}>
             {isSubmitting
               ? (isEditMode ? 'Updating...' : isDuplicateMode ? 'Duplicating...' : 'Adding...')
               : (isEditMode ? 'Update Material Purchase' : isDuplicateMode ? 'Duplicate Material Purchase' : 'Add Material Purchase')
             }
-          </Button>
+          </FrozenGuardButton>
         </div>
       }
     >

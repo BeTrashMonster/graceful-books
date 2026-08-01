@@ -586,7 +586,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
   }
 
   return (
-    <div className={styles.container}>
+    <div id="data-safety" className={styles.container}>
       {/* Header Section */}
       <Card variant="elevated">
         <CardHeader>

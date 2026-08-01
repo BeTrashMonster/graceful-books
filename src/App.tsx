@@ -1,17 +1,18 @@
 import { useEffect } from 'react'
-import { BrowserRouter, useNavigate } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import { ErrorBoundary } from './components/error/ErrorBoundary'
 import { AppRoutes } from './routes'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { CPGSettingsProvider } from './contexts/CPGSettingsContext'
 import { SubscriptionProvider } from './contexts/SubscriptionContext'
+import { FrozenStateProvider } from './contexts/FrozenStateContext'
 import { smartAutoBackup } from './services/backup/SmartAutoBackupService'
 import { useDataRecovery } from './hooks/useDataRecovery'
 import { DataRecoveryModal } from './components/backup/DataRecoveryModal'
 import { BackupStatusIndicator } from './components/backup/BackupStatusIndicator'
+import { FrozenStateBanner, FrozenStateModal, ReactivationFlow } from './components/frozen'
 
 function AppContent() {
-  const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
 
   // Data recovery hook (only checks when user is authenticated)
@@ -35,11 +36,20 @@ function AppContent() {
 
   return (
     <>
+      {/* Frozen state banner - shows at top when account is frozen */}
+      <FrozenStateBanner />
+
       {/* Main app routes */}
       <AppRoutes />
 
       {/* Backup status indicator (shows subtle notification after backups) */}
       <BackupStatusIndicator />
+
+      {/* Frozen state modal - shows when user attempts write while frozen */}
+      <FrozenStateModal />
+
+      {/* Reactivation flow - charity confirmation and payment */}
+      <ReactivationFlow />
 
       {/* Data recovery modal (only shows if database is empty AND user is authenticated) */}
       {recovery.needsRecovery && (
@@ -62,9 +72,11 @@ function App() {
       <BrowserRouter>
         <AuthProvider>
           <SubscriptionProvider>
-            <CPGSettingsProvider>
-              <AppContent />
-            </CPGSettingsProvider>
+            <FrozenStateProvider>
+              <CPGSettingsProvider>
+                <AppContent />
+              </CPGSettingsProvider>
+            </FrozenStateProvider>
           </SubscriptionProvider>
         </AuthProvider>
       </BrowserRouter>

@@ -14,6 +14,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '../core/Button';
+import { FrozenGuardButton } from '../frozen/FrozenGuardButton';
 import { db } from '../../db/database';
 import { useAuth } from '../../contexts/AuthContext';
 import type { CPGFinishedProduct } from '../../db/schema/cpg.schema';
@@ -24,6 +25,7 @@ import { LaborAssignmentModal } from './modals/LaborAssignmentModal';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { LaborRoleService } from '../../services/cpg/laborRole.service';
 import { useCPGSettings } from '../../hooks/useCPGSettings';
+import { useFrozenState } from '../../contexts/FrozenStateContext';
 import styles from './FinishedProductManager.module.css';
 
 export interface FinishedProductManagerProps {
@@ -33,6 +35,18 @@ export interface FinishedProductManagerProps {
 export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductManagerProps) {
   const { companyId, deviceId } = useAuth();
   const { formatCurrency } = useCPGSettings();
+  const { isFrozen, openReactivationFlow } = useFrozenState();
+
+  // Helper to guard write actions on plain HTML buttons
+  const guardAction = <T extends unknown[]>(action: (...args: T) => void) => {
+    return (...args: T) => {
+      if (isFrozen) {
+        openReactivationFlow();
+        return;
+      }
+      action(...args);
+    };
+  };
   const [products, setProducts] = useState<CPGFinishedProduct[]>([]);
   const [productCPUs, setProductCPUs] = useState<Map<string, string | null>>(new Map());
   const [productLaborCosts, setProductLaborCosts] = useState<Map<string, string>>(new Map());
@@ -586,12 +600,12 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
       <div className={styles.header}>
         <h1 className={styles.title}>My Finished Products</h1>
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <Button variant="purple" size="md" onClick={handleOpenBundleModal}>
+          <FrozenGuardButton variant="purple" size="md" onClick={handleOpenBundleModal}>
             + Bundle Products
-          </Button>
-          <Button variant="gold" size="md" onClick={handleAddProduct}>
+          </FrozenGuardButton>
+          <FrozenGuardButton variant="gold" size="md" onClick={handleAddProduct}>
             + Add Product
-          </Button>
+          </FrozenGuardButton>
         </div>
       </div>
 
@@ -625,9 +639,9 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
           <p className={styles.emptyText}>
             Add your first finished product to start tracking manufacturing costs.
           </p>
-          <Button variant="gold" size="md" onClick={handleAddProduct}>
+          <FrozenGuardButton variant="gold" size="md" onClick={handleAddProduct}>
             + Add Your First Product
-          </Button>
+          </FrozenGuardButton>
         </div>
       ) : (
         <div className={styles.productGrid} role="list" aria-label="Finished Products">
@@ -979,20 +993,20 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                       <>
                         {product.is_bundle ? (
                           <>
-                            <Button
+                            <FrozenGuardButton
                               variant="purple"
                               size="sm"
                               onClick={() => handleEditBundle(product)}
                             >
                               Edit Bundle
-                            </Button>
-                            <Button
+                            </FrozenGuardButton>
+                            <FrozenGuardButton
                               variant="ghost"
                               size="sm"
                               onClick={() => handleShowDeleteConfirmation(product.id)}
                             >
                               Archive
-                            </Button>
+                            </FrozenGuardButton>
                           </>
                         ) : (
                           <>
@@ -1023,10 +1037,10 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                                   }}
                                 >
                                   <button
-                                    onClick={() => {
+                                    onClick={guardAction(() => {
                                       handleEditProduct(product);
                                       setOpenDropdownId(null);
-                                    }}
+                                    })}
                                     style={{
                                       width: '100%',
                                       padding: '0.625rem 0.875rem',
@@ -1045,7 +1059,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                                   </button>
 
                                   <button
-                                    onClick={() => handleDuplicateProduct(product)}
+                                    onClick={guardAction(() => handleDuplicateProduct(product))}
                                     style={{
                                       width: '100%',
                                       padding: '0.625rem 0.875rem',
@@ -1064,10 +1078,10 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                                   </button>
 
                                   <button
-                                    onClick={() => {
+                                    onClick={guardAction(() => {
                                       handleShowDeleteConfirmation(product.id);
                                       setOpenDropdownId(null);
-                                    }}
+                                    })}
                                     style={{
                                       width: '100%',
                                       padding: '0.625rem 0.875rem',
@@ -1108,13 +1122,13 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                         )}
                       </>
                     ) : (
-                      <Button
+                      <FrozenGuardButton
                         variant="ghost"
                         size="sm"
                         onClick={() => handleUnarchiveProduct(product.id)}
                       >
                         Unarchive
-                      </Button>
+                      </FrozenGuardButton>
                     )}
                   </div>
                 </article>
@@ -1189,7 +1203,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
               >
                 Cancel
               </Button>
-              <Button
+              <FrozenGuardButton
                 variant="gold"
                 onClick={() => {
                   handleArchiveProduct(deletingProductId);
@@ -1197,7 +1211,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                 }}
               >
                 Archive
-              </Button>
+              </FrozenGuardButton>
             </div>
             <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
               <button
@@ -1261,13 +1275,13 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
               >
                 Cancel
               </Button>
-              <Button
+              <FrozenGuardButton
                 variant="primary"
                 onClick={handlePermanentDeleteProduct}
                 style={{ backgroundColor: '#dc2626' }}
               >
                 Permanently Delete
-              </Button>
+              </FrozenGuardButton>
             </div>
           </div>
         </div>

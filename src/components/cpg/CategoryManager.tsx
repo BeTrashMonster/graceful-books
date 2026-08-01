@@ -21,8 +21,10 @@ import { useState } from 'react';
 import { nanoid } from 'nanoid';
 import { Modal } from '../modals/Modal';
 import { Button } from '../core/Button';
+import { FrozenGuardButton } from '../frozen/FrozenGuardButton';
 import { Input } from '../forms/Input';
 import { db } from '../../db/database';
+import { useFrozenState } from '../../contexts/FrozenStateContext';
 import type { CPGCategory } from '../../db/schema/cpg.schema';
 import {
   createDefaultCPGCategory,
@@ -51,6 +53,7 @@ export function CategoryManager({
   onClose,
   onSaved,
 }: CategoryManagerProps) {
+  const { isFrozen, openReactivationFlow } = useFrozenState();
   const [editingCategory, setEditingCategory] = useState<CategoryFormData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -488,7 +491,7 @@ export function CategoryManager({
                   Cancel
                 </Button>
 
-                <Button
+                <FrozenGuardButton
                   variant="gold"
                   size="md"
                   onClick={handleSaveCategory}
@@ -496,7 +499,7 @@ export function CategoryManager({
                   disabled={isSaving}
                 >
                   {isSaving ? 'Saving...' : 'Save Category'}
-                </Button>
+                </FrozenGuardButton>
               </div>
             </div>
           </div>
@@ -532,7 +535,7 @@ export function CategoryManager({
               {/* Right side buttons */}
               <div style={{ display: 'flex', gap: '0.75rem', marginLeft: 'auto' }}>
                 {categories.length === 0 && (
-                  <Button
+                  <FrozenGuardButton
                     variant="outline"
                     size="md"
                     onClick={handleAddDefaultCategories}
@@ -540,17 +543,17 @@ export function CategoryManager({
                     disabled={isSaving}
                   >
                     Add Default Categories
-                  </Button>
+                  </FrozenGuardButton>
                 )}
 
-                <Button
+                <FrozenGuardButton
                   variant="gold"
                   size="md"
                   onClick={handleAddCategory}
                   iconBefore={<span>+</span>}
                 >
                   Add Category
-                </Button>
+                </FrozenGuardButton>
               </div>
             </div>
 
@@ -617,30 +620,30 @@ export function CategoryManager({
                           <div className={styles.categoryActions}>
                             {!isArchived ? (
                               <>
-                                <Button
+                                <FrozenGuardButton
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleEditCategory(category)}
                                 >
                                   Edit
-                                </Button>
+                                </FrozenGuardButton>
 
-                                <Button
+                                <FrozenGuardButton
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleShowDeleteConfirmation(category.id)}
                                 >
                                   Archive
-                                </Button>
+                                </FrozenGuardButton>
                               </>
                             ) : (
-                              <Button
+                              <FrozenGuardButton
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleUnarchiveCategory(category.id)}
                               >
                                 Unarchive
-                              </Button>
+                              </FrozenGuardButton>
                             )}
                           </div>
                         </div>
@@ -701,7 +704,7 @@ export function CategoryManager({
               >
                 Cancel
               </Button>
-              <Button
+              <FrozenGuardButton
                 variant="primary"
                 onClick={() => {
                   handleArchiveCategory(deletingCategoryId);
@@ -711,7 +714,7 @@ export function CategoryManager({
                 disabled={isSaving}
               >
                 Archive
-              </Button>
+              </FrozenGuardButton>
             </div>
             <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
               <button
@@ -777,7 +780,7 @@ export function CategoryManager({
               >
                 Cancel
               </Button>
-              <Button
+              <FrozenGuardButton
                 variant="primary"
                 onClick={handlePermanentDeleteCategory}
                 loading={isSaving}
@@ -785,7 +788,7 @@ export function CategoryManager({
                 style={{ backgroundColor: '#dc2626' }}
               >
                 Permanently Delete
-              </Button>
+              </FrozenGuardButton>
             </div>
           </div>
         </div>

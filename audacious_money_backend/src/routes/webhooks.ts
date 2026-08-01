@@ -281,6 +281,40 @@ async function handleCheckoutSessionCompleted(session: any) {
       // Don't fail the webhook if timezone setting fails
     }
 
+    // Handle reactivation if this is a reactivation checkout
+    const isReactivation = session.metadata?.reactivation === 'true';
+    const reactivationWorkshopId = session.metadata?.workshopId;
+    const reactivationEnrollmentId = session.metadata?.enrollmentId;
+
+    if (isReactivation) {
+      console.log('[Webhook] Processing reactivation checkout');
+
+      // Update workshop enrollment if this is a workshop reactivation
+      if (reactivationWorkshopId && reactivationEnrollmentId) {
+        console.log('[Webhook] Updating workshop enrollment:', reactivationEnrollmentId);
+        await db.query(
+          `UPDATE workshop_enrollments
+           SET converted_to_paid_at = NOW(),
+               status = 'converted',
+               updated_at = NOW()
+           WHERE id = $1 AND user_id = $2`,
+          [reactivationEnrollmentId, userId]
+        );
+        console.log('[Webhook] Workshop enrollment marked as converted');
+      }
+
+      // Mark trial as converted if applicable
+      await db.query(
+        `UPDATE user_products
+         SET trial_converted = true,
+             updated_at = NOW()
+         WHERE user_id = $1 AND trial_converted = false`,
+        [userId]
+      );
+
+      console.log('[Webhook] Reactivation processed successfully');
+    }
+
     // Get user details for welcome email (optional - don't fail webhook if email fails)
     try {
       const userResult = await db.query(
@@ -292,11 +326,10 @@ async function handleCheckoutSessionCompleted(session: any) {
         const user = userResult.rows[0];
         const workshopId = session.metadata?.workshopId;
 
-        // Check if this is a workshop enrollment
-        if (workshopId) {
-          // Workshop emails are already scheduled during signup - do not send again here
-          // This webhook only handles payment confirmation, timezone detection, etc.
-          console.log('[Webhook] Workshop enrollment detected - emails already scheduled during signup, skipping');
+        // Check if this is a workshop enrollment or reactivation
+        if (workshopId || isReactivation) {
+          // Workshop/reactivation emails are handled separately
+          console.log('[Webhook] Workshop/reactivation detected - using appropriate email flow');
         } else {
           // Regular product welcome email
           const { sendProductWelcomeEmail } = await import('../services/email.service.js');

@@ -1,0 +1,183 @@
+/**
+ * FrozenStateBanner Styles
+ *
+ * Uses brand colors (burgundy/rust) from CLAUDE.md color palette.
+ * Designed to be noticeable but not alarming.
+ */
+
+/* =============================================================================
+   MAIN BANNER
+   ============================================================================= */
+
+.banner {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #742a2a 0%, #9a3412 100%);
+  color: #ffffff;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(116, 42, 42, 0.4);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Icon */
+.iconWrapper {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #ffffff;
+}
+
+/* Content */
+.content {
+  flex: 1;
+  min-width: 200px;
+}
+
+.title {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: #ffffff;
+}
+
+.message {
+  margin: 0;
+  font-size: 1rem;
+  color: #ffffff;
+  line-height: 1.5;
+}
+
+/* CTA Button */
+.ctaButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #ffffff;
+  color: #742a2a;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ctaButton:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ctaButton:focus {
+  outline: 2px solid #fef2f2;
+  outline-offset: 2px;
+}
+
+.ctaButton:active {
+  transform: translateY(0);
+}
+
+.ctaIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* =============================================================================
+   INLINE BANNER (compact version)
+   ============================================================================= */
+
+.inlineBanner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(116, 42, 42, 0.1) 0%, rgba(154, 52, 18, 0.1) 100%);
+  border: 1px solid rgba(116, 42, 42, 0.2);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.inlineMessage {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #742a2a;
+}
+
+.inlineButton {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  background: #742a2a;
+  color: #fef2f2;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.inlineButton:hover {
+  background: #9a3412;
+}
+
+.inlineButton:focus {
+  outline: 2px solid #742a2a;
+  outline-offset: 2px;
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 640px) {
+  .container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .iconWrapper {
+    display: none;
+  }
+
+  .content {
+    min-width: 100%;
+  }
+
+  .ctaButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .inlineBanner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .inlineButton {
+    width: 100%;
+  }
+}

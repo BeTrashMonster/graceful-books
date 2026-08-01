@@ -22,6 +22,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { CPGCategory, CPGInvoice } from '../../../db/schema/cpg.schema';
 import { formatDateFromTimestamp } from '../../../utils/dateUtils';
+import { useFrozenState } from '../../../contexts/FrozenStateContext';
 import styles from '../CPUTracker.module.css';
 
 export type DateRangePreset = '3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all';
@@ -45,6 +46,19 @@ export default function RawMaterialsTab({
   onDuplicateInvoice,
   onArchiveInvoice,
 }: RawMaterialsTabProps) {
+  const { isFrozen, openReactivationFlow } = useFrozenState();
+
+  // Helper to guard write actions on plain HTML buttons
+  const guardAction = <T extends unknown[]>(action: (...args: T) => void) => {
+    return (...args: T) => {
+      if (isFrozen) {
+        openReactivationFlow();
+        return;
+      }
+      action(...args);
+    };
+  };
+
   // Tab-specific state
   const [rawMaterialsDatePreset, setRawMaterialsDatePreset] = useState<DateRangePreset>('12mo');
   const [rawMaterialsDateRange, setRawMaterialsDateRange] = useState<{ start: string; end: string }>({
@@ -1186,7 +1200,7 @@ export default function RawMaterialsTab({
                         </button>
                         <button
                           className={styles.actionButton}
-                          onClick={() => onEditInvoice(invoice.id)}
+                          onClick={guardAction(() => onEditInvoice(invoice.id))}
                           style={{ background: '#f3f4f6', color: '#374151' }}
                           onMouseEnter={(e) => e.currentTarget.style.background = '#e5e7eb'}
                           onMouseLeave={(e) => e.currentTarget.style.background = '#f3f4f6'}
@@ -1196,7 +1210,7 @@ export default function RawMaterialsTab({
                         </button>
                         <button
                           className={styles.actionButton}
-                          onClick={() => onDuplicateInvoice(invoice.id)}
+                          onClick={guardAction(() => onDuplicateInvoice(invoice.id))}
                           style={{ background: '#f3f4f6', color: '#374151' }}
                           onMouseEnter={(e) => e.currentTarget.style.background = '#e5e7eb'}
                           onMouseLeave={(e) => e.currentTarget.style.background = '#f3f4f6'}
@@ -1206,7 +1220,7 @@ export default function RawMaterialsTab({
                         </button>
                         <button
                           className={styles.actionButton}
-                          onClick={() => setDeletingInvoiceId(invoice.id)}
+                          onClick={guardAction(() => setDeletingInvoiceId(invoice.id))}
                           style={{ background: '#dc2626', color: 'white' }}
                           onMouseEnter={(e) => e.currentTarget.style.background = '#b91c1c'}
                           onMouseLeave={(e) => e.currentTarget.style.background = '#dc2626'}
@@ -1273,10 +1287,10 @@ export default function RawMaterialsTab({
                   Cancel
                 </button>
                 <button
-                  onClick={async () => {
+                  onClick={guardAction(async () => {
                     await onArchiveInvoice(deletingInvoiceId);
                     setDeletingInvoiceId(null);
-                  }}
+                  })}
                   style={{
                     padding: '0.5rem 1rem',
                     borderRadius: '0.375rem',

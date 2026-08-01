@@ -16,6 +16,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '../core/Button';
+import { FrozenGuardButton } from '../frozen/FrozenGuardButton';
 import { Input } from '../forms/Input';
 import { HelpTooltip } from '../help/HelpTooltip';
 import { useAuth } from '../../contexts/AuthContext';
@@ -988,23 +989,23 @@ export function RecipeBuilder({
             Cancel
           </Button>
           {components.length > 0 && (
-            <Button
+            <FrozenGuardButton
               variant="ghost"
               onClick={() => setShowDeleteConfirm(true)}
               disabled={isSubmitting}
               style={{ color: '#dc2626' }}
             >
               Delete Recipe
-            </Button>
+            </FrozenGuardButton>
           )}
         </div>
-        <Button
+        <FrozenGuardButton
           variant="gold"
           onClick={handleSave}
           disabled={isSubmitting || components.length === 0}
         >
           {isSubmitting ? 'Saving...' : 'Save Recipe'}
-        </Button>
+        </FrozenGuardButton>
       </div>
 
       {/* Archive Recipe Confirmation Modal */}
@@ -1044,14 +1045,14 @@ export function RecipeBuilder({
               >
                 Cancel
               </Button>
-              <Button
+              <FrozenGuardButton
                 variant="primary"
                 onClick={handleArchiveRecipe}
                 loading={isSubmitting}
                 disabled={isSubmitting}
               >
                 Archive
-              </Button>
+              </FrozenGuardButton>
             </div>
             <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
               <button
@@ -1116,7 +1117,7 @@ export function RecipeBuilder({
               >
                 Cancel
               </Button>
-              <Button
+              <FrozenGuardButton
                 variant="primary"
                 onClick={handlePermanentDeleteRecipe}
                 loading={isSubmitting}
@@ -1124,7 +1125,7 @@ export function RecipeBuilder({
                 style={{ backgroundColor: '#dc2626' }}
               >
                 Permanently Delete
-              </Button>
+              </FrozenGuardButton>
             </div>
           </div>
         </div>
