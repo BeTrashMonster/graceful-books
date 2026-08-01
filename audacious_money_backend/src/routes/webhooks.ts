@@ -33,10 +33,15 @@ webhooks.get('/stripe/debug', async (c) => {
  *
  * SECURITY: This endpoint must be accessible without authentication
  * Stripe signature verification happens inside the handler
+ *
+ * IMPORTANT: We must use arrayBuffer() to get the exact raw bytes,
+ * as text() can modify the body (encoding issues) which breaks signature verification.
  */
 webhooks.post('/stripe', async (c) => {
   try {
-    const body = await c.req.text();
+    // Get raw body as ArrayBuffer to preserve exact bytes for signature verification
+    const rawBody = await c.req.arrayBuffer();
+    const body = new TextDecoder().decode(rawBody);
     const signature = c.req.header('stripe-signature');
 
     // Get webhook secret from environment
@@ -52,11 +57,9 @@ webhooks.post('/stripe', async (c) => {
       return c.json({ error: 'Missing signature' }, 400);
     }
 
-    // Debug logging
-    console.log('[Webhook] Secret prefix:', webhookSecret.substring(0, 10) + '...');
-    console.log('[Webhook] Secret length:', webhookSecret.length);
+    // Debug logging (remove in production)
+    console.log('[Webhook] Received webhook request');
     console.log('[Webhook] Body length:', body.length);
-    console.log('[Webhook] Signature present:', !!signature);
 
     // Verify Stripe signature
     const { verifyWebhookSignature } = await import('../services/stripe.service.js');
@@ -66,7 +69,6 @@ webhooks.post('/stripe', async (c) => {
       event = verifyWebhookSignature(body, signature, webhookSecret);
     } catch (err: any) {
       console.error('[Webhook] Signature verification failed:', err.message);
-      console.error('[Webhook] Error details:', err);
       return c.json({ error: 'Invalid signature' }, 400);
     }
 
