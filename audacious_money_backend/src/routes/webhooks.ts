@@ -174,6 +174,8 @@ async function handleCheckoutSessionCompleted(session: any) {
     let subscriptionStatus = 'active';
     let currentPeriodStart = null;
     let currentPeriodEnd = null;
+    let trialStart = null;
+    let trialEnd = null;
 
     if (session.subscription) {
       try {
@@ -182,7 +184,10 @@ async function handleCheckoutSessionCompleted(session: any) {
         subscriptionStatus = subscription.status; // Will be 'trialing', 'active', etc.
         currentPeriodStart = subscription.current_period_start;
         currentPeriodEnd = subscription.current_period_end;
+        trialStart = subscription.trial_start;
+        trialEnd = subscription.trial_end;
         console.log('[Webhook] Fetched subscription status:', subscriptionStatus);
+        console.log('[Webhook] Trial period:', trialStart, 'to', trialEnd);
       } catch (error) {
         console.error('[Webhook] Failed to fetch subscription details:', error);
         // Fall back to 'active' if we can't fetch
@@ -197,25 +202,33 @@ async function handleCheckoutSessionCompleted(session: any) {
 
     if (existingRecord.rows.length > 0) {
       console.log('[Webhook] user_product record already exists, updating status');
-      await db.query(
-        `UPDATE user_products
-         SET stripe_subscription_id = $1,
-             stripe_customer_id = $2,
-             status = $3,
-             current_period_start = to_timestamp($4),
-             current_period_end = to_timestamp($5),
-             updated_at = NOW()
-         WHERE user_id = $6 AND product_id = $7`,
-        [
-          session.subscription,
-          session.customer,
-          subscriptionStatus,
-          currentPeriodStart,
-          currentPeriodEnd,
-          userId,
-          productId,
-        ]
-      );
+      // Only update trial_ends_at if we have trial data (don't overwrite existing with null)
+      if (trialEnd) {
+        await db.query(
+          `UPDATE user_products
+           SET stripe_subscription_id = $1,
+               stripe_customer_id = $2,
+               status = $3,
+               current_period_start = to_timestamp($4),
+               current_period_end = to_timestamp($5),
+               trial_ends_at = to_timestamp($6),
+               updated_at = NOW()
+           WHERE user_id = $7 AND product_id = $8`,
+          [session.subscription, session.customer, subscriptionStatus, currentPeriodStart, currentPeriodEnd, trialEnd, userId, productId]
+        );
+      } else {
+        await db.query(
+          `UPDATE user_products
+           SET stripe_subscription_id = $1,
+               stripe_customer_id = $2,
+               status = $3,
+               current_period_start = to_timestamp($4),
+               current_period_end = to_timestamp($5),
+               updated_at = NOW()
+           WHERE user_id = $6 AND product_id = $7`,
+          [session.subscription, session.customer, subscriptionStatus, currentPeriodStart, currentPeriodEnd, userId, productId]
+        );
+      }
     } else {
       console.log('[Webhook] Creating new user_product record');
       await db.query(
@@ -226,9 +239,12 @@ async function handleCheckoutSessionCompleted(session: any) {
           stripe_customer_id,
           status,
           current_period_start,
-          current_period_end
-        ) VALUES ($1, $2, $3, $4, $5, to_timestamp($6), to_timestamp($7))`,
-        [userId, productId, session.subscription, session.customer, subscriptionStatus, currentPeriodStart, currentPeriodEnd]
+          current_period_end,
+          trial_ends_at
+        ) VALUES ($1, $2, $3, $4, $5, to_timestamp($6), to_timestamp($7), ${trialEnd ? 'to_timestamp($8)' : 'NULL'})`,
+        trialEnd
+          ? [userId, productId, session.subscription, session.customer, subscriptionStatus, currentPeriodStart, currentPeriodEnd, trialEnd]
+          : [userId, productId, session.subscription, session.customer, subscriptionStatus, currentPeriodStart, currentPeriodEnd]
       );
     }
 
@@ -283,24 +299,42 @@ async function handleCheckoutSessionCompleted(session: any) {
       // Don't fail the webhook if timezone setting fails
     }
 
-    // Handle reactivation if this is a reactivation checkout
+    // Handle workshop enrollment trial dates
+    const workshopId = session.metadata?.workshopId;
+    const enrollmentId = session.metadata?.enrollmentId;
     const isReactivation = session.metadata?.reactivation === 'true';
-    const reactivationWorkshopId = session.metadata?.workshopId;
-    const reactivationEnrollmentId = session.metadata?.enrollmentId;
+
+    // For initial workshop enrollments (not reactivation), set trial dates
+    if (workshopId && enrollmentId && !isReactivation && trialStart && trialEnd) {
+      console.log('[Webhook] Setting trial dates for workshop enrollment:', enrollmentId);
+      await db.query(
+        `UPDATE workshop_enrollments
+         SET trial_started_at = to_timestamp($1),
+             trial_expires_at = to_timestamp($2),
+             status = 'active',
+             updated_at = NOW()
+         WHERE id = $3 AND user_id = $4`,
+        [trialStart, trialEnd, enrollmentId, userId]
+      );
+      console.log('[Webhook] Workshop enrollment trial dates set:', {
+        trialStart: new Date(trialStart * 1000).toISOString(),
+        trialEnd: new Date(trialEnd * 1000).toISOString(),
+      });
+    }
 
     if (isReactivation) {
       console.log('[Webhook] Processing reactivation checkout');
 
       // Update workshop enrollment if this is a workshop reactivation
-      if (reactivationWorkshopId && reactivationEnrollmentId) {
-        console.log('[Webhook] Updating workshop enrollment:', reactivationEnrollmentId);
+      if (workshopId && enrollmentId) {
+        console.log('[Webhook] Updating workshop enrollment:', enrollmentId);
         await db.query(
           `UPDATE workshop_enrollments
            SET converted_to_paid_at = NOW(),
                status = 'converted',
                updated_at = NOW()
            WHERE id = $1 AND user_id = $2`,
-          [reactivationEnrollmentId, userId]
+          [enrollmentId, userId]
         );
         console.log('[Webhook] Workshop enrollment marked as converted');
       }

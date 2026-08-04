@@ -338,6 +338,10 @@ workshops.get('/my-enrollment', requireAuth, async (c) => {
       worksheetCompletedAt: row.worksheet_completed_at,
       accessGranted,
       accessGrantedAt,
+      // Trial fields for frozen state detection
+      trialStartedAt: row.trial_started_at,
+      trialExpiresAt: row.trial_expires_at,
+      convertedToPaidAt: row.converted_to_paid_at,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       workshop: {
@@ -748,12 +752,27 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
       );
     }
 
-    // Create enrollment - use only columns from original schema (migration 016)
+    // Calculate trial dates based on workshop settings
+    // Trial starts at the later of: now OR workshop's trial_start_datetime
+    // Trial expires after trial_duration_days from the start
+    const now = new Date();
+    const workshopTrialStart = workshop.trialStartDatetime ? new Date(workshop.trialStartDatetime) : now;
+    const trialStartedAt = workshopTrialStart > now ? workshopTrialStart : now;
+    const trialExpiresAt = new Date(trialStartedAt);
+    trialExpiresAt.setDate(trialExpiresAt.getDate() + (workshop.trialDurationDays || 14));
+
+    console.log('[Workshops] Signup - Calculated trial dates:', {
+      trialStartedAt: trialStartedAt.toISOString(),
+      trialExpiresAt: trialExpiresAt.toISOString(),
+      trialDurationDays: workshop.trialDurationDays,
+    });
+
+    // Create enrollment with trial dates
     const enrollmentResult = await db.query(
-      `INSERT INTO workshop_enrollments (user_id, workshop_id)
-       VALUES ($1, $2)
+      `INSERT INTO workshop_enrollments (user_id, workshop_id, trial_started_at, trial_expires_at, status)
+       VALUES ($1, $2, $3, $4, 'active')
        RETURNING *`,
-      [user.id, workshopId]
+      [user.id, workshopId, trialStartedAt.toISOString(), trialExpiresAt.toISOString()]
     );
 
     const enrollment = mapEnrollmentRow(enrollmentResult.rows[0]);
@@ -971,13 +990,28 @@ workshops.post('/:id/enroll', requireAuth, rateLimiter({ max: 5, window: 3600 })
       return badRequest(c, ErrorCodes.INVALID_INPUT, eligibility.reason || 'Cannot enroll');
     }
 
-    // Create enrollment
+    // Calculate trial dates based on workshop settings
+    // Trial starts at the later of: now OR workshop's trial_start_datetime
+    // Trial expires after trial_duration_days from the start
+    const now = new Date();
+    const workshopTrialStart = workshop.trialStartDatetime ? new Date(workshop.trialStartDatetime) : now;
+    const trialStartedAt = workshopTrialStart > now ? workshopTrialStart : now;
+    const trialExpiresAt = new Date(trialStartedAt);
+    trialExpiresAt.setDate(trialExpiresAt.getDate() + (workshop.trialDurationDays || 14));
+
+    console.log('[Workshops] Calculated trial dates:', {
+      trialStartedAt: trialStartedAt.toISOString(),
+      trialExpiresAt: trialExpiresAt.toISOString(),
+      trialDurationDays: workshop.trialDurationDays,
+    });
+
+    // Create enrollment with trial dates
     const enrollmentResult = await db.query(
       `INSERT INTO workshop_enrollments (
-        user_id, workshop_id
-      ) VALUES ($1, $2)
+        user_id, workshop_id, trial_started_at, trial_expires_at, status
+      ) VALUES ($1, $2, $3, $4, 'active')
       RETURNING *`,
-      [userId, workshopId]
+      [userId, workshopId, trialStartedAt.toISOString(), trialExpiresAt.toISOString()]
     );
 
     const enrollment = mapEnrollmentRow(enrollmentResult.rows[0]);

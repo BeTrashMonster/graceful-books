@@ -9,7 +9,7 @@
 
 import { serve } from '@hono/node-server';
 import app from './app.js';
-import { initializeDatabase, closeDatabase } from './db/connection.js';
+import { initializeDatabase, closeDatabase, getDatabase } from './db/connection.js';
 
 // ==========================================
 // Configuration
@@ -17,6 +17,42 @@ import { initializeDatabase, closeDatabase } from './db/connection.js';
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const HOST = process.env.HOST || '0.0.0.0';
+
+// ==========================================
+// Startup Data Migrations
+// ==========================================
+
+/**
+ * Run one-time data migrations on startup
+ * These fix data that was created before certain fields were populated
+ */
+async function runStartupMigrations() {
+  const db = getDatabase();
+
+  // Backfill workshop enrollment trial dates
+  // For enrollments created before we started setting trial dates at enrollment time
+  try {
+    const result = await db.query(`
+      UPDATE workshop_enrollments we
+      SET
+        trial_started_at = GREATEST(we.created_at, COALESCE(w.trial_start_datetime, we.created_at)),
+        trial_expires_at = GREATEST(we.created_at, COALESCE(w.trial_start_datetime, we.created_at))
+          + (COALESCE(w.trial_duration_days, 14) || ' days')::interval,
+        status = CASE WHEN we.status IS NULL OR we.status = 'enrolled' THEN 'active' ELSE we.status END
+      FROM workshops w
+      WHERE we.workshop_id = w.id
+        AND we.trial_expires_at IS NULL
+      RETURNING we.id
+    `);
+
+    if (result.rowCount > 0) {
+      console.log(`[Migration] Backfilled trial dates for ${result.rowCount} workshop enrollments`);
+    }
+  } catch (error) {
+    console.error('[Migration] Error backfilling workshop trial dates:', error);
+    // Don't fail startup, just log the error
+  }
+}
 
 // ==========================================
 // Startup
@@ -54,6 +90,11 @@ async function startServer() {
     }
 
     console.log(`[Startup] ✅ Database connection verified (${health.responseTime}ms)\n`);
+
+    // 2b. Run startup data migrations (backfill missing data)
+    console.log('[Startup] Running data migrations...');
+    await runStartupMigrations();
+    console.log('[Startup] ✅ Data migrations complete\n');
   } catch (error) {
     console.error('[Startup] ⚠️  Database connection failed:', error);
     console.warn('[Startup] ⚠️  Continuing anyway for email testing...\n');
