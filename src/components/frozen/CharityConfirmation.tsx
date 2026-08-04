@@ -24,6 +24,51 @@ import { CharityCategory, CharityStatus } from '../../types/database.types';
 import styles from './CharityConfirmation.module.css';
 
 // =============================================================================
+// CATEGORY ICONS & STYLING
+// =============================================================================
+
+const CATEGORY_ICONS: Record<CharityCategory, JSX.Element> = {
+  [CharityCategory.POVERTY]: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  ),
+  [CharityCategory.EDUCATION]: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+      <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
+    </svg>
+  ),
+  [CharityCategory.ENVIRONMENT]: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22c4-4 8-7 8-12a8 8 0 1 0-16 0c0 5 4 8 8 12z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  ),
+  [CharityCategory.HEALTH]: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  ),
+  [CharityCategory.HUMANITARIAN]: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  ),
+};
+
+const CATEGORY_STYLES: Record<CharityCategory, string> = {
+  [CharityCategory.POVERTY]: styles.categoryPoverty,
+  [CharityCategory.EDUCATION]: styles.categoryEducation,
+  [CharityCategory.ENVIRONMENT]: styles.categoryEnvironment,
+  [CharityCategory.HEALTH]: styles.categoryHealth,
+  [CharityCategory.HUMANITARIAN]: styles.categoryHumanitarian,
+};
+
+// =============================================================================
 // FALLBACK CHARITIES (for testing/debug mode)
 // =============================================================================
 
@@ -195,31 +240,44 @@ export function CharityConfirmation({
           </div>
         ) : (
           <div className={styles.charityGrid}>
-            {charities.map((charity) => (
-              <button
-                key={charity.id}
-                type="button"
-                className={`${styles.charityCard} ${
-                  selectedCharityId === charity.id ? styles.charityCardSelected : ''
-                }`}
-                onClick={() => setSelectedCharityId(charity.id)}
-                aria-pressed={selectedCharityId === charity.id}
-              >
-                <div className={styles.charityName}>{charity.name}</div>
-                {charity.shortDescription && (
-                  <div className={styles.charityDescription}>
-                    {charity.shortDescription}
+            {charities.map((charity) => {
+              const categoryStyle = CATEGORY_STYLES[charity.category] || styles.categoryDefault;
+              const categoryIcon = CATEGORY_ICONS[charity.category];
+
+              return (
+                <button
+                  key={charity.id}
+                  type="button"
+                  className={`${styles.charityCard} ${
+                    selectedCharityId === charity.id ? styles.charityCardSelected : ''
+                  }`}
+                  onClick={() => setSelectedCharityId(charity.id)}
+                  aria-pressed={selectedCharityId === charity.id}
+                >
+                  {/* Category Icon */}
+                  <div className={`${styles.charityIcon} ${categoryStyle}`} aria-hidden="true">
+                    {categoryIcon}
                   </div>
-                )}
-                {selectedCharityId === charity.id && (
-                  <div className={styles.checkmark} aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                )}
-              </button>
-            ))}
+
+                  {/* Charity Info */}
+                  <div className={styles.charityName}>{charity.name}</div>
+                  {charity.shortDescription && (
+                    <div className={styles.charityDescription}>
+                      {charity.shortDescription}
+                    </div>
+                  )}
+
+                  {/* Selected Checkmark */}
+                  {selectedCharityId === charity.id && (
+                    <div className={styles.checkmark} aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
