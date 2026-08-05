@@ -295,7 +295,19 @@ export function CharityConfirmation({
                   </div>
 
                   {/* Charity Info */}
-                  <div className={styles.charityName}>{charity.name}</div>
+                  {charity.website ? (
+                    <a
+                      href={charity.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.charityName}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {charity.name}
+                    </a>
+                  ) : (
+                    <div className={styles.charityName}>{charity.name}</div>
+                  )}
                   {charity.shortDescription && (
                     <div className={styles.charityDescription}>
                       {charity.shortDescription}
