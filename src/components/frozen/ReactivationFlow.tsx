@@ -137,27 +137,11 @@ export function ReactivationFlow({
   // RENDER
   // ==========================================================================
 
-  // Purple header style for charity selection step
-  const charityHeaderStyle = step === 'charity' ? {
-    background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-    color: '#ffffff',
-    textAlign: 'center' as const,
-    padding: '1.5rem 2rem',
-    borderBottom: 'none',
-  } : undefined;
-
-  // Title changes based on step - two lines, centered
-  const modalTitle = step === 'charity'
-    ? "They said it would trickle down.\nIt didn't."
-    : undefined;
-
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
       size="lg"
-      title={modalTitle}
-      headerStyle={charityHeaderStyle}
       showCloseButton={step !== 'processing'}
       closeOnBackdropClick={step !== 'processing'}
       closeOnEscape={step !== 'processing'}
