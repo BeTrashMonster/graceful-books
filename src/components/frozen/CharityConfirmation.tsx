@@ -241,31 +241,11 @@ export function CharityConfirmation({
 
   return (
     <div className={styles.container} data-testid="charity-confirmation">
-      {/* Header with tagline */}
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <p className={styles.headerTagline}>
-            They said it would trickle down. It didn't.
-          </p>
-          <p className={styles.headerHighlight}>
-            So we're giving from the top.
-          </p>
-        </div>
-        <button
-          type="button"
-          className={styles.closeButton}
-          onClick={onCancel}
-          aria-label="Close"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-
       {/* Body */}
       <div className={styles.body}>
+        <h2 className={styles.bodyHeadline}>
+          So Let It Flow Your Way
+        </h2>
         <p className={styles.bodyText}>
           $5 of every subscription goes directly to the cause you select &mdash; our gift, not an extra charge.
         </p>

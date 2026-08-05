@@ -193,7 +193,12 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
               <h2
                 id="modal-title"
                 className={styles.modalTitle}
-                style={headerStyle ? { color: headerStyle.color || 'inherit' } : undefined}
+                style={headerStyle ? {
+                  color: headerStyle.color || 'inherit',
+                  textAlign: headerStyle.textAlign,
+                  whiteSpace: 'pre-line',
+                  flex: headerStyle.textAlign === 'center' ? 1 : undefined,
+                } : undefined}
               >
                 {title}
               </h2>
