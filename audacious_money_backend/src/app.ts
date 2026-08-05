@@ -24,6 +24,7 @@ import adminRoutes from './routes/admin.js';
 import contactRoutes from './routes/contact.js';
 import charityRoutes from './routes/charities.js';
 import workshopRoutes from './routes/workshops.js';
+import subscriptionRoutes from './routes/subscriptions.js';
 import cronRoutes from './routes/cron.js';
 
 // Create Hono app
@@ -183,6 +184,9 @@ app.route('/admin', adminRoutes);
 
 // Workshop routes
 app.route('/api/workshops', workshopRoutes);
+
+// Subscription routes (reactivation, etc.)
+app.route('/api/subscriptions', subscriptionRoutes);
 
 // ==========================================
 // Error Handling (Must be last)

@@ -5,8 +5,8 @@
  * Handles authentication tokens, error handling, and request/response formatting.
  */
 
-// Use production API
-const API_URL = 'https://api.audacious.money';
+// Use environment variable for API URL, fallback to production
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.audacious.money';
 
 interface ApiError {
   message: string;

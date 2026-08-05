@@ -56,12 +56,10 @@ export async function createReactivationCheckout(
   request: CreateReactivationCheckoutRequest
 ): Promise<CreateReactivationCheckoutResponse> {
   const response = await api.post<{ data: CreateReactivationCheckoutResponse }>(
-    '/subscriptions/reactivate',
+    '/api/subscriptions/reactivate',
     {
       charityId: request.charityId,
       workshopId: request.workshopId,
-      successUrl: `${window.location.origin}/subscription/success`,
-      cancelUrl: `${window.location.origin}/subscription/cancelled`,
     }
   );
 
@@ -83,7 +81,7 @@ export async function verifyReactivation(
   sessionId: string
 ): Promise<{ success: boolean; message: string }> {
   const response = await api.post<{ data: { success: boolean; message: string } }>(
-    '/subscriptions/verify-reactivation',
+    '/api/subscriptions/verify-reactivation',
     { sessionId }
   );
 
