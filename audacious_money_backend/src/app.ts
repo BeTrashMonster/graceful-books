@@ -161,11 +161,11 @@ app.post('/setup/fix-user-subscription', async (c) => {
       `UPDATE user_products
        SET status = 'active',
            trial_converted = true,
-           converted_to_paid_at = NOW(),
+           activated_at = COALESCE(activated_at, NOW()),
            stripe_subscription_id = COALESCE($2, stripe_subscription_id),
            updated_at = NOW()
        WHERE user_id = $1
-       RETURNING id, status, trial_converted, converted_to_paid_at, stripe_subscription_id`,
+       RETURNING id, status, trial_converted, activated_at, stripe_subscription_id`,
       [userId, stripeSubscriptionId]
     );
 
@@ -226,10 +226,11 @@ app.post('/setup/fix-user-subscription', async (c) => {
       `SELECT
          up.status as product_status,
          up.trial_converted,
-         up.converted_to_paid_at,
+         up.activated_at,
          up.stripe_subscription_id,
          u.stripe_customer_id,
-         we.status as workshop_status
+         we.status as workshop_status,
+         we.converted_to_paid_at as workshop_converted_at
        FROM user_products up
        JOIN users u ON u.id = up.user_id
        LEFT JOIN workshop_enrollments we ON we.user_id = up.user_id
