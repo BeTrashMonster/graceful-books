@@ -345,3 +345,30 @@ select.input {
   margin-bottom: 0.5rem;
   color: #4b006e;
 }
+
+/* Pricing table step */
+.pricingCard {
+  width: 100%;
+  max-width: 800px;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  border: 2px solid #D4AF37;
+}
+
+.pricingTableContainer {
+  min-height: 400px;
+  margin: 1.5rem 0;
+}
+
+.pricingFooter {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pricingFooterText {
+  color: #6b7280;
+  font-size: 0.875rem;
+}

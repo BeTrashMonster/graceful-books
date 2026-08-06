@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CharitySelector } from '../../components/charity';
 import type { Charity } from '../../types/database.types';
 import { signup } from '../../services/auth.api';
@@ -7,7 +7,11 @@ import { getProducts, type Product } from '../../services/products.api';
 import { LoadingOverlay } from '../../components/feedback/Loading';
 import styles from './Signup.module.css';
 
-type SignupStep = 'credentials' | 'charity' | 'product';
+type SignupStep = 'credentials' | 'charity' | 'product' | 'pricing';
+
+// Stripe Pricing Table configuration for new signups (7-day trial)
+const SIGNUP_PRICING_TABLE_ID = 'prctbl_1U1ZbTDAS9U3cd2I1eUmsesi';
+const STRIPE_PUBLISHABLE_KEY = 'pk_live_51QAb8kDAS9U3cd2IJbZUErA5r9RymOJHLivsvpjRG0DCWIcuRFAvC2lenopH1SDGE0NQDrAMw9PqP2pwqoliYYfN00e3dg3eag';
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -27,6 +31,13 @@ export default function Signup() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // State for created user (used for pricing table)
+  const [createdUser, setCreatedUser] = useState<{ email: string; id: string } | null>(null);
+
+  // Refs for pricing table
+  const pricingTableContainerRef = useRef<HTMLDivElement>(null);
+  const scriptLoaded = useRef(false);
 
   // Load products on mount
   useEffect(() => {
@@ -48,6 +59,44 @@ export default function Signup() {
       });
   }, [searchParams]);
 
+  // Load Stripe Pricing Table when step is 'pricing'
+  useEffect(() => {
+    if (step !== 'pricing' || !createdUser) return;
+
+    // Load Stripe Pricing Table script if not already loaded
+    if (!scriptLoaded.current && !document.querySelector('script[src*="pricing-table.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://js.stripe.com/v3/pricing-table.js';
+      script.async = true;
+      document.head.appendChild(script);
+      scriptLoaded.current = true;
+    }
+
+    // Create the pricing table element
+    if (pricingTableContainerRef.current) {
+      // Clear any existing content
+      pricingTableContainerRef.current.innerHTML = '';
+
+      // Create the stripe-pricing-table element
+      const pricingTable = document.createElement('stripe-pricing-table');
+      pricingTable.setAttribute('pricing-table-id', SIGNUP_PRICING_TABLE_ID);
+      pricingTable.setAttribute('publishable-key', STRIPE_PUBLISHABLE_KEY);
+
+      // Pass user info for tracking and prefill
+      pricingTable.setAttribute('customer-email', createdUser.email);
+      pricingTable.setAttribute('client-reference-id', createdUser.id);
+
+      pricingTableContainerRef.current.appendChild(pricingTable);
+    }
+
+    // Cleanup function
+    return () => {
+      if (pricingTableContainerRef.current) {
+        pricingTableContainerRef.current.innerHTML = '';
+      }
+    };
+  }, [step, createdUser]);
+
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -56,14 +105,6 @@ export default function Signup() {
       return;
     }
 
-    // Skip charity and product selection - go straight to checkout with CPG Costing Tool
-    const cpgProduct = products.find(p => p.slug === 'cpu-cpg-calculator');
-    if (!cpgProduct) {
-      setError('Product not loaded yet. Please try again.');
-      return;
-    }
-
-    setSelectedProduct(cpgProduct);
     setIsLoading(true);
     setError(null);
 
@@ -88,23 +129,25 @@ export default function Signup() {
         })
       );
 
-      // Store user info with selected product for checkout
+      // Store user info for checkout success page
       localStorage.setItem(
         'graceful_books_user',
         JSON.stringify({
           userIdentifier: response.user.email,
           supportKey: response.user.supportKey,
-          selectedProduct: cpgProduct.slug,
+          selectedProduct: 'cpu-cpg-calculator',
           upgradeToBookkeeping: false,
         })
       );
 
-      // Create Stripe checkout session and redirect
-      const { createCheckoutSession } = await import('../../services/checkout.api');
-      const checkoutSession = await createCheckoutSession(cpgProduct.id);
+      // Store created user info for pricing table
+      setCreatedUser({
+        email: response.user.email,
+        id: response.user.id,
+      });
 
-      // Redirect to Stripe checkout
-      window.location.href = checkoutSession.url;
+      // Show the pricing table step (user will select monthly/annual and pay)
+      setStep('pricing');
     } catch (err: any) {
       console.error('Signup error:', err);
       setError(
@@ -515,6 +558,30 @@ export default function Signup() {
             >
               {isLoading ? 'Creating Your Account...' : 'Continue to Checkout'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {step === 'pricing' && createdUser && (
+        <div className={styles.pricingCard}>
+          <div className={styles.header}>
+            <h1 className={styles.title}>Choose Your Plan</h1>
+            <p className={styles.subtitle}>
+              Your account is ready. Select a billing option to start your 7-day free trial.
+            </p>
+          </div>
+
+          {/* Stripe Pricing Table Container */}
+          <div ref={pricingTableContainerRef} className={styles.pricingTableContainer} />
+
+          {/* Back link (not a full back button since account is already created) */}
+          <div className={styles.pricingFooter}>
+            <p className={styles.pricingFooterText}>
+              Changed your mind?{' '}
+              <Link to="/login" className={styles.footerLink}>
+                Sign in to your account
+              </Link>
+            </p>
           </div>
         </div>
       )}
