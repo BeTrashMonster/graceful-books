@@ -154,17 +154,76 @@ async function handleCheckoutSessionCompleted(session: any) {
   console.log('[Webhook] Processing checkout.session.completed');
   console.log('[Webhook] Customer:', session.customer);
   console.log('[Webhook] Subscription:', session.subscription);
+  console.log('[Webhook] Client Reference ID:', session.client_reference_id);
+  console.log('[Webhook] Metadata:', session.metadata);
 
   const db = getDatabase();
 
   try {
     const userId = session.metadata?.userId || session.client_reference_id;
-    const productId = session.metadata?.productId;
+    let productId = session.metadata?.productId;
 
-    if (!userId || !productId) {
-      console.error('[Webhook] Missing userId or productId in session metadata');
-      console.error('[Webhook] Session metadata:', session.metadata);
+    if (!userId) {
+      console.error('[Webhook] Missing userId in session');
       return;
+    }
+
+    // If no productId (e.g., from Pricing Table), look up user's existing product
+    // or determine from subscription price
+    if (!productId) {
+      console.log('[Webhook] No productId in metadata - checking for existing user_product or Pricing Table flow');
+
+      // First, check if user has an existing user_product record (trial or reactivation)
+      const existingProduct = await db.query(
+        `SELECT up.id, up.product_id, p.slug
+         FROM user_products up
+         JOIN products p ON up.product_id = p.id
+         WHERE up.user_id = $1
+         ORDER BY up.created_at DESC
+         LIMIT 1`,
+        [userId]
+      );
+
+      if (existingProduct.rows.length > 0) {
+        productId = existingProduct.rows[0].product_id;
+        console.log('[Webhook] Found existing user_product, using product_id:', productId);
+      } else {
+        // No existing product - try to find product from subscription price
+        if (session.subscription) {
+          const { stripe } = await import('../services/stripe.service.js');
+          const subscription = await stripe.subscriptions.retrieve(session.subscription);
+          const priceId = subscription.items.data[0]?.price?.id;
+
+          if (priceId) {
+            // Look up product by stripe_price_id or stripe_price_id_annual
+            const productLookup = await db.query(
+              `SELECT id FROM products
+               WHERE stripe_price_id = $1 OR stripe_price_id_annual = $1
+               LIMIT 1`,
+              [priceId]
+            );
+
+            if (productLookup.rows.length > 0) {
+              productId = productLookup.rows[0].id;
+              console.log('[Webhook] Found product from Stripe price_id:', productId);
+            }
+          }
+        }
+
+        // Still no product? Use default CPG product
+        if (!productId) {
+          const defaultProduct = await db.query(
+            `SELECT id FROM products WHERE slug = 'cpu-cpg-calculator' AND active = true LIMIT 1`
+          );
+          if (defaultProduct.rows.length > 0) {
+            productId = defaultProduct.rows[0].id;
+            console.log('[Webhook] Using default CPG product:', productId);
+          } else {
+            console.error('[Webhook] Could not determine product for checkout');
+            return;
+          }
+        }
+      }
     }
 
     console.log('[Webhook] User ID:', userId);
@@ -202,6 +261,10 @@ async function handleCheckoutSessionCompleted(session: any) {
 
     if (existingRecord.rows.length > 0) {
       console.log('[Webhook] user_product record already exists, updating status');
+      // Set trial_converted = true if status is 'active' (they've paid)
+      const trialConverted = subscriptionStatus === 'active';
+      console.log('[Webhook] Setting trial_converted:', trialConverted);
+
       // Only update trial_ends_at if we have trial data (don't overwrite existing with null)
       if (trialEnd) {
         await db.query(
@@ -212,9 +275,10 @@ async function handleCheckoutSessionCompleted(session: any) {
                current_period_start = to_timestamp($4),
                current_period_end = to_timestamp($5),
                trial_ends_at = to_timestamp($6),
+               trial_converted = $7,
                updated_at = NOW()
-           WHERE user_id = $7 AND product_id = $8`,
-          [session.subscription, session.customer, subscriptionStatus, currentPeriodStart, currentPeriodEnd, trialEnd, userId, productId]
+           WHERE user_id = $8 AND product_id = $9`,
+          [session.subscription, session.customer, subscriptionStatus, currentPeriodStart, currentPeriodEnd, trialEnd, trialConverted, userId, productId]
         );
       } else {
         await db.query(
@@ -224,9 +288,10 @@ async function handleCheckoutSessionCompleted(session: any) {
                status = $3,
                current_period_start = to_timestamp($4),
                current_period_end = to_timestamp($5),
+               trial_converted = $6,
                updated_at = NOW()
-           WHERE user_id = $6 AND product_id = $7`,
-          [session.subscription, session.customer, subscriptionStatus, currentPeriodStart, currentPeriodEnd, userId, productId]
+           WHERE user_id = $7 AND product_id = $8`,
+          [session.subscription, session.customer, subscriptionStatus, currentPeriodStart, currentPeriodEnd, trialConverted, userId, productId]
         );
       }
     } else {
@@ -322,24 +387,43 @@ async function handleCheckoutSessionCompleted(session: any) {
       });
     }
 
-    if (isReactivation) {
-      console.log('[Webhook] Processing reactivation checkout');
+    // Handle workshop graduation when subscription is active (paid)
+    // This covers both reactivation and Pricing Table immediate payments
+    if (subscriptionStatus === 'active') {
+      console.log('[Webhook] Subscription is active - checking for workshop graduation');
 
-      // Update workshop enrollment if this is a workshop reactivation
-      if (workshopId && enrollmentId) {
-        console.log('[Webhook] Updating workshop enrollment:', enrollmentId);
+      // Check if user has a workshop enrollment that needs to be converted
+      const workshopCheck = await db.query(
+        `SELECT we.id as enrollment_id
+         FROM users u
+         JOIN workshop_enrollments we ON we.id = u.current_workshop_enrollment_id
+         WHERE u.id = $1 AND we.converted_to_paid_at IS NULL`,
+        [userId]
+      );
+
+      if (workshopCheck.rows.length > 0) {
+        const enrollmentToConvert = workshopCheck.rows[0].enrollment_id;
+        console.log('[Webhook] Converting workshop enrollment:', enrollmentToConvert);
+
         await db.query(
           `UPDATE workshop_enrollments
            SET converted_to_paid_at = NOW(),
                status = 'converted',
                updated_at = NOW()
-           WHERE id = $1 AND user_id = $2`,
-          [enrollmentId, userId]
+           WHERE id = $1`,
+          [enrollmentToConvert]
         );
-        console.log('[Webhook] Workshop enrollment marked as converted');
+
+        // Remove workshop link from user
+        await db.query(
+          `UPDATE users SET current_workshop_enrollment_id = NULL WHERE id = $1`,
+          [userId]
+        );
+
+        console.log('[Webhook] Workshop enrollment converted and user graduated');
       }
 
-      // Mark trial as converted if applicable
+      // Mark trial as converted
       await db.query(
         `UPDATE user_products
          SET trial_converted = true,
@@ -348,7 +432,13 @@ async function handleCheckoutSessionCompleted(session: any) {
         [userId]
       );
 
-      console.log('[Webhook] Reactivation processed successfully');
+      console.log('[Webhook] Active subscription processed successfully');
+    }
+
+    if (isReactivation) {
+      console.log('[Webhook] Processing reactivation checkout (legacy metadata)');
+      // Legacy handling for explicit reactivation metadata
+      // Most reactivation logic is now handled in the active status block above
     }
 
     // Get user details for welcome email (optional - don't fail webhook if email fails)
@@ -458,22 +548,29 @@ async function handleSubscriptionUpdated(subscription: any) {
       status = 'cancelled';
     }
 
+    // Set trial_converted = true when status becomes 'active'
+    const trialConverted = status === 'active';
+
     await db.query(
       `UPDATE user_products
        SET status = $1,
            current_period_start = to_timestamp($2),
            current_period_end = to_timestamp($3),
            cancel_at_period_end = $4,
+           trial_converted = CASE WHEN $5 = true THEN true ELSE trial_converted END,
            updated_at = NOW()
-       WHERE stripe_subscription_id = $5`,
+       WHERE stripe_subscription_id = $6`,
       [
         status,
         subscription.current_period_start,
         subscription.current_period_end,
         subscription.cancel_at_period_end || false,
+        trialConverted,
         subscription.id,
       ]
     );
+
+    console.log('[Webhook] Updated subscription status:', status, 'trial_converted:', trialConverted);
 
     // Workshop graduation: If trial converted to active, remove current_workshop_enrollment_id
     if (status === 'active') {
@@ -493,6 +590,16 @@ async function handleSubscriptionUpdated(subscription: any) {
         );
 
         if (checkWorkshop.rows.length > 0 && checkWorkshop.rows[0].current_workshop_enrollment_id) {
+          const enrollmentId = checkWorkshop.rows[0].current_workshop_enrollment_id;
+
+          // Mark workshop enrollment as converted to paid
+          await db.query(
+            `UPDATE workshop_enrollments
+             SET converted_to_paid_at = NOW()
+             WHERE id = $1 AND converted_to_paid_at IS NULL`,
+            [enrollmentId]
+          );
+
           // User graduated from workshop to paying customer - remove workshop link
           await db.query(
             `UPDATE users SET current_workshop_enrollment_id = NULL WHERE id = $1`,
