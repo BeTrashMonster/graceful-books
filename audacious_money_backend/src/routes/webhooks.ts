@@ -160,12 +160,37 @@ async function handleCheckoutSessionCompleted(session: any) {
   const db = getDatabase();
 
   try {
-    const userId = session.metadata?.userId || session.client_reference_id;
+    let userId = session.metadata?.userId || session.client_reference_id;
     let productId = session.metadata?.productId;
 
+    // If no userId from metadata/client_reference_id, try to find user by email
+    // This handles Pricing Table checkouts which don't pass client_reference_id
     if (!userId) {
-      console.error('[Webhook] Missing userId in session');
-      return;
+      const customerEmail = session.customer_details?.email || session.customer_email;
+      console.log('[Webhook] No userId in session, trying to find user by email:', customerEmail);
+
+      if (customerEmail) {
+        const userLookup = await db.query(
+          `SELECT id FROM users WHERE email = $1`,
+          [customerEmail.toLowerCase()]
+        );
+
+        if (userLookup.rows.length > 0) {
+          userId = userLookup.rows[0].id;
+          console.log('[Webhook] Found user by email:', userId);
+        }
+      }
+
+      if (!userId) {
+        console.error('[Webhook] Could not determine userId from session or email');
+        console.error('[Webhook] Session data:', {
+          client_reference_id: session.client_reference_id,
+          metadata: session.metadata,
+          customer_email: session.customer_email,
+          customer_details_email: session.customer_details?.email,
+        });
+        return;
+      }
     }
 
     // If no productId (e.g., from Pricing Table), look up user's existing product

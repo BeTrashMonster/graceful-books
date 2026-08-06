@@ -55,7 +55,8 @@ export function ReactivationFlow({
     closeReactivationFlow,
   } = useFrozenState();
 
-  const { user } = useAuth();
+  // Note: AuthContext uses companyId for userId and userIdentifier for email
+  const { companyId: userId, userIdentifier: userEmail } = useAuth();
 
   const [step, setStep] = useState<FlowStep>('charity');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -180,8 +181,8 @@ export function ReactivationFlow({
       {/* Step 3: Stripe Pricing Table */}
       {step === 'pricing' && (
         <StripePricingTable
-          userEmail={user?.email}
-          userId={user?.id}
+          userEmail={userEmail || undefined}
+          userId={userId || undefined}
           onBack={handleBackToCharity}
         />
       )}

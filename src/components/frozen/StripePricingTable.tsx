@@ -61,11 +61,15 @@ export function StripePricingTable({
       pricingTable.setAttribute('publishable-key', PUBLISHABLE_KEY);
 
       // Add user info for prefill and tracking
+      // CRITICAL: These must be set for the webhook to link the checkout to the user
+      console.log('[StripePricingTable] Setting attributes:', { userEmail, userId });
       if (userEmail) {
         pricingTable.setAttribute('customer-email', userEmail);
       }
       if (userId) {
         pricingTable.setAttribute('client-reference-id', userId);
+      } else {
+        console.error('[StripePricingTable] WARNING: No userId provided - webhook will not be able to link checkout to user!');
       }
 
       containerRef.current.appendChild(pricingTable);
