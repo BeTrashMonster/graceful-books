@@ -37,6 +37,19 @@ export async function createCheckoutSession({
   metadata?: Record<string, string>;
   trialDays?: number; // Allow dynamic trial length per product/workshop
 }): Promise<Stripe.Checkout.Session> {
+  // Build subscription_data - only include trial_period_days if > 0
+  const subscriptionData: Stripe.Checkout.SessionCreateParams['subscription_data'] = {
+    metadata: {
+      userId: userId,
+      ...metadata,
+    },
+  };
+
+  // Only add trial if trialDays is greater than 0 (Stripe minimum is 1)
+  if (trialDays > 0) {
+    subscriptionData.trial_period_days = trialDays;
+  }
+
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
     payment_method_types: ['card'],
@@ -49,19 +62,13 @@ export async function createCheckoutSession({
     success_url: successUrl,
     cancel_url: cancelUrl,
     customer_email: userEmail,
-    client_reference_id: userId, // Already a string, no need to convert
-    allow_promotion_codes: true, // Enable promo code field in checkout
+    client_reference_id: userId,
+    allow_promotion_codes: true,
     metadata: {
-      userId: userId, // Already a string
+      userId: userId,
       ...metadata,
     },
-    subscription_data: {
-      trial_period_days: trialDays, // Dynamic trial length (default 7 days, workshops can set 30+)
-      metadata: {
-        userId: userId, // Already a string
-        ...metadata,
-      },
-    },
+    subscription_data: subscriptionData,
   });
 
   return session;
