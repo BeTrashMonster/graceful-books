@@ -105,14 +105,19 @@ subscriptions.post('/reactivate', requireAuth, async (c) => {
       return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Unable to process subscription. Please contact support.');
     }
 
-    // Update user's charity selection
+    // Update user's charity selection (end current, insert new)
+    // First, end any active charity selection
+    await db.query(
+      `UPDATE user_charity_selections
+       SET effective_until = NOW()
+       WHERE user_id = $1 AND effective_until IS NULL`,
+      [userId]
+    );
+
+    // Then insert the new selection
     await db.query(
       `INSERT INTO user_charity_selections (user_id, charity_id, selected_at, effective_from)
-       VALUES ($1, $2, NOW(), NOW())
-       ON CONFLICT (user_id) DO UPDATE SET
-         charity_id = $2,
-         selected_at = NOW(),
-         effective_from = NOW()`,
+       VALUES ($1, $2, NOW(), NOW())`,
       [userId, charityId]
     );
 
