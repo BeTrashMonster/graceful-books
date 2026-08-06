@@ -395,10 +395,14 @@ users.get('/me/subscription', async (c) => {
       }
     }
 
+    // Map database status to frontend-expected values
+    // Database stores 'trialing' but frontend expects 'trial'
+    const mappedStatus = subscription.status === 'trialing' ? 'trial' : subscription.status;
+
     return success(c, {
       subscription: {
         id: subscription.id,
-        status: subscription.status,
+        status: mappedStatus,
         productId: subscription.product_id,
         productName: subscription.product_name,
         productSlug: subscription.product_slug,

@@ -334,11 +334,13 @@ auth.post('/login', validate(loginSchema), async (c) => {
 
     console.log(`[Auth] Active/trial products query returned ${productsResult.rowCount} rows for user ${user.id}`);
 
+    // Map database status to frontend-expected values
+    // Database stores 'trialing' but frontend expects 'trial'
     const products = productsResult.rows.map((row) => ({
       id: row.product_id,
       name: row.name,
       slug: row.slug,
-      status: row.status,
+      status: row.status === 'trialing' ? 'trial' : row.status,
     }));
 
     console.log(`[Auth] Products for user ${user.id}:`, products);
