@@ -199,11 +199,11 @@ app.post('/setup/fix-user-subscription', async (c) => {
       }
     }
 
-    // 3. Graduate workshop enrollment if provided
+    // 3. Mark workshop enrollment as converted if provided
     if (workshopEnrollmentId) {
       const weResult = await db.query(
         `UPDATE workshop_enrollments
-         SET status = 'graduated',
+         SET status = 'converted',
              converted_to_paid_at = NOW(),
              updated_at = NOW()
          WHERE id = $1 AND user_id = $2
