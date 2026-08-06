@@ -349,6 +349,39 @@ async function handleCheckoutSessionCompleted(session: any) {
       [session.customer, userId]
     );
 
+    // Sync Stripe customer email to match account email (account email is source of truth)
+    // This handles cases where user enters a different email during Stripe checkout
+    try {
+      const { stripe } = await import('../services/stripe.service.js');
+
+      // Get user's account email from database
+      const userResult = await db.query(
+        `SELECT email FROM users WHERE id = $1`,
+        [userId]
+      );
+
+      if (userResult.rows.length > 0) {
+        const accountEmail = userResult.rows[0].email;
+        const stripeCustomer = await stripe.customers.retrieve(session.customer);
+
+        if (!stripeCustomer.deleted && stripeCustomer.email !== accountEmail) {
+          console.log('[Webhook] Syncing Stripe customer email to account email');
+          console.log('[Webhook] Stripe email:', stripeCustomer.email, '-> Account email:', accountEmail);
+
+          await stripe.customers.update(session.customer, {
+            email: accountEmail,
+          });
+
+          console.log('[Webhook] Stripe customer email updated to:', accountEmail);
+        } else {
+          console.log('[Webhook] Stripe customer email already matches account email');
+        }
+      }
+    } catch (emailSyncError) {
+      console.error('[Webhook] Failed to sync Stripe email (non-critical):', emailSyncError);
+      // Don't fail the webhook if email sync fails
+    }
+
     // Set timezone from billing address (more accurate than browser detection)
     // This ensures accurate timestamps for audit logs and date filters
     try {
