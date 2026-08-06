@@ -129,6 +129,129 @@ app.post('/setup/stripe-product-id', async (c) => {
 });
 
 // ==========================================
+// ONE-TIME FIX: Repair corrupted subscription data (REMOVE AFTER USE)
+// ==========================================
+
+app.post('/setup/fix-user-subscription', async (c) => {
+  const db = c.get('db');
+  const body = await c.req.json().catch(() => ({}));
+  const {
+    secret,
+    userId,
+    stripeCustomerId,
+    stripeSubscriptionId,
+    workshopEnrollmentId
+  } = body;
+
+  // Simple secret check (use JWT_SECRET as the secret)
+  if (secret !== process.env.JWT_SECRET) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  if (!userId) {
+    return c.json({ error: 'userId is required' }, 400);
+  }
+
+  try {
+    console.log('[FIX-SUBSCRIPTION] Starting fix for user:', userId);
+    const results: any = { userId, updates: [] };
+
+    // 1. Update user_products table
+    const upResult = await db.query(
+      `UPDATE user_products
+       SET status = 'active',
+           trial_converted = true,
+           converted_to_paid_at = NOW(),
+           stripe_subscription_id = COALESCE($2, stripe_subscription_id),
+           updated_at = NOW()
+       WHERE user_id = $1
+       RETURNING id, status, trial_converted, converted_to_paid_at, stripe_subscription_id`,
+      [userId, stripeSubscriptionId]
+    );
+
+    if (upResult.rowCount > 0) {
+      results.updates.push({
+        table: 'user_products',
+        rowsUpdated: upResult.rowCount,
+        data: upResult.rows
+      });
+      console.log('[FIX-SUBSCRIPTION] Updated user_products:', upResult.rows);
+    }
+
+    // 2. Update users table with stripe_customer_id
+    if (stripeCustomerId) {
+      const userResult = await db.query(
+        `UPDATE users
+         SET stripe_customer_id = $2,
+             updated_at = NOW()
+         WHERE id = $1
+         RETURNING id, email, stripe_customer_id`,
+        [userId, stripeCustomerId]
+      );
+
+      if (userResult.rowCount > 0) {
+        results.updates.push({
+          table: 'users',
+          rowsUpdated: userResult.rowCount,
+          data: userResult.rows
+        });
+        console.log('[FIX-SUBSCRIPTION] Updated users:', userResult.rows);
+      }
+    }
+
+    // 3. Graduate workshop enrollment if provided
+    if (workshopEnrollmentId) {
+      const weResult = await db.query(
+        `UPDATE workshop_enrollments
+         SET status = 'graduated',
+             converted_to_paid_at = NOW(),
+             updated_at = NOW()
+         WHERE id = $1 AND user_id = $2
+         RETURNING id, status, converted_to_paid_at`,
+        [workshopEnrollmentId, userId]
+      );
+
+      if (weResult.rowCount > 0) {
+        results.updates.push({
+          table: 'workshop_enrollments',
+          rowsUpdated: weResult.rowCount,
+          data: weResult.rows
+        });
+        console.log('[FIX-SUBSCRIPTION] Updated workshop_enrollments:', weResult.rows);
+      }
+    }
+
+    // 4. Verify final state
+    const verifyResult = await db.query(
+      `SELECT
+         up.status as product_status,
+         up.trial_converted,
+         up.converted_to_paid_at,
+         up.stripe_subscription_id,
+         u.stripe_customer_id,
+         we.status as workshop_status
+       FROM user_products up
+       JOIN users u ON u.id = up.user_id
+       LEFT JOIN workshop_enrollments we ON we.user_id = up.user_id
+       WHERE up.user_id = $1`,
+      [userId]
+    );
+
+    results.finalState = verifyResult.rows[0];
+    console.log('[FIX-SUBSCRIPTION] Final state:', results.finalState);
+
+    return c.json({
+      success: true,
+      message: 'Subscription data fixed successfully',
+      results
+    });
+  } catch (error: any) {
+    console.error('[FIX-SUBSCRIPTION] Error:', error);
+    return c.json({ error: 'Database error', details: error.message }, 500);
+  }
+});
+
+// ==========================================
 // Health Check Endpoint
 // ==========================================
 
