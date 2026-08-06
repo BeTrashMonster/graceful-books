@@ -4,11 +4,11 @@
  * PURPOSE:
  * Orchestrates the complete reactivation process:
  * 1. Charity confirmation (CharityConfirmation component)
- * 2. Redirect to Stripe Checkout for payment
+ * 2. Stripe Pricing Table for plan selection and payment
  *
  * FLOW:
  * FrozenStateBanner/Modal → ReactivationFlow opens → User confirms charity →
- * Redirect to Stripe → Stripe redirects back on success/cancel
+ * Stripe Pricing Table → User selects plan and pays → Stripe webhook handles subscription
  *
  * HANDLES:
  * - Workshop trial expiration → new subscription
@@ -21,14 +21,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Modal } from '../modals/Modal';
 import { useFrozenState } from '../../contexts/FrozenStateContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { CharityConfirmation } from './CharityConfirmation';
+import { StripePricingTable } from './StripePricingTable';
 import styles from './ReactivationFlow.module.css';
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
-type FlowStep = 'charity' | 'processing' | 'error';
+type FlowStep = 'charity' | 'processing' | 'pricing' | 'error';
 
 interface ReactivationFlowProps {
   /** Override the open state (by default uses context) */
@@ -52,6 +54,8 @@ export function ReactivationFlow({
     isReactivationFlowOpen,
     closeReactivationFlow,
   } = useFrozenState();
+
+  const { user } = useAuth();
 
   const [step, setStep] = useState<FlowStep>('charity');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -82,7 +86,7 @@ export function ReactivationFlow({
   }, []);
 
   /**
-   * Handle charity confirmation and proceed to payment
+   * Handle charity confirmation and proceed to pricing table
    */
   const handleCharityConfirmed = useCallback(async (charityId: string) => {
     setIsProcessing(true);
@@ -91,34 +95,41 @@ export function ReactivationFlow({
 
     try {
       // Dynamically import to avoid circular dependencies
-      const { createReactivationCheckout } = await import('../../services/reactivation.api');
+      const { saveCharitySelection } = await import('../../services/reactivation.api');
 
-      // Create checkout session
-      const result = await createReactivationCheckout({
-        charityId,
-        workshopId: workshopEnrollment?.workshopId,
-      });
+      // Save charity selection
+      await saveCharitySelection({ charityId });
 
-      // Redirect to Stripe Checkout
-      window.location.href = result.url;
+      // Show Stripe Pricing Table
+      setStep('pricing');
+      setIsProcessing(false);
     } catch (err: any) {
-      console.error('[ReactivationFlow] Error creating checkout:', err);
+      console.error('[ReactivationFlow] Error saving charity:', err);
 
       // Check if we're in debug mode - provide helpful message
       const isDebugMode = window.location.search.includes('debug_frozen');
       if (isDebugMode) {
         setError(
-          'Debug Mode: The payment endpoint (/subscriptions/reactivate) is not implemented yet. ' +
-          'In production, this will redirect to Stripe Checkout. ' +
-          'The charity selection flow is working correctly!'
+          'Debug Mode: The charity save endpoint is not available. ' +
+          'Proceeding to Pricing Table anyway for testing.'
         );
+        // In debug mode, still show pricing table
+        setStep('pricing');
+        setIsProcessing(false);
       } else {
         setError(err.message || 'Unable to process your request. Please try again.');
+        setStep('error');
+        setIsProcessing(false);
       }
-      setStep('error');
-      setIsProcessing(false);
     }
-  }, [workshopEnrollment]);
+  }, []);
+
+  /**
+   * Go back from pricing table to charity selection
+   */
+  const handleBackToCharity = useCallback(() => {
+    setStep('charity');
+  }, []);
 
   /**
    * Retry after error
@@ -141,7 +152,7 @@ export function ReactivationFlow({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      size="lg"
+      size={step === 'pricing' ? 'xl' : 'lg'}
       showCloseButton={step !== 'processing'}
       closeOnBackdropClick={step !== 'processing'}
       closeOnEscape={step !== 'processing'}
@@ -155,15 +166,24 @@ export function ReactivationFlow({
         />
       )}
 
-      {/* Step 2: Processing / Redirecting */}
+      {/* Step 2: Processing */}
       {step === 'processing' && (
         <div className={styles.processingContainer}>
           <div className={styles.spinner} aria-hidden="true" />
-          <h2 className={styles.processingTitle}>Setting Up Your Subscription</h2>
+          <h2 className={styles.processingTitle}>Saving Your Selection</h2>
           <p className={styles.processingMessage}>
-            Redirecting you to our secure payment page...
+            Just a moment...
           </p>
         </div>
+      )}
+
+      {/* Step 3: Stripe Pricing Table */}
+      {step === 'pricing' && (
+        <StripePricingTable
+          userEmail={user?.email}
+          userId={user?.id}
+          onBack={handleBackToCharity}
+        />
       )}
 
       {/* Error State */}

@@ -1,0 +1,49 @@
+/**
+ * StripePricingTable Styles
+ */
+
+.container {
+  padding: 1.5rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: #64748b;
+}
+
+.tableContainer {
+  min-height: 400px;
+}
+
+.actions {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.backButton {
+  padding: 0.625rem 1.5rem;
+  background: transparent;
+  color: #64748b;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.backButton:hover {
+  color: #4b006e;
+}

@@ -34,11 +34,16 @@ subscriptions.post('/reactivate', requireAuth, async (c) => {
 
   try {
     const body = await c.req.json();
-    const { charityId, workshopId } = body;
+    const { charityId, workshopId, billingInterval = 'monthly' } = body;
 
     // Validate charity selection
     if (!charityId) {
       return badRequest(c, ErrorCodes.INVALID_INPUT, 'Please select a charity');
+    }
+
+    // Validate billing interval
+    if (billingInterval !== 'monthly' && billingInterval !== 'annual') {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Invalid billing interval');
     }
 
     // Get user info
@@ -53,19 +58,24 @@ subscriptions.post('/reactivate', requireAuth, async (c) => {
 
     const user = userResult.rows[0];
 
-    // Determine which product/price to use
+    // Determine which product/price to use based on billing interval
     let stripePriceId: string | null = null;
     let productSlug: string | null = null;
+    const priceColumn = billingInterval === 'annual' ? 'stripe_price_id_annual' : 'stripe_price_id';
 
     // If workshopId provided, get the workshop's Stripe price
     if (workshopId) {
       const workshopResult = await db.query(
-        'SELECT stripe_price_id FROM workshops WHERE id = $1',
+        `SELECT stripe_price_id, stripe_price_id_annual FROM workshops WHERE id = $1`,
         [workshopId]
       );
 
-      if (workshopResult.rowCount > 0 && workshopResult.rows[0].stripe_price_id) {
-        stripePriceId = workshopResult.rows[0].stripe_price_id;
+      if (workshopResult.rowCount > 0) {
+        const workshop = workshopResult.rows[0];
+        // Use annual if selected and available, otherwise fall back to monthly
+        stripePriceId = billingInterval === 'annual' && workshop.stripe_price_id_annual
+          ? workshop.stripe_price_id_annual
+          : workshop.stripe_price_id;
         productSlug = 'workshop';
       }
     }
@@ -73,7 +83,7 @@ subscriptions.post('/reactivate', requireAuth, async (c) => {
     // If no workshop price, try to get from user's current product
     if (!stripePriceId) {
       const productResult = await db.query(
-        `SELECT p.stripe_price_id, p.slug
+        `SELECT p.stripe_price_id, p.stripe_price_id_annual, p.slug
          FROM user_products up
          JOIN products p ON up.product_id = p.id
          WHERE up.user_id = $1
@@ -82,21 +92,29 @@ subscriptions.post('/reactivate', requireAuth, async (c) => {
         [userId]
       );
 
-      if (productResult.rowCount > 0 && productResult.rows[0].stripe_price_id) {
-        stripePriceId = productResult.rows[0].stripe_price_id;
-        productSlug = productResult.rows[0].slug;
+      if (productResult.rowCount > 0) {
+        const product = productResult.rows[0];
+        // Use annual if selected and available, otherwise fall back to monthly
+        stripePriceId = billingInterval === 'annual' && product.stripe_price_id_annual
+          ? product.stripe_price_id_annual
+          : product.stripe_price_id;
+        productSlug = product.slug;
       }
     }
 
     // Fallback to CPG Calculator if nothing else found
     if (!stripePriceId) {
       const cpgResult = await db.query(
-        `SELECT stripe_price_id, slug FROM products WHERE slug = 'cpu-cpg-calculator'`
+        `SELECT stripe_price_id, stripe_price_id_annual, slug FROM products WHERE slug = 'cpu-cpg-calculator'`
       );
 
-      if (cpgResult.rowCount > 0 && cpgResult.rows[0].stripe_price_id) {
-        stripePriceId = cpgResult.rows[0].stripe_price_id;
-        productSlug = cpgResult.rows[0].slug;
+      if (cpgResult.rowCount > 0) {
+        const cpg = cpgResult.rows[0];
+        // Use annual if selected and available, otherwise fall back to monthly
+        stripePriceId = billingInterval === 'annual' && cpg.stripe_price_id_annual
+          ? cpg.stripe_price_id_annual
+          : cpg.stripe_price_id;
+        productSlug = cpg.slug;
       }
     }
 
@@ -138,10 +156,11 @@ subscriptions.post('/reactivate', requireAuth, async (c) => {
         charityId,
         workshopId: workshopId || '',
         productSlug: productSlug || '',
+        billingInterval,
       },
     });
 
-    console.log('[Subscriptions] Created reactivation checkout session:', session.id);
+    console.log('[Subscriptions] Created reactivation checkout session:', session.id, 'billing:', billingInterval);
 
     return success(c, {
       url: session.url,
@@ -150,6 +169,68 @@ subscriptions.post('/reactivate', requireAuth, async (c) => {
   } catch (error: any) {
     console.error('[Subscriptions] Error creating reactivation checkout:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, error.message || 'Failed to create checkout session');
+  }
+});
+
+// =============================================================================
+// SAVE CHARITY SELECTION (for Pricing Table flow)
+// =============================================================================
+
+/**
+ * POST /api/subscriptions/save-charity
+ *
+ * Save charity selection before user proceeds to Stripe Pricing Table.
+ * The Pricing Table handles plan selection and checkout, so we just need
+ * to save the charity here.
+ */
+subscriptions.post('/save-charity', requireAuth, async (c) => {
+  const userId = c.get('userId');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const { charityId } = body;
+
+    // Validate charity selection
+    if (!charityId) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Please select a charity');
+    }
+
+    // Verify charity exists and is active
+    const charityResult = await db.query(
+      'SELECT id FROM charities WHERE id = $1 AND active = true',
+      [charityId]
+    );
+
+    if (charityResult.rowCount === 0) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Invalid charity selection');
+    }
+
+    // Update user's charity selection (end current, insert new)
+    // First, end any active charity selection
+    await db.query(
+      `UPDATE user_charity_selections
+       SET effective_until = NOW()
+       WHERE user_id = $1 AND effective_until IS NULL`,
+      [userId]
+    );
+
+    // Then insert the new selection
+    await db.query(
+      `INSERT INTO user_charity_selections (user_id, charity_id, selected_at, effective_from)
+       VALUES ($1, $2, NOW(), NOW())`,
+      [userId, charityId]
+    );
+
+    console.log('[Subscriptions] Saved charity selection for user:', userId, 'charity:', charityId);
+
+    return success(c, {
+      saved: true,
+      charityId,
+    });
+  } catch (error: any) {
+    console.error('[Subscriptions] Error saving charity selection:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, error.message || 'Failed to save charity selection');
   }
 });
 

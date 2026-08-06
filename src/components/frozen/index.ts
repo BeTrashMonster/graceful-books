@@ -11,5 +11,6 @@
 export { FrozenStateBanner, FrozenStateInlineBanner } from './FrozenStateBanner';
 export { FrozenStateModal } from './FrozenStateModal';
 export { CharityConfirmation } from './CharityConfirmation';
+export { StripePricingTable } from './StripePricingTable';
 export { ReactivationFlow } from './ReactivationFlow';
 export { FrozenGuardButton, type FrozenGuardButtonProps } from './FrozenGuardButton';

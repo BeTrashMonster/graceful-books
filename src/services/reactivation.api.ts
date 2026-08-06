@@ -28,6 +28,18 @@ export interface CreateReactivationCheckoutRequest {
   workshopId?: string;
 }
 
+export interface SaveCharitySelectionRequest {
+  /** Selected charity ID for the $5/month donation */
+  charityId: string;
+}
+
+export interface SaveCharitySelectionResponse {
+  /** Whether the save was successful */
+  saved: boolean;
+  /** The charity ID that was saved */
+  charityId: string;
+}
+
 export interface CreateReactivationCheckoutResponse {
   /** Stripe Checkout session URL to redirect to */
   url: string;
@@ -60,6 +72,29 @@ export async function createReactivationCheckout(
     {
       charityId: request.charityId,
       workshopId: request.workshopId,
+    }
+  );
+
+  return response.data;
+}
+
+/**
+ * Saves charity selection before user proceeds to Stripe Pricing Table.
+ *
+ * The Pricing Table handles plan selection and checkout directly,
+ * so we save the charity selection separately.
+ *
+ * @param request - Charity ID to save
+ * @returns Confirmation of saved charity
+ * @throws Error if save fails
+ */
+export async function saveCharitySelection(
+  request: SaveCharitySelectionRequest
+): Promise<SaveCharitySelectionResponse> {
+  const response = await api.post<{ data: SaveCharitySelectionResponse }>(
+    '/api/subscriptions/save-charity',
+    {
+      charityId: request.charityId,
     }
   );
 

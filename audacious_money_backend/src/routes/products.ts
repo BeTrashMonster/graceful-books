@@ -20,7 +20,17 @@ products.get('/', async (c) => {
 
   try {
     const result = await db.query(
-      `SELECT id, name, slug, description, price_monthly as price_usd, 'monthly' as billing_cycle, stripe_price_id, active, display_order as sort_order
+      `SELECT
+         id,
+         name,
+         slug,
+         description,
+         price_monthly,
+         price_annual,
+         stripe_price_id as stripe_price_id_monthly,
+         stripe_price_id_annual,
+         active,
+         display_order as sort_order
        FROM products
        WHERE active = true
        ORDER BY display_order ASC`
@@ -44,7 +54,17 @@ products.get('/:slug', async (c) => {
 
   try {
     const result = await db.query(
-      `SELECT id, name, slug, description, price_monthly as price_usd, 'monthly' as billing_cycle, stripe_price_id, active, display_order as sort_order
+      `SELECT
+         id,
+         name,
+         slug,
+         description,
+         price_monthly,
+         price_annual,
+         stripe_price_id as stripe_price_id_monthly,
+         stripe_price_id_annual,
+         active,
+         display_order as sort_order
        FROM products
        WHERE slug = $1 AND active = true`,
       [slug]
