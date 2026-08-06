@@ -343,6 +343,59 @@ users.delete('/me', async (c) => {
 });
 
 /**
+ * GET /users/me/billing-debug
+ *
+ * TEMPORARY: Diagnostic endpoint to debug billing issues
+ * Returns all relevant data for troubleshooting
+ */
+users.get('/me/billing-debug', async (c) => {
+  const userId = c.get('userId');
+  const db = c.get('db');
+
+  try {
+    // Get user data
+    const userResult = await db.query(
+      `SELECT id, email, stripe_customer_id, current_workshop_enrollment_id, is_beta
+       FROM users WHERE id = $1`,
+      [userId]
+    );
+
+    // Get ALL user_products records
+    const productsResult = await db.query(
+      `SELECT up.*, p.name as product_name, p.slug as product_slug
+       FROM user_products up
+       JOIN products p ON up.product_id = p.id
+       WHERE up.user_id = $1
+       ORDER BY up.created_at DESC`,
+      [userId]
+    );
+
+    // Get ALL workshop enrollments
+    const enrollmentsResult = await db.query(
+      `SELECT we.*, w.workshop_name, w.cohort_name
+       FROM workshop_enrollments we
+       JOIN workshops w ON we.workshop_id = w.id
+       WHERE we.user_id = $1
+       ORDER BY we.created_at DESC`,
+      [userId]
+    );
+
+    return success(c, {
+      user: userResult.rows[0] || null,
+      userProducts: productsResult.rows,
+      workshopEnrollments: enrollmentsResult.rows,
+      debug: {
+        userId,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error('[Users] Billing debug error:', error);
+    throw error;
+  }
+});
+
+/**
  * GET /users/me/subscription
  *
  * Get current subscription status and details
