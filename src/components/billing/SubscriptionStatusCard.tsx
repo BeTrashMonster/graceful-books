@@ -133,7 +133,9 @@ export function SubscriptionStatusCard({
               </div>
             </div>
             <div className={styles.priceInfo}>
-              <span className={styles.price}>${subscription.priceMonthly}/month</span>
+              <span className={styles.price}>
+                ${subscription.price ?? subscription.priceMonthly}/{subscription.billingInterval === 'year' ? 'year' : 'month'}
+              </span>
             </div>
           </div>
 
@@ -269,8 +271,8 @@ export function SubscriptionStatusCard({
           <div className={styles.modalInfo}>
             <h4>What happens when you resume:</h4>
             <ul>
-              <li>Your card will be charged ${subscription.priceMonthly} immediately</li>
-              <li>Monthly billing resumes</li>
+              <li>Your card will be charged ${subscription.price ?? subscription.priceMonthly} immediately</li>
+              <li>{subscription.billingInterval === 'year' ? 'Annual' : 'Monthly'} billing resumes</li>
               <li>Full editing access restored</li>
               <li>All features unlocked</li>
             </ul>

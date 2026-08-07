@@ -427,19 +427,25 @@ users.get('/me/subscription', async (c) => {
 
     const subscription = subscriptionResult.rows[0];
 
-    // Get actual price from Stripe if subscription exists
+    // Get actual price and billing interval from Stripe if subscription exists
     let actualPrice = subscription.price_monthly; // Fallback to database value
+    let billingInterval: 'month' | 'year' = 'month'; // Default to monthly
     if (subscription.stripe_subscription_id) {
       try {
         const stripeSubscription = await stripe.subscriptions.retrieve(
           subscription.stripe_subscription_id
         );
 
-        // Extract price from subscription items (in cents, convert to dollars)
+        // Extract price and interval from subscription items
         if (stripeSubscription.items.data.length > 0) {
-          const priceInCents = stripeSubscription.items.data[0].price.unit_amount;
+          const priceData = stripeSubscription.items.data[0].price;
+          const priceInCents = priceData.unit_amount;
           if (priceInCents) {
             actualPrice = priceInCents / 100; // Convert cents to dollars
+          }
+          // Get billing interval (month or year)
+          if (priceData.recurring?.interval) {
+            billingInterval = priceData.recurring.interval as 'month' | 'year';
           }
         }
       } catch (stripeError) {
@@ -459,7 +465,8 @@ users.get('/me/subscription', async (c) => {
         productId: subscription.product_id,
         productName: subscription.product_name,
         productSlug: subscription.product_slug,
-        priceMonthly: actualPrice,
+        price: actualPrice,
+        billingInterval,
         trialEndsAt: subscription.trial_ends_at,
         trialConverted: subscription.trial_converted,
         activatedAt: subscription.activated_at,

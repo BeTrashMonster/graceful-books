@@ -12,7 +12,10 @@ export interface Subscription {
   productId: string;
   productName: string;
   productSlug: string;
-  priceMonthly: number;
+  price: number;
+  billingInterval: 'month' | 'year';
+  /** @deprecated Use `price` instead */
+  priceMonthly?: number;
   trialEndsAt: string | null;
   trialConverted: boolean;
   activatedAt: string;
