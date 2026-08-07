@@ -390,6 +390,9 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
               </span>
             </div>
             <div className={styles.feature}>
+              <span className={styles.featureText}>Your data never leaves your computer</span>
+            </div>
+            <div className={styles.feature}>
               <span className={styles.featureText}>You're always in control</span>
             </div>
           </div>
