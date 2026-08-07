@@ -336,6 +336,16 @@
   }
 }
 
+.menuEmail {
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .accountMenuDropup .menuItem {
   width: 100%;
   padding: 0.875rem 1rem;

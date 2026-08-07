@@ -185,6 +185,7 @@ export function Sidebar({ isOpen, isMobile, isCollapsed, onClose }: SidebarProps
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const [showSupportModal, setShowSupportModal] = useState(false)
   const [companyName, setCompanyName] = useState('My Company')
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   // Store current path as origin before navigating to account pages
   const handleAccountNavigation = (path: string) => {
@@ -194,9 +195,9 @@ export function Sidebar({ isOpen, isMobile, isCollapsed, onClose }: SidebarProps
     navigate(path);
   };
 
-  // Load company name from session
+  // Load company name and email from session
   useEffect(() => {
-    const loadCompanyName = () => {
+    const loadSessionData = () => {
       const session = sessionStorage.getItem('graceful_books_session')
       if (session) {
         try {
@@ -204,13 +205,18 @@ export function Sidebar({ isOpen, isMobile, isCollapsed, onClose }: SidebarProps
           if (sessionData.user?.companyName) {
             setCompanyName(sessionData.user.companyName)
           }
+          // Load email from session
+          const email = sessionData.userIdentifier || sessionData.user?.email
+          if (email) {
+            setUserEmail(email)
+          }
         } catch (error) {
           console.error('Failed to parse session:', error)
         }
       }
     }
 
-    loadCompanyName()
+    loadSessionData()
 
     // Listen for company name updates
     const handleCompanyNameUpdate = (event: CustomEvent) => {
@@ -298,6 +304,11 @@ export function Sidebar({ isOpen, isMobile, isCollapsed, onClose }: SidebarProps
 
         {showAccountMenu && (
           <div className={`sidebar__account-dropdown ${isCollapsed ? 'sidebar__account-dropdown--collapsed' : ''}`}>
+            {userEmail && (
+              <div className="sidebar__dropdown-email">
+                {userEmail}
+              </div>
+            )}
             <button
               className="sidebar__dropdown-item"
               onClick={() => handleAccountNavigation('/account/company-profile')}

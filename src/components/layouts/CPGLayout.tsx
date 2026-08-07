@@ -32,7 +32,8 @@ type ModalType = 'add-invoice' | 'add-product' | 'add-distributor' | 'add-catego
 export function CPGLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { companyId, deviceId, userIdentifier: userId } = useAuth();
+  const { companyId, deviceId, userIdentifier } = useAuth();
+  const userEmail = userIdentifier; // userIdentifier is the email
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [returnToModal, setReturnToModal] = useState<ModalType>(null);
   const [categories, setCategories] = useState<CPGCategory[]>([]);
@@ -51,13 +52,13 @@ export function CPGLayout() {
 
   // Load user feature preferences
   useEffect(() => {
-    if (!userId) return;
+    if (!userIdentifier) return;
 
     const loadUserPreferences = async () => {
       try {
-        console.log('🔍 Sidebar: Loading preferences for userId:', userId);
+        console.log('🔍 Sidebar: Loading preferences for userId:', userIdentifier);
         const prefsService = new UserFeaturePreferencesService(db);
-        const prefs = await prefsService.getUserPreferences(userId);
+        const prefs = await prefsService.getUserPreferences(userIdentifier);
         console.log('📋 Sidebar: Loaded user preferences from DB:', prefs);
         setUserFeaturePrefs(prev => {
           console.log('🔄 Sidebar: Updating userFeaturePrefs from', prev, 'to', prefs);
@@ -88,7 +89,7 @@ export function CPGLayout() {
 
     window.addEventListener('feature-preferences-updated', handleFeatureUpdate as EventListener);
     return () => window.removeEventListener('feature-preferences-updated', handleFeatureUpdate as EventListener);
-  }, [userId]);
+  }, [userIdentifier]);
 
   // Load company name from session
   useEffect(() => {
@@ -422,6 +423,11 @@ export function CPGLayout() {
           </button>
           {showAccountMenu && (
             <div className={styles.accountMenuDropup}>
+              {userEmail && (
+                <div className={styles.menuEmail}>
+                  {userEmail}
+                </div>
+              )}
               <button
                 onClick={() => handleAccountNavigation('/account/company-profile')}
                 className={styles.menuItem}
