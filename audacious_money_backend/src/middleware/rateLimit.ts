@@ -81,13 +81,28 @@ export function rateLimiter(config: RateLimitConfig) {
  */
 function getClientKey(c: Context): string {
   // Try to get real IP from proxy headers
+  // Digital Ocean App Platform uses x-forwarded-for
   const forwardedFor = c.req.header('x-forwarded-for');
   const realIp = c.req.header('x-real-ip');
   const cfConnectingIp = c.req.header('cf-connecting-ip'); // Cloudflare
+  const doConnectingIp = c.req.header('do-connecting-ip'); // Digital Ocean
 
-  const ip = cfConnectingIp || realIp || forwardedFor?.split(',')[0] || 'unknown';
+  // Also include the path to prevent different endpoints from sharing limits
+  const path = c.req.path;
 
-  return `ratelimit:${ip}`;
+  const ip = doConnectingIp || cfConnectingIp || realIp || forwardedFor?.split(',')[0]?.trim() || 'unknown';
+
+  // Log for debugging (remove after confirming fix)
+  if (ip === 'unknown') {
+    console.warn('[RateLimit] Could not determine client IP. Headers:', {
+      'x-forwarded-for': forwardedFor,
+      'x-real-ip': realIp,
+      'cf-connecting-ip': cfConnectingIp,
+      'do-connecting-ip': doConnectingIp,
+    });
+  }
+
+  return `ratelimit:${path}:${ip}`;
 }
 
 /**

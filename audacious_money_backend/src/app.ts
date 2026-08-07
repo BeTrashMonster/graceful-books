@@ -69,8 +69,8 @@ app.route('/webhooks', webhookRoutes);
 // Cron routes (must be before rate limiting, uses its own auth)
 app.route('/api/cron', cronRoutes);
 
-// Auth endpoints: 10 requests per 5 minutes (prevents brute force, allows testing)
-app.use('/auth/*', rateLimiter({ max: 10, window: 300 }));
+// Auth endpoints: 20 requests per 5 minutes (prevents brute force, allows legitimate use)
+app.use('/auth/*', rateLimiter({ max: 20, window: 300 }));
 
 // All other endpoints: 100 requests per minute
 app.use('*', rateLimiter({ max: 100, window: 60 }));
