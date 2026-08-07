@@ -2784,3 +2784,157 @@ Your subscription is active and you have full access to all features.
     MessageStream: 'outbound'
   });
 }
+
+/**
+ * Send email change notification to the OLD email address
+ * This is a security alert that the email was changed
+ */
+export async function sendEmailChangedAlertToOldEmail(
+  oldEmail: string,
+  newEmail: string,
+  userName: string
+): Promise<void> {
+  const supportEmail = process.env.SUPPORT_EMAIL || 'support@audacious.money';
+
+  await client.sendEmail({
+    From: `${FROM_NAME} <${FROM_EMAIL}>`,
+    To: oldEmail,
+    Subject: 'Your Audacious Money email address has been changed',
+    HtmlBody: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #4b006e;">Email Address Changed</h1>
+
+        <p>Hi ${userName || 'there'},</p>
+
+        <p>The email address associated with your Audacious Money account has been changed.</p>
+
+        <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+          <p style="margin: 0; font-size: 14px; color: #92400e;">
+            <strong>Previous email:</strong> ${oldEmail}<br>
+            <strong>New email:</strong> ${newEmail}
+          </p>
+        </div>
+
+        <p><strong>If you made this change:</strong> No action is needed. You can safely ignore this email.</p>
+
+        <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ef4444;">
+          <p style="margin: 0; font-size: 14px; color: #991b1b;">
+            <strong>If you did NOT make this change:</strong><br>
+            Please contact our support team immediately at <a href="mailto:${supportEmail}">${supportEmail}</a> to secure your account.
+          </p>
+        </div>
+
+        <p>For your security, we recommend:</p>
+        <ul>
+          <li>Review your recent account activity</li>
+          <li>Update your password if you suspect unauthorized access</li>
+          <li>Enable two-factor authentication if available</li>
+        </ul>
+
+        <p>— The Audacious Money Team</p>
+
+        <hr style="border: none; border-top: 2px solid #D4AF37; margin: 30px 0;">
+        <p style="font-size: 12px; color: #9ca3af;">
+          Audacious Money<br>
+          Building financial confidence, one step at a time.<br><br>
+          This is an automated security notification. If you have questions, please contact ${supportEmail}.
+        </p>
+      </div>
+    `,
+    TextBody: `Email Address Changed
+
+Hi ${userName || 'there'},
+
+The email address associated with your Audacious Money account has been changed.
+
+Previous email: ${oldEmail}
+New email: ${newEmail}
+
+If you made this change: No action is needed. You can safely ignore this email.
+
+If you did NOT make this change:
+Please contact our support team immediately at ${supportEmail} to secure your account.
+
+For your security, we recommend:
+- Review your recent account activity
+- Update your password if you suspect unauthorized access
+- Enable two-factor authentication if available
+
+— The Audacious Money Team
+
+Audacious Money
+Building financial confidence, one step at a time.
+
+This is an automated security notification. If you have questions, please contact ${supportEmail}.`,
+    MessageStream: 'outbound'
+  });
+}
+
+/**
+ * Send email change confirmation to the NEW email address
+ */
+export async function sendEmailChangedConfirmationToNewEmail(
+  newEmail: string,
+  userName: string
+): Promise<void> {
+  await client.sendEmail({
+    From: `${FROM_NAME} <${FROM_EMAIL}>`,
+    To: newEmail,
+    Subject: 'Your Audacious Money email address has been updated',
+    HtmlBody: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #4b006e;">Email Address Updated</h1>
+
+        <p>Hi ${userName || 'there'},</p>
+
+        <p>Your Audacious Money account email address has been successfully updated to this address.</p>
+
+        <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+          <p style="margin: 0; font-size: 14px; color: #065f46;">
+            <strong>Your new email:</strong> ${newEmail}<br><br>
+            You'll now use this email address to log in to your account.
+          </p>
+        </div>
+
+        <p><strong>What this means:</strong></p>
+        <ul>
+          <li>Use this email to log in to Audacious Money</li>
+          <li>All future account notifications will be sent here</li>
+          <li>Your subscription and data remain unchanged</li>
+        </ul>
+
+        <p>If you have any questions, just reply to this email.</p>
+
+        <p>— The Audacious Money Team</p>
+
+        <hr style="border: none; border-top: 2px solid #D4AF37; margin: 30px 0;">
+        <p style="font-size: 12px; color: #9ca3af;">
+          Audacious Money<br>
+          Building financial confidence, one step at a time.
+        </p>
+      </div>
+    `,
+    TextBody: `Email Address Updated
+
+Hi ${userName || 'there'},
+
+Your Audacious Money account email address has been successfully updated to this address.
+
+Your new email: ${newEmail}
+
+You'll now use this email address to log in to your account.
+
+What this means:
+- Use this email to log in to Audacious Money
+- All future account notifications will be sent here
+- Your subscription and data remain unchanged
+
+If you have any questions, just reply to this email.
+
+— The Audacious Money Team
+
+Audacious Money
+Building financial confidence, one step at a time.`,
+    MessageStream: 'outbound'
+  });
+}

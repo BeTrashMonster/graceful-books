@@ -47,6 +47,14 @@ export default function CompanyProfile() {
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
+  // Change Email state
+  const [currentEmail, setCurrentEmail] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [emailPassword, setEmailPassword] = useState('');
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
+  const [isChangingEmail, setIsChangingEmail] = useState(false);
+
   /**
    * Load settings on mount
    */
@@ -74,6 +82,20 @@ export default function CompanyProfile() {
         setCompanyPhone(loadedSettings.company_phone || '');
         setCompanyEmail(loadedSettings.company_email || '');
         setCompanyWebsite(loadedSettings.company_website || '');
+
+        // Load user email from session
+        const session = sessionStorage.getItem('graceful_books_session');
+        if (session) {
+          try {
+            const sessionData = JSON.parse(session);
+            const userEmail = sessionData.userIdentifier || sessionData.user?.email;
+            if (userEmail) {
+              setCurrentEmail(userEmail);
+            }
+          } catch (err) {
+            console.error('Failed to parse session for email:', err);
+          }
+        }
       } catch (error) {
         console.error('Failed to load company profile:', error);
         setErrorMessage(`Failed to load profile: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -230,6 +252,85 @@ export default function CompanyProfile() {
       setPasswordError(error instanceof Error ? error.message : 'Failed to change password');
     } finally {
       setIsChangingPassword(false);
+    }
+  };
+
+  /**
+   * Change email
+   */
+  const handleChangeEmail = async () => {
+    setEmailError(null);
+    setEmailSuccess(null);
+
+    // Validation
+    if (!newEmail || !emailPassword) {
+      setEmailError('New email and password are required');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
+    if (newEmail.toLowerCase() === currentEmail.toLowerCase()) {
+      setEmailError('New email must be different from your current email');
+      return;
+    }
+
+    setIsChangingEmail(true);
+
+    try {
+      const API_URL = 'https://api.audacious.money';
+      const session = sessionStorage.getItem('graceful_books_session');
+      if (!session) {
+        setEmailError('Not authenticated. Please log in again.');
+        return;
+      }
+
+      const sessionData = JSON.parse(session);
+      const { token } = sessionData;
+
+      const response = await fetch(`${API_URL}/users/me/email`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          password: emailPassword,
+          newEmail: newEmail,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to change email');
+      }
+
+      // Update session storage with new email
+      sessionData.userIdentifier = data.data.email;
+      if (sessionData.user) {
+        sessionData.user.email = data.data.email;
+      }
+      sessionStorage.setItem('graceful_books_session', JSON.stringify(sessionData));
+
+      // Update local state
+      setCurrentEmail(data.data.email);
+      setNewEmail('');
+      setEmailPassword('');
+
+      setEmailSuccess('Email changed successfully! Check both your old and new email for confirmation.');
+
+      setTimeout(() => setEmailSuccess(null), 8000);
+    } catch (error) {
+      console.error('Email change error:', error);
+      setEmailError(error instanceof Error ? error.message : 'Failed to change email');
+    } finally {
+      setIsChangingEmail(false);
     }
   };
 
@@ -489,7 +590,7 @@ export default function CompanyProfile() {
             <div className={styles.sectionHeaderContent}>
               <h2 className={styles.sectionTitle}>Account Security</h2>
               <p className={styles.sectionSubtitle}>
-                Change your password
+                Manage your password and login credentials
               </p>
             </div>
           </div>
@@ -583,6 +684,90 @@ export default function CompanyProfile() {
                 disabled={isChangingPassword}
               >
                 Change Password
+              </Button>
+            </div>
+
+            {/* Divider */}
+            <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.1)', margin: '2rem 0' }} />
+
+            {/* Update Email Section */}
+            <h3 className={styles.subsectionTitle} style={{ marginBottom: '0.5rem', fontSize: '1.1rem', color: '#E8D4A0' }}>
+              Update Email Address
+            </h3>
+            <p className={styles.sectionDescription}>
+              Change the email address you use to log in. A confirmation will be sent to both your old and new email addresses.
+            </p>
+
+            {/* Current Email Display */}
+            <div style={{ marginBottom: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '0.5rem' }}>
+              <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.875rem' }}>
+                <strong style={{ color: '#E8D4A0' }}>Current email:</strong> {currentEmail || 'Loading...'}
+              </p>
+            </div>
+
+            {/* Email Success Message */}
+            {emailSuccess && (
+              <div className={styles.successMessage} style={{ marginBottom: '1rem' }}>
+                <span className={styles.messageIcon}>✓</span>
+                {emailSuccess}
+              </div>
+            )}
+
+            {/* Email Error Message */}
+            {emailError && (
+              <div className={styles.errorMessage} style={{ marginBottom: '1rem' }}>
+                <span className={styles.messageIcon}>✕</span>
+                {emailError}
+              </div>
+            )}
+
+            <div className={styles.formGrid}>
+              {/* New Email */}
+              <div className={styles.formFieldFull}>
+                <label className={styles.label} htmlFor="new-email">
+                  New Email Address
+                </label>
+                <input
+                  id="new-email"
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  className={styles.input}
+                  placeholder="Enter your new email address"
+                  autoComplete="email"
+                />
+              </div>
+
+              {/* Password Confirmation */}
+              <div className={styles.formFieldFull}>
+                <label className={styles.label} htmlFor="email-password">
+                  Confirm with Password
+                </label>
+                <input
+                  id="email-password"
+                  type="password"
+                  value={emailPassword}
+                  onChange={(e) => setEmailPassword(e.target.value)}
+                  className={styles.input}
+                  placeholder="Enter your password to confirm"
+                  autoComplete="current-password"
+                />
+                <p className={styles.fieldHint}>
+                  For security, enter your password to confirm this change
+                </p>
+              </div>
+            </div>
+
+            {/* Change Email Button */}
+            <div className={styles.actions}>
+              <Button
+                variant="purple"
+                size="md"
+                onClick={handleChangeEmail}
+                loading={isChangingEmail}
+                disabled={isChangingEmail || !newEmail || !emailPassword}
+              >
+                Update Email Address
               </Button>
             </div>
           </div>

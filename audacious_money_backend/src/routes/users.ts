@@ -222,6 +222,127 @@ users.put('/me/password', async (c) => {
 });
 
 /**
+ * PUT /users/me/email
+ *
+ * Change user email address
+ * Requires password confirmation for security
+ * Sends notifications to both old and new email addresses
+ */
+const changeEmailSchema = z.object({
+  password: z.string().min(1, 'Password is required to change email'),
+  newEmail: z.string().email('Invalid email address'),
+});
+
+users.put('/me/email', async (c) => {
+  const userId = c.get('userId');
+  const db = c.get('db');
+
+  // Validate request body
+  const parseResult = changeEmailSchema.safeParse(await c.req.json());
+  if (!parseResult.success) {
+    return badRequest(
+      c,
+      ErrorCodes.VALIDATION_ERROR,
+      'Invalid request data',
+      parseResult.error.errors
+    );
+  }
+
+  const { password, newEmail } = parseResult.data;
+  const normalizedNewEmail = newEmail.toLowerCase().trim();
+
+  try {
+    // Get current user data
+    const userResult = await db.query(
+      'SELECT id, email, password_hash, first_name, last_name FROM users WHERE id = $1',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'User not found');
+    }
+
+    const user = userResult.rows[0];
+    const oldEmail = user.email;
+    const userName = user.first_name || user.last_name || 'there';
+
+    // Check if new email is same as current
+    if (oldEmail.toLowerCase() === normalizedNewEmail) {
+      return badRequest(
+        c,
+        ErrorCodes.VALIDATION_ERROR,
+        'New email is the same as your current email'
+      );
+    }
+
+    // Check if new email is already in use
+    const existingUser = await db.query(
+      'SELECT id FROM users WHERE LOWER(email) = $1 AND id != $2',
+      [normalizedNewEmail, userId]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return badRequest(
+        c,
+        ErrorCodes.VALIDATION_ERROR,
+        'This email address is already in use by another account'
+      );
+    }
+
+    // Verify password
+    const isValid = await timingSafeVerify(password, user.password_hash);
+    if (!isValid) {
+      return unauthorized(c, ErrorCodes.INVALID_CREDENTIALS, 'Password is incorrect');
+    }
+
+    // Update email in database
+    await db.query(
+      'UPDATE users SET email = $1, updated_at = NOW() WHERE id = $2',
+      [normalizedNewEmail, userId]
+    );
+
+    // Create audit log entry
+    const ipAddressRaw =
+      c.req.header('x-forwarded-for') ||
+      c.req.header('x-real-ip') ||
+      c.req.header('cf-connecting-ip') ||
+      '';
+    const ipAddress = ipAddressRaw.split(',')[0].trim() || null;
+
+    await db.query(
+      `INSERT INTO admin_audit_log (action, resource_type, resource_id, ip_address, details)
+       VALUES ('email_changed', 'user', $1, $2, $3)`,
+      [userId, ipAddress, JSON.stringify({ oldEmail, newEmail: normalizedNewEmail })]
+    );
+
+    // Send notification emails (fire and forget - don't fail the request if emails fail)
+    try {
+      const { sendEmailChangedAlertToOldEmail, sendEmailChangedConfirmationToNewEmail } =
+        await import('../services/email.service.js');
+
+      // Send alert to old email
+      await sendEmailChangedAlertToOldEmail(oldEmail, normalizedNewEmail, userName);
+
+      // Send confirmation to new email
+      await sendEmailChangedConfirmationToNewEmail(normalizedNewEmail, userName);
+
+      console.log('[Users] Email change notifications sent successfully');
+    } catch (emailError) {
+      console.error('[Users] Failed to send email change notifications:', emailError);
+      // Don't fail the request - the email change was successful
+    }
+
+    return success(c, {
+      message: 'Email changed successfully',
+      email: normalizedNewEmail
+    });
+  } catch (error) {
+    console.error('[Users] Change email error:', error);
+    throw error;
+  }
+});
+
+/**
  * DELETE /users/me
  *
  * Permanently delete user account
