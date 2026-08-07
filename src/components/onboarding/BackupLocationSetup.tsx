@@ -299,8 +299,7 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
             <div className={styles.warningBox}>
               <p className={styles.warningText}>
                 <strong>We really recommend setting this up.</strong> It only takes a moment,
-                and it gives you peace of mind knowing your data is safe. Plus, it happens
-                automatically in the background - you won't have to think about it again.
+                and it gives you peace of mind knowing your data has a safe place to be stored.
               </p>
             </div>
           </div>
@@ -333,8 +332,8 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
             <h2 className={styles.title}>All Set!</h2>
 
             <p className={styles.description}>
-              Your backups will save automatically in the background. You won't have to think
-              about it again.
+              Your backup location has been saved. You can create backups from the Settings
+              page whenever you need them.
             </p>
 
             <div className={styles.successBox}>
@@ -342,7 +341,7 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
                 <span className={styles.successBoxIcon} aria-hidden="true">
                   📁
                 </span>
-                <span className={styles.successBoxLabel}>Backups saving to:</span>
+                <span className={styles.successBoxLabel}>Backups will be saved to:</span>
               </div>
               <div className={styles.pathDisplay} role="status" aria-live="polite">
                 <code className={styles.path}>{state.directoryPath}</code>
@@ -351,9 +350,7 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
 
             <div className={styles.infoBox}>
               <p className={styles.infoBoxText}>
-                Backups happen automatically when you make changes, and we keep them tidy by
-                managing old versions for you. You can always change this location later in
-                Settings.
+                You can change this location anytime in Settings.
               </p>
             </div>
           </div>
@@ -378,12 +375,12 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
       <CardBody>
         <div className={styles.content}>
           <h2 className={styles.headerPurple}>
-            {isOnboarding ? "Let's Keep Your Data Safe" : 'Choose Backup Location'}
+            {isOnboarding ? "Choose where you'd like backups to be saved on your computer" : 'Choose Backup Location'}
           </h2>
 
           <p className={styles.description}>
-            Choose where you'd like us to save automatic backups on your computer. This
-            happens behind the scenes - you won't have to think about it again.
+            Select a folder on your computer where we'll save your backup files. You can
+            change this location anytime in Settings.
           </p>
 
           <div className={styles.features}>
@@ -391,9 +388,6 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
               <span className={styles.featureText}>
                 Zero-knowledge encryption (we can never see your data)
               </span>
-            </div>
-            <div className={styles.feature}>
-              <span className={styles.featureText}>Automatic and invisible</span>
             </div>
             <div className={styles.feature}>
               <span className={styles.featureText}>You're always in control</span>
