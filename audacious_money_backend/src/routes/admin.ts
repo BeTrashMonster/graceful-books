@@ -931,11 +931,22 @@ admin.get('/charities/:id', requireAdmin, async (c) => {
  *
  * Create a new charity (admin only)
  */
+// Helper to transform empty strings to undefined for optional fields
+const emptyStringToUndefined = (val: string | undefined) => (val === '' ? undefined : val);
+
+// Hex color regex that allows empty strings (which become undefined via transform)
+const optionalHexColor = z.string()
+  .optional()
+  .transform(emptyStringToUndefined)
+  .refine((val) => val === undefined || /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(val), {
+    message: 'Invalid hex color format (use #RGB or #RRGGBB)',
+  });
+
 const createCharitySchema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
   ein: z.string().regex(/^\d{2}-\d{7}$/, 'EIN must be in format XX-XXXXXXX'),
-  shortDescription: z.string().max(500).optional(),
-  longDescription: z.string().optional(),
+  shortDescription: z.string().max(500).optional().transform(emptyStringToUndefined),
+  longDescription: z.string().optional().transform(emptyStringToUndefined),
   website: z.string().url('Invalid website URL').max(500),
   category: z.enum([
     'EDUCATION',
@@ -949,12 +960,12 @@ const createCharitySchema = z.object({
     'COMMUNITY',
     'OTHER',
   ]),
-  logo: z.string().max(500).optional(),
-  paymentAddress: z.string().optional(), // Will be encrypted
+  logo: z.string().max(500).optional().transform(emptyStringToUndefined),
+  paymentAddress: z.string().optional().transform(emptyStringToUndefined), // Will be encrypted
   displayOrder: z.number().int().optional(),
-  brandColorBackground: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).optional(),
-  brandColorTitle: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).optional(),
-  brandColorDescription: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).optional(),
+  brandColorBackground: optionalHexColor,
+  brandColorTitle: optionalHexColor,
+  brandColorDescription: optionalHexColor,
 });
 
 admin.post('/charities', requireAdmin, validate(createCharitySchema), async (c) => {

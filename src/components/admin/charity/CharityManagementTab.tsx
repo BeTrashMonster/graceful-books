@@ -253,6 +253,12 @@ function AddCharityModal({ onAdd, onClose }: AddCharityModalProps) {
     website: '',
     category: 'EDUCATION',
     shortDescription: '',
+    longDescription: '',
+    logo: '',
+    displayOrder: 999,
+    brandColorBackground: '',
+    brandColorTitle: '',
+    brandColorDescription: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -316,6 +322,66 @@ function AddCharityModal({ onAdd, onClose }: AddCharityModalProps) {
             onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
             rows={3}
           />
+          <textarea
+            placeholder="Long Description"
+            value={formData.longDescription}
+            onChange={(e) => setFormData({ ...formData, longDescription: e.target.value })}
+            rows={5}
+          />
+          <input
+            type="text"
+            placeholder="Logo URL (optional)"
+            value={formData.logo}
+            onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+          />
+          <input
+            type="number"
+            placeholder="Display Order"
+            value={formData.displayOrder}
+            onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 999 })}
+            min="0"
+          />
+
+          <div className={styles.colorFields}>
+            <label>Brand Colors (Hex codes - optional)</label>
+            <div className={styles.colorInputGroup}>
+              <input
+                type="text"
+                placeholder="Background Color (e.g., #4BA9A0)"
+                value={formData.brandColorBackground}
+                onChange={(e) => setFormData({ ...formData, brandColorBackground: e.target.value })}
+              />
+              <div
+                className={styles.colorPreview}
+                style={{ backgroundColor: formData.brandColorBackground || '#ccc' }}
+              />
+            </div>
+            <div className={styles.colorInputGroup}>
+              <input
+                type="text"
+                placeholder="Title Color (e.g., #FFFFFF)"
+                value={formData.brandColorTitle}
+                onChange={(e) => setFormData({ ...formData, brandColorTitle: e.target.value })}
+              />
+              <div
+                className={styles.colorPreview}
+                style={{ backgroundColor: formData.brandColorTitle || '#ccc' }}
+              />
+            </div>
+            <div className={styles.colorInputGroup}>
+              <input
+                type="text"
+                placeholder="Description Color (e.g., #FFFFFF)"
+                value={formData.brandColorDescription}
+                onChange={(e) => setFormData({ ...formData, brandColorDescription: e.target.value })}
+              />
+              <div
+                className={styles.colorPreview}
+                style={{ backgroundColor: formData.brandColorDescription || '#ccc' }}
+              />
+            </div>
+          </div>
+
           <div className={styles.modalActions}>
             <button type="button" onClick={onClose}>Cancel</button>
             <button type="submit" className={styles.submitBtn}>Add Charity</button>
