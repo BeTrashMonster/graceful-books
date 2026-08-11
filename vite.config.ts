@@ -153,6 +153,15 @@ export default defineConfig({
       'Cross-Origin-Embedder-Policy': 'require-corp',
       'Cross-Origin-Opener-Policy': 'same-origin',
     },
+    // Proxy API requests to production backend (avoids CORS issues in dev)
+    proxy: {
+      '/api': {
+        target: 'https://api.audacious.money',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+        secure: true,
+      },
+    },
   },
   build: {
     outDir: 'dist',

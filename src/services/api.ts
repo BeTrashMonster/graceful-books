@@ -5,8 +5,8 @@
  * Handles authentication tokens, error handling, and request/response formatting.
  */
 
-// Production API URL
-const API_URL = 'https://api.audacious.money';
+// API URL - use proxy in development, direct URL in production
+const API_URL = import.meta.env.DEV ? '/api' : 'https://api.audacious.money';
 
 interface ApiError {
   message: string;
