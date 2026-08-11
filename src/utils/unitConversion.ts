@@ -7,8 +7,8 @@
 
 export type UnitType = 'weight' | 'volume' | 'count' | 'each';
 
-export type WeightUnit = 'oz' | 'lb' | 'g' | 'kg';
-export type VolumeUnit = 'ml' | 'L' | 'fl oz' | 'cup' | 'qt' | 'gal';
+export type WeightUnit = 'mg' | 'g' | 'kg' | 'oz' | 'lb';
+export type VolumeUnit = 'ml' | 'tsp' | 'tbsp' | 'fl oz' | 'cup' | 'pt' | 'qt' | 'L' | 'gal';
 export type CountUnit = 'each' | 'dozen' | 'case';
 export type Unit = WeightUnit | VolumeUnit | CountUnit;
 
@@ -22,18 +22,22 @@ export interface UnitDefinition {
 
 // Unit catalog
 export const UNIT_CATALOG: Record<Unit, UnitDefinition> = {
-  // Weight units (base: oz)
-  'oz': { unit: 'oz', type: 'weight', label: 'Ounce (oz)', baseUnit: 'oz', toBaseMultiplier: 1 },
-  'lb': { unit: 'lb', type: 'weight', label: 'Pound (lb)', baseUnit: 'oz', toBaseMultiplier: 16 },
-  'g': { unit: 'g', type: 'weight', label: 'Gram (g)', baseUnit: 'oz', toBaseMultiplier: 0.035274 },
-  'kg': { unit: 'kg', type: 'weight', label: 'Kilogram (kg)', baseUnit: 'oz', toBaseMultiplier: 35.274 },
+  // Weight units (base: g for precision with small measurements)
+  'mg': { unit: 'mg', type: 'weight', label: 'Milligram (mg)', baseUnit: 'g', toBaseMultiplier: 0.001 },
+  'g': { unit: 'g', type: 'weight', label: 'Gram (g)', baseUnit: 'g', toBaseMultiplier: 1 },
+  'kg': { unit: 'kg', type: 'weight', label: 'Kilogram (kg)', baseUnit: 'g', toBaseMultiplier: 1000 },
+  'oz': { unit: 'oz', type: 'weight', label: 'Ounce (oz)', baseUnit: 'g', toBaseMultiplier: 28.3495 },
+  'lb': { unit: 'lb', type: 'weight', label: 'Pound (lb)', baseUnit: 'g', toBaseMultiplier: 453.592 },
 
-  // Volume units (base: ml)
+  // Volume units (base: ml) - ordered small to large
   'ml': { unit: 'ml', type: 'volume', label: 'Milliliter (ml)', baseUnit: 'ml', toBaseMultiplier: 1 },
-  'L': { unit: 'L', type: 'volume', label: 'Liter (L)', baseUnit: 'ml', toBaseMultiplier: 1000 },
+  'tsp': { unit: 'tsp', type: 'volume', label: 'Teaspoon (tsp)', baseUnit: 'ml', toBaseMultiplier: 4.92892 },
+  'tbsp': { unit: 'tbsp', type: 'volume', label: 'Tablespoon (tbsp)', baseUnit: 'ml', toBaseMultiplier: 14.7868 },
   'fl oz': { unit: 'fl oz', type: 'volume', label: 'Fluid Ounce (fl oz)', baseUnit: 'ml', toBaseMultiplier: 29.5735 },
   'cup': { unit: 'cup', type: 'volume', label: 'Cup', baseUnit: 'ml', toBaseMultiplier: 236.588 },
+  'pt': { unit: 'pt', type: 'volume', label: 'Pint (pt)', baseUnit: 'ml', toBaseMultiplier: 473.176 },
   'qt': { unit: 'qt', type: 'volume', label: 'Quart (qt)', baseUnit: 'ml', toBaseMultiplier: 946.353 },
+  'L': { unit: 'L', type: 'volume', label: 'Liter (L)', baseUnit: 'ml', toBaseMultiplier: 1000 },
   'gal': { unit: 'gal', type: 'volume', label: 'Gallon (gal)', baseUnit: 'ml', toBaseMultiplier: 3785.41 },
 
   // Count units (base: each)
