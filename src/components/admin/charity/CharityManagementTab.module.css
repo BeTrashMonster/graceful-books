@@ -45,6 +45,23 @@
   background: #4338ca;
 }
 
+.previewButton {
+  padding: 0.75rem 1.5rem;
+  background: #059669;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.previewButton:hover {
+  background: #047857;
+}
+
 .tableContainer {
   overflow-x: auto;
 }

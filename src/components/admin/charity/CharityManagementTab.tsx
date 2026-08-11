@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function CharityManagementTab({ charities, onRefresh }: Props) {
-  const [statusFilter, setStatusFilter] = useState<CharityStatus | 'ALL'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<CharityStatus | 'ALL'>('VERIFIED');
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedCharity, setSelectedCharity] = useState<CharityAnalytics | null>(null);
@@ -128,6 +128,15 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
           <option value="REJECTED">Rejected</option>
           <option value="INACTIVE">Inactive</option>
         </select>
+
+        <button
+          type="button"
+          onClick={() => window.open('/charity-selector-test', '_blank')}
+          className={styles.previewButton}
+          title="Preview how charities appear to users during signup"
+        >
+          Preview Selection Page
+        </button>
 
         <button
           type="button"
