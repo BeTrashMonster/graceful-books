@@ -203,3 +203,25 @@ export function getAuthHeader(): { Authorization: string } | {} {
   const token = getAuthToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
+
+/**
+ * Verify user's password by attempting re-authentication
+ * Used for sensitive operations like viewing masked data
+ */
+export async function verifyPassword(email: string, password: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    // If login succeeds, password is correct
+    return response.ok;
+  } catch {
+    // Network error or other failure - treat as invalid
+    return false;
+  }
+}

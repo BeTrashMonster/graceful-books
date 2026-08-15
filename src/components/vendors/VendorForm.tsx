@@ -19,11 +19,25 @@ import { type FC, type FormEvent, useState, useEffect, useCallback } from 'react
 import { Button } from '../core/Button'
 import { Input } from '../forms/Input'
 import { Checkbox } from '../forms/Checkbox'
+import { Modal } from '../modals/Modal'
 import { ParentAccountSelector } from '../contacts/ParentAccountSelector'
 import { HierarchyValidator } from '../../validators/hierarchyValidator'
+import { useAuth } from '../../contexts/AuthContext'
+import { verifyPassword } from '../../services/auth.service'
 import { db } from '../../db/database'
 import type { Vendor, VendorFormData } from '../../types/vendor.types'
 import styles from './VendorForm.module.css'
+
+/**
+ * Mask Tax ID to show only last 4 characters
+ * e.g., "12-3456789" becomes "***-***789"
+ */
+function maskTaxId(taxId: string): string {
+  if (!taxId || taxId.length < 4) return taxId
+  const last4 = taxId.slice(-4)
+  const maskedPortion = taxId.slice(0, -4).replace(/[0-9]/g, '*')
+  return maskedPortion + last4
+}
 
 export interface VendorFormProps {
   /**
@@ -171,6 +185,7 @@ export const VendorForm: FC<VendorFormProps> = ({
   duplicateWarning,
 }) => {
   const isEditMode = !!vendor
+  const { userIdentifier } = useAuth()
 
   // Form state
   const [formData, setFormData] = useState<VendorFormData>({
@@ -191,6 +206,14 @@ export const VendorForm: FC<VendorFormProps> = ({
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [touched, setTouched] = useState<Set<string>>(new Set())
   const [showAddress, setShowAddress] = useState(!!vendor?.address)
+
+  // Tax ID security - only show full value after password verification
+  const [showFullTaxId, setShowFullTaxId] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [passwordInput, setPasswordInput] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [isVerifyingPassword, setIsVerifyingPassword] = useState(false)
+
   // G3: Track total contacts for progressive disclosure
   const [totalContacts, setTotalContacts] = useState(0)
 
@@ -328,17 +351,6 @@ export const VendorForm: FC<VendorFormProps> = ({
 
   return (
     <form className={styles.vendorForm} onSubmit={handleSubmit} noValidate>
-      <div className={styles.formHeader}>
-        <h2 className={styles.formTitle}>
-          {isEditMode ? 'Edit Vendor' : "Let's add your vendor!"}
-        </h2>
-        <p className={styles.formDescription}>
-          {isEditMode
-            ? 'Update vendor information below'
-            : 'Keeping track of who you pay helps you understand where your money goes.'}
-        </p>
-      </div>
-
       {duplicateWarning && (
         <div className={styles.duplicateWarning} role="alert">
           <svg className={styles.warningIcon} aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -357,7 +369,6 @@ export const VendorForm: FC<VendorFormProps> = ({
           required
           fullWidth
           placeholder="e.g., Office Supply Co"
-          helperText="The business or person's name"
           disabled={isSubmitting}
         />
 
@@ -369,7 +380,6 @@ export const VendorForm: FC<VendorFormProps> = ({
           error={touched.has('email') ? errors.email : undefined}
           fullWidth
           placeholder="vendor@example.com"
-          helperText="Optional: For communication and records"
           disabled={isSubmitting}
         />
 
@@ -381,7 +391,6 @@ export const VendorForm: FC<VendorFormProps> = ({
           error={touched.has('phone') ? errors.phone : undefined}
           fullWidth
           placeholder="(555) 123-4567"
-          helperText="Optional: For quick contact"
           disabled={isSubmitting}
         />
 
@@ -411,7 +420,6 @@ export const VendorForm: FC<VendorFormProps> = ({
                 onChange={(e) => updateAddressField('line2', e.target.value)}
                 fullWidth
                 placeholder="Suite 100"
-                helperText="Optional: Apartment, suite, etc."
                 disabled={isSubmitting}
               />
 
@@ -462,21 +470,47 @@ export const VendorForm: FC<VendorFormProps> = ({
           )}
         </div>
 
-        <Input
-          label="Tax ID / EIN"
-          value={formData.taxId}
-          onChange={(e) => updateField('taxId', e.target.value)}
-          fullWidth
-          placeholder="XX-XXXXXXX"
-          helperText="Optional: For 1099 reporting"
-          disabled={isSubmitting}
-        />
+        <div className={styles.taxIdSection}>
+          <Input
+            label="Tax ID / EIN"
+            value={
+              isEditMode && vendor?.taxId && !showFullTaxId
+                ? maskTaxId(formData.taxId || '')
+                : formData.taxId
+            }
+            onChange={(e) => {
+              // If editing existing and showing masked, don't allow changes until revealed
+              if (isEditMode && vendor?.taxId && !showFullTaxId) return
+              updateField('taxId', e.target.value)
+            }}
+            fullWidth
+            placeholder="XX-XXXXXXX"
+            disabled={isSubmitting || (isEditMode && vendor?.taxId && !showFullTaxId)}
+          />
+          {isEditMode && vendor?.taxId && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (showFullTaxId) {
+                  setShowFullTaxId(false)
+                } else {
+                  setShowPasswordModal(true)
+                }
+              }}
+              disabled={isSubmitting}
+              className={styles.viewTaxIdButton}
+            >
+              {showFullTaxId ? 'Hide' : 'View'}
+            </Button>
+          )}
+        </div>
 
         <Checkbox
           label="1099 Eligible"
           checked={formData.is1099Eligible}
           onChange={(e) => updateField('is1099Eligible', e.target.checked)}
-          helperText="Check if this vendor should receive a 1099 form"
           disabled={isSubmitting}
         />
 
@@ -486,10 +520,7 @@ export const VendorForm: FC<VendorFormProps> = ({
           onChange={(e) => updateField('notes', e.target.value)}
           fullWidth
           placeholder="Any special information about this vendor"
-          helperText="Optional: Internal notes for your reference"
           disabled={isSubmitting}
-          maxLength={500}
-          showCharCount
         />
 
         {/* G3: Parent Account Selector - Progressive Disclosure (only show if user has > 5 contacts) */}
@@ -504,33 +535,131 @@ export const VendorForm: FC<VendorFormProps> = ({
           />
         )}
 
-        <Checkbox
-          label="Active"
-          checked={formData.isActive}
-          onChange={(e) => updateField('isActive', e.target.checked)}
-          helperText="Inactive vendors are hidden from most views"
-          disabled={isSubmitting}
-        />
       </div>
 
       <div className={styles.formFooter}>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          variant="primary"
-          loading={isSubmitting}
-          disabled={isSubmitting}
-        >
-          {isEditMode ? 'Save Changes' : 'Add Vendor'}
-        </Button>
+        {isEditMode && (
+          <Button
+            type="button"
+            variant={formData.isActive ? 'danger' : 'primary'}
+            onClick={async () => {
+              // Toggle status and immediately save
+              const updatedData = {
+                ...formData,
+                isActive: !formData.isActive,
+                address: showAddress ? formData.address : undefined,
+              }
+              await onSubmit(updatedData)
+            }}
+            loading={isSubmitting}
+            disabled={isSubmitting}
+            className={styles.statusButton}
+          >
+            {formData.isActive ? 'Inactivate' : 'Activate'}
+          </Button>
+        )}
+        <div className={styles.footerActions}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            loading={isSubmitting}
+            disabled={isSubmitting}
+          >
+            {isEditMode ? 'Save Changes' : 'Add Vendor'}
+          </Button>
+        </div>
       </div>
+
+      {/* Password verification modal for viewing Tax ID */}
+      <Modal
+        isOpen={showPasswordModal}
+        onClose={() => {
+          if (!isVerifyingPassword) {
+            setShowPasswordModal(false)
+            setPasswordInput('')
+            setPasswordError('')
+          }
+        }}
+        title="Verify Identity"
+        size="sm"
+        headerStyle={{
+          background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+          color: 'white',
+        }}
+      >
+        <div className={styles.passwordModal}>
+          <p className={styles.passwordModalText}>
+            Enter your account password to view the full Tax ID.
+          </p>
+          <Input
+            label="Password"
+            type="password"
+            value={passwordInput}
+            onChange={(e) => {
+              setPasswordInput(e.target.value)
+              setPasswordError('')
+            }}
+            error={passwordError}
+            fullWidth
+            placeholder="Enter password"
+            autoFocus
+            disabled={isVerifyingPassword}
+          />
+          <div className={styles.passwordModalActions}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowPasswordModal(false)
+                setPasswordInput('')
+                setPasswordError('')
+              }}
+              disabled={isVerifyingPassword}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              loading={isVerifyingPassword}
+              disabled={isVerifyingPassword || !passwordInput}
+              onClick={async () => {
+                if (!userIdentifier) {
+                  setPasswordError('Unable to verify - not logged in')
+                  return
+                }
+                setIsVerifyingPassword(true)
+                setPasswordError('')
+                try {
+                  const isValid = await verifyPassword(userIdentifier, passwordInput)
+                  if (isValid) {
+                    setShowFullTaxId(true)
+                    setShowPasswordModal(false)
+                    setPasswordInput('')
+                    setPasswordError('')
+                  } else {
+                    setPasswordError('Incorrect password')
+                  }
+                } catch {
+                  setPasswordError('Unable to verify password. Please try again.')
+                } finally {
+                  setIsVerifyingPassword(false)
+                }
+              }}
+            >
+              Verify
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </form>
   )
 }

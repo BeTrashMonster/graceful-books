@@ -59,8 +59,8 @@
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
-/* Hover state */
-.checkboxInput:hover:not(:disabled) + .checkboxBox {
+/* Hover state (unchecked only) */
+.checkboxInput:hover:not(:disabled):not(:checked) + .checkboxBox {
   border-color: #D4AF37;
   background-color: rgba(232, 212, 160, 0.1);
 }
@@ -69,6 +69,12 @@
 .checkboxInput:checked + .checkboxBox {
   background-color: #D4AF37;
   border-color: #D4AF37;
+}
+
+/* Checked + Hover state - maintain solid background */
+.checkboxInput:checked:hover:not(:disabled) + .checkboxBox {
+  background-color: #c9a030;
+  border-color: #c9a030;
 }
 
 /* Check icon */

@@ -18,6 +18,7 @@
 
 import { type FC, useState, useEffect } from 'react'
 import { useCustomers } from '../hooks/useCustomers'
+import { useAuth } from '../contexts/AuthContext'
 import { CustomerList } from '../components/customers/CustomerList'
 import { CustomerForm, type CustomerFormData } from '../components/customers/CustomerForm'
 import { Modal } from '../components/modals/Modal'
@@ -26,7 +27,7 @@ import type { Contact } from '../types'
 
 export interface CustomersProps {
   /**
-   * Current company ID (optional - will use demo if not provided)
+   * Current company ID (optional - will use auth context or demo fallback)
    */
   companyId?: string
 }
@@ -40,7 +41,13 @@ type ModalState =
 /**
  * Customers Page
  */
-const Customers: FC<CustomersProps> = ({ companyId = 'demo-company-id' }) => {
+const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
+  const { companyId: authCompanyId } = useAuth()
+
+  // Use prop companyId, then auth context, then fallback to 'demo-company'
+  // IMPORTANT: Must match the fallback in Transactions.tsx and other pages
+  const companyId = propCompanyId || authCompanyId || 'demo-company'
+
   const {
     customers,
     isLoading,
@@ -163,6 +170,10 @@ const Customers: FC<CustomersProps> = ({ companyId = 'demo-company-id' }) => {
           isOpen
           onClose={handleCloseModal}
           title={modalState.type === 'create' ? 'Add Customer' : 'Edit Customer'}
+          headerStyle={{
+            background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+            color: 'white',
+          }}
         >
           <CustomerForm
             customer={modalState.type === 'edit' ? modalState.customer : undefined}

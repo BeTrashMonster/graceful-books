@@ -19,6 +19,7 @@
 
 import { type FC, useState, useEffect } from 'react'
 import { useVendors } from '../hooks/useVendors'
+import { useAuth } from '../contexts/AuthContext'
 import { VendorList } from '../components/vendors/VendorList'
 import { VendorForm, type VendorFormData } from '../components/vendors/VendorForm'
 import { Modal } from '../components/modals/Modal'
@@ -27,7 +28,7 @@ import type { Vendor } from '../types/vendor.types'
 
 export interface VendorsProps {
   /**
-   * Current company ID (optional - will use demo if not provided)
+   * Current company ID (optional - will use auth context or demo fallback)
    */
   companyId?: string
 }
@@ -41,7 +42,13 @@ type ModalState =
 /**
  * Vendors Page
  */
-const Vendors: FC<VendorsProps> = ({ companyId = 'demo-company-id' }) => {
+const Vendors: FC<VendorsProps> = ({ companyId: propCompanyId }) => {
+  const { companyId: authCompanyId } = useAuth()
+
+  // Use prop companyId, then auth context, then fallback to 'demo-company'
+  // IMPORTANT: Must match the fallback in Transactions.tsx and other pages
+  const companyId = propCompanyId || authCompanyId || 'demo-company'
+
   const {
     vendors,
     isLoading,
@@ -184,6 +191,10 @@ const Vendors: FC<VendorsProps> = ({ companyId = 'demo-company-id' }) => {
           isOpen
           onClose={handleCloseModal}
           title={modalState.type === 'create' ? 'Add Vendor' : 'Edit Vendor'}
+          headerStyle={{
+            background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+            color: 'white',
+          }}
         >
           <VendorForm
             vendor={modalState.type === 'edit' ? modalState.vendor : undefined}

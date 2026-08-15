@@ -339,17 +339,6 @@ export const CustomerForm: FC<CustomerFormProps> = ({
 
   return (
     <form className={styles.customerForm} onSubmit={handleSubmit} noValidate>
-      <div className={styles.formHeader}>
-        <h2 className={styles.formTitle}>
-          {isEditMode ? 'Edit Customer' : "Let's add your customer!"}
-        </h2>
-        <p className={styles.formDescription}>
-          {isEditMode
-            ? 'Update customer information below'
-            : 'Every business started with one. Fill in the details below.'}
-        </p>
-      </div>
-
       <div className={styles.formBody}>
         <Input
           label="Customer Name"
@@ -359,7 +348,6 @@ export const CustomerForm: FC<CustomerFormProps> = ({
           required
           fullWidth
           placeholder="e.g., Acme Corporation"
-          helperText="The business or person's name"
           disabled={isSubmitting}
         />
 
@@ -371,7 +359,6 @@ export const CustomerForm: FC<CustomerFormProps> = ({
           error={touched.has('email') ? errors.email : undefined}
           fullWidth
           placeholder="customer@example.com"
-          helperText="Optional: For sending invoices and updates"
           disabled={isSubmitting}
         />
 
@@ -383,7 +370,6 @@ export const CustomerForm: FC<CustomerFormProps> = ({
           error={touched.has('phone') ? errors.phone : undefined}
           fullWidth
           placeholder="(555) 123-4567"
-          helperText="Optional: For quick contact"
           disabled={isSubmitting}
         />
 
@@ -413,7 +399,6 @@ export const CustomerForm: FC<CustomerFormProps> = ({
                 onChange={(e) => updateAddressField('line2', e.target.value)}
                 fullWidth
                 placeholder="Suite 100"
-                helperText="Optional: Apartment, suite, etc."
                 disabled={isSubmitting}
               />
 
@@ -470,10 +455,7 @@ export const CustomerForm: FC<CustomerFormProps> = ({
           onChange={(e) => updateField('notes', e.target.value)}
           fullWidth
           placeholder="Any special information about this customer"
-          helperText="Optional: Internal notes for your reference"
           disabled={isSubmitting}
-          maxLength={500}
-          showCharCount
         />
 
         {/* G3: Parent Account Selector - Progressive Disclosure (only show if user has > 5 contacts) */}
@@ -488,32 +470,47 @@ export const CustomerForm: FC<CustomerFormProps> = ({
           />
         )}
 
-        <Checkbox
-          label="Active"
-          checked={formData.isActive}
-          onChange={(e) => updateField('isActive', e.target.checked)}
-          helperText="Inactive customers are hidden from most views"
-          disabled={isSubmitting}
-        />
       </div>
 
       <div className={styles.formFooter}>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          variant="primary"
-          loading={isSubmitting}
-          disabled={isSubmitting}
-        >
-          {isEditMode ? 'Save Changes' : 'Add Customer'}
-        </Button>
+        {isEditMode && (
+          <Button
+            type="button"
+            variant={formData.isActive ? 'danger' : 'primary'}
+            onClick={async () => {
+              // Toggle status and immediately save
+              const updatedData = {
+                ...formData,
+                isActive: !formData.isActive,
+                address: showAddress ? formData.address : undefined,
+              }
+              await onSubmit(updatedData)
+            }}
+            loading={isSubmitting}
+            disabled={isSubmitting}
+            className={styles.statusButton}
+          >
+            {formData.isActive ? 'Inactivate' : 'Activate'}
+          </Button>
+        )}
+        <div className={styles.footerActions}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            loading={isSubmitting}
+            disabled={isSubmitting}
+          >
+            {isEditMode ? 'Save Changes' : 'Add Customer'}
+          </Button>
+        </div>
       </div>
     </form>
   )

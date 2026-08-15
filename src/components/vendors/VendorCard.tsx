@@ -195,18 +195,6 @@ export const VendorCard: FC<VendorCardProps> = ({
             </div>
           )}
 
-          {vendor.taxId && variant === 'default' && (
-            <div className={styles.contactItem}>
-              <span className={styles.contactLabel} aria-label="Tax ID">
-                <svg className={styles.icon} aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M4 2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-5ZM5 7h6v4H5V7Z" />
-                </svg>
-              </span>
-              <span className={styles.contactValue}>
-                Tax ID: {vendor.taxId}
-              </span>
-            </div>
-          )}
         </div>
 
         {vendor.notes && variant === 'default' && (
