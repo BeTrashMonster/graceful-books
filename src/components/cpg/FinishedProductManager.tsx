@@ -95,37 +95,35 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
 
       // Calculate CPU for each product
       const cpuMap = new Map<string, string | null>();
-
-      // Use last 365 days for CPU calculation
-      const now = Date.now();
-      const dateRange = { start: now - 365 * 24 * 60 * 60 * 1000, end: now };
+      const laborMap = new Map<string, string>();
 
       for (const product of allProducts) {
         try {
-          // Handle bundles differently - sum component product CPUs
+          // Handle bundles differently - sum component product materials and labor separately
           if (product.is_bundle && product.bundle_items && product.bundle_items.length > 0) {
-            let totalCpu = 0;
+            let totalMaterialCpu = 0;
+            let totalLaborCpu = 0;
             let hasAllCpus = true;
 
             for (const item of product.bundle_items) {
               const componentProduct = allProducts.find(p => p.id === item.product_id);
               if (componentProduct) {
-                // Calculate CPU for component if not already calculated
-                let componentCpu: string | null = null;
                 try {
-                  const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(
+                  // Get breakdown for component (materials vs labor)
+                  const cpuBreakdown = await cpuCalculatorService.getFinishedProductCPUBreakdown(
                     componentProduct.id,
-                    companyId,
-                    dateRange
+                    companyId
                   );
-                  componentCpu = cpuResult.cpu;
+
+                  if (cpuBreakdown.materialCPU !== null) {
+                    totalMaterialCpu += parseFloat(cpuBreakdown.materialCPU) * item.quantity;
+                  }
+
+                  // Also calculate labor for this component
+                  const laborCost = await laborService.calculateProductLaborCost(componentProduct.id);
+                  totalLaborCpu += parseFloat(laborCost.totalLaborCostPerUnit) * item.quantity;
                 } catch (err) {
                   console.error(`Failed to calculate CPU for component ${componentProduct.id}:`, err);
-                }
-
-                if (componentCpu !== null) {
-                  totalCpu += parseFloat(componentCpu) * item.quantity;
-                } else {
                   hasAllCpus = false;
                   break;
                 }
@@ -135,7 +133,8 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
               }
             }
 
-            cpuMap.set(product.id, hasAllCpus ? totalCpu.toFixed(2) : null);
+            cpuMap.set(product.id, hasAllCpus ? totalMaterialCpu.toFixed(6) : null);
+            laborMap.set(product.id, totalLaborCpu.toFixed(6));
           } else {
             // Regular product - get material CPU only (without labor)
             const cpuBreakdown = await cpuCalculatorService.getFinishedProductCPUBreakdown(
@@ -144,30 +143,23 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
             );
             // Store only material CPU to avoid double-counting labor
             cpuMap.set(product.id, cpuBreakdown.materialCPU);
+
+            // Calculate labor for this product
+            try {
+              const laborCost = await laborService.calculateProductLaborCost(product.id);
+              laborMap.set(product.id, laborCost.totalLaborCostPerUnit);
+            } catch (err) {
+              console.error(`Failed to calculate labor cost for product ${product.id}:`, err);
+              laborMap.set(product.id, '0.000000');
+            }
           }
         } catch (err) {
           console.error(`Failed to calculate CPU for product ${product.id}:`, err);
           cpuMap.set(product.id, null);
-        }
-      }
-      setProductCPUs(cpuMap);
-
-      // Calculate labor costs for each product
-      const laborMap = new Map<string, string>();
-      for (const product of allProducts) {
-        if (!product.is_bundle) {
-          try {
-            const laborCost = await laborService.calculateProductLaborCost(product.id);
-            laborMap.set(product.id, laborCost.totalLaborCostPerUnit);
-          } catch (err) {
-            console.error(`Failed to calculate labor cost for product ${product.id}:`, err);
-            laborMap.set(product.id, '0.000000');
-          }
-        } else {
-          // For bundles, labor is calculated from components
           laborMap.set(product.id, '0.000000');
         }
       }
+      setProductCPUs(cpuMap);
       setProductLaborCosts(laborMap);
     } catch (err) {
       console.error('Failed to load products:', err);
@@ -868,29 +860,29 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                   {/* Bundle Contents */}
                   {product.is_bundle && product.bundle_items && (
                     <div style={{
-                      padding: '0.75rem',
+                      padding: '0.5rem 0.75rem',
                       background: '#f5f3ff',
                       borderRadius: '6px',
-                      marginBottom: '0.5rem',
+                      marginBottom: '0.25rem',
                     }}>
                       <div style={{
-                        fontSize: '0.75rem',
+                        fontSize: '0.625rem',
                         fontWeight: 600,
                         color: '#6b21a8',
-                        marginBottom: '0.5rem',
+                        marginBottom: '0.25rem',
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em',
                       }}>
                         Bundle Contents
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
                         {product.bundle_items.map((item, idx) => {
                           const bundledProduct = products.find(p => p.id === item.product_id);
                           return (
                             <div
                               key={idx}
                               style={{
-                                fontSize: '0.8125rem',
+                                fontSize: '0.75rem',
                                 color: '#4c1d95',
                                 display: 'flex',
                                 justifyContent: 'space-between',
