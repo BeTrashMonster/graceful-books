@@ -212,6 +212,7 @@ import {
   cpgSettingsSchema,
   cpgLaborRolesSchema,
   cpgProductLaborsSchema,
+  cpgUnitConversionsSchema,
 } from './schema/cpg.schema';
 import type {
   CPGCategory,
@@ -226,6 +227,7 @@ import type {
   CPGSettings,
   CPGLaborRole,
   CPGProductLabor,
+  CPGUnitConversion,
 } from './schema/cpg.schema';
 import {
   standaloneFinancialsSchema,
@@ -350,6 +352,7 @@ export class TreasureChestDB extends Dexie {
   cpgSettings!: Table<CPGSettings, string>;
   cpgLaborRoles!: Table<CPGLaborRole, string>;
   cpgProductLabors!: Table<CPGProductLabor, string>;
+  cpgUnitConversions!: Table<CPGUnitConversion, string>;
   standaloneFinancials!: Table<StandaloneFinancials, string>;
   skuCountTrackers!: Table<SKUCountTracker, string>;
   userFeaturePreferences!: Table<UserFeaturePreference, string>;
@@ -2104,6 +2107,101 @@ export class TreasureChestDB extends Dexie {
       procedureTaskCompletions: procedureTaskCompletionsSchema,
     });
 
+    // Version 31: Add cpgUnitConversions for weight↔volume conversions per category+variant
+    this.version(31).stores({
+      // All existing tables remain unchanged
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      subscriptions: subscriptionsSchema,
+      advisorClients: advisorClientsSchema,
+      advisorTeamMembers: advisorTeamMembersSchema,
+      paymentMethods: paymentMethodsSchema,
+      billingInvoices: billingInvoicesSchema,
+      stripeWebhookEvents: stripeWebhookEventsSchema,
+      charityDistributions: charityDistributionsSchema,
+      charities: charitiesSchema,
+      financialGoals: financialGoalsSchema,
+      goalProgressSnapshots: goalProgressSnapshotsSchema,
+      taxDocuments: taxDocumentsSchema,
+      taxCategoryStatus: taxCategoryStatusSchema,
+      taxPrepSessions: taxPrepSessionsSchema,
+      taxAdvisorAccess: taxAdvisorAccessSchema,
+      taxPackages: taxPackagesSchema,
+      currencies: currenciesSchema,
+      exchangeRates: exchangeRatesSchema,
+      cpgCategories: cpgCategoriesSchema,
+      cpgInvoices: cpgInvoicesSchema,
+      cpgVendors: cpgVendorsSchema,
+      cpgDistributors: cpgDistributorsSchema,
+      cpgDistributionCalculations: cpgDistributionCalculationsSchema,
+      cpgSalesPromos: cpgSalesPromosSchema,
+      cpgEvents: cpgEventsSchema,
+      cpgFinishedProducts: cpgFinishedProductsSchema,
+      cpgRecipes: cpgRecipesSchema,
+      cpgProductLinks: cpgProductLinksSchema,
+      cpgSettings: cpgSettingsSchema,
+      cpgLaborRoles: cpgLaborRolesSchema,
+      cpgProductLabors: cpgProductLaborsSchema,
+      cpgUnitConversions: cpgUnitConversionsSchema, // NEW: Weight↔volume conversions
+      standaloneFinancials: standaloneFinancialsSchema,
+      skuCountTrackers: skuCountTrackersSchema,
+      userFeaturePreferences: userFeaturePreferencesSchema,
+      tabPreferences: tabPreferencesSchema,
+      backupAuditLogs: backupAuditLogsSchema,
+      adminChecklists: adminChecklistsSchema,
+      adminTasks: adminTasksSchema,
+      adminTaskCompletions: adminTaskCompletionsSchema,
+      adminTaskComments: adminTaskCommentsSchema,
+      userChecklistPreferences: userChecklistPreferencesSchema,
+      checklistWizardProgress: checklistWizardProgressSchema,
+      procedureInstances: procedureInstancesSchema,
+      procedureTaskCompletions: procedureTaskCompletionsSchema,
+    });
+
     // Add hooks for automatic audit logging
     this.setupAuditHooks();
 
@@ -2187,6 +2285,7 @@ export class TreasureChestDB extends Dexie {
     this.cpgSettings.hook('updating', updateTimestamp);
     this.cpgLaborRoles.hook('updating', updateTimestamp);
     this.cpgProductLabors.hook('updating', updateTimestamp);
+    this.cpgUnitConversions.hook('updating', updateTimestamp);
     this.standaloneFinancials.hook('updating', updateTimestamp);
     this.skuCountTrackers.hook('updating', updateTimestamp);
     // Checklist Calendar tables

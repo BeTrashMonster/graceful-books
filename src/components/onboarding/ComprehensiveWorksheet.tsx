@@ -92,12 +92,12 @@ const generateTempId = (): string => {
   return `temp-${tempIdCounter}-${random}`;
 };
 
-// Units of measurement (matching CPG system)
+// Units of measurement (matching CPG system and unitConversion.ts)
 const UNITS_OF_MEASUREMENT = [
-  // Weight
-  'oz', 'lb', 'g', 'kg',
-  // Volume
-  'ml', 'L', 'fl oz', 'cup', 'qt', 'gal',
+  // Weight (small to large)
+  'mg', 'g', 'kg', 'oz', 'lb',
+  // Volume (small to large)
+  'ml', 'tsp', 'tbsp', 'fl oz', 'cup', 'pt', 'qt', 'L', 'gal',
   // Count
   'each', 'dozen', 'case'
 ];

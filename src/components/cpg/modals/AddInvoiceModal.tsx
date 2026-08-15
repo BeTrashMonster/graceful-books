@@ -22,6 +22,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { processMathInput } from '../../../utils/mathParser';
 import { processDateInput } from '../../../utils/dateUtils';
 import { UNIT_CATALOG, type Unit, getUnitsByType, areUnitsCompatible, getUnitMismatchWarning } from '../../../utils/unitConversion';
+import { CategoryManager } from '../CategoryManager';
 import styles from './CPGModals.module.css';
 
 export interface AddInvoiceModalProps {
@@ -80,6 +81,8 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
   const [unitWarnings, setUnitWarnings] = useState<Record<string, { count: number; items: Array<{ productName: string; recipeUnit: string; finishedProductId: string; categoryId: string; variant: string | null }> }>>({});
   const [expandedWarnings, setExpandedWarnings] = useState<Record<string, boolean>>({});
   const [confirmNavigation, setConfirmNavigation] = useState<{ productId: string; productName: string; categoryId: string; variant: string | null } | null>(null);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [preSelectedCategoryId, setPreSelectedCategoryId] = useState<string | undefined>(undefined);
   const errorAlertRef = useRef<HTMLDivElement>(null);
 
   const isEditMode = mode === 'edit';
@@ -233,6 +236,16 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         }));
 
         setCostItems(items);
+
+        // Check unit mismatches for all loaded items
+        // Need to wait a tick for state to update before checking
+        setTimeout(() => {
+          items.forEach(item => {
+            if (item.category_id && item.unit_of_measurement) {
+              checkUnitMismatch(item.id, item.category_id, item.variant, item.unit_of_measurement);
+            }
+          });
+        }, 100);
       } catch (error) {
         console.error('Error loading invoice data:', error);
         setErrors({ form: 'Failed to load invoice data' });
@@ -432,14 +445,51 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         return;
       }
 
+      // Load saved conversions for this category to check if weight↔volume conversion exists
+      const savedConversions = await db.cpgUnitConversions
+        .where('company_id')
+        .equals(companyId)
+        .filter(c => c.category_id === categoryId && !c.deleted_at)
+        .toArray();
+
+      // Parse the invoice date to check against conversion effective_from dates
+      const parsedInvoiceDate = processDateInput(invoiceDate);
+      const invoiceDateTimestamp = parsedInvoiceDate ? new Date(parsedInvoiceDate).getTime() : Date.now();
+
+      // Check if we have a weight↔volume conversion that APPLIES to this invoice date
+      const hasWeightVolumeConversion = savedConversions.some(c => {
+        // Must match variant or be a fallback (null variant)
+        if (c.variant !== variant && c.variant !== null) return false;
+
+        // Check if conversion applies to this invoice date
+        const appliesNow = c.effective_from === null ||
+                          c.effective_from === undefined ||
+                          invoiceDateTimestamp >= c.effective_from;
+        if (!appliesNow) return false;
+
+        const fromType = UNIT_CATALOG[c.from_unit as Unit]?.type;
+        const toType = UNIT_CATALOG[c.to_unit as Unit]?.type;
+        return (fromType === 'weight' && toType === 'volume') ||
+               (fromType === 'volume' && toType === 'weight');
+      });
+
       // Find ALL recipes with incompatible units (not just the first one)
       const incompatibleItems: Array<{ productName: string; recipeUnit: string; finishedProductId: string; categoryId: string; variant: string | null }> = [];
 
       for (const recipe of recipes) {
         const recipeUnit = (recipe.unit_of_measurement as Unit) || 'each';
+        const invoiceUnitType = UNIT_CATALOG[invoiceUnit]?.type;
+        const recipeUnitType = UNIT_CATALOG[recipeUnit]?.type;
 
-        // Only include truly incompatible units (skip convertible ones like oz↔lb)
-        if (!areUnitsCompatible(invoiceUnit, recipeUnit)) {
+        // Check compatibility:
+        // 1. Same type units (oz↔lb, cup↔tbsp) are always compatible
+        // 2. Weight↔Volume is compatible IF we have a saved conversion
+        const sameTypeCompatible = areUnitsCompatible(invoiceUnit, recipeUnit);
+        const canDeriveConversion = hasWeightVolumeConversion &&
+          ((invoiceUnitType === 'weight' && recipeUnitType === 'volume') ||
+           (invoiceUnitType === 'volume' && recipeUnitType === 'weight'));
+
+        if (!sameTypeCompatible && !canDeriveConversion) {
           // Get the finished product name
           const finishedProduct = await db.cpgFinishedProducts.get(recipe.finished_product_id);
 
@@ -1211,17 +1261,21 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                           required
                         >
                           <optgroup label="Weight">
-                            <option value="oz">oz</option>
-                            <option value="lb">lb</option>
+                            <option value="mg">mg</option>
                             <option value="g">g</option>
                             <option value="kg">kg</option>
+                            <option value="oz">oz</option>
+                            <option value="lb">lb</option>
                           </optgroup>
                           <optgroup label="Volume">
                             <option value="ml">ml</option>
-                            <option value="L">L</option>
+                            <option value="tsp">tsp</option>
+                            <option value="tbsp">tbsp</option>
                             <option value="fl oz">fl oz</option>
                             <option value="cup">cup</option>
+                            <option value="pt">pt</option>
                             <option value="qt">qt</option>
+                            <option value="L">L</option>
                             <option value="gal">gal</option>
                           </optgroup>
                           <optgroup label="Count">
@@ -1371,38 +1425,61 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                               <div>
                                 • Recipe in <strong>"{warning.productName}"</strong>: Uses {warning.recipeUnit}
                               </div>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
+                              <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setPreSelectedCategoryId(warning.categoryId);
+                                    setShowCategoryManager(true);
+                                  }}
+                                  style={{
+                                    padding: '0.25rem 0.5rem',
+                                    fontSize: '0.75rem',
+                                    color: '#4b006e',
+                                    backgroundColor: '#f3e8ff',
+                                    border: 'none',
+                                    borderRadius: '0.25rem',
+                                    cursor: 'pointer',
+                                    fontWeight: 500,
+                                    whiteSpace: 'nowrap'
+                                  }}
+                                >
+                                  Add Conversion
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
 
-                                  if (!onNavigateToRecipe) {
-                                    alert('Navigation not configured');
-                                    return;
-                                  }
+                                    if (!onNavigateToRecipe) {
+                                      alert('Navigation not configured');
+                                      return;
+                                    }
 
-                                  // Show branded confirmation modal
-                                  setConfirmNavigation({
-                                    productId: warning.finishedProductId,
-                                    productName: warning.productName,
-                                    categoryId: warning.categoryId,
-                                    variant: warning.variant
-                                  });
-                                }}
-                                style={{
-                                  padding: '0.25rem 0.5rem',
-                                  fontSize: '0.75rem',
-                                  color: '#7c3aed',
-                                  backgroundColor: 'transparent',
-                                  border: '1px solid #7c3aed',
-                                  borderRadius: '0.25rem',
-                                  cursor: 'pointer',
-                                  fontWeight: 500,
-                                  whiteSpace: 'nowrap'
-                                }}
-                              >
-                                Edit Recipe →
-                              </button>
+                                    // Show branded confirmation modal
+                                    setConfirmNavigation({
+                                      productId: warning.finishedProductId,
+                                      productName: warning.productName,
+                                      categoryId: warning.categoryId,
+                                      variant: warning.variant
+                                    });
+                                  }}
+                                  style={{
+                                    padding: '0.25rem 0.5rem',
+                                    fontSize: '0.75rem',
+                                    color: '#7c3aed',
+                                    backgroundColor: 'transparent',
+                                    border: '1px solid #7c3aed',
+                                    borderRadius: '0.25rem',
+                                    cursor: 'pointer',
+                                    fontWeight: 500,
+                                    whiteSpace: 'nowrap'
+                                  }}
+                                >
+                                  Edit Recipe →
+                                </button>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -1696,6 +1773,27 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           </div>
         </div>
       </div>
+    )}
+
+    {/* Category Manager Modal for adding/editing conversions */}
+    {showCategoryManager && companyId && (
+      <CategoryManager
+        companyId={companyId}
+        categories={categories}
+        preSelectedCategoryId={preSelectedCategoryId}
+        onClose={() => {
+          setShowCategoryManager(false);
+          setPreSelectedCategoryId(undefined);
+        }}
+        onSaved={() => {
+          // Re-check unit warnings after conversion changes
+          costItems.forEach(item => {
+            if (item.category_id && item.unit_of_measurement) {
+              checkUnitMismatch(item.id, item.category_id, item.variant, item.unit_of_measurement);
+            }
+          });
+        }}
+      />
     )}
     </>
   );

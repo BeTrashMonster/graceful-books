@@ -21,12 +21,14 @@ import { Input } from '../forms/Input';
 import { HelpTooltip } from '../help/HelpTooltip';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
-import { normalizeVariant, validateCPGRecipe } from '../../db/schema/cpg.schema';
-import type { CPGCategory, CPGRecipe, CPGSettings } from '../../db/schema/cpg.schema';
+import { normalizeVariant, validateCPGRecipe, createUnitConversion } from '../../db/schema/cpg.schema';
+import type { CPGCategory, CPGRecipe, CPGSettings, CPGUnitConversion } from '../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { v4 as uuidv4 } from 'uuid';
-import { type Unit, areUnitsCompatible, getUnitMismatchWarning, UNIT_CATALOG } from '../../utils/unitConversion';
+import { type Unit, areUnitsCompatible, getUnitType, UNIT_CATALOG } from '../../utils/unitConversion';
 import { formatDateFromTimestamp } from '../../utils/dateUtils';
+import { CategoryManager } from './CategoryManager';
+import { AddInvoiceModal } from './modals/AddInvoiceModal';
 import styles from './RecipeBuilder.module.css';
 
 export interface RecipeBuilderProps {
@@ -50,6 +52,7 @@ interface RecipeComponentItem {
 }
 
 interface ComponentCost {
+  componentId: string; // Unique ID of the recipe component
   category_id: string;
   variant: string | null;
   categoryName: string;
@@ -80,10 +83,43 @@ export function RecipeBuilder({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showPermanentDeleteConfirm, setShowPermanentDeleteConfirm] = useState(false);
   const [cpgSettings, setCpgSettings] = useState<CPGSettings | null>(null);
-  const [unitWarnings, setUnitWarnings] = useState<Record<string, { count: number; items: Array<{ invoiceNumber: string; invoiceDate: string; invoiceUnit: string; invoiceId: string }> }>>({});
+  const [unitWarnings, setUnitWarnings] = useState<Record<string, {
+    count: number;
+    items: Array<{ invoiceNumber: string; invoiceDate: string; invoiceUnit: string; invoiceId: string }>;
+    canConvert: boolean; // true if weight↔volume (can add conversion), false if truly incompatible
+    invoiceUnitType: string; // 'weight' | 'volume' | 'count'
+    convertibleUnit: string | null; // The actual weight/volume unit to show in conversion prompt (e.g., 'lb')
+    convertibleUnitLabel: string | null; // Display label for the convertible unit
+    // Date restriction info - when a conversion exists but doesn't apply due to effective_from
+    hasConversionButDateRestricted?: boolean;
+    conversionEffectiveFrom?: number | null;
+    categoryId?: string;
+  }>>({});
   const [expandedWarnings, setExpandedWarnings] = useState<Record<string, boolean>>({});
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [preSelectedCategoryId, setPreSelectedCategoryId] = useState<string | undefined>(undefined);
+  const [showAddInvoiceModal, setShowAddInvoiceModal] = useState(false);
   const [confirmNavigation, setConfirmNavigation] = useState<{ invoiceId: string; invoiceNumber: string } | null>(null);
   const [highlightedComponentId, setHighlightedComponentId] = useState<string | null>(null);
+  // Unit conversion inputs: stores both sides of the conversion equation
+  // Format: { componentId: { leftQty: '454', leftUnit: 'g', rightQty: '1', rightUnit: 'cup' } }
+  const [conversionInputs, setConversionInputs] = useState<Record<string, {
+    leftQty: string;
+    leftUnit: string;
+    rightQty: string;
+    rightUnit: string;
+  }>>({});
+  const [savedConversions, setSavedConversions] = useState<CPGUnitConversion[]>([]);
+  const [savingConversion, setSavingConversion] = useState<string | null>(null); // componentId being saved
+  // Pending conversion confirmation: holds conversion data waiting for user to choose historical data handling
+  const [pendingConversion, setPendingConversion] = useState<{
+    componentId: string;
+    categoryId: string;
+    variant: string | null;
+    fromUnit: string;
+    toUnit: string;
+    factor: number;
+  } | null>(null);
 
   // Load categories and existing recipe
   useEffect(() => {
@@ -103,6 +139,14 @@ export function RecipeBuilder({
           .filter((s) => s.active && !s.deleted_at)
           .first();
         setCpgSettings(settings);
+
+        // Load saved unit conversions
+        const conversions = await db.cpgUnitConversions
+          .where('company_id')
+          .equals(companyId)
+          .filter((c) => !c.deleted_at)
+          .toArray();
+        setSavedConversions(conversions);
 
         // Load categories - use simple query to avoid compound index issues
         const cats = await db.cpgCategories
@@ -219,6 +263,7 @@ export function RecipeBuilder({
           }
 
           breakdown.push({
+            componentId: component.id,
             category_id: component.category_id,
             variant: component.variant,
             categoryName: category.name,
@@ -226,7 +271,7 @@ export function RecipeBuilder({
             unitCost,
             subtotal,
             hasCostData,
-            unitOfMeasure: category.unit_of_measure,
+            unitOfMeasure: component.unit_of_measurement, // Use component's unit, not category's
           });
         }
 
@@ -241,7 +286,25 @@ export function RecipeBuilder({
     };
 
     calculateCosts();
-  }, [components, categories]);
+  }, [components, categories, savedConversions]); // Re-calculate when conversions are saved
+
+  // Check unit mismatches for all components when loaded or when conversions change
+  useEffect(() => {
+    if (components.length === 0 || !companyId) return;
+
+    // Check each component for unit mismatches
+    components.forEach(component => {
+      if (component.category_id) {
+        checkUnitMismatch(
+          component.id,
+          component.category_id,
+          component.variant,
+          component.unit_of_measurement
+        );
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [components.length, savedConversions, companyId]); // Re-check when components loaded or conversions change
 
   /**
    * Check for unit mismatches between recipe entry and existing invoices
@@ -284,8 +347,54 @@ export function RecipeBuilder({
         return;
       }
 
+      // Check for saved conversion for this category+variant
+      // We look for ANY weight↔volume conversion, not just exact matches
+      // because the cpuCalculator can derive other conversions from it
+      const recipeUnitType = getUnitType(recipeUnit as Unit);
+
+      // Get ALL conversions for this category (variant + fallback)
+      const variantConversions = savedConversions.filter(c => {
+        if (c.category_id !== categoryId || c.variant !== variant) return false;
+        const fromType = getUnitType(c.from_unit as Unit);
+        const toType = getUnitType(c.to_unit as Unit);
+        return (fromType === 'weight' && toType === 'volume') ||
+               (fromType === 'volume' && toType === 'weight');
+      });
+
+      const fallbackConversions = variant !== null ? savedConversions.filter(c => {
+        if (c.category_id !== categoryId || c.variant !== null) return false;
+        const fromType = getUnitType(c.from_unit as Unit);
+        const toType = getUnitType(c.to_unit as Unit);
+        return (fromType === 'weight' && toType === 'volume') ||
+               (fromType === 'volume' && toType === 'weight');
+      }) : [];
+
+      const allApplicableConversions = [...variantConversions, ...fallbackConversions];
+      const hasAnyConversion = allApplicableConversions.length > 0;
+
+      // Helper to check if a conversion applies to a specific invoice date
+      const conversionAppliesTo = (conv: CPGUnitConversion, invoiceDate: number) => {
+        return conv.effective_from === null ||
+               conv.effective_from === undefined ||
+               invoiceDate >= conv.effective_from;
+      };
+
+      // Find the earliest effective_from date among all conversions
+      const earliestConversionDate = allApplicableConversions
+        .filter(c => c.effective_from !== null && c.effective_from !== undefined)
+        .sort((a, b) => (a.effective_from || 0) - (b.effective_from || 0))[0]?.effective_from || null;
+
+      // Check if ANY conversion applies to all dates (no date restriction)
+      const hasUnrestrictedConversion = allApplicableConversions.some(c =>
+        c.effective_from === null || c.effective_from === undefined
+      );
+
       // Find ALL invoices with incompatible units (not just the first one)
       const incompatibleItems: Array<{ invoiceNumber: string; invoiceDate: string; invoiceUnit: string; invoiceId: string }> = [];
+      let detectedInvoiceUnit: string | null = null;
+      let detectedInvoiceUnitType: string | null = null;
+      let hasConversionButDateRestricted = false;
+      let conversionEffectiveFrom: number | null = null;
 
       for (const invoice of matchingInvoices) {
         const matchingAttrs = Object.values(invoice.cost_attribution || {}).filter(attr =>
@@ -294,12 +403,32 @@ export function RecipeBuilder({
 
         for (const attr of matchingAttrs) {
           const invoiceUnit = (attr.unit_of_measurement as Unit) || 'each';
+          const invoiceUnitType = getUnitType(invoiceUnit);
 
-          // Only include truly incompatible units (skip convertible ones like oz↔lb)
-          if (!areUnitsCompatible(recipeUnit as Unit, invoiceUnit)) {
+          // Check if units are compatible:
+          // 1. Same type (oz↔lb, cup↔tbsp, etc.) - always compatible
+          const sameTypeCompatible = areUnitsCompatible(recipeUnit as Unit, invoiceUnit);
+
+          // 2. Check if we have a weight↔volume conversion that applies to THIS invoice's date
+          const isWeightVolumeMismatch =
+            (invoiceUnitType === 'weight' && recipeUnitType === 'volume') ||
+            (invoiceUnitType === 'volume' && recipeUnitType === 'weight');
+
+          // Find a conversion that applies to this specific invoice date
+          const applicableConversion = allApplicableConversions.find(c =>
+            conversionAppliesTo(c, invoice.invoice_date)
+          );
+
+          const canDeriveConversion = isWeightVolumeMismatch && !!applicableConversion;
+
+          // Track if conversions exist but none apply to this invoice (date-restricted)
+          if (isWeightVolumeMismatch && hasAnyConversion && !applicableConversion) {
+            hasConversionButDateRestricted = true;
+            conversionEffectiveFrom = earliestConversionDate;
+          }
+
+          if (!sameTypeCompatible && !canDeriveConversion) {
             const formattedDate = formatDateFromTimestamp(invoice.invoice_date, 'short');
-
-            // Use invoice number if available, otherwise use "Unnamed Invoice"
             const displayNumber = invoice.invoice_number || 'Unnamed Invoice';
             const displayVendor = invoice.vendor_name ? ` - ${invoice.vendor_name}` : '';
 
@@ -309,17 +438,43 @@ export function RecipeBuilder({
               invoiceUnit: UNIT_CATALOG[invoiceUnit]?.label || invoiceUnit,
               invoiceId: invoice.id
             });
+
+            // Track the invoice unit for conversion prompt
+            // PRIORITY: Prefer weight↔volume mismatches (convertible) over count mismatches
+            const isWeightVolumeConvertible =
+              (invoiceUnitType === 'weight' && recipeUnitType === 'volume') ||
+              (invoiceUnitType === 'volume' && recipeUnitType === 'weight');
+
+            // Only update if we haven't found one yet, OR if this one is convertible and the previous wasn't
+            if (!detectedInvoiceUnit || (isWeightVolumeConvertible && detectedInvoiceUnitType !== 'weight' && detectedInvoiceUnitType !== 'volume')) {
+              detectedInvoiceUnit = invoiceUnit;
+              detectedInvoiceUnitType = invoiceUnitType;
+            }
             break; // Only add each invoice once
           }
         }
       }
 
       if (incompatibleItems.length > 0) {
+        // Determine if this is a weight↔volume mismatch (can add conversion) or truly incompatible
+        const canAddConversion =
+          (detectedInvoiceUnitType === 'weight' && recipeUnitType === 'volume') ||
+          (detectedInvoiceUnitType === 'volume' && recipeUnitType === 'weight');
+
         setUnitWarnings(prev => ({
           ...prev,
           [componentId]: {
             count: incompatibleItems.length,
-            items: incompatibleItems
+            items: incompatibleItems,
+            canConvert: canAddConversion,
+            invoiceUnitType: detectedInvoiceUnitType || 'unknown',
+            convertibleUnit: canAddConversion ? detectedInvoiceUnit : null,
+            convertibleUnitLabel: canAddConversion && detectedInvoiceUnit
+              ? (UNIT_CATALOG[detectedInvoiceUnit as Unit]?.label || detectedInvoiceUnit)
+              : null,
+            hasConversionButDateRestricted,
+            conversionEffectiveFrom,
+            categoryId
           }
         }));
       } else {
@@ -338,6 +493,86 @@ export function RecipeBuilder({
         delete updated[componentId];
         return updated;
       });
+    }
+  };
+
+  // Save a unit conversion for a category+variant
+  const saveConversion = async (
+    componentId: string,
+    categoryId: string,
+    variant: string | null,
+    fromUnit: string,
+    toUnit: string,
+    conversionFactor: number,
+    effectiveFrom: number | null = null // null = apply to all historical data
+  ) => {
+    console.log('🔵 saveConversion called:', { componentId, categoryId, variant, fromUnit, toUnit, conversionFactor, effectiveFrom });
+
+    if (!companyId || !deviceId) {
+      console.log('🔴 saveConversion: Missing companyId or deviceId');
+      return;
+    }
+
+    try {
+      setSavingConversion(componentId);
+
+      // Check if conversion already exists (matching category, variant, and units)
+      const existing = savedConversions.find(c =>
+        c.category_id === categoryId &&
+        c.variant === variant &&
+        c.from_unit === fromUnit &&
+        c.to_unit === toUnit
+      );
+
+      if (existing) {
+        // Update existing conversion
+        console.log('🔵 Updating existing conversion:', existing.id);
+        await db.cpgUnitConversions.update(existing.id, {
+          conversion_factor: conversionFactor,
+          effective_from: effectiveFrom,
+          updated_at: Date.now()
+        });
+        setSavedConversions(prev => prev.map(c =>
+          c.id === existing.id ? { ...c, conversion_factor: conversionFactor, effective_from: effectiveFrom } : c
+        ));
+        console.log('✅ Conversion updated successfully');
+      } else {
+        // Create new conversion
+        const newConversion = createUnitConversion(
+          companyId,
+          categoryId,
+          variant,
+          fromUnit,
+          toUnit,
+          conversionFactor,
+          deviceId,
+          effectiveFrom
+        );
+        console.log('🔵 Creating new conversion:', newConversion);
+        await db.cpgUnitConversions.add(newConversion);
+        setSavedConversions(prev => [...prev, newConversion]);
+        console.log('✅ Conversion saved successfully');
+      }
+
+      // Clear the input and re-check unit compatibility
+      setConversionInputs(prev => {
+        const updated = { ...prev };
+        delete updated[componentId];
+        return updated;
+      });
+
+      // Re-check unit mismatch for this component
+      const component = components.find(c => c.id === componentId);
+      if (component) {
+        // Small delay to let state update
+        setTimeout(() => {
+          checkUnitMismatch(componentId, categoryId, variant, component.unit_of_measurement);
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error saving conversion:', error);
+    } finally {
+      setSavingConversion(null);
     }
   };
 
@@ -673,9 +908,7 @@ export function RecipeBuilder({
             const hasVariants =
               category && category.variants && category.variants.length > 0;
             const costInfo = costBreakdown.find(
-              (c) =>
-                c.category_id === component.category_id &&
-                normalizeVariant(c.variant) === normalizeVariant(component.variant)
+              (c) => c.componentId === component.id
             );
 
             const isHighlighted = component.id === highlightedComponentId;
@@ -774,17 +1007,21 @@ export function RecipeBuilder({
                       className={styles.select}
                     >
                       <optgroup label="Weight">
-                        <option value="oz">oz</option>
-                        <option value="lb">lb</option>
+                        <option value="mg">mg</option>
                         <option value="g">g</option>
                         <option value="kg">kg</option>
+                        <option value="oz">oz</option>
+                        <option value="lb">lb</option>
                       </optgroup>
                       <optgroup label="Volume">
                         <option value="ml">ml</option>
-                        <option value="L">L</option>
+                        <option value="tsp">tsp</option>
+                        <option value="tbsp">tbsp</option>
                         <option value="fl oz">fl oz</option>
                         <option value="cup">cup</option>
+                        <option value="pt">pt</option>
                         <option value="qt">qt</option>
+                        <option value="L">L</option>
                         <option value="gal">gal</option>
                       </optgroup>
                       <optgroup label="Count">
@@ -834,14 +1071,29 @@ export function RecipeBuilder({
                           ${costInfo.subtotal}
                         </span>
                       ) : (
-                        <span className={styles.costMissing} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', justifyContent: 'flex-end', fontSize: '0.875rem' }}>
-                          <span className={styles.warningIcon}>⚠️</span>
-                          <span>Add invoices</span>
-                          <HelpTooltip
-                            content={`Once you enter invoices for ${category?.name || 'this category'}${component.variant ? ` (${component.variant})` : ''}, we'll automatically calculate the cost per unit. Go to the Invoice Timeline below to add your invoices.`}
-                            position="left"
-                          />
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setShowAddInvoiceModal(true)}
+                          className={styles.costMissing}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.375rem',
+                            justifyContent: 'flex-end',
+                            fontSize: '0.8125rem',
+                            padding: '0.25rem 0.5rem',
+                            backgroundColor: '#fef3c7',
+                            border: '1px solid #f59e0b',
+                            borderRadius: '0.375rem',
+                            color: '#92400e',
+                            cursor: 'pointer',
+                            fontWeight: 500
+                          }}
+                          title={`Add a Raw Material Purchase for ${category?.name || 'this category'}${component.variant ? ` (${component.variant})` : ''} to calculate costs`}
+                        >
+                          <span>⚠️</span>
+                          <span>Add Purchase</span>
+                        </button>
                       )
                     ) : (
                       <span className={styles.costMissing}>-</span>
@@ -861,81 +1113,352 @@ export function RecipeBuilder({
                   </div>
                 </div>
 
-                {/* Unit Mismatch Warning */}
+                {/* Unit Mismatch - Conversion Input or Warning */}
                 {unitWarnings[component.id] && (
                   <div style={{
                     marginTop: '0.5rem',
                     padding: '0.75rem 1rem',
-                    backgroundColor: '#fef3c7',
-                    border: '2px solid #f59e0b',
+                    backgroundColor: unitWarnings[component.id].hasConversionButDateRestricted
+                      ? '#fefce8' // Light yellow for date-restricted
+                      : unitWarnings[component.id].canConvert ? '#f0f9ff' : '#fef3c7',
+                    border: `2px solid ${unitWarnings[component.id].hasConversionButDateRestricted
+                      ? '#eab308' // Yellow for date-restricted
+                      : unitWarnings[component.id].canConvert ? '#0ea5e9' : '#f59e0b'}`,
                     borderRadius: '0.375rem',
                     fontSize: '0.875rem',
-                    color: '#92400e'
+                    color: unitWarnings[component.id].hasConversionButDateRestricted
+                      ? '#854d0e' // Dark yellow text
+                      : unitWarnings[component.id].canConvert ? '#0369a1' : '#92400e'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
-                         onClick={() => setExpandedWarnings(prev => ({ ...prev, [component.id]: !prev[component.id] }))}>
-                      <span style={{ fontSize: '1.125rem', flexShrink: 0 }}>⚠️</span>
-                      <div style={{ fontWeight: 600, flex: 1 }}>
-                        {unitWarnings[component.id].count} {unitWarnings[component.id].count === 1 ? 'invoice uses' : 'invoices use'} incompatible units
-                      </div>
-                      <span style={{ fontSize: '0.75rem', color: '#92400e', fontWeight: 600 }}>
-                        {expandedWarnings[component.id] ? '[Hide Details ▲]' : '[Show Details ▼]'}
-                      </span>
-                    </div>
-
-                    {expandedWarnings[component.id] && (
-                      <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #fbbf24' }}>
-                        <div style={{ marginBottom: '0.5rem', fontSize: '0.8125rem' }}>
-                          This recipe uses <strong>{UNIT_CATALOG[component.unit_of_measurement as Unit]?.label || component.unit_of_measurement}</strong>, but these invoices can't auto-convert:
+                    {unitWarnings[component.id].hasConversionButDateRestricted ? (
+                      // Conversion exists but is date-restricted - show informational message
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                          <span style={{ fontSize: '1.125rem' }}>&#9432;</span>
+                          <div>
+                            <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>
+                              Conversion Not Applied to Historical Invoices
+                            </div>
+                            <p style={{ margin: '0 0 0.5rem 0', lineHeight: 1.5 }}>
+                              A unit conversion exists for this category, but it was set to only apply from{' '}
+                              <strong>
+                                {unitWarnings[component.id].conversionEffectiveFrom
+                                  ? new Date(unitWarnings[component.id].conversionEffectiveFrom!).toLocaleDateString()
+                                  : 'a specific date'}
+                              </strong>{' '}
+                              forward. Some of your invoices are dated before this.
+                            </p>
+                            <p style={{ margin: 0, lineHeight: 1.5 }}>
+                              To apply the conversion to all invoices, edit the category and change the conversion to "Apply to All Data".
+                            </p>
+                          </div>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                          {unitWarnings[component.id].items.map((warning, idx) => (
-                            <div key={idx} style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              padding: '0.5rem',
-                              backgroundColor: '#fffbeb',
-                              borderRadius: '0.25rem',
-                              fontSize: '0.8125rem'
-                            }}>
-                              <div>
-                                • <strong>{warning.invoiceNumber}</strong> ({warning.invoiceDate}): Uses {warning.invoiceUnit}
-                              </div>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
+                        <div style={{ marginTop: '0.75rem' }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPreSelectedCategoryId(unitWarnings[component.id].categoryId);
+                              setShowCategoryManager(true);
+                            }}
+                            style={{
+                              padding: '0.5rem 1rem',
+                              backgroundColor: '#4b006e',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.875rem',
+                              fontWeight: 600,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Fix This
+                          </button>
+                        </div>
+                      </div>
+                    ) : unitWarnings[component.id].canConvert ? (
+                      // Weight↔Volume mismatch - show fully editable conversion input
+                      (() => {
+                        const warning = unitWarnings[component.id];
+                        const recipeUnitType = getUnitType(component.unit_of_measurement as Unit);
+                        const isRecipeVolume = recipeUnitType === 'volume';
 
-                                  if (!onNavigateToInvoice) {
-                                    alert('Navigation not configured');
-                                    return;
+                        // Get current values or defaults
+                        const inputs = conversionInputs[component.id] || {
+                          leftQty: '1',
+                          leftUnit: warning.convertibleUnit || (isRecipeVolume ? 'lb' : 'cup'),
+                          rightQty: '',
+                          rightUnit: component.unit_of_measurement
+                        };
+
+                        const updateInput = (field: string, value: string) => {
+                          setConversionInputs(prev => ({
+                            ...prev,
+                            [component.id]: { ...inputs, [field]: value }
+                          }));
+                        };
+
+                        // Determine which units go in which dropdown based on what's selected
+                        const leftUnitType = getUnitType(inputs.leftUnit as Unit);
+                        const showWeightOnLeft = leftUnitType === 'weight';
+
+                        return (
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                              <span style={{ fontSize: '1rem' }}>Unit Conversion Needed</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                              {/* Left quantity */}
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                placeholder="1"
+                                value={inputs.leftQty}
+                                onChange={(e) => updateInput('leftQty', e.target.value)}
+                                style={{
+                                  width: '60px',
+                                  padding: '0.375rem 0.5rem',
+                                  border: '1px solid #0ea5e9',
+                                  borderRadius: '0.25rem',
+                                  fontSize: '0.875rem',
+                                  textAlign: 'center'
+                                }}
+                              />
+                              {/* Left unit dropdown */}
+                              <select
+                                value={inputs.leftUnit}
+                                onChange={(e) => {
+                                  const newLeftUnit = e.target.value;
+                                  const newLeftType = getUnitType(newLeftUnit as Unit);
+                                  // If user switches type, swap the right unit to opposite type
+                                  let newRightUnit = inputs.rightUnit;
+                                  if (newLeftType === getUnitType(inputs.rightUnit as Unit)) {
+                                    // Same type - need to swap right to opposite
+                                    newRightUnit = newLeftType === 'weight' ? 'cup' : 'lb';
                                   }
-
-                                  // Show branded confirmation modal
-                                  setConfirmNavigation({
-                                    invoiceId: warning.invoiceId,
-                                    invoiceNumber: warning.invoiceNumber
-                                  });
+                                  setConversionInputs(prev => ({
+                                    ...prev,
+                                    [component.id]: { ...inputs, leftUnit: newLeftUnit, rightUnit: newRightUnit }
+                                  }));
                                 }}
                                 style={{
-                                  padding: '0.25rem 0.5rem',
-                                  fontSize: '0.75rem',
-                                  color: '#7c3aed',
-                                  backgroundColor: 'transparent',
-                                  border: '1px solid #7c3aed',
+                                  padding: '0.375rem 0.5rem',
+                                  border: '1px solid #0ea5e9',
                                   borderRadius: '0.25rem',
-                                  cursor: 'pointer',
-                                  fontWeight: 500,
-                                  whiteSpace: 'nowrap'
+                                  fontSize: '0.875rem',
+                                  backgroundColor: 'white'
                                 }}
                               >
-                                Edit Invoice →
+                                <optgroup label="Weight">
+                                  <option value="mg">mg</option>
+                                  <option value="g">g</option>
+                                  <option value="kg">kg</option>
+                                  <option value="oz">oz</option>
+                                  <option value="lb">lb</option>
+                                </optgroup>
+                                <optgroup label="Volume">
+                                  <option value="ml">ml</option>
+                                  <option value="tsp">tsp</option>
+                                  <option value="tbsp">tbsp</option>
+                                  <option value="fl oz">fl oz</option>
+                                  <option value="cup">cup</option>
+                                  <option value="pt">pt</option>
+                                  <option value="qt">qt</option>
+                                  <option value="L">L</option>
+                                  <option value="gal">gal</option>
+                                </optgroup>
+                              </select>
+
+                              <span style={{ fontWeight: 600, fontSize: '1.125rem' }}>=</span>
+
+                              {/* Right quantity */}
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                placeholder="?"
+                                value={inputs.rightQty}
+                                onChange={(e) => updateInput('rightQty', e.target.value)}
+                                style={{
+                                  width: '60px',
+                                  padding: '0.375rem 0.5rem',
+                                  border: '1px solid #0ea5e9',
+                                  borderRadius: '0.25rem',
+                                  fontSize: '0.875rem',
+                                  textAlign: 'center'
+                                }}
+                              />
+                              {/* Right unit dropdown */}
+                              <select
+                                value={inputs.rightUnit}
+                                onChange={(e) => {
+                                  const newRightUnit = e.target.value;
+                                  const newRightType = getUnitType(newRightUnit as Unit);
+                                  // If user switches type, swap the left unit to opposite type
+                                  let newLeftUnit = inputs.leftUnit;
+                                  if (newRightType === getUnitType(inputs.leftUnit as Unit)) {
+                                    // Same type - need to swap left to opposite
+                                    newLeftUnit = newRightType === 'weight' ? 'cup' : 'lb';
+                                  }
+                                  setConversionInputs(prev => ({
+                                    ...prev,
+                                    [component.id]: { ...inputs, rightUnit: newRightUnit, leftUnit: newLeftUnit }
+                                  }));
+                                }}
+                                style={{
+                                  padding: '0.375rem 0.5rem',
+                                  border: '1px solid #0ea5e9',
+                                  borderRadius: '0.25rem',
+                                  fontSize: '0.875rem',
+                                  backgroundColor: 'white'
+                                }}
+                              >
+                                <optgroup label="Weight">
+                                  <option value="mg">mg</option>
+                                  <option value="g">g</option>
+                                  <option value="kg">kg</option>
+                                  <option value="oz">oz</option>
+                                  <option value="lb">lb</option>
+                                </optgroup>
+                                <optgroup label="Volume">
+                                  <option value="ml">ml</option>
+                                  <option value="tsp">tsp</option>
+                                  <option value="tbsp">tbsp</option>
+                                  <option value="fl oz">fl oz</option>
+                                  <option value="cup">cup</option>
+                                  <option value="pt">pt</option>
+                                  <option value="qt">qt</option>
+                                  <option value="L">L</option>
+                                  <option value="gal">gal</option>
+                                </optgroup>
+                              </select>
+
+                              <button
+                                type="button"
+                                disabled={
+                                  !inputs.leftQty || parseFloat(inputs.leftQty) <= 0 ||
+                                  !inputs.rightQty || parseFloat(inputs.rightQty) <= 0 ||
+                                  getUnitType(inputs.leftUnit as Unit) === getUnitType(inputs.rightUnit as Unit) ||
+                                  savingConversion === component.id
+                                }
+                                onClick={() => {
+                                  const leftQty = parseFloat(inputs.leftQty);
+                                  const rightQty = parseFloat(inputs.rightQty);
+
+                                  if (leftQty > 0 && rightQty > 0) {
+                                    // Normalize to "1 weight unit = X volume units"
+                                    const leftType = getUnitType(inputs.leftUnit as Unit);
+
+                                    let fromUnit: string;
+                                    let toUnit: string;
+                                    let factor: number;
+
+                                    if (leftType === 'weight') {
+                                      // Already in correct format: weight = volume
+                                      fromUnit = inputs.leftUnit;
+                                      toUnit = inputs.rightUnit;
+                                      factor = rightQty / leftQty; // Normalize to 1 weight unit
+                                    } else {
+                                      // Reverse: volume = weight, need to flip
+                                      fromUnit = inputs.rightUnit;
+                                      toUnit = inputs.leftUnit;
+                                      factor = leftQty / rightQty; // How many volume units per 1 weight unit
+                                    }
+
+                                    // Show confirmation modal to ask about historical data
+                                    setPendingConversion({
+                                      componentId: component.id,
+                                      categoryId: component.category_id,
+                                      variant: component.variant,
+                                      fromUnit,
+                                      toUnit,
+                                      factor
+                                    });
+                                  }
+                                }}
+                                style={{
+                                  padding: '0.375rem 0.75rem',
+                                  fontSize: '0.8125rem',
+                                  color: 'white',
+                                  backgroundColor: savingConversion === component.id ? '#94a3b8' : '#0ea5e9',
+                                  border: 'none',
+                                  borderRadius: '0.25rem',
+                                  cursor: savingConversion === component.id ? 'wait' : 'pointer',
+                                  fontWeight: 500
+                                }}
+                              >
+                                {savingConversion === component.id ? 'Saving...' : 'Save'}
                               </button>
                             </div>
-                          ))}
+                            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.5rem' }}>
+                              Enter the conversion however you know it. This will be saved for all {categories.find(c => c.id === component.category_id)?.name}{component.variant ? ` (${component.variant})` : ''} recipes.
+                            </div>
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      // Truly incompatible (e.g., weight↔count) - show warning
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                             onClick={() => setExpandedWarnings(prev => ({ ...prev, [component.id]: !prev[component.id] }))}>
+                          <span style={{ fontSize: '1.125rem', flexShrink: 0 }}>⚠️</span>
+                          <div style={{ fontWeight: 600, flex: 1 }}>
+                            {unitWarnings[component.id].count} {unitWarnings[component.id].count === 1 ? 'invoice uses' : 'invoices use'} incompatible units
+                          </div>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                            {expandedWarnings[component.id] ? '[Hide ▲]' : '[Show ▼]'}
+                          </span>
                         </div>
-                      </div>
+
+                        {expandedWarnings[component.id] && (
+                          <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #fbbf24' }}>
+                            <div style={{ marginBottom: '0.5rem', fontSize: '0.8125rem' }}>
+                              This recipe uses <strong>{UNIT_CATALOG[component.unit_of_measurement as Unit]?.label || component.unit_of_measurement}</strong>, but these units can't be converted:
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                              {unitWarnings[component.id].items.map((warning, idx) => (
+                                <div key={idx} style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  padding: '0.5rem',
+                                  backgroundColor: '#fffbeb',
+                                  borderRadius: '0.25rem',
+                                  fontSize: '0.8125rem'
+                                }}>
+                                  <div>
+                                    {warning.invoiceNumber}: Uses {warning.invoiceUnit}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (onNavigateToInvoice) {
+                                        setConfirmNavigation({
+                                          invoiceId: warning.invoiceId,
+                                          invoiceNumber: warning.invoiceNumber
+                                        });
+                                      }
+                                    }}
+                                    style={{
+                                      padding: '0.25rem 0.5rem',
+                                      fontSize: '0.75rem',
+                                      color: '#7c3aed',
+                                      backgroundColor: 'transparent',
+                                      border: '1px solid #7c3aed',
+                                      borderRadius: '0.25rem',
+                                      cursor: 'pointer',
+                                      fontWeight: 500
+                                    }}
+                                  >
+                                    Edit Invoice
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
@@ -1214,6 +1737,190 @@ export function RecipeBuilder({
           </div>
         </div>
       )}
+
+      {/* Conversion Historical Data Confirmation Modal */}
+      {pendingConversion && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10001
+          }}
+          onClick={() => setPendingConversion(null)}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '0.75rem',
+              padding: '2rem',
+              maxWidth: '500px',
+              width: '90%',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{
+              margin: '0 0 1rem 0',
+              fontSize: '1.25rem',
+              fontWeight: 600,
+              color: '#111827'
+            }}>
+              Apply Conversion to Historical Data?
+            </h3>
+
+            <p style={{
+              margin: '0 0 1.5rem 0',
+              color: '#6b7280',
+              lineHeight: 1.5
+            }}>
+              This conversion will be used to calculate costs. How would you like to apply it?
+            </p>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem'
+            }}>
+              <button
+                type="button"
+                onClick={() => {
+                  const { componentId, categoryId, variant, fromUnit, toUnit, factor } = pendingConversion;
+                  setPendingConversion(null);
+                  saveConversion(componentId, categoryId, variant, fromUnit, toUnit, factor, null);
+                }}
+                style={{
+                  padding: '0.875rem 1rem',
+                  backgroundColor: '#0ea5e9',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                <div>Apply to All Data</div>
+                <div style={{ fontSize: '0.8125rem', fontWeight: 400, marginTop: '0.25rem', opacity: 0.9 }}>
+                  Recalculate costs for all historical invoices and recipes
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const { componentId, categoryId, variant, fromUnit, toUnit, factor } = pendingConversion;
+                  setPendingConversion(null);
+                  // Set effective_from to start of today
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  saveConversion(componentId, categoryId, variant, fromUnit, toUnit, factor, today.getTime());
+                }}
+                style={{
+                  padding: '0.875rem 1rem',
+                  backgroundColor: '#f1f5f9',
+                  color: '#334155',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                <div>Lock Historical Data</div>
+                <div style={{ fontSize: '0.8125rem', fontWeight: 400, marginTop: '0.25rem', opacity: 0.8 }}>
+                  Only apply to invoices from today forward
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPendingConversion(null)}
+                style={{
+                  padding: '0.625rem 1rem',
+                  backgroundColor: 'transparent',
+                  color: '#6b7280',
+                  border: 'none',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  marginTop: '0.25rem'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category Manager Modal */}
+      {showCategoryManager && companyId && (
+        <CategoryManager
+          companyId={companyId}
+          categories={categories}
+          preSelectedCategoryId={preSelectedCategoryId}
+          onClose={() => {
+            setShowCategoryManager(false);
+            setPreSelectedCategoryId(undefined);
+          }}
+          onSaved={async () => {
+            // Reload categories and conversions after changes
+            const cats = await db.cpgCategories
+              .where('company_id')
+              .equals(companyId)
+              .filter((c) => c.active && !c.deleted_at)
+              .sortBy('name');
+            setCategories(cats);
+
+            const conversions = await db.cpgUnitConversions
+              .where('company_id')
+              .equals(companyId)
+              .filter((c) => !c.deleted_at)
+              .toArray();
+            setSavedConversions(conversions);
+
+            // Re-check unit mismatches for all components
+            components.forEach(component => {
+              if (component.category_id) {
+                checkUnitMismatch(
+                  component.id,
+                  component.category_id,
+                  component.variant,
+                  component.unit_of_measurement
+                );
+              }
+            });
+          }}
+        />
+      )}
+
+      {/* Add Invoice Modal */}
+      <AddInvoiceModal
+        isOpen={showAddInvoiceModal}
+        onClose={() => setShowAddInvoiceModal(false)}
+        onSuccess={async () => {
+          setShowAddInvoiceModal(false);
+          // Re-check unit mismatches and trigger cost recalculation
+          components.forEach(component => {
+            if (component.category_id) {
+              checkUnitMismatch(
+                component.id,
+                component.category_id,
+                component.variant,
+                component.unit_of_measurement
+              );
+            }
+          });
+        }}
+      />
     </div>
   );
 }

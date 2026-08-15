@@ -842,6 +842,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     if (type === 'weight') {
       // Convert to grams as base unit
       const weightConversions: Record<string, number> = {
+        'mg': 0.001,
         'g': 1,
         'kg': 1000,
         'oz': 28.3495,
@@ -3524,10 +3525,11 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                     >
                       {calculatorType === 'weight' ? (
                         <>
-                          <option value="oz">oz</option>
-                          <option value="lb">lb</option>
+                          <option value="mg">mg</option>
                           <option value="g">g</option>
                           <option value="kg">kg</option>
+                          <option value="oz">oz</option>
+                          <option value="lb">lb</option>
                         </>
                       ) : (
                         <>
@@ -3564,10 +3566,11 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                     >
                       {calculatorType === 'weight' ? (
                       <>
-                        <option value="oz">oz</option>
-                        <option value="lb">lb</option>
+                        <option value="mg">mg</option>
                         <option value="g">g</option>
                         <option value="kg">kg</option>
+                        <option value="oz">oz</option>
+                        <option value="lb">lb</option>
                       </>
                     ) : (
                       <>

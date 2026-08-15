@@ -28,6 +28,7 @@ export interface CPGCategory extends BaseEntity {
   description: string | null;
   variants: string[] | null; // User-defined variants (e.g., ["Small", "Large"] or ["8oz", "16oz", "32oz"] or null for no variants)
   unit_of_measure: string; // e.g., "oz", "ml", "each", "lb", "g"
+  grams_per_cup: number | null; // Density for weight↔volume conversion (e.g., flour=125, sugar=200). If set, enables converting between weight and volume units.
   sort_order: number; // Display order
   is_distribution_category: boolean; // true for S+H categories that distribute costs to other line items
   active: boolean;
@@ -55,6 +56,7 @@ export const createDefaultCPGCategory = (
     description: null,
     variants: variants || null, // User provides variants, or null for no variants
     unit_of_measure: unitOfMeasure,
+    grams_per_cup: null, // User can set this to enable weight↔volume conversion
     sort_order: 999,
     is_distribution_category: isDistributionCategory,
     active: true,
@@ -88,6 +90,58 @@ export const createShippingHandlingCategory = (
     'total', // Unit of measure
     true // This is a distribution category
   );
+};
+
+// ============================================================================
+// CPG Unit Conversion - Stores weight↔volume conversions per category+variant
+// ============================================================================
+// When a user buys in one unit type (e.g., lb) but uses another in recipes
+// (e.g., cups), this stores the conversion factor they provide.
+// Example: "Oil (Vegetable)" - 1 lb = 2.08 cups
+
+export interface CPGUnitConversion extends BaseEntity {
+  id: string;
+  company_id: string;
+  category_id: string;
+  variant: string | null;  // null means applies to category without variant
+  from_unit: string;       // e.g., 'lb' (the invoice unit)
+  to_unit: string;         // e.g., 'cup' (the recipe unit)
+  conversion_factor: number; // e.g., 2.08 means 1 lb = 2.08 cups
+  effective_from: number | null; // null = applies to all data, timestamp = only applies to invoices on or after this date
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+  version_vector: Record<string, number>;
+}
+
+export const cpgUnitConversionsSchema =
+  'id, company_id, category_id, [company_id+category_id], [company_id+category_id+variant], updated_at, deleted_at';
+
+export const createUnitConversion = (
+  companyId: string,
+  categoryId: string,
+  variant: string | null,
+  fromUnit: string,
+  toUnit: string,
+  conversionFactor: number,
+  deviceId: string,
+  effectiveFrom: number | null = null // null = apply to all historical data
+): CPGUnitConversion => {
+  const now = Date.now();
+  return {
+    id: nanoid(),
+    company_id: companyId,
+    category_id: categoryId,
+    variant: variant || null,
+    from_unit: fromUnit,
+    to_unit: toUnit,
+    conversion_factor: conversionFactor,
+    effective_from: effectiveFrom,
+    created_at: now,
+    updated_at: now,
+    deleted_at: null,
+    version_vector: { [deviceId]: 1 },
+  };
 };
 
 // ============================================================================

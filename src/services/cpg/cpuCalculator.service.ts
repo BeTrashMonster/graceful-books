@@ -42,9 +42,10 @@ import {
 import { LaborRoleService } from './laborRole.service';
 import {
   convertPricePerUnit,
+  convertUnit,
   areUnitsCompatible,
   isValidUnit,
-  getUnitMismatchWarning,
+  getUnitType,
   type Unit,
 } from '../../utils/unitConversion';
 
@@ -893,15 +894,150 @@ export class CPUCalculatorService {
             if (targetUnit && isValidUnit(targetUnit as string)) {
               const target = targetUnit as Unit;
 
-              // Check if units are compatible
-              if (!areUnitsCompatible(invoiceUnit, target)) {
-                // Get category name for warning message
-                const category = await this.db.cpgCategories.get(categoryId);
-                const productName = variant
-                  ? `${category?.name || 'Unknown'} (${variant})`
-                  : (category?.name || 'Unknown');
+              // Get category for product name
+              const category = await this.db.cpgCategories.get(categoryId);
+              const productName = variant
+                ? `${category?.name || 'Unknown'} (${variant})`
+                : (category?.name || 'Unknown');
 
-                const warningMessage = getUnitMismatchWarning(invoiceUnit, target, productName);
+              // Check if units are compatible (same type)
+              const sameTypeCompatible = areUnitsCompatible(invoiceUnit, target);
+
+              // Check for a saved conversion if not same type
+              // We look for ANY weight↔volume conversion and derive the specific one needed
+              let derivedConversionFactor: number | null = null;
+              if (!sameTypeCompatible) {
+                const invoiceUnitType = getUnitType(invoiceUnit);
+                const targetUnitType = getUnitType(target);
+
+                // Only try to derive if this is a weight↔volume mismatch
+                if ((invoiceUnitType === 'weight' && targetUnitType === 'volume') ||
+                    (invoiceUnitType === 'volume' && targetUnitType === 'weight')) {
+
+                  // Look for any saved conversion for this category+variant
+                  // Support multiple conversions with different effective_from dates
+                  // Find the BEST conversion for this invoice date (most recent that applies)
+
+                  // Helper function to filter conversions applicable to this invoice date
+                  const filterApplicable = (conversions: typeof allConversions) =>
+                    conversions.filter(c =>
+                      c.effective_from === null ||
+                      c.effective_from === undefined ||
+                      invoice.invoice_date >= c.effective_from
+                    );
+
+                  // First try exact variant match
+                  let allConversions = await this.db.cpgUnitConversions
+                    .where('company_id')
+                    .equals(invoice.company_id)
+                    .filter(c =>
+                      c.category_id === categoryId &&
+                      c.variant === variant &&
+                      !c.deleted_at
+                    )
+                    .toArray();
+
+                  // Filter to applicable by date
+                  let applicableConversions = filterApplicable(allConversions);
+
+                  // If no applicable conversions for this variant and variant is not null,
+                  // fall back to default (null variant) conversion
+                  if (applicableConversions.length === 0 && variant !== null) {
+                    const defaultConversions = await this.db.cpgUnitConversions
+                      .where('company_id')
+                      .equals(invoice.company_id)
+                      .filter(c =>
+                        c.category_id === categoryId &&
+                        c.variant === null &&
+                        !c.deleted_at
+                      )
+                      .toArray();
+
+                    const applicableDefaults = filterApplicable(defaultConversions);
+
+                    if (applicableDefaults.length > 0) {
+                      serviceLogger.debug('Using default (null variant) conversion as fallback', {
+                        categoryId,
+                        requestedVariant: variant
+                      });
+                      applicableConversions = applicableDefaults;
+                    }
+                  }
+
+                  // Sort by effective_from descending (most recent first, nulls last as fallback)
+                  // This ensures we use the most recent applicable conversion
+                  const savedConversions = applicableConversions.sort((a, b) => {
+                    if (a.effective_from === null || a.effective_from === undefined) return 1;
+                    if (b.effective_from === null || b.effective_from === undefined) return -1;
+                    return b.effective_from - a.effective_from; // Descending (most recent first)
+                  });
+
+                  // Find a conversion we can derive from
+                  for (const conv of savedConversions) {
+                    const fromType = getUnitType(conv.from_unit as Unit);
+                    const toType = getUnitType(conv.to_unit as Unit);
+
+                    // Check if this conversion bridges weight↔volume
+                    if ((fromType === 'weight' && toType === 'volume') ||
+                        (fromType === 'volume' && toType === 'weight')) {
+
+                      // Derive the needed conversion
+                      // Example: saved is lb→cup (2.08), need oz→cup
+                      // Step 1: Convert invoiceUnit to saved.from_unit (oz→lb = 0.0625)
+                      // Step 2: Apply saved conversion (0.0625 × 2.08 = 0.13)
+
+                      if (invoiceUnitType === fromType && targetUnitType === toType) {
+                        // Same direction as saved conversion
+                        // Convert invoiceUnit → saved.from_unit, then apply saved factor, then saved.to_unit → target
+                        const step1 = convertUnit(1, invoiceUnit, conv.from_unit as Unit);
+                        const step3 = convertUnit(1, conv.to_unit as Unit, target);
+
+                        if (step1 !== null && step3 !== null) {
+                          derivedConversionFactor = step1 * conv.conversion_factor * step3;
+                          serviceLogger.debug('Derived conversion (same direction)', {
+                            invoiceUnit,
+                            target,
+                            savedFrom: conv.from_unit,
+                            savedTo: conv.to_unit,
+                            savedFactor: conv.conversion_factor,
+                            step1,
+                            step3,
+                            derivedFactor: derivedConversionFactor
+                          });
+                          break;
+                        }
+                      } else if (invoiceUnitType === toType && targetUnitType === fromType) {
+                        // Opposite direction - need to invert
+                        // Example: saved is lb→cup (2.08), need cup→oz
+                        // Inverted: cup→lb = 1/2.08, then lb→oz
+                        const invertedFactor = 1 / conv.conversion_factor;
+                        const step1 = convertUnit(1, invoiceUnit, conv.to_unit as Unit);
+                        const step3 = convertUnit(1, conv.from_unit as Unit, target);
+
+                        if (step1 !== null && step3 !== null) {
+                          derivedConversionFactor = step1 * invertedFactor * step3;
+                          serviceLogger.debug('Derived conversion (inverted)', {
+                            invoiceUnit,
+                            target,
+                            savedFrom: conv.from_unit,
+                            savedTo: conv.to_unit,
+                            savedFactor: conv.conversion_factor,
+                            invertedFactor,
+                            step1,
+                            step3,
+                            derivedFactor: derivedConversionFactor
+                          });
+                          break;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              if (!sameTypeCompatible && derivedConversionFactor === null) {
+                // Units cannot be converted - no saved conversion exists
+                const warningMessage = `Unit mismatch for ${productName}: Invoice uses ${invoiceUnit}, recipe uses ${target}. Add a conversion in the recipe builder.`;
 
                 if (warningMessage && warnings) {
                   warnings.push(warningMessage);
@@ -921,29 +1057,44 @@ export class CPUCalculatorService {
               }
 
               // Convert units: if invoice is in "lb" and target is "oz", convert lineUnits from lb to oz
-              // This way the CPU will be in the target unit
               // Example: 5 lb @ $80 total = $16/lb
               //          Convert: 5 lb = 80 oz, so $80 / 80 oz = $1/oz
-              const convertedUnits = convertPricePerUnit(1, invoiceUnit, target);
+              if (derivedConversionFactor !== null) {
+                // Use derived conversion factor (from any saved weight↔volume conversion)
+                // This allows one conversion (e.g., lb→cup) to work for all weight↔volume pairs
+                const conversionFactor = new Decimal(derivedConversionFactor);
+                lineUnits = lineUnits.times(conversionFactor);
 
-              if (convertedUnits !== null) {
-                // convertPricePerUnit gives us the conversion factor for prices
-                // But we need to convert quantities, which is the inverse
-                // If 1 lb = 16 oz, then to convert 5 lb to oz: 5 * 16 = 80 oz
-                // The factor from convertPricePerUnit(1, 'lb', 'oz') = 1/16
-                // So we need the inverse: 1 / (1/16) = 16
-                const quantityConversionFactor = new Decimal(1).dividedBy(convertedUnits);
-                lineUnits = lineUnits.times(quantityConversionFactor);
-
-                serviceLogger.debug('Unit conversion applied', {
+                serviceLogger.debug('Unit conversion applied (derived)', {
                   categoryId,
                   variant,
                   fromUnit: invoiceUnit,
                   toUnit: target,
                   originalUnits: attr.units_received || attr.units_purchased,
                   convertedUnits: lineUnits.toFixed(4),
+                  derivedConversionFactor,
                   invoiceId: invoice.id
                 });
+              } else if (sameTypeCompatible) {
+                // Same type conversion (oz↔lb, cup↔tbsp, etc.)
+                const convertedUnits = convertPricePerUnit(1, invoiceUnit, target);
+
+                if (convertedUnits !== null) {
+                  // convertPricePerUnit gives us the conversion factor for prices
+                  // But we need to convert quantities, which is the inverse
+                  const quantityConversionFactor = new Decimal(1).dividedBy(convertedUnits);
+                  lineUnits = lineUnits.times(quantityConversionFactor);
+
+                  serviceLogger.debug('Unit conversion applied (same-type)', {
+                    categoryId,
+                    variant,
+                    fromUnit: invoiceUnit,
+                    toUnit: target,
+                    originalUnits: attr.units_received || attr.units_purchased,
+                    convertedUnits: lineUnits.toFixed(4),
+                    invoiceId: invoice.id
+                  });
+                }
               }
             }
 

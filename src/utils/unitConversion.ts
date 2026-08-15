@@ -2,7 +2,8 @@
  * Unit Conversion Utility
  *
  * Handles automatic conversions between different units of measurement
- * for CPG invoices and recipes. Supports weight, volume, and count conversions.
+ * for CPG invoices and recipes. Supports weight, volume, count conversions,
+ * and density-based weight-to-volume conversions (e.g., lb to cups for flour).
  */
 
 export type UnitType = 'weight' | 'volume' | 'count' | 'each';
@@ -161,4 +162,170 @@ export function isValidUnit(unit: string): unit is Unit {
  */
 export function getUnitType(unit: Unit): UnitType | null {
   return UNIT_CATALOG[unit]?.type || null;
+}
+
+// ============================================================================
+// DENSITY-BASED WEIGHT ↔ VOLUME CONVERSIONS
+// ============================================================================
+// These functions enable converting between weight and volume units when
+// the ingredient's density (grams per cup) is known.
+//
+// Common densities (grams per cup):
+// - All-purpose flour: 125g
+// - Bread flour: 127g
+// - Sugar (granulated): 200g
+// - Brown sugar (packed): 220g
+// - Powdered sugar: 120g
+// - Butter: 227g
+// - Milk: 245g
+// - Water: 237g
+// - Vegetable oil: 218g
+// - Honey: 340g
+// - Salt (table): 288g
+// - Cocoa powder: 85g
+// ============================================================================
+
+// 1 cup = 236.588 ml (US cup)
+const ML_PER_CUP = 236.588;
+
+/**
+ * Check if weight↔volume conversion is possible with density
+ */
+export function canConvertWithDensity(
+  fromUnit: Unit,
+  toUnit: Unit,
+  gramsPerCup: number | null | undefined
+): boolean {
+  if (!gramsPerCup || gramsPerCup <= 0) return false;
+
+  const fromType = getUnitType(fromUnit);
+  const toType = getUnitType(toUnit);
+
+  if (!fromType || !toType) return false;
+
+  // One must be weight, other must be volume
+  return (fromType === 'weight' && toType === 'volume') ||
+         (fromType === 'volume' && toType === 'weight');
+}
+
+/**
+ * Convert between weight and volume units using density (grams per cup)
+ *
+ * @param quantity - The quantity to convert
+ * @param fromUnit - Source unit (weight or volume)
+ * @param toUnit - Target unit (volume or weight)
+ * @param gramsPerCup - Density of the ingredient (grams per 1 cup)
+ * @returns Converted quantity, or null if conversion not possible
+ *
+ * @example
+ * // 3 lb flour to cups (flour = 125 g/cup)
+ * convertUnitWithDensity(3, 'lb', 'cup', 125) => 10.89 cups
+ *
+ * // 2 cups flour to oz
+ * convertUnitWithDensity(2, 'cup', 'oz', 125) => 8.82 oz
+ */
+export function convertUnitWithDensity(
+  quantity: number,
+  fromUnit: Unit,
+  toUnit: Unit,
+  gramsPerCup: number | null | undefined
+): number | null {
+  // Same unit - no conversion needed
+  if (fromUnit === toUnit) return quantity;
+
+  // Try same-type conversion first (doesn't need density)
+  if (areUnitsCompatible(fromUnit, toUnit)) {
+    return convertUnit(quantity, fromUnit, toUnit);
+  }
+
+  // Check if density-based conversion is possible
+  if (!canConvertWithDensity(fromUnit, toUnit, gramsPerCup)) {
+    return null;
+  }
+
+  const fromDef = UNIT_CATALOG[fromUnit];
+  const toDef = UNIT_CATALOG[toUnit];
+  const fromType = fromDef.type;
+  const toType = toDef.type;
+
+  // Calculate grams per ml from grams per cup
+  const gramsPerMl = gramsPerCup! / ML_PER_CUP;
+
+  if (fromType === 'weight' && toType === 'volume') {
+    // Weight → Volume: convert weight to grams, then to ml, then to target volume
+    const inGrams = quantity * fromDef.toBaseMultiplier;
+    const inMl = inGrams / gramsPerMl;
+    const inTargetVolume = inMl / toDef.toBaseMultiplier;
+    return inTargetVolume;
+  } else if (fromType === 'volume' && toType === 'weight') {
+    // Volume → Weight: convert volume to ml, then to grams, then to target weight
+    const inMl = quantity * fromDef.toBaseMultiplier;
+    const inGrams = inMl * gramsPerMl;
+    const inTargetWeight = inGrams / toDef.toBaseMultiplier;
+    return inTargetWeight;
+  }
+
+  return null;
+}
+
+/**
+ * Convert a price per unit between weight and volume using density
+ *
+ * @example
+ * // Flour costs $5/lb, what's the cost per cup? (flour = 125 g/cup)
+ * convertPricePerUnitWithDensity(5, 'lb', 'cup', 125) => $1.38/cup
+ */
+export function convertPricePerUnitWithDensity(
+  pricePerUnit: number,
+  fromUnit: Unit,
+  toUnit: Unit,
+  gramsPerCup: number | null | undefined
+): number | null {
+  // Same unit - no conversion needed
+  if (fromUnit === toUnit) return pricePerUnit;
+
+  // Try same-type conversion first
+  if (areUnitsCompatible(fromUnit, toUnit)) {
+    return convertPricePerUnit(pricePerUnit, fromUnit, toUnit);
+  }
+
+  // Use density-based conversion
+  const converted = convertUnitWithDensity(1, fromUnit, toUnit, gramsPerCup);
+  if (converted === null) return null;
+
+  // Price per unit goes inversely
+  return pricePerUnit / converted;
+}
+
+/**
+ * Get mismatch warning message (density-aware version)
+ * Returns null if units can be converted (either same type or with density)
+ */
+export function getUnitMismatchWarningWithDensity(
+  invoiceUnit: Unit,
+  recipeUnit: Unit,
+  productName: string,
+  gramsPerCup: number | null | undefined
+): string | null {
+  // Same type units are always compatible
+  if (areUnitsCompatible(invoiceUnit, recipeUnit)) {
+    return null;
+  }
+
+  // Check if density-based conversion is possible
+  if (canConvertWithDensity(invoiceUnit, recipeUnit, gramsPerCup)) {
+    return null; // Can convert with density
+  }
+
+  // Check if density WOULD help (weight↔volume mismatch)
+  const fromType = getUnitType(invoiceUnit);
+  const toType = getUnitType(recipeUnit);
+
+  if ((fromType === 'weight' && toType === 'volume') ||
+      (fromType === 'volume' && toType === 'weight')) {
+    return `Unit conversion needed for ${productName}: Invoice uses ${formatUnit(invoiceUnit)}, recipe uses ${formatUnit(recipeUnit)}. Set "Grams per Cup" on this ingredient to enable automatic conversion.`;
+  }
+
+  // Truly incompatible (e.g., weight↔count)
+  return `Unit mismatch for ${productName}: Invoice uses ${formatUnit(invoiceUnit)}, but recipe uses ${formatUnit(recipeUnit)}. These units cannot be automatically converted.`;
 }
