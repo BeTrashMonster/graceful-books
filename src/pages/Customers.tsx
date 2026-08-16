@@ -1,11 +1,13 @@
 /**
  * Customers Page
  *
- * Main page for viewing and managing customers.
+ * Main page for viewing and managing customers with tabbed interface.
  * Provides full CRUD operations with modal-based forms.
  *
  * Features:
- * - View all customers
+ * - Tabbed interface: Customer Center, Invoices
+ * - Tab pinning for default tab preference
+ * - Customer Center with insights, transaction history, and profile editing
  * - Create new customers
  * - Edit existing customers
  * - Delete customers (with confirmation)
@@ -17,13 +19,20 @@
  */
 
 import { type FC, useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useCustomers } from '../hooks/useCustomers'
 import { useAuth } from '../contexts/AuthContext'
-import { CustomerList } from '../components/customers/CustomerList'
+import { useTabPinning } from '../hooks/useTabPinning'
+import { PAGE_IDS, TAB_IDS } from '../db/schema/tabPreferences.schema'
 import { CustomerForm, type CustomerFormData } from '../components/customers/CustomerForm'
+import { CustomerInsights } from '../components/customers/CustomerInsights'
 import { Modal } from '../components/modals/Modal'
 import { Button } from '../components/core/Button'
+import { PinIcon } from '../components/common/PinIcon'
 import type { Contact } from '../types'
+import styles from './Customers.module.css'
+
+type CustomerTab = 'customer-center' | 'invoices'
 
 export interface CustomersProps {
   /**
@@ -47,6 +56,92 @@ const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
   // Use prop companyId, then auth context, then fallback to 'demo-company'
   // IMPORTANT: Must match the fallback in Transactions.tsx and other pages
   const companyId = propCompanyId || authCompanyId || 'demo-company'
+
+  // Tab pinning
+  const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
+    pageId: PAGE_IDS.CUSTOMERS,
+  })
+
+  // URL search params for tab navigation (e.g., /customers?tab=invoices)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tabFromUrl = searchParams.get('tab') as CustomerTab | null
+
+  // Map schema tab IDs to component tab IDs
+  const mapSchemaToTab = (schemaTabId: string): CustomerTab => {
+    switch (schemaTabId) {
+      case TAB_IDS.CUSTOMERS_INVOICES:
+        return 'invoices'
+      case TAB_IDS.CUSTOMERS_CENTER:
+      default:
+        return 'customer-center'
+    }
+  }
+
+  const mapTabToSchema = (tab: CustomerTab): string => {
+    switch (tab) {
+      case 'invoices':
+        return TAB_IDS.CUSTOMERS_INVOICES
+      case 'customer-center':
+      default:
+        return TAB_IDS.CUSTOMERS_CENTER
+    }
+  }
+
+  const [currentTab, setCurrentTab] = useState<CustomerTab>('customer-center')
+  const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({})
+
+  // Set initial tab from URL param, then pinned preference
+  useEffect(() => {
+    if (tabFromUrl && ['customer-center', 'invoices'].includes(tabFromUrl)) {
+      setCurrentTab(tabFromUrl)
+    } else if (!isPinningLoading && defaultTab) {
+      setCurrentTab(mapSchemaToTab(defaultTab))
+    }
+  }, [tabFromUrl, defaultTab, isPinningLoading])
+
+  // Load pinned tabs state
+  useEffect(() => {
+    const loadPinnedState = async () => {
+      const states: Record<string, boolean> = {}
+      const tabIds: CustomerTab[] = ['customer-center', 'invoices']
+      for (const tab of tabIds) {
+        states[tab] = await isTabPinned(mapTabToSchema(tab))
+      }
+      setPinnedTabs(states)
+    }
+    loadPinnedState()
+  }, [isTabPinned])
+
+  // Handle tab change - update URL
+  const handleTabChange = (tab: CustomerTab) => {
+    setCurrentTab(tab)
+    if (tab === 'customer-center') {
+      searchParams.delete('tab')
+    } else {
+      searchParams.set('tab', tab)
+    }
+    setSearchParams(searchParams, { replace: true })
+  }
+
+  // Handle pin toggle
+  const handlePinToggle = async (tab: CustomerTab) => {
+    try {
+      const schemaTabId = mapTabToSchema(tab)
+      if (pinnedTabs[tab]) {
+        await unpinTab()
+        setPinnedTabs((prev) => ({ ...prev, [tab]: false }))
+      } else {
+        await pinTab(schemaTabId)
+        // Only one tab can be pinned
+        setPinnedTabs({
+          'customer-center': tab === 'customer-center',
+          'invoices': tab === 'invoices',
+        })
+      }
+    } catch (error) {
+      console.error('Failed to toggle pin:', error)
+    }
+  }
 
   const {
     customers,
@@ -81,10 +176,6 @@ const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
 
   const handleEdit = (customer: Contact) => {
     setModalState({ type: 'edit', customer })
-  }
-
-  const handleDelete = (customer: Contact) => {
-    setModalState({ type: 'delete', customer })
   }
 
   const handleCloseModal = () => {
@@ -146,23 +237,65 @@ const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
     }
   }
 
+  // Type assertion for customer to Contact
+  const handleDeleteFromInsights = (customer: Contact) => {
+    setModalState({ type: 'delete', customer })
+  }
+
   return (
-    <div style={{ padding: '2rem' }}>
-      <header style={{ marginBottom: '2rem' }}>
+    <div className={styles.container}>
+      <header className={styles.header}>
         <h1>Customers</h1>
-        <p style={{ color: '#6b7280' }}>
-          Manage your customer relationships - the heart of your business
-        </p>
+        <p>Manage your customer relationships - the heart of your business</p>
       </header>
 
-      <CustomerList
-        customers={customers}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onCreate={handleCreate}
-        isLoading={isLoading}
-        customerCount={showCelebration ? customers.length : undefined}
-      />
+      {/* Tab Selector */}
+      <div className={styles.tabSelector}>
+        <button
+          className={currentTab === 'customer-center' ? styles.tabActive : styles.tab}
+          onClick={() => handleTabChange('customer-center')}
+        >
+          Customer Center
+          <PinIcon
+            isPinned={pinnedTabs['customer-center'] || false}
+            onClick={() => handlePinToggle('customer-center')}
+            size={14}
+          />
+        </button>
+        <button
+          className={currentTab === 'invoices' ? styles.tabActive : styles.tab}
+          onClick={() => handleTabChange('invoices')}
+        >
+          Invoices
+          <PinIcon
+            isPinned={pinnedTabs['invoices'] || false}
+            onClick={() => handlePinToggle('invoices')}
+            size={14}
+          />
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className={styles.tabContent}>
+        {currentTab === 'customer-center' && (
+          <CustomerInsights
+            companyId={companyId}
+            customers={customers}
+            onEditCustomer={handleEdit}
+            onCreateCustomer={handleCreate}
+            isLoading={isLoading}
+          />
+        )}
+
+        {currentTab === 'invoices' && (
+          <div className={styles.invoicesTab}>
+            <div className={styles.comingSoon}>
+              <h2>Invoices</h2>
+              <p>Full invoice management coming soon. For now, use Customer Center to view invoice activity.</p>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Create/Edit Modal */}
       {(modalState.type === 'create' || modalState.type === 'edit') && (

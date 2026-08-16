@@ -12,3 +12,6 @@ export type { CustomerCardProps } from './CustomerCard'
 
 export { CustomerList } from './CustomerList'
 export type { CustomerListProps } from './CustomerList'
+
+export { CustomerInsights } from './CustomerInsights'
+export type { CustomerInsightsProps } from './CustomerInsights'

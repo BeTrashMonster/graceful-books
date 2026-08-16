@@ -37,6 +37,7 @@ export const PAGE_IDS = {
   FINANCIAL_ENTRY: 'financial-entry',
   STRATEGY_PLANNING: 'strategy-planning',
   VENDORS: 'vendors',
+  CUSTOMERS: 'customers',
 } as const;
 
 /**
@@ -88,6 +89,10 @@ export const TAB_IDS = {
   VENDORS_BILLS: 'bills',
   VENDORS_RECEIPTS: 'receipts',
   VENDORS_INSIGHTS: 'insights',
+
+  // Customers tabs
+  CUSTOMERS_CENTER: 'customer-center',
+  CUSTOMERS_INVOICES: 'invoices',
 } as const;
 
 /**
@@ -103,4 +108,5 @@ export const DEFAULT_TABS = {
   [PAGE_IDS.FINANCIAL_ENTRY]: TAB_IDS.FINANCIAL_PL,
   [PAGE_IDS.STRATEGY_PLANNING]: TAB_IDS.STRATEGY_WHAT_IF,
   [PAGE_IDS.VENDORS]: TAB_IDS.VENDORS_CENTER,
+  [PAGE_IDS.CUSTOMERS]: TAB_IDS.CUSTOMERS_CENTER,
 } as const;

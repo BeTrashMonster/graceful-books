@@ -797,34 +797,66 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
 
         {/* Selected Vendor Header (right) */}
         <div className={styles.selectedVendorBox}>
-          {selectedVendor ? (
+          {selectedVendor && selectedVendorFull ? (
             <>
-              <div className={styles.selectedVendorLeft}>
-                <div className={styles.selectedVendorNameRow}>
-                  <h3 className={styles.selectedVendorName}>{selectedVendor.vendorName}</h3>
-                  {selectedVendor.is1099Eligible && (
-                    <span className={styles.selected1099Badge}>1099</span>
+              <div className={styles.selectedVendorTop}>
+                <div className={styles.selectedVendorLeft}>
+                  <div className={styles.selectedVendorNameRow}>
+                    <h3 className={styles.selectedVendorName}>{selectedVendor.vendorName}</h3>
+                    {selectedVendor.is1099Eligible && (
+                      <span className={styles.selected1099Badge}>1099</span>
+                    )}
+                  </div>
+                  {onEditVendor && (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={handleEditVendorClick}
+                    >
+                      Edit Vendor
+                    </Button>
                   )}
                 </div>
-                {onEditVendor && (
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={handleEditVendorClick}
-                  >
-                    Edit Vendor
-                  </Button>
-                )}
+                <div className={styles.selectedVendorStats}>
+                  <div className={styles.selectedVendorStat}>
+                    <span className={styles.selectedVendorStatLabel}>Total Spend</span>
+                    <span className={styles.selectedVendorStatValue}>{formatCurrency(selectedVendor.totalSpend)}</span>
+                  </div>
+                  <div className={styles.selectedVendorStat}>
+                    <span className={styles.selectedVendorStatLabel}>Transactions</span>
+                    <span className={styles.selectedVendorStatValue}>{selectedVendor.transactionCount}</span>
+                  </div>
+                </div>
               </div>
-              <div className={styles.selectedVendorStats}>
-                <div className={styles.selectedVendorStat}>
-                  <span className={styles.selectedVendorStatLabel}>Total Spend</span>
-                  <span className={styles.selectedVendorStatValue}>{formatCurrency(selectedVendor.totalSpend)}</span>
-                </div>
-                <div className={styles.selectedVendorStat}>
-                  <span className={styles.selectedVendorStatLabel}>Transactions</span>
-                  <span className={styles.selectedVendorStatValue}>{selectedVendor.transactionCount}</span>
-                </div>
+              {/* Contact Details */}
+              <div className={styles.selectedVendorContactDetails}>
+                {selectedVendorFull.email && (
+                  <div className={styles.contactDetailItem}>
+                    <span className={styles.contactDetailLabel}>Email</span>
+                    <span className={styles.contactDetailValue}>{selectedVendorFull.email}</span>
+                  </div>
+                )}
+                {selectedVendorFull.phone && (
+                  <div className={styles.contactDetailItem}>
+                    <span className={styles.contactDetailLabel}>Phone</span>
+                    <span className={styles.contactDetailValue}>{selectedVendorFull.phone}</span>
+                  </div>
+                )}
+                {selectedVendorFull.address && (
+                  <div className={styles.contactDetailItem}>
+                    <span className={styles.contactDetailLabel}>Address</span>
+                    <span className={styles.contactDetailValue}>{selectedVendorFull.address}</span>
+                  </div>
+                )}
+                {selectedVendorFull.notes && (
+                  <div className={styles.contactDetailItem}>
+                    <span className={styles.contactDetailLabel}>Notes</span>
+                    <span className={styles.contactDetailValue}>{selectedVendorFull.notes}</span>
+                  </div>
+                )}
+                {!selectedVendorFull.email && !selectedVendorFull.phone && !selectedVendorFull.address && !selectedVendorFull.notes && (
+                  <div className={styles.noContactDetails}>No contact details on file</div>
+                )}
               </div>
             </>
           ) : (
