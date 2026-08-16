@@ -418,6 +418,24 @@
   color: var(--color-text-secondary, #6b7280);
 }
 
+.overviewStatValuePaid {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #166534;
+}
+
+.overviewStatValueOwe {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #4b006e;
+}
+
+.overviewStatValueSmall {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
 .classificationDot {
   width: 8px;
   height: 8px;
@@ -525,6 +543,114 @@
   width: 100%;
   color: var(--color-text-secondary, #6b7280);
   font-size: 0.9375rem;
+}
+
+/* Selected Vendor Bottom Layout */
+.selectedVendorBottom {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0d4e8;
+  flex: 1;
+}
+
+.selectedVendorContact {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.contactDetailCompact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+}
+
+.contactDetailCompact .contactDetailLabel {
+  font-size: 0.5625rem;
+}
+
+.contactDetailCompact .contactDetailValue {
+  font-size: 0.8125rem;
+}
+
+.selectedVendorBilling {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: 1.5rem;
+  border-left: 1px solid #e0d4e8;
+}
+
+.billingMain {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.billingStat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.billingLabel {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.billingValueLarge {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4b006e;
+}
+
+.billingRow {
+  display: flex;
+  gap: 2rem;
+}
+
+.billingValuePaid {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #166534;
+}
+
+.billingValueOwe {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #4b006e;
+}
+
+.billingBreakdown {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 0.375rem;
+  border-top: 1px dashed #e0d4e8;
+}
+
+.billingSmall {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+}
+
+.billingLabelSmall {
+  font-size: 0.5625rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.billingValueSmall {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
 }
 
 /* Legacy Stats Row - keep for backwards compatibility */
@@ -988,6 +1114,85 @@
   text-align: center;
   color: var(--color-text-secondary, #6b7280);
   font-size: 0.875rem;
+}
+
+/* Overdue Styles */
+.overviewStatValue {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.overdueHighlight .overviewStatValue,
+.overdueHighlight .overviewStatValueSmall,
+.overdueHighlight .billingValueSmall {
+  color: #b91c1c;
+}
+
+.overdueHighlight .overviewStatLabel,
+.overdueHighlight .billingLabelSmall {
+  color: #b91c1c;
+}
+
+/* Highlight for Still Owe when > 0 */
+.oweHighlight .overviewStatValueOwe {
+  color: #b91c1c;
+}
+
+.oweHighlight .overviewStatLabel {
+  color: #b91c1c;
+}
+
+.selectedVendorStatValueCurrent {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4b006e;
+}
+
+.overdueText {
+  color: #b91c1c !important;
+}
+
+.vendorItemOverdue {
+  border-left: 2px solid #b91c1c;
+}
+
+.vendorItemOverdue.vendorItemSelected {
+  border-left: 3px solid #4b006e;
+}
+
+.overdueBadge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.375rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  color: #b91c1c;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border: 1px solid #f87171;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.vendorSpend {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.spendAmount {
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  font-size: 0.875rem;
+}
+
+.overdueAmount {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #b91c1c;
 }
 
 /* Responsive */

@@ -20,6 +20,7 @@ import type { Vendor } from '../../types/vendor.types'
 import styles from './VendorInsights.module.css'
 
 type Vendor1099Filter = 'all' | '1099-only' | 'non-1099'
+type OverdueFilter = 'all' | 'current' | 'overdue'
 
 export interface VendorInsightsProps {
   /**
@@ -48,7 +49,11 @@ export interface VendorInsightsProps {
 interface VendorSpendingSummary {
   vendorId: string
   vendorName: string
-  totalSpend: number
+  totalBills: number
+  paidAmount: number
+  stillOwe: number
+  currentAmount: number
+  overdueAmount: number
   transactionCount: number
   lastTransactionDate: Date | null
   is1099Eligible: boolean
@@ -75,9 +80,14 @@ interface TransactionDetail {
   id: string
   vendorId: string
   date: Date
+  dueDate: Date
   reference: string
   description: string
   amount: number
+  amountPaid: number
+  amountDue: number
+  status: 'current' | 'overdue' | 'paid'
+  daysLate: number
   classifications: TransactionClassification[]
   type: TransactionType
 }
@@ -229,6 +239,9 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
   // 1099 filter state
   const [vendor1099Filter, setVendor1099Filter] = useState<Vendor1099Filter>('all')
 
+  // Overdue filter state
+  const [overdueFilter, setOverdueFilter] = useState<OverdueFilter>('all')
+
   // Custom date range state
   const [customStartDate, setCustomStartDate] = useState<string>('')
   const [customEndDate, setCustomEndDate] = useState<string>('')
@@ -266,6 +279,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
     ]
 
     const transactions: TransactionDetail[] = []
+    const today = new Date()
 
     // Generate 10-50 transactions per vendor, spread across 2 years
     vendors.forEach((vendor, vendorIndex) => {
@@ -295,15 +309,63 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
           })
         }
 
+        // Generate transaction date (within last 2 years)
+        const txnDate = new Date(Date.now() - Math.random() * 730 * 24 * 60 * 60 * 1000)
+
+        // Due date is 30 days after transaction date (for bills)
+        const dueDate = new Date(txnDate.getTime() + 30 * 24 * 60 * 60 * 1000)
+
+        // Determine payment status
+        // Bills can be paid, current, or overdue
+        // Other types are always "paid"
+        const txnType = types[Math.floor(Math.random() * types.length)]!
+        let amountPaid = totalAmount
+        let amountDue = 0
+        let status: 'current' | 'overdue' | 'paid' = 'paid'
+        let daysLate = 0
+
+        if (txnType === 'bill') {
+          // 60% paid, 25% current (not yet due), 15% overdue
+          const paymentRoll = Math.random()
+          if (paymentRoll < 0.60) {
+            // Paid
+            status = 'paid'
+            amountPaid = totalAmount
+            amountDue = 0
+          } else if (paymentRoll < 0.85) {
+            // Current (due date is in the future or within last 30 days but not overdue)
+            // Make sure due date is in the future for "current" status
+            const currentDueDate = new Date(today.getTime() + Math.random() * 30 * 24 * 60 * 60 * 1000)
+            Object.assign(dueDate, currentDueDate)
+            status = 'current'
+            amountPaid = Math.random() < 0.3 ? totalAmount * Math.random() * 0.5 : 0
+            amountDue = totalAmount - amountPaid
+          } else {
+            // Overdue (due date is in the past)
+            const overdueDays = Math.floor(Math.random() * 90) + 1 // 1-90 days overdue
+            const overdueDueDate = new Date(today.getTime() - overdueDays * 24 * 60 * 60 * 1000)
+            Object.assign(dueDate, overdueDueDate)
+            status = 'overdue'
+            amountPaid = Math.random() < 0.2 ? totalAmount * Math.random() * 0.3 : 0
+            amountDue = totalAmount - amountPaid
+            daysLate = overdueDays
+          }
+        }
+
         transactions.push({
           id: `txn-${vendorIndex}-${i}`,
           vendorId: vendor.id,
-          date: new Date(Date.now() - Math.random() * 730 * 24 * 60 * 60 * 1000), // 2 years
+          date: txnDate,
+          dueDate,
           reference: `INV-${String(1000 + vendorIndex * 100 + i).padStart(4, '0')}`,
           description: descriptions[Math.floor(Math.random() * descriptions.length)]!,
           amount: totalAmount,
+          amountPaid,
+          amountDue,
+          status,
+          daysLate,
           classifications,
-          type: types[Math.floor(Math.random() * types.length)]!,
+          type: txnType,
         })
       }
     })
@@ -323,13 +385,25 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
   const vendorSummaries: VendorSpendingSummary[] = useMemo(() => {
     return vendors.map((vendor) => {
       const vendorTxns = filteredTransactions.filter((t) => t.vendorId === vendor.id)
-      const totalSpend = vendorTxns.reduce((sum, t) => sum + t.amount, 0)
+      const totalBills = vendorTxns.reduce((sum, t) => sum + t.amount, 0)
+      const paidAmount = vendorTxns.reduce((sum, t) => sum + t.amountPaid, 0)
+      const currentAmount = vendorTxns
+        .filter((t) => t.status === 'current')
+        .reduce((sum, t) => sum + t.amountDue, 0)
+      const overdueAmount = vendorTxns
+        .filter((t) => t.status === 'overdue')
+        .reduce((sum, t) => sum + t.amountDue, 0)
+      const stillOwe = currentAmount + overdueAmount
       const lastTxn = vendorTxns[0] // Already sorted by date desc
 
       return {
         vendorId: vendor.id,
         vendorName: vendor.name,
-        totalSpend,
+        totalBills,
+        paidAmount,
+        stillOwe,
+        currentAmount,
+        overdueAmount,
         transactionCount: vendorTxns.length,
         lastTransactionDate: lastTxn?.date || null,
         is1099Eligible: vendor.is1099Eligible ?? false,
@@ -516,15 +590,22 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
       })
     }
 
-    // Always sort by highest spend
-    return filtered.sort((a, b) => b.totalSpend - a.totalSpend)
-  }, [vendorSummaries, searchQuery, vendor1099Filter, selectedClassifications, filteredTransactions])
+    // Apply overdue filter
+    if (overdueFilter === 'current') {
+      filtered = filtered.filter((v) => v.currentAmount > 0)
+    } else if (overdueFilter === 'overdue') {
+      filtered = filtered.filter((v) => v.overdueAmount > 0)
+    }
+
+    // Always sort by highest total bills
+    return filtered.sort((a, b) => b.totalBills - a.totalBills)
+  }, [vendorSummaries, searchQuery, vendor1099Filter, selectedClassifications, filteredTransactions, overdueFilter])
 
   // Auto-select top vendor on initial load
   useEffect(() => {
     if (!hasAutoSelected.current && sortedVendors.length > 0 && !selectedVendorId) {
       const topVendor = sortedVendors[0]
-      if (topVendor && topVendor.totalSpend > 0) {
+      if (topVendor && topVendor.totalBills > 0) {
         setSelectedVendorId(topVendor.vendorId)
         hasAutoSelected.current = true
       }
@@ -543,8 +624,8 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
 
   // Calculate aggregate stats (respects classification filter)
   const aggregateStats = useMemo(() => {
-    // Calculate total spend from classification-filtered transactions
-    const totalSpend = classificationFilteredTransactions.reduce((sum, txn) => {
+    // Calculate totals from classification-filtered transactions
+    const totalBills = classificationFilteredTransactions.reduce((sum, txn) => {
       if (selectedClassifications.length === 0) {
         return sum + txn.amount
       }
@@ -555,8 +636,17 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
       return sum + relevantAmount
     }, 0)
 
+    const paidAmount = classificationFilteredTransactions.reduce((sum, txn) => sum + txn.amountPaid, 0)
+    const currentAmount = classificationFilteredTransactions
+      .filter((t) => t.status === 'current')
+      .reduce((sum, t) => sum + t.amountDue, 0)
+    const overdueAmount = classificationFilteredTransactions
+      .filter((t) => t.status === 'overdue')
+      .reduce((sum, t) => sum + t.amountDue, 0)
+    const stillOwe = currentAmount + overdueAmount
+
     // Find top vendor from filtered list
-    const topVendor = sortedVendors.find((v) => v.totalSpend > 0)
+    const topVendor = sortedVendors.find((v) => v.totalBills > 0)
 
     // Calculate biggest classification across filtered transactions
     const classificationTotals = new Map<string, { spend: number; color: string }>()
@@ -595,9 +685,13 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
       : null
 
     return {
-      totalSpend,
+      totalBills,
+      paidAmount,
+      stillOwe,
+      currentAmount,
+      overdueAmount,
       topVendorName: topVendor?.vendorName || 'N/A',
-      topVendorSpend: topVendor?.totalSpend || 0,
+      topVendorBills: topVendor?.totalBills || 0,
       biggestClassificationName,
       biggestClassificationSpend,
       biggestClassificationColor,
@@ -621,6 +715,12 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
     { value: 'all', label: '1099 Status' },
     { value: '1099-only', label: '1099 Only' },
     { value: 'non-1099', label: 'Non-1099' },
+  ]
+
+  const overdueFilterOptions: SelectOption[] = [
+    { value: 'all', label: 'Payment Status' },
+    { value: 'current', label: 'Current Only' },
+    { value: 'overdue', label: 'Overdue Only' },
   ]
 
   return (
@@ -749,6 +849,16 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
               className={styles.filterSelect}
             />
           </div>
+          {/* Overdue Filter */}
+          <div className={styles.filterItem}>
+            <Select
+              value={overdueFilter}
+              onChange={(e) => setOverdueFilter(e.target.value as OverdueFilter)}
+              options={overdueFilterOptions}
+              aria-label="Filter by payment status"
+              className={styles.filterSelect}
+            />
+          </div>
         </div>
         <div className={styles.actions}>
           <Button variant="outline" size="sm">
@@ -764,12 +874,22 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
           <div className={styles.overviewMain}>
             <span className={styles.overviewLabel}>
               {aggregateStats.isFiltered ? (
-                <>Spend for: <span className={styles.filterIndicator}>{aggregateStats.filterLabel}</span></>
+                <>Expenses for: <span className={styles.filterIndicator}>{aggregateStats.filterLabel}</span></>
               ) : (
-                'Total Spend'
+                'Total Expenses'
               )}
             </span>
-            <span className={styles.overviewValue}>{formatCurrency(aggregateStats.totalSpend)}</span>
+            <span className={styles.overviewValue}>{formatCurrency(aggregateStats.totalBills)}</span>
+          </div>
+          <div className={styles.overviewStatRow}>
+            <div className={styles.overviewStatItem}>
+              <span className={styles.overviewStatLabel}>Paid</span>
+              <span className={styles.overviewStatValuePaid}>{formatCurrency(aggregateStats.paidAmount)}</span>
+            </div>
+            <div className={`${styles.overviewStatItem} ${aggregateStats.stillOwe > 0 ? styles.oweHighlight : ''}`}>
+              <span className={styles.overviewStatLabel}>Still Owe</span>
+              <span className={styles.overviewStatValueOwe}>{formatCurrency(aggregateStats.stillOwe)}</span>
+            </div>
           </div>
           <div className={styles.overviewStatRow}>
             <div className={styles.overviewStatItem}>
@@ -777,7 +897,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                 {aggregateStats.isFiltered ? 'Top Vendor (Filtered)' : 'Top Vendor'}
               </span>
               <span className={styles.overviewStatName}>{aggregateStats.topVendorName}</span>
-              <span className={styles.overviewStatSpend}>{formatCurrency(aggregateStats.topVendorSpend)}</span>
+              <span className={styles.overviewStatSpend}>{formatCurrency(aggregateStats.topVendorBills)}</span>
             </div>
             <div className={styles.overviewStatItem}>
               <span className={styles.overviewStatLabel}>
@@ -817,46 +937,65 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                     </Button>
                   )}
                 </div>
-                <div className={styles.selectedVendorStats}>
-                  <div className={styles.selectedVendorStat}>
-                    <span className={styles.selectedVendorStatLabel}>Total Spend</span>
-                    <span className={styles.selectedVendorStatValue}>{formatCurrency(selectedVendor.totalSpend)}</span>
+              </div>
+              {/* Bottom section: Contact Details (left) + Billing Stats (right) */}
+              <div className={styles.selectedVendorBottom}>
+                {/* Contact Details - Bottom Left */}
+                <div className={styles.selectedVendorContact}>
+                  {(selectedVendorFull.email || selectedVendorFull.phone || selectedVendorFull.address) ? (
+                    <>
+                      {selectedVendorFull.email && (
+                        <div className={styles.contactDetailCompact}>
+                          <span className={styles.contactDetailLabel}>Email</span>
+                          <span className={styles.contactDetailValue}>{selectedVendorFull.email}</span>
+                        </div>
+                      )}
+                      {selectedVendorFull.phone && (
+                        <div className={styles.contactDetailCompact}>
+                          <span className={styles.contactDetailLabel}>Phone</span>
+                          <span className={styles.contactDetailValue}>{selectedVendorFull.phone}</span>
+                        </div>
+                      )}
+                      {selectedVendorFull.address && (
+                        <div className={styles.contactDetailCompact}>
+                          <span className={styles.contactDetailLabel}>Address</span>
+                          <span className={styles.contactDetailValue}>{selectedVendorFull.address}</span>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className={styles.noContactDetails}>No contact details</div>
+                  )}
+                </div>
+                {/* Billing Stats - Right Half */}
+                <div className={styles.selectedVendorBilling}>
+                  <div className={styles.billingMain}>
+                    <div className={styles.billingStat}>
+                      <span className={styles.billingLabel}>Total Expenses</span>
+                      <span className={styles.billingValueLarge}>{formatCurrency(selectedVendor.totalBills)}</span>
+                    </div>
                   </div>
-                  <div className={styles.selectedVendorStat}>
-                    <span className={styles.selectedVendorStatLabel}>Transactions</span>
-                    <span className={styles.selectedVendorStatValue}>{selectedVendor.transactionCount}</span>
+                  <div className={styles.billingRow}>
+                    <div className={styles.billingStat}>
+                      <span className={styles.billingLabel}>Paid</span>
+                      <span className={styles.billingValuePaid}>{formatCurrency(selectedVendor.paidAmount)}</span>
+                    </div>
+                    <div className={styles.billingStat}>
+                      <span className={styles.billingLabel}>Still Owe</span>
+                      <span className={styles.billingValueOwe}>{formatCurrency(selectedVendor.stillOwe)}</span>
+                    </div>
+                  </div>
+                  <div className={styles.billingBreakdown}>
+                    <div className={styles.billingSmall}>
+                      <span className={styles.billingLabelSmall}>Current</span>
+                      <span className={styles.billingValueSmall}>{formatCurrency(selectedVendor.currentAmount)}</span>
+                    </div>
+                    <div className={`${styles.billingSmall} ${selectedVendor.overdueAmount > 0 ? styles.overdueHighlight : ''}`}>
+                      <span className={styles.billingLabelSmall}>Overdue</span>
+                      <span className={styles.billingValueSmall}>{formatCurrency(selectedVendor.overdueAmount)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              {/* Contact Details */}
-              <div className={styles.selectedVendorContactDetails}>
-                {selectedVendorFull.email && (
-                  <div className={styles.contactDetailItem}>
-                    <span className={styles.contactDetailLabel}>Email</span>
-                    <span className={styles.contactDetailValue}>{selectedVendorFull.email}</span>
-                  </div>
-                )}
-                {selectedVendorFull.phone && (
-                  <div className={styles.contactDetailItem}>
-                    <span className={styles.contactDetailLabel}>Phone</span>
-                    <span className={styles.contactDetailValue}>{selectedVendorFull.phone}</span>
-                  </div>
-                )}
-                {selectedVendorFull.address && (
-                  <div className={styles.contactDetailItem}>
-                    <span className={styles.contactDetailLabel}>Address</span>
-                    <span className={styles.contactDetailValue}>{selectedVendorFull.address}</span>
-                  </div>
-                )}
-                {selectedVendorFull.notes && (
-                  <div className={styles.contactDetailItem}>
-                    <span className={styles.contactDetailLabel}>Notes</span>
-                    <span className={styles.contactDetailValue}>{selectedVendorFull.notes}</span>
-                  </div>
-                )}
-                {!selectedVendorFull.email && !selectedVendorFull.phone && !selectedVendorFull.address && !selectedVendorFull.notes && (
-                  <div className={styles.noContactDetails}>No contact details on file</div>
-                )}
               </div>
             </>
           ) : (
@@ -883,7 +1022,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
             {sortedVendors.map((vendor) => (
               <button
                 key={vendor.vendorId}
-                className={`${styles.vendorItem} ${selectedVendorId === vendor.vendorId ? styles.vendorItemSelected : ''} ${vendor.is1099Eligible ? styles.vendorItem1099 : ''}`}
+                className={`${styles.vendorItem} ${selectedVendorId === vendor.vendorId ? styles.vendorItemSelected : ''} ${vendor.is1099Eligible ? styles.vendorItem1099 : ''} ${vendor.overdueAmount > 0 ? styles.vendorItemOverdue : ''}`}
                 onClick={() => setSelectedVendorId(vendor.vendorId)}
                 aria-pressed={selectedVendorId === vendor.vendorId}
               >
@@ -893,13 +1032,19 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                     {vendor.is1099Eligible && (
                       <span className={styles.vendor1099Badge} title="1099 Eligible">1099</span>
                     )}
+                    {vendor.overdueAmount > 0 && (
+                      <span className={styles.overdueBadge} title="Has overdue bills">OVERDUE</span>
+                    )}
                   </span>
                   <span className={styles.vendorMeta}>
                     {vendor.transactionCount} transactions
                   </span>
                 </div>
                 <div className={styles.vendorSpend}>
-                  {formatCurrency(vendor.totalSpend)}
+                  <span className={styles.spendAmount}>{formatCurrency(vendor.totalBills)}</span>
+                  {vendor.overdueAmount > 0 && (
+                    <span className={styles.overdueAmount}>{formatCurrency(vendor.overdueAmount)} overdue</span>
+                  )}
                 </div>
               </button>
             ))}
