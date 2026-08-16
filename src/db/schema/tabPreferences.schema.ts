@@ -36,6 +36,7 @@ export const PAGE_IDS = {
   EVENTS_ANALYSIS: 'events-analysis',
   FINANCIAL_ENTRY: 'financial-entry',
   STRATEGY_PLANNING: 'strategy-planning',
+  VENDORS: 'vendors',
 } as const;
 
 /**
@@ -81,6 +82,11 @@ export const TAB_IDS = {
   STRATEGY_WHAT_IF: 'what-if',
   STRATEGY_COMPARE: 'compare',
   STRATEGY_COST_IDEA: 'cost-idea',
+
+  // Vendors tabs
+  VENDORS_CENTER: 'vendor-center',
+  VENDORS_BILLS: 'bills',
+  VENDORS_RECEIPTS: 'receipts',
 } as const;
 
 /**
@@ -95,4 +101,5 @@ export const DEFAULT_TABS = {
   [PAGE_IDS.EVENTS_ANALYSIS]: TAB_IDS.EVENT_DECISION,
   [PAGE_IDS.FINANCIAL_ENTRY]: TAB_IDS.FINANCIAL_PL,
   [PAGE_IDS.STRATEGY_PLANNING]: TAB_IDS.STRATEGY_WHAT_IF,
+  [PAGE_IDS.VENDORS]: TAB_IDS.VENDORS_CENTER,
 } as const;

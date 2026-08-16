@@ -1,10 +1,12 @@
 /**
  * Vendors Page
  *
- * Main page for viewing and managing vendors.
+ * Main page for viewing and managing vendors with tabbed interface.
  * Provides full CRUD operations with modal-based forms.
  *
  * Features:
+ * - Tabbed interface: Vendor Center, Bills, Receipts
+ * - Tab pinning for default tab preference
  * - View all vendors
  * - Create new vendors
  * - Edit existing vendors
@@ -18,13 +20,22 @@
  */
 
 import { type FC, useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useVendors } from '../hooks/useVendors'
 import { useAuth } from '../contexts/AuthContext'
+import { useTabPinning } from '../hooks/useTabPinning'
+import { PAGE_IDS, TAB_IDS } from '../db/schema/tabPreferences.schema'
 import { VendorList } from '../components/vendors/VendorList'
 import { VendorForm, type VendorFormData } from '../components/vendors/VendorForm'
+import { VendorBills } from '../components/vendors/VendorBills'
+import { VendorReceipts } from '../components/vendors/VendorReceipts'
 import { Modal } from '../components/modals/Modal'
 import { Button } from '../components/core/Button'
+import { PinIcon } from '../components/common/PinIcon'
 import type { Vendor } from '../types/vendor.types'
+import styles from './Vendors.module.css'
+
+type VendorTab = 'vendor-center' | 'bills' | 'receipts'
 
 export interface VendorsProps {
   /**
@@ -48,6 +59,97 @@ const Vendors: FC<VendorsProps> = ({ companyId: propCompanyId }) => {
   // Use prop companyId, then auth context, then fallback to 'demo-company'
   // IMPORTANT: Must match the fallback in Transactions.tsx and other pages
   const companyId = propCompanyId || authCompanyId || 'demo-company'
+
+  // Tab pinning
+  const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
+    pageId: PAGE_IDS.VENDORS,
+  })
+
+  // URL search params for tab navigation (e.g., /vendors?tab=receipts)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tabFromUrl = searchParams.get('tab') as VendorTab | null
+
+  // Map schema tab IDs to component tab IDs
+  const mapSchemaToTab = (schemaTabId: string): VendorTab => {
+    switch (schemaTabId) {
+      case TAB_IDS.VENDORS_BILLS:
+        return 'bills'
+      case TAB_IDS.VENDORS_RECEIPTS:
+        return 'receipts'
+      case TAB_IDS.VENDORS_CENTER:
+      default:
+        return 'vendor-center'
+    }
+  }
+
+  const mapTabToSchema = (tab: VendorTab): string => {
+    switch (tab) {
+      case 'bills':
+        return TAB_IDS.VENDORS_BILLS
+      case 'receipts':
+        return TAB_IDS.VENDORS_RECEIPTS
+      case 'vendor-center':
+      default:
+        return TAB_IDS.VENDORS_CENTER
+    }
+  }
+
+  const [currentTab, setCurrentTab] = useState<VendorTab>('vendor-center')
+  const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({})
+
+  // Set initial tab from URL param, then pinned preference
+  useEffect(() => {
+    if (tabFromUrl && ['vendor-center', 'bills', 'receipts'].includes(tabFromUrl)) {
+      setCurrentTab(tabFromUrl)
+    } else if (!isPinningLoading && defaultTab) {
+      setCurrentTab(mapSchemaToTab(defaultTab))
+    }
+  }, [tabFromUrl, defaultTab, isPinningLoading])
+
+  // Load pinned tabs state
+  useEffect(() => {
+    const loadPinnedState = async () => {
+      const states: Record<string, boolean> = {}
+      const tabIds: VendorTab[] = ['vendor-center', 'bills', 'receipts']
+      for (const tab of tabIds) {
+        states[tab] = await isTabPinned(mapTabToSchema(tab))
+      }
+      setPinnedTabs(states)
+    }
+    loadPinnedState()
+  }, [isTabPinned])
+
+  // Handle tab change - update URL
+  const handleTabChange = (tab: VendorTab) => {
+    setCurrentTab(tab)
+    if (tab === 'vendor-center') {
+      searchParams.delete('tab')
+    } else {
+      searchParams.set('tab', tab)
+    }
+    setSearchParams(searchParams, { replace: true })
+  }
+
+  // Handle pin toggle
+  const handlePinToggle = async (tab: VendorTab) => {
+    try {
+      const schemaTabId = mapTabToSchema(tab)
+      if (pinnedTabs[tab]) {
+        await unpinTab()
+        setPinnedTabs((prev) => ({ ...prev, [tab]: false }))
+      } else {
+        await pinTab(schemaTabId)
+        // Only one tab can be pinned
+        setPinnedTabs({
+          'vendor-center': tab === 'vendor-center',
+          'bills': tab === 'bills',
+          'receipts': tab === 'receipts',
+        })
+      }
+    } catch (error) {
+      console.error('Failed to toggle pin:', error)
+    }
+  }
 
   const {
     vendors,
@@ -168,22 +270,70 @@ const Vendors: FC<VendorsProps> = ({ companyId: propCompanyId }) => {
   }
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <header style={{ marginBottom: '2rem' }}>
+    <div className={styles.container}>
+      <header className={styles.header}>
         <h1>Vendors</h1>
-        <p style={{ color: '#6b7280' }}>
-          Keeping track of who you pay helps you understand where your money goes
-        </p>
+        <p>Keeping track of who you pay helps you understand where your money goes</p>
       </header>
 
-      <VendorList
-        vendors={vendors}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onCreate={handleCreate}
-        isLoading={isLoading}
-        vendorCount={showCelebration ? vendors.length : undefined}
-      />
+      {/* Tab Selector */}
+      <div className={styles.tabSelector}>
+        <button
+          className={currentTab === 'vendor-center' ? styles.tabActive : styles.tab}
+          onClick={() => handleTabChange('vendor-center')}
+        >
+          Vendor Center
+          <PinIcon
+            isPinned={pinnedTabs['vendor-center'] || false}
+            onClick={() => handlePinToggle('vendor-center')}
+            size={14}
+          />
+        </button>
+        <button
+          className={currentTab === 'bills' ? styles.tabActive : styles.tab}
+          onClick={() => handleTabChange('bills')}
+        >
+          Bills
+          <PinIcon
+            isPinned={pinnedTabs['bills'] || false}
+            onClick={() => handlePinToggle('bills')}
+            size={14}
+          />
+        </button>
+        <button
+          className={currentTab === 'receipts' ? styles.tabActive : styles.tab}
+          onClick={() => handleTabChange('receipts')}
+        >
+          Receipts
+          <PinIcon
+            isPinned={pinnedTabs['receipts'] || false}
+            onClick={() => handlePinToggle('receipts')}
+            size={14}
+          />
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className={styles.tabContent}>
+        {currentTab === 'vendor-center' && (
+          <VendorList
+            vendors={vendors}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onCreate={handleCreate}
+            isLoading={isLoading}
+            vendorCount={showCelebration ? vendors.length : undefined}
+          />
+        )}
+
+        {currentTab === 'bills' && (
+          <VendorBills companyId={companyId} />
+        )}
+
+        {currentTab === 'receipts' && (
+          <VendorReceipts companyId={companyId} />
+        )}
+      </div>
 
       {/* Create/Edit Modal */}
       {(modalState.type === 'create' || modalState.type === 'edit') && (

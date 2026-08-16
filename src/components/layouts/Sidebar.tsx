@@ -118,7 +118,7 @@ const navigationItems: NavItem[] = [
   },
   {
     name: 'Receipts',
-    path: '/receipts',
+    path: '/vendors?tab=receipts',
     icon: (
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path
@@ -187,6 +187,23 @@ export function Sidebar({ isOpen, isMobile, isCollapsed, onClose }: SidebarProps
   const [companyName, setCompanyName] = useState('My Company')
   const [userEmail, setUserEmail] = useState<string | null>(null)
 
+  // Custom active state logic for Vendors/Receipts tabs
+  const isVendorsActive = () => {
+    if (location.pathname !== '/vendors') return false
+    const params = new URLSearchParams(location.search)
+    const tab = params.get('tab')
+    // Vendors is active when on /vendors and tab is NOT receipts
+    return tab !== 'receipts'
+  }
+
+  const isReceiptsActive = () => {
+    if (location.pathname !== '/vendors') return false
+    const params = new URLSearchParams(location.search)
+    const tab = params.get('tab')
+    // Receipts is active when on /vendors and tab IS receipts
+    return tab === 'receipts'
+  }
+
   // Store current path as origin before navigating to account pages
   const handleAccountNavigation = (path: string) => {
     sessionStorage.setItem(ACCOUNT_ORIGIN_KEY, location.pathname);
@@ -251,11 +268,23 @@ export function Sidebar({ isOpen, isMobile, isCollapsed, onClose }: SidebarProps
     <aside className={sidebarClasses}>
       <nav className="sidebar__nav" aria-label="Main navigation">
         <ul className="sidebar__list">
-          {navigationItems.map((item) => (
+          {navigationItems.map((item) => {
+            // Custom active state for Vendors and Receipts
+            const getActiveClass = ({ isActive }: { isActive: boolean }) => {
+              let active = isActive
+              if (item.name === 'Vendors') {
+                active = isVendorsActive()
+              } else if (item.name === 'Receipts') {
+                active = isReceiptsActive()
+              }
+              return `sidebar__link ${active ? 'sidebar__link--active' : ''}`
+            }
+
+            return (
             <li key={item.path} className="sidebar__item">
               <NavLink
                 to={item.path}
-                className={({ isActive }) => `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`}
+                className={getActiveClass}
                 onClick={item.children ? undefined : onClose}
                 title={isCollapsed ? item.name : undefined}
               >
@@ -281,7 +310,8 @@ export function Sidebar({ isOpen, isMobile, isCollapsed, onClose }: SidebarProps
                 </ul>
               )}
             </li>
-          ))}
+            )
+          })}
         </ul>
       </nav>
 

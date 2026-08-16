@@ -14,3 +14,9 @@ export type { VendorCardProps } from './VendorCard'
 
 export { VendorForm } from './VendorForm'
 export type { VendorFormProps, VendorFormData } from './VendorForm'
+
+export { VendorBills } from './VendorBills'
+export type { VendorBillsProps } from './VendorBills'
+
+export { VendorReceipts } from './VendorReceipts'
+export type { VendorReceiptsProps } from './VendorReceipts'

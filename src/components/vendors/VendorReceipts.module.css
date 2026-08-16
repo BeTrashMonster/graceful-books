@@ -1,0 +1,24 @@
+/**
+ * VendorReceipts Styles
+ *
+ * WCAG 2.1 AA compliant styling for receipts interface.
+ */
+
+.container {
+  padding: 1rem;
+}
+
+.uploadSection {
+  margin-bottom: 2rem;
+}
+
+.gallerySection {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0 0 1rem 0;
+}

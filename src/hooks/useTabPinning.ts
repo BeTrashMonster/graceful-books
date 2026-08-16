@@ -31,7 +31,9 @@ interface UseTabPinningReturn {
 }
 
 export function useTabPinning({ pageId, defaultTab }: UseTabPinningOptions): UseTabPinningReturn {
-  const { userIdentifier } = useAuth();
+  const { userIdentifier: authUserIdentifier, companyId } = useAuth();
+  // Use userIdentifier from auth, fall back to companyId, then to 'demo-user'
+  const userIdentifier = authUserIdentifier || companyId || 'demo-user';
   const [currentDefaultTab, setCurrentDefaultTab] = useState<string>(
     defaultTab || DEFAULT_TABS[pageId as keyof typeof DEFAULT_TABS] || ''
   );
