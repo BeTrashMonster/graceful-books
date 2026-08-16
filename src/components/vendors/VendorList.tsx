@@ -59,7 +59,6 @@ export interface VendorListProps {
   vendorCount?: number
 }
 
-type SortBy = 'name' | 'email' | 'recent'
 type ViewMode = 'flat' | 'tree'
 
 /**
@@ -154,7 +153,6 @@ export const VendorList: FC<VendorListProps> = ({
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<string>('active')
   const [filter1099, setFilter1099] = useState<string>('all')
-  const [sortBy, setSortBy] = useState<SortBy>('name')
   const [viewMode, setViewMode] = useState<ViewMode>('flat')
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
 
@@ -193,25 +191,11 @@ export const VendorList: FC<VendorListProps> = ({
       filtered = filtered.filter((vendor) => !vendor.is1099Eligible)
     }
 
-    // Sort
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name)
-        case 'email':
-          if (a.email && b.email) {
-            return a.email.localeCompare(b.email)
-          }
-          return a.name.localeCompare(b.name)
-        case 'recent':
-          return b.createdAt.getTime() - a.createdAt.getTime()
-        default:
-          return 0
-      }
-    })
+    // Sort by name
+    filtered.sort((a, b) => a.name.localeCompare(b.name))
 
     return filtered
-  }, [vendors, searchTerm, filterStatus, filter1099, sortBy])
+  }, [vendors, searchTerm, filterStatus, filter1099])
 
   // Build hierarchical structure if in tree view
   const displayVendors = useMemo(() => {
@@ -265,12 +249,6 @@ export const VendorList: FC<VendorListProps> = ({
     { value: 'not-eligible', label: 'Not 1099 Eligible' },
   ]
 
-  const sortOptions: SelectOption[] = [
-    { value: 'name', label: 'Name' },
-    { value: 'email', label: 'Email' },
-    { value: 'recent', label: 'Recently Added' },
-  ]
-
   const milestoneMessage = vendorCount ? getMilestoneMessage(vendorCount) : null
 
   if (isLoading) {
@@ -315,13 +293,6 @@ export const VendorList: FC<VendorListProps> = ({
             onChange={(e) => setFilter1099(e.target.value)}
             options={eligible1099Options}
             aria-label="Filter by 1099 eligibility"
-          />
-
-          <Select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortBy)}
-            options={sortOptions}
-            aria-label="Sort by"
           />
 
           {hasHierarchy && (

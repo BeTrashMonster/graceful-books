@@ -255,6 +255,14 @@ import {
   procedureInstancesSchema,
   procedureTaskCompletionsSchema,
 } from './schema/checklistCalendar.schema';
+import {
+  transactionGroupsSchema,
+  transactionGroupAssignmentsSchema,
+} from './schema/transactionGroups.schema';
+import type {
+  TransactionGroup,
+  TransactionGroupAssignment,
+} from './schema/transactionGroups.schema';
 import type {
   AdminChecklist,
   AdminTask,
@@ -370,6 +378,10 @@ export class TreasureChestDB extends Dexie {
   // Procedure Instance tables (v30)
   procedureInstances!: Table<ProcedureInstance, string>;
   procedureTaskCompletions!: Table<ProcedureTaskCompletion, string>;
+
+  // Transaction Groups (v32)
+  transactionGroups!: Table<TransactionGroup, string>;
+  transactionGroupAssignments!: Table<TransactionGroupAssignment, string>;
 
   constructor() {
     super('TreasureChest');
@@ -2200,6 +2212,104 @@ export class TreasureChestDB extends Dexie {
       checklistWizardProgress: checklistWizardProgressSchema,
       procedureInstances: procedureInstancesSchema,
       procedureTaskCompletions: procedureTaskCompletionsSchema,
+    });
+
+    // Version 32: Add transaction groups for custom categorization
+    this.version(32).stores({
+      // All existing tables remain unchanged
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      subscriptions: subscriptionsSchema,
+      advisorClients: advisorClientsSchema,
+      advisorTeamMembers: advisorTeamMembersSchema,
+      paymentMethods: paymentMethodsSchema,
+      billingInvoices: billingInvoicesSchema,
+      stripeWebhookEvents: stripeWebhookEventsSchema,
+      charityDistributions: charityDistributionsSchema,
+      charities: charitiesSchema,
+      financialGoals: financialGoalsSchema,
+      goalProgressSnapshots: goalProgressSnapshotsSchema,
+      taxDocuments: taxDocumentsSchema,
+      taxCategoryStatus: taxCategoryStatusSchema,
+      taxPrepSessions: taxPrepSessionsSchema,
+      taxAdvisorAccess: taxAdvisorAccessSchema,
+      taxPackages: taxPackagesSchema,
+      currencies: currenciesSchema,
+      exchangeRates: exchangeRatesSchema,
+      cpgCategories: cpgCategoriesSchema,
+      cpgInvoices: cpgInvoicesSchema,
+      cpgVendors: cpgVendorsSchema,
+      cpgDistributors: cpgDistributorsSchema,
+      cpgDistributionCalculations: cpgDistributionCalculationsSchema,
+      cpgSalesPromos: cpgSalesPromosSchema,
+      cpgEvents: cpgEventsSchema,
+      cpgFinishedProducts: cpgFinishedProductsSchema,
+      cpgRecipes: cpgRecipesSchema,
+      cpgProductLinks: cpgProductLinksSchema,
+      cpgSettings: cpgSettingsSchema,
+      cpgLaborRoles: cpgLaborRolesSchema,
+      cpgProductLabors: cpgProductLaborsSchema,
+      cpgUnitConversions: cpgUnitConversionsSchema,
+      standaloneFinancials: standaloneFinancialsSchema,
+      skuCountTrackers: skuCountTrackersSchema,
+      userFeaturePreferences: userFeaturePreferencesSchema,
+      tabPreferences: tabPreferencesSchema,
+      backupAuditLogs: backupAuditLogsSchema,
+      adminChecklists: adminChecklistsSchema,
+      adminTasks: adminTasksSchema,
+      adminTaskCompletions: adminTaskCompletionsSchema,
+      adminTaskComments: adminTaskCommentsSchema,
+      userChecklistPreferences: userChecklistPreferencesSchema,
+      checklistWizardProgress: checklistWizardProgressSchema,
+      procedureInstances: procedureInstancesSchema,
+      procedureTaskCompletions: procedureTaskCompletionsSchema,
+      // NEW: Transaction groups for custom categorization
+      transactionGroups: transactionGroupsSchema,
+      transactionGroupAssignments: transactionGroupAssignmentsSchema,
     });
 
     // Add hooks for automatic audit logging

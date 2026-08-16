@@ -87,6 +87,7 @@ export const TAB_IDS = {
   VENDORS_CENTER: 'vendor-center',
   VENDORS_BILLS: 'bills',
   VENDORS_RECEIPTS: 'receipts',
+  VENDORS_INSIGHTS: 'insights',
 } as const;
 
 /**

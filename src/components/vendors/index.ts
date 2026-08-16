@@ -20,3 +20,6 @@ export type { VendorBillsProps } from './VendorBills'
 
 export { VendorReceipts } from './VendorReceipts'
 export type { VendorReceiptsProps } from './VendorReceipts'
+
+export { VendorInsights } from './VendorInsights'
+export type { VendorInsightsProps } from './VendorInsights'

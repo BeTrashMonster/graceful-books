@@ -7,7 +7,7 @@
  * Features:
  * - Tabbed interface: Vendor Center, Bills, Receipts
  * - Tab pinning for default tab preference
- * - View all vendors
+ * - Vendor Center with insights, transaction history, and profile editing
  * - Create new vendors
  * - Edit existing vendors
  * - Delete vendors (with confirmation)
@@ -25,10 +25,10 @@ import { useVendors } from '../hooks/useVendors'
 import { useAuth } from '../contexts/AuthContext'
 import { useTabPinning } from '../hooks/useTabPinning'
 import { PAGE_IDS, TAB_IDS } from '../db/schema/tabPreferences.schema'
-import { VendorList } from '../components/vendors/VendorList'
 import { VendorForm, type VendorFormData } from '../components/vendors/VendorForm'
 import { VendorBills } from '../components/vendors/VendorBills'
 import { VendorReceipts } from '../components/vendors/VendorReceipts'
+import { VendorInsights } from '../components/vendors/VendorInsights'
 import { Modal } from '../components/modals/Modal'
 import { Button } from '../components/core/Button'
 import { PinIcon } from '../components/common/PinIcon'
@@ -316,13 +316,12 @@ const Vendors: FC<VendorsProps> = ({ companyId: propCompanyId }) => {
       {/* Tab Content */}
       <div className={styles.tabContent}>
         {currentTab === 'vendor-center' && (
-          <VendorList
+          <VendorInsights
+            companyId={companyId}
             vendors={vendors}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onCreate={handleCreate}
+            onEditVendor={handleEdit}
+            onCreateVendor={handleCreate}
             isLoading={isLoading}
-            vendorCount={showCelebration ? vendors.length : undefined}
           />
         )}
 
