@@ -93,6 +93,9 @@ export const TAB_IDS = {
   // Customers tabs
   CUSTOMERS_CENTER: 'customer-center',
   CUSTOMERS_INVOICES: 'invoices',
+  CUSTOMERS_ESTIMATES: 'estimates',
+  CUSTOMERS_PRODUCTS: 'products',
+  CUSTOMERS_SERVICES: 'services',
 } as const;
 
 /**

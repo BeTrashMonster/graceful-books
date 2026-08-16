@@ -75,7 +75,7 @@ const navigationItems: NavItem[] = [
     ),
   },
   {
-    name: 'Customers',
+    name: 'Money Coming In',
     path: '/customers',
     icon: (
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -83,13 +83,40 @@ const navigationItems: NavItem[] = [
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
-          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
     ),
+    children: [
+      {
+        name: 'Customer Center',
+        path: '/customers',
+        icon: null,
+      },
+      {
+        name: 'Invoices',
+        path: '/customers?tab=invoices',
+        icon: null,
+      },
+      {
+        name: 'Estimates',
+        path: '/customers?tab=estimates',
+        icon: null,
+      },
+      {
+        name: 'Products',
+        path: '/customers?tab=products',
+        icon: null,
+      },
+      {
+        name: 'Services',
+        path: '/customers?tab=services',
+        icon: null,
+      },
+    ],
   },
   {
-    name: 'Vendors',
+    name: 'Money Going Out',
     path: '/vendors',
     icon: (
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -97,38 +124,27 @@ const navigationItems: NavItem[] = [
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
-          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+          d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
         />
       </svg>
     ),
-  },
-  {
-    name: 'Invoices',
-    path: '/invoices',
-    icon: (
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: 'Receipts',
-    path: '/vendors?tab=receipts',
-    icon: (
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-        />
-      </svg>
-    ),
+    children: [
+      {
+        name: 'Vendor Center',
+        path: '/vendors',
+        icon: null,
+      },
+      {
+        name: 'Bills',
+        path: '/vendors?tab=bills',
+        icon: null,
+      },
+      {
+        name: 'Receipts',
+        path: '/vendors?tab=receipts',
+        icon: null,
+      },
+    ],
   },
   {
     name: 'Checklist',
@@ -186,6 +202,30 @@ export function Sidebar({ isOpen, isMobile, isCollapsed, onClose }: SidebarProps
   const [showSupportModal, setShowSupportModal] = useState(false)
   const [companyName, setCompanyName] = useState('My Company')
   const [userEmail, setUserEmail] = useState<string | null>(null)
+
+  // Track which collapsible sections are expanded (collapsed by default)
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    'Money Coming In': false,
+    'Money Going Out': false,
+    'Reports': false,
+  })
+
+  // Toggle a collapsible section
+  const toggleSection = (sectionName: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionName]: !prev[sectionName]
+    }))
+  }
+
+  // Check if current location is within a section's children
+  const isInSection = (item: NavItem): boolean => {
+    if (!item.children) return false
+    return item.children.some(child => {
+      const childPath = child.path.split('?')[0]
+      return location.pathname === childPath
+    })
+  }
 
   // Custom active state logic for Vendors/Receipts tabs
   const isVendorsActive = () => {
@@ -269,6 +309,10 @@ export function Sidebar({ isOpen, isMobile, isCollapsed, onClose }: SidebarProps
       <nav className="sidebar__nav" aria-label="Main navigation">
         <ul className="sidebar__list">
           {navigationItems.map((item) => {
+            const hasChildren = item.children && item.children.length > 0
+            const isExpanded = expandedSections[item.name] ?? true
+            const sectionActive = isInSection(item)
+
             // Custom active state for Vendors and Receipts
             const getActiveClass = ({ isActive }: { isActive: boolean }) => {
               let active = isActive
@@ -277,24 +321,57 @@ export function Sidebar({ isOpen, isMobile, isCollapsed, onClose }: SidebarProps
               } else if (item.name === 'Receipts') {
                 active = isReceiptsActive()
               }
-              return `sidebar__link ${active ? 'sidebar__link--active' : ''}`
+              return `sidebar__link ${active ? 'sidebar__link--active' : ''} ${hasChildren ? 'sidebar__link--parent' : ''} ${sectionActive ? 'sidebar__link--section-active' : ''}`
             }
 
             return (
-            <li key={item.path} className="sidebar__item">
-              <NavLink
-                to={item.path}
-                className={getActiveClass}
-                onClick={item.children ? undefined : onClose}
-                title={isCollapsed ? item.name : undefined}
-              >
-                {item.icon && <span className="sidebar__icon">{item.icon}</span>}
-                {!isCollapsed && <span className="sidebar__text">{item.name}</span>}
-              </NavLink>
+            <li key={item.path} className={`sidebar__item ${hasChildren ? 'sidebar__item--has-children' : ''}`}>
+              <div className="sidebar__link-wrapper">
+                <NavLink
+                  to={item.path}
+                  className={getActiveClass}
+                  onClick={(e) => {
+                    if (!hasChildren) {
+                      onClose()
+                    }
+                  }}
+                  title={isCollapsed ? item.name : undefined}
+                >
+                  {item.icon && <span className="sidebar__icon">{item.icon}</span>}
+                  {!isCollapsed && <span className="sidebar__text">{item.name}</span>}
+                </NavLink>
+                {hasChildren && !isCollapsed && (
+                  <button
+                    className={`sidebar__collapse-toggle ${isExpanded ? 'sidebar__collapse-toggle--expanded' : ''}`}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      toggleSection(item.name)
+                    }}
+                    aria-expanded={isExpanded}
+                    aria-label={isExpanded ? `Collapse ${item.name}` : `Expand ${item.name}`}
+                  >
+                    <svg
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="sidebar__collapse-icon"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
 
-              {item.children && !isCollapsed && (
+              {hasChildren && !isCollapsed && isExpanded && (
                 <ul className="sidebar__submenu">
-                  {item.children.map((child) => (
+                  {item.children!.map((child) => (
                     <li key={child.path} className="sidebar__subitem">
                       <NavLink
                         to={child.path}

@@ -122,11 +122,83 @@
   color: #4b006e;
 }
 
+/* Link wrapper for parent items with collapse toggle */
+.sidebar__link-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.sidebar__link-wrapper .sidebar__link {
+  flex: 1;
+}
+
+.sidebar__link--parent {
+  /* Parent links that have children */
+}
+
+.sidebar__link--section-active {
+  /* When a child in this section is active */
+  background-color: rgba(212, 175, 55, 0.1);
+}
+
+/* Collapse toggle button */
+.sidebar__collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 100%;
+  min-height: 44px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sidebar__collapse-toggle:hover {
+  background-color: rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+}
+
+.sidebar__collapse-toggle:focus-visible {
+  outline: 2px solid #D4AF37;
+  outline-offset: -2px;
+}
+
+.sidebar__collapse-icon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+.sidebar__collapse-toggle--expanded .sidebar__collapse-icon {
+  transform: rotate(0deg);
+}
+
+.sidebar__collapse-toggle:not(.sidebar__collapse-toggle--expanded) .sidebar__collapse-icon {
+  transform: rotate(-90deg);
+}
+
 .sidebar__submenu {
   list-style: none;
   padding: 0;
   margin: 0;
   background-color: rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
 }
 
 .sidebar__subitem {

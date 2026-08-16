@@ -272,8 +272,12 @@ const Vendors: FC<VendorsProps> = ({ companyId: propCompanyId }) => {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1>Vendors</h1>
-        <p>Keeping track of who you pay helps you understand where your money goes</p>
+        <div className={styles.headerLeft}>
+          <h1>Money Going Out</h1>
+        </div>
+        <Button variant="primary" size="lg" onClick={handleCreate}>
+          Add Vendor
+        </Button>
       </header>
 
       {/* Tab Selector */}

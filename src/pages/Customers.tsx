@@ -32,7 +32,7 @@ import { PinIcon } from '../components/common/PinIcon'
 import type { Contact } from '../types'
 import styles from './Customers.module.css'
 
-type CustomerTab = 'customer-center' | 'invoices'
+type CustomerTab = 'customer-center' | 'invoices' | 'estimates' | 'products' | 'services'
 
 export interface CustomersProps {
   /**
@@ -71,6 +71,12 @@ const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
     switch (schemaTabId) {
       case TAB_IDS.CUSTOMERS_INVOICES:
         return 'invoices'
+      case TAB_IDS.CUSTOMERS_ESTIMATES:
+        return 'estimates'
+      case TAB_IDS.CUSTOMERS_PRODUCTS:
+        return 'products'
+      case TAB_IDS.CUSTOMERS_SERVICES:
+        return 'services'
       case TAB_IDS.CUSTOMERS_CENTER:
       default:
         return 'customer-center'
@@ -81,6 +87,12 @@ const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
     switch (tab) {
       case 'invoices':
         return TAB_IDS.CUSTOMERS_INVOICES
+      case 'estimates':
+        return TAB_IDS.CUSTOMERS_ESTIMATES
+      case 'products':
+        return TAB_IDS.CUSTOMERS_PRODUCTS
+      case 'services':
+        return TAB_IDS.CUSTOMERS_SERVICES
       case 'customer-center':
       default:
         return TAB_IDS.CUSTOMERS_CENTER
@@ -92,7 +104,7 @@ const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
 
   // Set initial tab from URL param, then pinned preference
   useEffect(() => {
-    if (tabFromUrl && ['customer-center', 'invoices'].includes(tabFromUrl)) {
+    if (tabFromUrl && ['customer-center', 'invoices', 'estimates', 'products', 'services'].includes(tabFromUrl)) {
       setCurrentTab(tabFromUrl)
     } else if (!isPinningLoading && defaultTab) {
       setCurrentTab(mapSchemaToTab(defaultTab))
@@ -103,7 +115,7 @@ const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
   useEffect(() => {
     const loadPinnedState = async () => {
       const states: Record<string, boolean> = {}
-      const tabIds: CustomerTab[] = ['customer-center', 'invoices']
+      const tabIds: CustomerTab[] = ['customer-center', 'invoices', 'estimates', 'products', 'services']
       for (const tab of tabIds) {
         states[tab] = await isTabPinned(mapTabToSchema(tab))
       }
@@ -135,6 +147,9 @@ const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
         // Only one tab can be pinned
         setPinnedTabs({
           'customer-center': tab === 'customer-center',
+          'estimates': tab === 'estimates',
+          'products': tab === 'products',
+          'services': tab === 'services',
           'invoices': tab === 'invoices',
         })
       }
@@ -245,8 +260,12 @@ const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1>Customers</h1>
-        <p>Manage your customer relationships - the heart of your business</p>
+        <div className={styles.headerLeft}>
+          <h1>Money Coming In</h1>
+        </div>
+        <Button variant="primary" size="lg" onClick={handleCreate}>
+          Add Customer
+        </Button>
       </header>
 
       {/* Tab Selector */}
@@ -273,6 +292,39 @@ const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
             size={14}
           />
         </button>
+        <button
+          className={currentTab === 'estimates' ? styles.tabActive : styles.tab}
+          onClick={() => handleTabChange('estimates')}
+        >
+          Estimates
+          <PinIcon
+            isPinned={pinnedTabs['estimates'] || false}
+            onClick={() => handlePinToggle('estimates')}
+            size={14}
+          />
+        </button>
+        <button
+          className={currentTab === 'products' ? styles.tabActive : styles.tab}
+          onClick={() => handleTabChange('products')}
+        >
+          Products
+          <PinIcon
+            isPinned={pinnedTabs['products'] || false}
+            onClick={() => handlePinToggle('products')}
+            size={14}
+          />
+        </button>
+        <button
+          className={currentTab === 'services' ? styles.tabActive : styles.tab}
+          onClick={() => handleTabChange('services')}
+        >
+          Services
+          <PinIcon
+            isPinned={pinnedTabs['services'] || false}
+            onClick={() => handlePinToggle('services')}
+            size={14}
+          />
+        </button>
       </div>
 
       {/* Tab Content */}
@@ -288,10 +340,37 @@ const Customers: FC<CustomersProps> = ({ companyId: propCompanyId }) => {
         )}
 
         {currentTab === 'invoices' && (
-          <div className={styles.invoicesTab}>
+          <div className={styles.placeholderTab}>
             <div className={styles.comingSoon}>
               <h2>Invoices</h2>
               <p>Full invoice management coming soon. For now, use Customer Center to view invoice activity.</p>
+            </div>
+          </div>
+        )}
+
+        {currentTab === 'estimates' && (
+          <div className={styles.placeholderTab}>
+            <div className={styles.comingSoon}>
+              <h2>Estimates</h2>
+              <p>Create and manage estimates for potential work. Coming soon.</p>
+            </div>
+          </div>
+        )}
+
+        {currentTab === 'products' && (
+          <div className={styles.placeholderTab}>
+            <div className={styles.comingSoon}>
+              <h2>Products</h2>
+              <p>Manage your product catalog. Coming soon.</p>
+            </div>
+          </div>
+        )}
+
+        {currentTab === 'services' && (
+          <div className={styles.placeholderTab}>
+            <div className={styles.comingSoon}>
+              <h2>Services</h2>
+              <p>Manage your service offerings. Coming soon.</p>
             </div>
           </div>
         )}
