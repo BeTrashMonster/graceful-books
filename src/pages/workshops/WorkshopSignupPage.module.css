@@ -35,11 +35,12 @@
   font-size: 1rem;
   line-height: 1.6;
   margin-bottom: 1rem;
+  text-align: left;
 }
 
 /* Rich text content styling */
 .workshopDescription p {
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.5em 0;
 }
 
 .workshopDescription p:last-child {
@@ -48,7 +49,7 @@
 
 .workshopDescription strong {
   font-weight: 600;
-  color: #374151;
+  color: #4b006e;
 }
 
 .workshopDescription em {
