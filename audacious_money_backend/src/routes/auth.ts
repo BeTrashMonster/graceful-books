@@ -1094,4 +1094,68 @@ auth.post('/bookkeeping-signup', async (c) => {
   }
 });
 
+/**
+ * POST /auth/workshop-unsubscribe
+ *
+ * Unsubscribe from workshop email notifications
+ * Marks the enrollment as unsubscribed but keeps the record
+ */
+auth.post('/workshop-unsubscribe', async (c) => {
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const { enrollmentId } = body;
+
+    if (!enrollmentId) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Enrollment ID is required');
+    }
+
+    // Check if enrollment exists
+    const result = await db.query(
+      `SELECT we.id, we.email_unsubscribed_at, u.email, u.first_name
+       FROM workshop_enrollments we
+       JOIN users u ON we.user_id = u.id
+       WHERE we.id = $1`,
+      [enrollmentId]
+    );
+
+    if (result.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Enrollment not found');
+    }
+
+    const enrollment = result.rows[0];
+
+    // Check if already unsubscribed
+    if (enrollment.email_unsubscribed_at) {
+      return success(c, {
+        message: 'You were already unsubscribed from workshop emails.'
+      });
+    }
+
+    // Mark as unsubscribed
+    await db.query(
+      'UPDATE workshop_enrollments SET email_unsubscribed_at = NOW() WHERE id = $1',
+      [enrollmentId]
+    );
+
+    // Also cancel any pending scheduled emails for this enrollment
+    await db.query(
+      `UPDATE scheduled_emails
+       SET status = 'cancelled'
+       WHERE enrollment_id = $1 AND status = 'pending'`,
+      [enrollmentId]
+    );
+
+    console.log('[Auth] Workshop email unsubscribe:', { email: enrollment.email, enrollmentId });
+
+    return success(c, {
+      message: 'You have been unsubscribed from workshop emails.'
+    });
+  } catch (error) {
+    console.error('[Auth] Workshop unsubscribe error:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
+  }
+});
+
 export default auth;

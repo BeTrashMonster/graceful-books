@@ -79,6 +79,7 @@ const WorkshopSignupPage = lazy(() => import('../pages/workshops/WorkshopSignupP
 const WorkshopThankYouPage = lazy(() => import('../pages/workshops/WorkshopThankYouPage'))
 const WorkshopWorksheetPage = lazy(() => import('../pages/workshops/WorkshopWorksheetPage'))
 const WorkshopCountdownPage = lazy(() => import('../pages/workshops/WorkshopCountdownPage'))
+const WorkshopUnsubscribePage = lazy(() => import('../pages/workshops/WorkshopUnsubscribePage'))
 
 export function AppRoutes() {
   return (
@@ -96,6 +97,7 @@ export function AppRoutes() {
         {/* Workshop routes - Public signup flow */}
         <Route path="/workshops/:slug" element={<WorkshopSignupPage />} />
         <Route path="/workshops/:slug/thank-you" element={<WorkshopThankYouPage />} />
+        <Route path="/workshop-unsubscribe" element={<WorkshopUnsubscribePage />} />
 
         {/* Workshop routes - Temporarily public for debugging */}
         <Route path="/workshops/worksheet" element={<WorkshopWorksheetPage />} />

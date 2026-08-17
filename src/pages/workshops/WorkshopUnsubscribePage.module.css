@@ -1,0 +1,70 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4b006e 0%, #5a0082 100%);
+  padding: 1rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3e8ff;
+  border-radius: 50%;
+  font-size: 2.5rem;
+  color: #4b006e;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #4b006e;
+  margin-bottom: 1rem;
+}
+
+.message {
+  color: #6b7280;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.actions {
+  margin-bottom: 1.5rem;
+}
+
+.homeButton {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: #4b006e;
+  color: white;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.homeButton:hover {
+  background: #5a0082;
+  transform: translateY(-1px);
+}
+
+.footer {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}

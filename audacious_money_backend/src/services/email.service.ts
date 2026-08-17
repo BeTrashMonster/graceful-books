@@ -88,6 +88,22 @@ function replaceTemplateTags(
   return result;
 }
 
+/**
+ * Format location for HTML email - makes URLs clickable
+ * If the location looks like a URL (http/https), wrap it in an anchor tag
+ */
+function formatLocationForHtml(location: string): string {
+  if (!location) return 'Location TBD';
+
+  // Check if it's a URL
+  const urlPattern = /^https?:\/\//i;
+  if (urlPattern.test(location.trim())) {
+    return `<a href="${location.trim()}" style="color: #4b006e;">${location.trim()}</a>`;
+  }
+
+  return location;
+}
+
 // =============================================================================
 // EMAIL TRACKING HELPERS
 // =============================================================================
@@ -1480,9 +1496,11 @@ export async function sendWorkshopWelcomeEmail(
   workshopLocation: string,
   userId: string,
   workshopId: string,
+  enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
+  const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
   // Template replacement values
   const templateValues = {
     firstName,
@@ -1547,6 +1565,9 @@ export async function sendWorkshopWelcomeEmail(
           Audacious Money<br>
           Building financial confidence, one step at a time.
         </p>
+        <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
+          Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Unsubscribe</a>
+        </p>
       </div>
     `;
 
@@ -1581,7 +1602,10 @@ See you ${workshopDate},
 Audrey
 Audacious Money
 
-P.S. If anything feels stuck or unclear, just reply to this email.`;
+P.S. If anything feels stuck or unclear, just reply to this email.
+
+---
+Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
 
   // Use custom template body if provided, otherwise use default
   const htmlBody = customTemplate?.htmlBody
@@ -1643,9 +1667,11 @@ export async function sendWorkshopReminderEmail(
   workshopLocation: string,
   userId: string,
   workshopId: string,
+  enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
+  const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
   // Template replacement values
   const templateValues = {
     firstName,
@@ -1680,7 +1706,7 @@ export async function sendWorkshopReminderEmail(
         <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #D4AF37;">
           <p style="margin: 0; font-size: 16px;">
             📅 ${workshopDate}<br>
-            📍 ${workshopLocation}
+            📍 ${formatLocationForHtml(workshopLocation)}
           </p>
         </div>
 
@@ -1698,6 +1724,9 @@ export async function sendWorkshopReminderEmail(
         <p style="font-size: 12px; color: #9ca3af;">
           Audacious Money<br>
           Building financial confidence, one step at a time.
+        </p>
+        <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
+          Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Unsubscribe</a>
         </p>
       </div>
     `;
@@ -1723,7 +1752,10 @@ Can't wait to get a little curious (and maybe a little uncomfortable — that's 
 See you in the morning,
 Audrey
 
-P.S. Didn't get to that initial cost number question yet? Hit reply and send it now.`;
+P.S. Didn't get to that initial cost number question yet? Hit reply and send it now.
+
+---
+Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
 
   // Use custom template body if provided, otherwise use default
   const htmlBody = customTemplate?.htmlBody
@@ -1848,9 +1880,12 @@ export async function sendWorkshopChallengeWeek1Email(
   workshopName: string,
   userId: string,
   workshopId: string,
+  enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
+  const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
+
   // Template replacement values
   const templateValues = {
     firstName,
@@ -1899,6 +1934,9 @@ export async function sendWorkshopChallengeWeek1Email(
           Audacious Money<br>
           Building financial confidence, one step at a time.
         </p>
+        <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
+          Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Unsubscribe</a>
+        </p>
       </div>
     `;
 
@@ -1931,7 +1969,9 @@ P.S. Presence, not performance. There is no wrong number here — there's just w
 
 ---
 Audacious Money
-Building financial confidence, one step at a time.`;
+Building financial confidence, one step at a time.
+
+Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
 
   // Use custom template body if provided, otherwise use default
   const htmlBody = customTemplate?.htmlBody
@@ -1993,9 +2033,12 @@ export async function sendWorkshopChallengeWeek2Email(
   workshopName: string,
   userId: string,
   workshopId: string,
+  enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
+  const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
+
   // Template replacement values
   const templateValues = {
     firstName,
@@ -2041,6 +2084,9 @@ export async function sendWorkshopChallengeWeek2Email(
           Audacious Money<br>
           Building financial confidence, one step at a time.
         </p>
+        <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
+          Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Unsubscribe</a>
+        </p>
       </div>
     `;
 
@@ -2070,7 +2116,9 @@ Audrey
 
 ---
 Audacious Money
-Building financial confidence, one step at a time.`;
+Building financial confidence, one step at a time.
+
+Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
 
   // Use custom template body if provided, otherwise use default
   const htmlBody = customTemplate?.htmlBody
@@ -2132,9 +2180,12 @@ export async function sendWorkshopChallengeWeek3Email(
   workshopName: string,
   userId: string,
   workshopId: string,
+  enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
+  const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
+
   // Template replacement values
   const templateValues = {
     firstName,
@@ -2178,6 +2229,9 @@ export async function sendWorkshopChallengeWeek3Email(
           Audacious Money<br>
           Building financial confidence, one step at a time.
         </p>
+        <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
+          Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Unsubscribe</a>
+        </p>
       </div>
     `;
 
@@ -2207,7 +2261,9 @@ Audrey
 
 ---
 Audacious Money
-Building financial confidence, one step at a time.`;
+Building financial confidence, one step at a time.
+
+Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
 
   // Use custom template body if provided, otherwise use default
   const htmlBody = customTemplate?.htmlBody
@@ -2269,9 +2325,12 @@ export async function sendWorkshopChallengeWeek4Email(
   workshopName: string,
   userId: string,
   workshopId: string,
+  enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
+  const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
+
   // Template replacement values
   const templateValues = {
     firstName,
@@ -2320,6 +2379,9 @@ export async function sendWorkshopChallengeWeek4Email(
           Audacious Money<br>
           Building financial confidence, one step at a time.
         </p>
+        <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
+          Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Unsubscribe</a>
+        </p>
       </div>
     `;
 
@@ -2351,7 +2413,9 @@ Audrey
 
 ---
 Audacious Money
-Building financial confidence, one step at a time.`;
+Building financial confidence, one step at a time.
+
+Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
 
   // Use custom template body if provided, otherwise use default
   const htmlBody = customTemplate?.htmlBody
@@ -2413,9 +2477,12 @@ export async function sendWorkshopWrapUpEmail(
   workshopName: string,
   userId: string,
   workshopId: string,
+  enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
+  const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
+
   // Template replacement values
   const templateValues = {
     firstName,
@@ -2467,6 +2534,9 @@ export async function sendWorkshopWrapUpEmail(
           Audacious Money<br>
           Building financial confidence, one step at a time.
         </p>
+        <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
+          Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Unsubscribe</a>
+        </p>
       </div>
     `;
 
@@ -2504,7 +2574,9 @@ P.S. This was never about becoming perfect with your numbers. It was about becom
 
 ---
 Audacious Money
-Building financial confidence, one step at a time.`;
+Building financial confidence, one step at a time.
+
+Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
 
   // Use custom template body if provided, otherwise use default
   const htmlBody = customTemplate?.htmlBody

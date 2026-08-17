@@ -243,15 +243,18 @@ export async function processScheduledEmails(db: Pool): Promise<{
   let failed = 0;
 
   // Find pending emails ready to send (with row locking to prevent duplicate processing)
+  // Skip users who have unsubscribed from workshop emails
   const result = await db.query(`
     SELECT se.*,
            w.cohort_name, w.workshop_name, w.workshop_start_datetime,
            w.workshop_end_datetime, w.location, w.custom_email_templates
     FROM scheduled_emails se
     JOIN workshops w ON se.workshop_id = w.id
+    LEFT JOIN workshop_enrollments we ON se.enrollment_id = we.id
     WHERE se.status = 'pending'
       AND se.scheduled_for <= NOW()
       AND se.attempts < se.max_attempts
+      AND (we.email_unsubscribed_at IS NULL OR we.id IS NULL)
     ORDER BY se.scheduled_for ASC
     LIMIT 50
     FOR UPDATE OF se SKIP LOCKED
@@ -338,6 +341,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
         workshopLocation,
         row.user_id,
         row.workshop_id,
+        row.enrollment_id, // For unsubscribe link
         undefined, // No sendAt - send immediately
         customTemplates.welcome
       );
@@ -351,6 +355,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
         workshopLocation,
         row.user_id,
         row.workshop_id,
+        row.enrollment_id, // For unsubscribe link
         undefined, // No sendAt
         customTemplates.reminder
       );
@@ -363,6 +368,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
         workshopName,
         row.user_id,
         row.workshop_id,
+        row.enrollment_id, // For unsubscribe link
         undefined, // No sendAt
         customTemplates.week1
       );
@@ -375,6 +381,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
         workshopName,
         row.user_id,
         row.workshop_id,
+        row.enrollment_id, // For unsubscribe link
         undefined, // No sendAt
         customTemplates.week2
       );
@@ -387,6 +394,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
         workshopName,
         row.user_id,
         row.workshop_id,
+        row.enrollment_id, // For unsubscribe link
         undefined, // No sendAt
         customTemplates.week3
       );
@@ -399,6 +407,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
         workshopName,
         row.user_id,
         row.workshop_id,
+        row.enrollment_id, // For unsubscribe link
         undefined, // No sendAt
         customTemplates.week4
       );
@@ -411,6 +420,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
         workshopName,
         row.user_id,
         row.workshop_id,
+        row.enrollment_id, // For unsubscribe link
         undefined, // No sendAt
         customTemplates.wrapUp
       );
