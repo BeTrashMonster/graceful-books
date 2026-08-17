@@ -83,12 +83,3 @@
 .editor :global(.ql-toolbar button.ql-active .ql-fill) {
   fill: var(--color-primary, #7c3aed);
 }
-
-/* Editor content styling */
-.editor :global(.ql-editor p) {
-  margin: 0 0 0.5em 0;
-}
-
-.editor :global(.ql-editor strong) {
-  color: #4b006e;
-}
