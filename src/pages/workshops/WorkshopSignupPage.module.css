@@ -33,8 +33,49 @@
 .workshopDescription {
   color: #6b7280;
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1.6;
   margin-bottom: 1rem;
+}
+
+/* Rich text content styling */
+.workshopDescription p {
+  margin: 0 0 0.75rem 0;
+}
+
+.workshopDescription p:last-child {
+  margin-bottom: 0;
+}
+
+.workshopDescription strong {
+  font-weight: 600;
+  color: #374151;
+}
+
+.workshopDescription em {
+  font-style: italic;
+}
+
+.workshopDescription u {
+  text-decoration: underline;
+}
+
+.workshopDescription ul,
+.workshopDescription ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.workshopDescription li {
+  margin: 0.25rem 0;
+}
+
+.workshopDescription a {
+  color: #4b006e;
+  text-decoration: underline;
+}
+
+.workshopDescription a:hover {
+  color: #6b21a8;
 }
 
 .workshopMeta {

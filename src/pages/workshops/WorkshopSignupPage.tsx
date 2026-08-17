@@ -6,6 +6,7 @@ import type { Charity } from '../../types/database.types';
 import { getWorkshopBySlug, enrollInWorkshop, type Workshop } from '../../services/workshops.api';
 import { LoadingOverlay } from '../../components/feedback/Loading';
 import styles from './WorkshopSignupPage.module.css';
+import { sanitizeHtml } from '../../utils/sanitize';
 
 type SignupStep = 'credentials' | 'charity' | 'confirmation';
 
@@ -295,7 +296,10 @@ export default function WorkshopSignupPage() {
         <div className={styles.workshopHeader}>
           <h1 className={styles.workshopTitle}>{workshop.workshopName || workshop.cohortName}</h1>
           {workshop.description && (
-            <p className={styles.workshopDescription}>{workshop.description}</p>
+            <div
+              className={styles.workshopDescription}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(workshop.description) }}
+            />
           )}
           <div className={styles.workshopMeta}>
             <div className={styles.metaItem}>

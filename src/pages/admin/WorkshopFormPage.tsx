@@ -15,6 +15,7 @@ import {
   DEFAULT_EMAIL_TEMPLATES,
 } from '../../utils/emailTemplates';
 import EmailTemplateSection, { EmailSchedule, EmailScheduleConfig } from '../../components/admin/workshops/EmailTemplateSection';
+import { RichTextEditor } from '../../components/common/RichTextEditor';
 
 const API_URL = 'https://api.audacious.money';
 
@@ -506,14 +507,15 @@ export default function WorkshopFormPage() {
 
           <div className={styles.field}>
             <label htmlFor="description">Description</label>
-            <textarea
+            <RichTextEditor
               id="description"
-              name="description"
               value={formData.description}
-              onChange={handleChange}
-              rows={4}
+              onChange={(value) => setFormData(prev => ({ ...prev, description: value }))}
               placeholder="Workshop description shown on signup page"
+              minHeight={150}
+              aria-label="Workshop description"
             />
+            <small>Use the toolbar to add formatting like bold, italics, lists, and links.</small>
           </div>
 
           <div className={styles.field}>

@@ -1,0 +1,85 @@
+/**
+ * Rich Text Editor Styles
+ *
+ * Simplified from EmailTemplateEditor - just the essentials.
+ */
+
+.wrapper {
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 6px;
+  overflow: hidden;
+  background: white;
+}
+
+.wrapper:focus-within {
+  border-color: var(--color-primary, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.editor {
+  background: white;
+}
+
+/* Override Quill toolbar styles */
+.editor :global(.ql-toolbar) {
+  border: none;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-bg-secondary, #f9fafb);
+  padding: 0.5rem;
+}
+
+.editor :global(.ql-container) {
+  border: none;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  min-height: var(--editor-min-height, 150px);
+}
+
+.editor :global(.ql-editor) {
+  min-height: var(--editor-min-height, 150px);
+  padding: 0.75rem 1rem;
+  line-height: 1.6;
+}
+
+.editor :global(.ql-editor.ql-blank::before) {
+  color: #9ca3af;
+  font-style: normal;
+}
+
+/* Toolbar button styling */
+.editor :global(.ql-toolbar button) {
+  width: 28px;
+  height: 28px;
+}
+
+.editor :global(.ql-toolbar button:hover) {
+  color: var(--color-primary, #7c3aed);
+}
+
+.editor :global(.ql-toolbar button.ql-active) {
+  color: var(--color-primary, #7c3aed);
+}
+
+.editor :global(.ql-toolbar .ql-stroke) {
+  stroke: #374151;
+}
+
+.editor :global(.ql-toolbar button:hover .ql-stroke) {
+  stroke: var(--color-primary, #7c3aed);
+}
+
+.editor :global(.ql-toolbar button.ql-active .ql-stroke) {
+  stroke: var(--color-primary, #7c3aed);
+}
+
+.editor :global(.ql-toolbar .ql-fill) {
+  fill: #374151;
+}
+
+.editor :global(.ql-toolbar button:hover .ql-fill) {
+  fill: var(--color-primary, #7c3aed);
+}
+
+.editor :global(.ql-toolbar button.ql-active .ql-fill) {
+  fill: var(--color-primary, #7c3aed);
+}
