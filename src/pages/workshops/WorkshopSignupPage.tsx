@@ -1,19 +1,14 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { toZonedTime } from 'date-fns-tz';
-import { CharitySelector } from '../../components/charity';
-import type { Charity } from '../../types/database.types';
 import { getWorkshopBySlug, enrollInWorkshop, type Workshop } from '../../services/workshops.api';
 import { LoadingOverlay } from '../../components/feedback/Loading';
 import styles from './WorkshopSignupPage.module.css';
 import { sanitizeHtml } from '../../utils/sanitize';
 
-type SignupStep = 'credentials' | 'charity' | 'confirmation';
-
 export default function WorkshopSignupPage() {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
-  const [step, setStep] = useState<SignupStep>('credentials');
   const [workshop, setWorkshop] = useState<Workshop | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,7 +16,6 @@ export default function WorkshopSignupPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [selectedCharity, setSelectedCharity] = useState<Charity | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,21 +76,6 @@ export default function WorkshopSignupPage() {
       return;
     }
 
-    // Clear error when moving to next step
-    setError(null);
-    setStep('charity');
-  };
-
-  const handleCharitySelect = (charity: Charity) => {
-    setSelectedCharity(charity);
-  };
-
-  const handleCharityContinue = async () => {
-    if (!selectedCharity) {
-      setError('Please select a charity to support');
-      return;
-    }
-
     if (!workshop) {
       setError('Workshop data not loaded');
       return;
@@ -106,14 +85,13 @@ export default function WorkshopSignupPage() {
     setError(null);
 
     try {
-      // Enroll in workshop
+      // Enroll in workshop (charity selection happens later during trial conversion)
       const response = await enrollInWorkshop(workshop.id, {
         email,
         password,
         firstName,
         lastName,
         companyName: companyName || undefined,
-        charityId: selectedCharity.id,
       });
 
       // Store session data (response is wrapped in { data: { ... } })
@@ -348,15 +326,12 @@ export default function WorkshopSignupPage() {
         {/* Signup Form */}
         {isWorkshopOpen() && (
           <>
-            {/* Step 1: Credentials */}
-            {step === 'credentials' && (
-              <>
-                <div className={styles.header}>
-                  <h2 className={styles.title}>Create Your Account</h2>
-                  <p className={styles.subtitle}>
-                    Step 1 of 2: Enter your information
-                  </p>
-                </div>
+            <div className={styles.header}>
+              <h2 className={styles.title}>Create Your Account</h2>
+              <p className={styles.subtitle}>
+                Enter your information to enroll
+              </p>
+            </div>
 
                 {error && <div className={styles.errorAlert}>{error}</div>}
 
@@ -484,52 +459,6 @@ export default function WorkshopSignupPage() {
                     </Link>
                   </p>
                 </div>
-              </>
-            )}
-
-            {/* Step 2: Charity Selection */}
-            {step === 'charity' && (
-              <>
-                <div className={styles.header}>
-                  <h2 className={styles.title}>Choose Your Charity</h2>
-                  <p className={styles.subtitle}>
-                    Step 2 of 2: Select a charity to support with $5/month
-                  </p>
-                </div>
-
-                {error && <div className={styles.errorAlert}>{error}</div>}
-
-                <div className={styles.charitySection}>
-                  <CharitySelector
-                    selectedCharityId={selectedCharity?.id}
-                    onSelect={handleCharitySelect}
-                    showSearch={true}
-                    showFilters={true}
-                  />
-                </div>
-
-                <div className={styles.buttonRow}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setError(null);
-                      setStep('credentials');
-                    }}
-                    className={styles.secondaryButton}
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCharityContinue}
-                    disabled={!selectedCharity}
-                    className={styles.primaryButton}
-                  >
-                    Complete Enrollment
-                  </button>
-                </div>
-              </>
-            )}
           </>
         )}
       </div>
