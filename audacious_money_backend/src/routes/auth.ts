@@ -1111,6 +1111,12 @@ auth.post('/workshop-unsubscribe', async (c) => {
       return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Enrollment ID is required');
     }
 
+    // Ensure the column exists (self-healing migration)
+    await db.query(`
+      ALTER TABLE workshop_enrollments
+      ADD COLUMN IF NOT EXISTS email_unsubscribed_at TIMESTAMP WITH TIME ZONE
+    `);
+
     // Check if enrollment exists
     const result = await db.query(
       `SELECT we.id, we.email_unsubscribed_at, u.email, u.first_name
