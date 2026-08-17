@@ -6,6 +6,8 @@ import { LoadingOverlay } from '../../components/feedback/Loading';
 import styles from './WorkshopSignupPage.module.css';
 import { sanitizeHtml } from '../../utils/sanitize';
 
+const API_URL = 'https://api.audacious.money';
+
 export default function WorkshopSignupPage() {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
@@ -22,6 +24,10 @@ export default function WorkshopSignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [enrollmentCount, setEnrollmentCount] = useState<number>(0);
+
+  // Existing user detection
+  const [existingUser, setExistingUser] = useState<{ firstName: string } | null>(null);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
 
   // Load workshop on mount
   useEffect(() => {
@@ -55,6 +61,98 @@ export default function WorkshopSignupPage() {
       setError(err.message || 'Workshop not found');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Check if email exists when user leaves the email field
+  const handleEmailBlur = async () => {
+    if (!email || !email.includes('@')) return;
+
+    setIsCheckingEmail(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${API_URL}/auth/check-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+
+      const data = await response.json();
+
+      if (data.data?.exists) {
+        setExistingUser({ firstName: data.data.firstName || 'there' });
+      } else {
+        setExistingUser(null);
+      }
+    } catch (err) {
+      console.error('Email check failed:', err);
+      // Don't show error - just proceed with signup flow
+      setExistingUser(null);
+    } finally {
+      setIsCheckingEmail(false);
+    }
+  };
+
+  // Reset existing user state when email changes
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (existingUser) {
+      setExistingUser(null);
+    }
+  };
+
+  // Handle existing user login + enrollment
+  const handleExistingUserLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!workshop) {
+      setError('Workshop data not loaded');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${API_URL}/auth/workshop-login-enroll`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password,
+          workshopId: workshop.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Login failed');
+      }
+
+      // Store session data
+      sessionStorage.setItem(
+        'graceful_books_session',
+        JSON.stringify({
+          token: data.data.token,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          userEmail: data.data.user.email,
+          userId: data.data.user.id,
+          products: data.data.products || [],
+        })
+      );
+
+      // Trigger auth context to reload
+      window.dispatchEvent(new Event('graceful_books_login'));
+
+      // Navigate to countdown page (they already have an account, go straight to countdown)
+      navigate('/workshops/countdown');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'Invalid email or password');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -326,12 +424,80 @@ export default function WorkshopSignupPage() {
         {/* Signup Form */}
         {isWorkshopOpen() && (
           <>
-            <div className={styles.header}>
-              <h2 className={styles.title}>Create Your Account</h2>
-              <p className={styles.subtitle}>
-                Enter your information to enroll
-              </p>
-            </div>
+            {/* Existing User Login Flow */}
+            {existingUser ? (
+              <>
+                <div className={styles.header}>
+                  <h2 className={styles.title}>Welcome back, {existingUser.firstName}!</h2>
+                  <p className={styles.subtitle}>
+                    Enter your password to enroll in this workshop
+                  </p>
+                </div>
+
+                {error && <div className={styles.errorAlert}>{error}</div>}
+
+                <form onSubmit={handleExistingUserLogin} className={styles.form}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label} htmlFor="email">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={email}
+                      onChange={handleEmailChange}
+                      className={styles.input}
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.label} htmlFor="password">
+                      Password *
+                    </label>
+                    <div className={styles.passwordWrapper}>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className={styles.input}
+                        required
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className={styles.passwordToggle}
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? 'Hide' : 'Show'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button type="submit" className={styles.primaryButton} disabled={isSubmitting}>
+                    {isSubmitting ? 'Enrolling...' : 'Enroll in Workshop'}
+                  </button>
+                </form>
+
+                <div className={styles.footer}>
+                  <p>
+                    <Link to="/forgot-password" className={styles.link}>
+                      Forgot your password?
+                    </Link>
+                  </p>
+                </div>
+              </>
+            ) : (
+              /* New User Signup Flow */
+              <>
+                <div className={styles.header}>
+                  <h2 className={styles.title}>Create Your Account</h2>
+                  <p className={styles.subtitle}>
+                    Enter your information to enroll
+                  </p>
+                </div>
 
                 {error && <div className={styles.errorAlert}>{error}</div>}
 
@@ -374,10 +540,14 @@ export default function WorkshopSignupPage() {
                       type="email"
                       id="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={handleEmailChange}
+                      onBlur={handleEmailBlur}
                       className={styles.input}
                       required
                     />
+                    {isCheckingEmail && (
+                      <p className={styles.hint} style={{ color: '#6b7280' }}>Checking...</p>
+                    )}
                   </div>
 
                   <div className={styles.formGroup}>
@@ -446,8 +616,8 @@ export default function WorkshopSignupPage() {
                     </div>
                   </div>
 
-                  <button type="submit" className={styles.primaryButton}>
-                    Continue
+                  <button type="submit" className={styles.primaryButton} disabled={isSubmitting}>
+                    {isSubmitting ? 'Enrolling...' : 'Continue'}
                   </button>
                 </form>
 
@@ -459,6 +629,8 @@ export default function WorkshopSignupPage() {
                     </Link>
                   </p>
                 </div>
+              </>
+            )}
           </>
         )}
       </div>

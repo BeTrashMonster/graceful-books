@@ -1164,4 +1164,177 @@ auth.post('/workshop-unsubscribe', async (c) => {
   }
 });
 
+/**
+ * POST /auth/check-email
+ *
+ * Check if an email already exists in the system
+ * Used for ajax validation on signup forms
+ */
+auth.post('/check-email', async (c) => {
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const { email } = body;
+
+    if (!email) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Email is required');
+    }
+
+    const result = await db.query(
+      'SELECT id, first_name FROM users WHERE email = $1',
+      [email.toLowerCase().trim()]
+    );
+
+    const exists = result.rowCount > 0;
+    const firstName = exists ? result.rows[0].first_name : null;
+
+    return success(c, { exists, firstName });
+  } catch (error) {
+    console.error('[Auth] Check email error:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
+  }
+});
+
+/**
+ * POST /auth/workshop-login-enroll
+ *
+ * Login an existing user and enroll them in a workshop
+ * Used when an existing user tries to sign up for a workshop
+ */
+auth.post('/workshop-login-enroll', async (c) => {
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const { email, password, workshopId } = body;
+
+    if (!email || !password || !workshopId) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Email, password, and workshop ID are required');
+    }
+
+    // Look up user
+    const userResult = await db.query(
+      `SELECT id, email, password_hash, first_name, last_name, company_name, account_status
+       FROM users
+       WHERE email = $1`,
+      [email.toLowerCase().trim()]
+    );
+
+    if (userResult.rowCount === 0) {
+      return unauthorized(c, ErrorCodes.INVALID_CREDENTIALS, 'Invalid email or password');
+    }
+
+    const user = userResult.rows[0];
+
+    // Verify password
+    const isValidPassword = await timingSafeVerify(password, user.password_hash);
+    if (!isValidPassword) {
+      return unauthorized(c, ErrorCodes.INVALID_CREDENTIALS, 'Invalid email or password');
+    }
+
+    // Check account status
+    if (user.account_status !== 'active' && user.account_status !== 'suspended') {
+      return forbidden(c, ErrorCodes.ACCOUNT_INACTIVE, 'Account is not active');
+    }
+
+    // Reactivate suspended account
+    if (user.account_status === 'suspended') {
+      await db.query(
+        'UPDATE users SET account_status = $1, updated_at = NOW() WHERE id = $2',
+        ['active', user.id]
+      );
+    }
+
+    // Check workshop exists and is accepting enrollments
+    const workshopResult = await db.query(
+      `SELECT * FROM workshops WHERE id = $1`,
+      [workshopId]
+    );
+
+    if (workshopResult.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Workshop not found');
+    }
+
+    const workshop = workshopResult.rows[0];
+
+    if (workshop.status !== 'open_registration' && workshop.status !== 'open') {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Workshop is not accepting enrollments');
+    }
+
+    // Check if already enrolled
+    const enrollmentCheck = await db.query(
+      'SELECT id FROM workshop_enrollments WHERE user_id = $1 AND workshop_id = $2',
+      [user.id, workshopId]
+    );
+
+    let enrollmentId;
+    if (enrollmentCheck.rowCount > 0) {
+      // Already enrolled - just return success
+      enrollmentId = enrollmentCheck.rows[0].id;
+      console.log('[Auth] User already enrolled in workshop:', { userId: user.id, workshopId, enrollmentId });
+    } else {
+      // Calculate trial dates
+      const trialStartedAt = new Date();
+      const trialDurationDays = workshop.trial_duration_days || 30;
+      const trialExpiresAt = new Date(trialStartedAt.getTime() + trialDurationDays * 24 * 60 * 60 * 1000);
+
+      // Ensure column exists
+      await db.query(`
+        ALTER TABLE workshop_enrollments
+        ADD COLUMN IF NOT EXISTS email_unsubscribed_at TIMESTAMP WITH TIME ZONE
+      `);
+
+      // Create enrollment
+      const enrollmentResult = await db.query(
+        `INSERT INTO workshop_enrollments (user_id, workshop_id, trial_started_at, trial_expires_at, status)
+         VALUES ($1, $2, $3, $4, 'active')
+         RETURNING id`,
+        [user.id, workshopId, trialStartedAt.toISOString(), trialExpiresAt.toISOString()]
+      );
+
+      enrollmentId = enrollmentResult.rows[0].id;
+      console.log('[Auth] Enrolled existing user in workshop:', { userId: user.id, workshopId, enrollmentId });
+
+      // Schedule welcome email
+      try {
+        const { scheduleWorkshopEmails } = await import('../services/emailScheduler.service');
+        await scheduleWorkshopEmails(db, workshopId, user.id, enrollmentId);
+      } catch (emailError) {
+        console.error('[Auth] Failed to schedule workshop emails:', emailError);
+      }
+    }
+
+    // Generate token
+    const token = await generateToken(user.id, db);
+
+    // Get user's products
+    const productsResult = await db.query(
+      `SELECT p.product_key
+       FROM user_products up
+       JOIN products p ON up.product_id = p.id
+       WHERE up.user_id = $1 AND up.status = 'active'`,
+      [user.id]
+    );
+    const products = productsResult.rows.map(r => r.product_key);
+
+    return success(c, {
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        companyName: user.company_name,
+      },
+      products,
+      enrollmentId,
+      alreadyEnrolled: enrollmentCheck.rowCount > 0,
+    });
+  } catch (error) {
+    console.error('[Auth] Workshop login-enroll error:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
+  }
+});
+
 export default auth;
