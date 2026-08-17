@@ -1299,7 +1299,28 @@ auth.post('/workshop-login-enroll', async (c) => {
       // Schedule welcome email
       try {
         const { scheduleWorkshopEmails } = await import('../services/emailScheduler.service');
-        await scheduleWorkshopEmails(db, workshopId, user.id, enrollmentId);
+        await scheduleWorkshopEmails(
+          db,
+          {
+            id: enrollmentId,
+            workshopId: workshop.id,
+            userId: user.id,
+          },
+          {
+            id: workshop.id,
+            cohortName: workshop.cohort_name,
+            workshopName: workshop.workshop_name,
+            workshopStartDatetime: workshop.workshop_start_datetime,
+            workshopEndDatetime: workshop.workshop_end_datetime || workshop.workshop_start_datetime,
+            location: workshop.location,
+            customEmailSchedule: workshop.custom_email_schedule,
+            customEmailTemplates: workshop.custom_email_templates,
+          },
+          {
+            email: user.email,
+            firstName: user.first_name,
+          }
+        );
       } catch (emailError) {
         console.error('[Auth] Failed to schedule workshop emails:', emailError);
       }
@@ -1331,9 +1352,10 @@ auth.post('/workshop-login-enroll', async (c) => {
       enrollmentId,
       alreadyEnrolled: enrollmentCheck.rowCount > 0,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Auth] Workshop login-enroll error:', error);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
+    console.error('[Auth] Error stack:', error?.stack);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, error?.message || 'An unexpected error occurred');
   }
 });
 
