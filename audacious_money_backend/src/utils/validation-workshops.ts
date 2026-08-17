@@ -105,7 +105,7 @@ export const emailTemplatesSchema = z
   );
 
 /**
- * Email schedule override schema
+ * Email schedule override schema (legacy format)
  */
 export const emailScheduleOverrideSchema = z
   .object({
@@ -126,6 +126,30 @@ export const emailScheduleOverrideSchema = z
       .optional(),
   })
   .optional();
+
+/**
+ * Email schedule config schema (matches frontend EmailSchedule interface)
+ */
+const emailScheduleWhenSchema = z.union([
+  z.literal('immediate'),
+  z.object({ hours_before: z.number().int().positive().max(168) }),
+  z.object({ days_after_workshop: z.number().int().min(0).max(90) }),
+]);
+
+const emailScheduleConfigSchema = z.object({
+  enabled: z.boolean(),
+  when: emailScheduleWhenSchema,
+});
+
+export const customEmailScheduleSchema = z.object({
+  welcome: emailScheduleConfigSchema.optional(),
+  reminder: emailScheduleConfigSchema.optional(),
+  week1: emailScheduleConfigSchema.optional(),
+  week2: emailScheduleConfigSchema.optional(),
+  week3: emailScheduleConfigSchema.optional(),
+  week4: emailScheduleConfigSchema.optional(),
+  wrapUp: emailScheduleConfigSchema.optional(),
+});
 
 // =============================================================================
 // RESOURCE SCHEMAS
@@ -201,6 +225,7 @@ export const createWorkshopSchema = z
     // Customization
     welcomeMessage: z.string().max(5000, 'Welcome message must be less than 5000 characters').optional(),
     customEmailTemplates: emailTemplatesSchema.optional(),
+    customEmailSchedule: customEmailScheduleSchema.optional(),
     postWorkshopResources: z.array(workshopResourceSchema).max(20, 'Maximum 20 resources allowed').optional(),
 
     // Reminder Settings
@@ -251,6 +276,7 @@ export const updateWorkshopSchema = z
 
     welcomeMessage: z.string().max(5000).optional().nullable(),
     customEmailTemplates: emailTemplatesSchema.optional().nullable(),
+    customEmailSchedule: customEmailScheduleSchema.optional().nullable(),
     postWorkshopResources: z.array(workshopResourceSchema).max(20).optional().nullable(),
 
     sendReminder: z.boolean().optional(),

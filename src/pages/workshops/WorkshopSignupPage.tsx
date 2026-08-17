@@ -314,6 +314,10 @@ export default function WorkshopSignupPage() {
                 {getTimezoneAbbr(workshop.secondaryTimezone)}</>
               )}
             </div>
+            <div className={styles.metaItem}>
+              <strong>Location:</strong>{' '}
+              {workshop.workshopType === 'online' ? 'Zoom' : (workshop.location || 'Location TBD')}
+            </div>
             {workshop.maxEnrollment && (
               <div className={styles.metaItem}>
                 <strong>Enrolled:</strong> {enrollmentCount} / {workshop.maxEnrollment} participants

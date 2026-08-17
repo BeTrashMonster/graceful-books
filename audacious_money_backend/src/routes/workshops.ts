@@ -175,7 +175,7 @@ workshops.post('/', requireAdmin, validate(createWorkshopSchema), async (c) => {
         stripe_price_id, trial_duration_days,
         access_grant_datetime, trial_start_datetime, workshop_start_datetime, workshop_end_datetime,
         registration_deadline, max_enrollment,
-        welcome_message, custom_email_templates, post_workshop_resources,
+        welcome_message, custom_email_templates, custom_email_schedule, post_workshop_resources,
         send_reminder, reminder_hours_before,
         status, created_by
       ) VALUES (
@@ -185,9 +185,9 @@ workshops.post('/', requireAdmin, validate(createWorkshopSchema), async (c) => {
         $9, $10,
         $11, $12, $13, $14,
         $15, $16,
-        $17, $18, $19,
-        $20, $21,
-        $22, $23
+        $17, $18, $19, $20,
+        $21, $22,
+        $23, $24
       ) RETURNING *`,
       [
         data.cohortName,
@@ -208,6 +208,7 @@ workshops.post('/', requireAdmin, validate(createWorkshopSchema), async (c) => {
         data.maxEnrollment || null,
         data.welcomeMessage || null,
         data.customEmailTemplates ? JSON.stringify(data.customEmailTemplates) : null,
+        data.customEmailSchedule ? JSON.stringify(data.customEmailSchedule) : null,
         data.postWorkshopResources ? JSON.stringify(data.postWorkshopResources) : null,
         data.sendReminder !== undefined ? data.sendReminder : true,
         data.reminderHoursBefore || 24,
@@ -513,6 +514,10 @@ workshops.put('/:id', requireAdmin, validate(updateWorkshopSchema), async (c) =>
     if (data.customEmailTemplates !== undefined) {
       updates.push(`custom_email_templates = $${paramCount++}`);
       values.push(data.customEmailTemplates ? JSON.stringify(data.customEmailTemplates) : null);
+    }
+    if (data.customEmailSchedule !== undefined) {
+      updates.push(`custom_email_schedule = $${paramCount++}`);
+      values.push(data.customEmailSchedule ? JSON.stringify(data.customEmailSchedule) : null);
     }
     if (data.postWorkshopResources !== undefined) {
       updates.push(`post_workshop_resources = $${paramCount++}`);
