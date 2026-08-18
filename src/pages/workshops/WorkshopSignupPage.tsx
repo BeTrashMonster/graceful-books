@@ -346,6 +346,16 @@ export default function WorkshopSignupPage() {
   if (error && !workshop) {
     return (
       <div className={styles.pageWrapper}>
+        {/* Sticky branding on left side */}
+        <div className={styles.stickyBrand}>
+          <img
+            src="/assets/audacious-logo.png"
+            alt="Audacious Money"
+            className={styles.stickyLogo}
+          />
+          <span className={styles.stickyName}>Audacious Money</span>
+        </div>
+
         <div className={styles.container}>
           <div className={styles.card}>
             <div className={styles.header}>
@@ -360,12 +370,6 @@ export default function WorkshopSignupPage() {
 
         {/* Workshop Footer */}
         <footer className={styles.workshopFooter}>
-          <img
-            src="/assets/audacious-logo.png"
-            alt="Audacious Money"
-            className={styles.footerLogo}
-          />
-          <h2 className={styles.footerBrand}>Audacious Money</h2>
           <p className={styles.footerTagline}>You deserve financial clarity.</p>
           <nav className={styles.footerLinks}>
             <a href="https://www.audacious.money/privacy-policy" className={styles.footerLink}>Privacy</a>
@@ -384,6 +388,16 @@ export default function WorkshopSignupPage() {
 
   return (
     <div className={styles.pageWrapper}>
+      {/* Sticky branding on left side */}
+      <div className={styles.stickyBrand}>
+        <img
+          src="/assets/audacious-logo.png"
+          alt="Audacious Money"
+          className={styles.stickyLogo}
+        />
+        <span className={styles.stickyName}>Audacious Money</span>
+      </div>
+
       <div className={styles.container}>
         {isSubmitting && <LoadingOverlay message="Enrolling you in the workshop..." />}
 
@@ -658,12 +672,6 @@ export default function WorkshopSignupPage() {
 
       {/* Workshop Footer */}
       <footer className={styles.workshopFooter}>
-        <img
-          src="/assets/audacious-logo.png"
-          alt="Audacious Money"
-          className={styles.footerLogo}
-        />
-        <h2 className={styles.footerBrand}>Audacious Money</h2>
         <p className={styles.footerTagline}>You deserve financial clarity.</p>
         <nav className={styles.footerLinks}>
           <a href="https://www.audacious.money/privacy-policy" className={styles.footerLink}>Privacy</a>
