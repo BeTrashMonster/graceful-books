@@ -1317,6 +1317,7 @@ auth.post('/workshop-login-enroll', async (c) => {
             customEmailTemplates: workshop.custom_email_templates,
           },
           {
+            id: user.id,
             email: user.email,
             firstName: user.first_name,
           }
