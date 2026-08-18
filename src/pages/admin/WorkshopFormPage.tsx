@@ -558,7 +558,7 @@ export default function WorkshopFormPage() {
 
           <div className={styles.field}>
             <label htmlFor="location">
-              Location {formData.workshopType === 'in_person' && <span className={styles.required}>*</span>}
+              {formData.workshopType === 'online' ? 'Meeting Link' : 'Location'} <span className={styles.required}>*</span>
             </label>
             <input
               type="text"
@@ -566,9 +566,14 @@ export default function WorkshopFormPage() {
               name="location"
               value={formData.location}
               onChange={handleChange}
-              required={formData.workshopType === 'in_person'}
-              placeholder="e.g., 2130 SW 5th Ave, Portland, OR 97201"
+              required
+              placeholder={formData.workshopType === 'online'
+                ? "e.g., https://zoom.us/j/123456789"
+                : "e.g., 2130 SW 5th Ave, Portland, OR 97201"}
             />
+            {formData.workshopType === 'online' && (
+              <span className={styles.hint}>Enter the Zoom, Google Meet, or other video call link for attendees</span>
+            )}
           </div>
 
           <div className={styles.field}>

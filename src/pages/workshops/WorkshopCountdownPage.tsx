@@ -230,12 +230,12 @@ export default function WorkshopCountdownPage() {
                       href={workshop.location}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={styles.link}
+                      className={styles.joinButton}
                     >
                       Join Online Meeting
                     </a>
                   ) : (
-                    'Online'
+                    <span className={styles.pendingLink}>Meeting link will be sent before the workshop</span>
                   )
                 ) : (
                   workshopLocation

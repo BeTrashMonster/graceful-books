@@ -392,7 +392,7 @@ export default function WorkshopSignupPage() {
             </div>
             <div className={styles.metaItem}>
               <strong>Location:</strong>{' '}
-              {workshop.workshopType === 'online' ? 'Zoom' : (workshop.location || 'Location TBD')}
+              {workshop.workshopType === 'online' ? 'Online (link provided after signup)' : (workshop.location || 'Location TBD')}
             </div>
             {workshop.maxEnrollment && (
               <div className={styles.metaItem}>
