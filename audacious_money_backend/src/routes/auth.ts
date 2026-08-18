@@ -1331,13 +1331,13 @@ auth.post('/workshop-login-enroll', async (c) => {
 
     // Get user's products
     const productsResult = await db.query(
-      `SELECT p.product_key
+      `SELECT p.slug
        FROM user_products up
        JOIN products p ON up.product_id = p.id
-       WHERE up.user_id = $1 AND up.status = 'active'`,
+       WHERE up.user_id = $1 AND up.status IN ('trialing', 'active')`,
       [user.id]
     );
-    const products = productsResult.rows.map(r => r.product_key);
+    const products = productsResult.rows.map(r => r.slug);
 
     return success(c, {
       token,
