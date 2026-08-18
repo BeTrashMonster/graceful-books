@@ -345,16 +345,35 @@ export default function WorkshopSignupPage() {
 
   if (error && !workshop) {
     return (
-      <div className={styles.container}>
-        <div className={styles.card}>
-          <div className={styles.header}>
-            <h1 className={styles.errorTitle}>Workshop Not Found</h1>
-            <p className={styles.errorMessage}>{error}</p>
+      <div className={styles.pageWrapper}>
+        <div className={styles.container}>
+          <div className={styles.card}>
+            <div className={styles.header}>
+              <h1 className={styles.errorTitle}>Workshop Not Found</h1>
+              <p className={styles.errorMessage}>{error}</p>
+            </div>
+            <Link to="/" className={styles.homeLink}>
+              Return to Home
+            </Link>
           </div>
-          <Link to="/" className={styles.homeLink}>
-            Return to Home
-          </Link>
         </div>
+
+        {/* Workshop Footer */}
+        <footer className={styles.workshopFooter}>
+          <img
+            src="/assets/audacious-logo.png"
+            alt="Audacious Money"
+            className={styles.footerLogo}
+          />
+          <h2 className={styles.footerBrand}>Audacious Money</h2>
+          <p className={styles.footerTagline}>You deserve financial clarity.</p>
+          <nav className={styles.footerLinks}>
+            <a href="https://www.audacious.money/privacy-policy" className={styles.footerLink}>Privacy</a>
+            <a href="https://www.audacious.money/terms" className={styles.footerLink}>Terms</a>
+            <a href="https://www.audacious.money/contact" className={styles.footerLink}>Contact</a>
+          </nav>
+          <p className={styles.footerCopyright}>&copy; 2026 Audacious Money LLC. Built with fierce softness.</p>
+        </footer>
       </div>
     );
   }
@@ -364,10 +383,11 @@ export default function WorkshopSignupPage() {
   }
 
   return (
-    <div className={styles.container}>
-      {isSubmitting && <LoadingOverlay message="Enrolling you in the workshop..." />}
+    <div className={styles.pageWrapper}>
+      <div className={styles.container}>
+        {isSubmitting && <LoadingOverlay message="Enrolling you in the workshop..." />}
 
-      <div className={styles.card}>
+        <div className={styles.card}>
         {/* Workshop Header */}
         <div className={styles.workshopHeader}>
           <h1 className={styles.workshopTitle}>{workshop.workshopName || workshop.cohortName}</h1>
@@ -634,6 +654,24 @@ export default function WorkshopSignupPage() {
           </>
         )}
       </div>
+      </div>
+
+      {/* Workshop Footer */}
+      <footer className={styles.workshopFooter}>
+        <img
+          src="/assets/audacious-logo.png"
+          alt="Audacious Money"
+          className={styles.footerLogo}
+        />
+        <h2 className={styles.footerBrand}>Audacious Money</h2>
+        <p className={styles.footerTagline}>You deserve financial clarity.</p>
+        <nav className={styles.footerLinks}>
+          <a href="https://www.audacious.money/privacy-policy" className={styles.footerLink}>Privacy</a>
+          <a href="https://www.audacious.money/terms" className={styles.footerLink}>Terms</a>
+          <a href="https://www.audacious.money/contact" className={styles.footerLink}>Contact</a>
+        </nav>
+        <p className={styles.footerCopyright}>&copy; 2026 Audacious Money LLC. Built with fierce softness.</p>
+      </footer>
     </div>
   );
 }

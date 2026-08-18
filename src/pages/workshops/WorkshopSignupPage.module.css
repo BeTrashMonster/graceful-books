@@ -1,5 +1,5 @@
 .container {
-  min-height: 100vh;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -359,5 +359,93 @@
   .buttonRow .secondaryButton,
   .buttonRow .primaryButton {
     flex: 1;
+  }
+}
+
+/* ============================================
+   WORKSHOP PAGE FOOTER
+   ============================================ */
+
+.pageWrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4b006e 0%, #5a0082 100%);
+  padding: 1rem;
+}
+
+.workshopFooter {
+  background: linear-gradient(135deg, #4b006e 0%, #5a0082 100%);
+  padding: 3rem 1rem 2rem;
+  text-align: center;
+  border-top: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.footerLogo {
+  width: 180px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.footerBrand {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.75rem;
+  font-style: italic;
+  color: #D4AF37;
+  margin: 0 0 0.5rem 0;
+}
+
+.footerTagline {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.footerLinks {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.footerLink {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: underline;
+  font-size: 0.9375rem;
+  transition: color 0.2s;
+}
+
+.footerLink:hover {
+  color: #D4AF37;
+}
+
+.footerCopyright {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .footerLogo {
+    width: 140px;
+  }
+
+  .footerBrand {
+    font-size: 1.5rem;
+  }
+
+  .footerLinks {
+    gap: 1.25rem;
+  }
+
+  .footerLink {
+    font-size: 0.875rem;
   }
 }
