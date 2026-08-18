@@ -23,7 +23,9 @@ import { createDefaultCPGRecipe, type CPGRecipe } from '../../../db/schema/cpg.s
 import { createDefaultCPGCategory, type CPGCategory } from '../../../db/schema/cpg.schema';
 import { createDefaultCPGProductLabor, type CPGProductLabor } from '../../../db/schema/cpg.schema';
 import { createDefaultCPGLaborRole, type CPGLaborRole } from '../../../db/schema/cpg.schema';
+import type { CPGUnitConversion } from '../../../db/schema/cpg.schema';
 import { processMathInput } from '../../../utils/mathParser';
+import { areUnitsCompatible, getUnitType } from '../../../utils/unitConversion';
 import styles from './CPGModals.module.css';
 
 export interface AddProductModalProps {
@@ -139,6 +141,11 @@ export function AddProductModal({
   const [newLaborHourlyRate, setNewLaborHourlyRate] = useState<Record<string, string>>({});
   const [showNewLaborRoleInput, setShowNewLaborRoleInput] = useState<Record<string, boolean>>({});
 
+  // Unit conversion state
+  const [unitConversions, setUnitConversions] = useState<CPGUnitConversion[]>([]);
+  const [showConversionInput, setShowConversionInput] = useState<Record<string, boolean>>({});
+  const [conversionValues, setConversionValues] = useState<Record<string, { leftQty: string; leftUnit: string; rightQty: string; rightUnit: string }>>({});
+
   // Scroll to error when errors are set
   useEffect(() => {
     if (Object.keys(errors).length > 0 && errorAlertRef.current) {
@@ -206,6 +213,15 @@ export function AddProductModal({
       });
 
       setInvoiceData(invoiceItems);
+
+      // Load unit conversions
+      const conversions = await db.cpgUnitConversions
+        .where('company_id')
+        .equals(companyId)
+        .and((c) => c.deleted_at === null)
+        .toArray();
+
+      setUnitConversions(conversions);
     };
 
     loadData();
@@ -282,14 +298,13 @@ export function AddProductModal({
         .toArray();
 
       // Convert to local RecipeItem format
-      // Note: We only store the final per-unit quantity, so we load in per_unit mode
-      // Users can switch to per_batch mode if they want to edit that way
+      // Load the entry_mode and batch data from the database (if available)
       const loadedRecipeItems: RecipeItem[] = existingRecipes.map(recipe => ({
         category_id: recipe.category_id,
         variant: recipe.variant || undefined,
-        entry_mode: 'per_unit',
-        quantity_per_batch: '',
-        batch_size: '',
+        entry_mode: recipe.entry_mode || 'per_unit',
+        quantity_per_batch: recipe.quantity_per_batch || '',
+        batch_size: recipe.batch_size || '',
         quantity: recipe.quantity,
         unit_of_measurement: recipe.unit_of_measurement || 'oz'
       }));
@@ -392,8 +407,17 @@ export function AddProductModal({
     setCategories(updated);
   };
 
-  // Validate recipe item against invoices
-  const getRecipeItemWarning = (item: RecipeItem): string | null => {
+  // Validate recipe item against invoices and check for unit conversions
+  interface RecipeWarningInfo {
+    message: string;
+    type: 'no_invoice' | 'unit_mismatch';
+    invoiceUnit?: string; // The unit used in the invoice
+    recipeUnit?: string; // The unit used in the recipe
+    hasConversion?: boolean; // Whether a conversion exists
+    canAddConversion?: boolean; // Whether units are convertible (weight<->volume)
+  }
+
+  const getRecipeItemWarning = (item: RecipeItem): RecipeWarningInfo | null => {
     if (!item.category_id || !item.unit_of_measurement) return null;
 
     const variant = item.variant || null;
@@ -414,15 +438,52 @@ export function AddProductModal({
     );
 
     if (categoryVariantMatch) {
-      // Same category+variant but different unit
-      return `Invoice uses ${categoryVariantMatch.unit}, not ${item.unit_of_measurement}`;
+      // Same category+variant but different unit - check if units are compatible
+      const invoiceUnit = categoryVariantMatch.unit;
+      const recipeUnit = item.unit_of_measurement;
+
+      // Check if units are directly compatible (same type)
+      if (areUnitsCompatible(invoiceUnit, recipeUnit)) {
+        return null; // Units can be auto-converted, no warning needed
+      }
+
+      // Check if a unit conversion exists for this category+variant
+      const hasConversion = unitConversions.some(conv =>
+        conv.category_id === item.category_id &&
+        conv.variant === variant &&
+        ((conv.from_unit === invoiceUnit && conv.to_unit === recipeUnit) ||
+         (conv.from_unit === recipeUnit && conv.to_unit === invoiceUnit))
+      );
+
+      if (hasConversion) {
+        return null; // Conversion exists, no warning needed
+      }
+
+      // Check if units can be converted (weight <-> volume)
+      const invoiceType = getUnitType(invoiceUnit);
+      const recipeType = getUnitType(recipeUnit);
+      const canAddConversion =
+        (invoiceType === 'weight' && recipeType === 'volume') ||
+        (invoiceType === 'volume' && recipeType === 'weight');
+
+      return {
+        message: `Invoice uses ${invoiceUnit}, recipe uses ${recipeUnit}`,
+        type: 'unit_mismatch',
+        invoiceUnit,
+        recipeUnit,
+        hasConversion: false,
+        canAddConversion
+      };
     }
 
     // No invoice found at all for this category+variant
     const category = categories.find(c => c.id === item.category_id);
     const categoryName = category?.name || 'this ingredient';
     const variantText = variant ? ` (${variant})` : '';
-    return `No invoice found for ${categoryName}${variantText}`;
+    return {
+      message: `No invoice found for ${categoryName}${variantText}`,
+      type: 'no_invoice'
+    };
   };
 
   // Labor item handlers
@@ -623,7 +684,10 @@ export function AddProductModal({
             ),
             id: nanoid(),
             variant: item.variant || null,
-            quantity: item.quantity, // Use actual quantity from form (already converted to per-unit if needed)
+            entry_mode: item.entry_mode,
+            quantity_per_batch: item.entry_mode === 'per_batch' ? (item.quantity_per_batch || null) : null,
+            batch_size: item.entry_mode === 'per_batch' ? (item.batch_size || null) : null,
+            quantity: item.quantity, // Per-unit quantity (calculated or directly entered)
             unit_of_measurement: item.unit_of_measurement || 'oz',
           };
         });
@@ -740,6 +804,9 @@ export function AddProductModal({
     setNewLaborRoleName({});
     setNewLaborHourlyRate({});
     setShowNewLaborRoleInput({});
+    setUnitConversions([]);
+    setShowConversionInput({});
+    setConversionValues({});
     setErrors({});
     onClose();
   };
@@ -1353,18 +1420,168 @@ export function AddProductModal({
                   {warning && (
                     <div style={{
                       marginTop: '0.75rem',
-                      padding: '0.5rem 0.75rem',
+                      padding: '0.75rem',
                       backgroundColor: '#fef3c7',
                       border: '1px solid #f59e0b',
                       borderRadius: '0.375rem',
                       fontSize: '0.8125rem',
-                      color: '#92400e',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
+                      color: '#92400e'
                     }}>
-                      <span style={{ fontSize: '1rem' }}>⚠️</span>
-                      <span>{warning}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: warning.canAddConversion ? '0.75rem' : 0 }}>
+                        <span style={{ fontSize: '1rem' }}>⚠️</span>
+                        <span>{warning.message}</span>
+                      </div>
+
+                      {/* Show conversion entry option for unit mismatches */}
+                      {warning.type === 'unit_mismatch' && warning.canAddConversion && (
+                        <div style={{ marginTop: '0.5rem' }}>
+                          {!showConversionInput[key] ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowConversionInput({ ...showConversionInput, [key]: true });
+                                setConversionValues({
+                                  ...conversionValues,
+                                  [key]: {
+                                    leftQty: '1',
+                                    leftUnit: warning.invoiceUnit || '',
+                                    rightQty: '',
+                                    rightUnit: warning.recipeUnit || ''
+                                  }
+                                });
+                              }}
+                              style={{
+                                padding: '0.375rem 0.75rem',
+                                backgroundColor: '#4b006e',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.8125rem',
+                                fontWeight: 500,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              + Add Unit Conversion
+                            </button>
+                          ) : (
+                            <div style={{
+                              padding: '0.75rem',
+                              backgroundColor: 'white',
+                              borderRadius: '0.375rem',
+                              border: '1px solid #d1d5db'
+                            }}>
+                              <div style={{ fontSize: '0.75rem', color: '#374151', marginBottom: '0.5rem', fontWeight: 500 }}>
+                                Enter conversion (e.g., 1 lb = 3.5 cups):
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                <input
+                                  type="number"
+                                  value={conversionValues[key]?.leftQty || '1'}
+                                  onChange={(e) => setConversionValues({
+                                    ...conversionValues,
+                                    [key]: { ...conversionValues[key], leftQty: e.target.value }
+                                  })}
+                                  style={{
+                                    width: '60px',
+                                    padding: '0.375rem',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.875rem'
+                                  }}
+                                  step="0.01"
+                                  min="0"
+                                />
+                                <span style={{ fontWeight: 500, color: '#374151' }}>
+                                  {conversionValues[key]?.leftUnit || warning.invoiceUnit}
+                                </span>
+                                <span style={{ color: '#6b7280' }}>=</span>
+                                <input
+                                  type="number"
+                                  value={conversionValues[key]?.rightQty || ''}
+                                  onChange={(e) => setConversionValues({
+                                    ...conversionValues,
+                                    [key]: { ...conversionValues[key], rightQty: e.target.value }
+                                  })}
+                                  placeholder="?"
+                                  style={{
+                                    width: '60px',
+                                    padding: '0.375rem',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.875rem'
+                                  }}
+                                  step="0.01"
+                                  min="0"
+                                />
+                                <span style={{ fontWeight: 500, color: '#374151' }}>
+                                  {conversionValues[key]?.rightUnit || warning.recipeUnit}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const conv = conversionValues[key];
+                                    if (!conv?.rightQty || parseFloat(conv.rightQty) <= 0) return;
+
+                                    const leftQty = parseFloat(conv.leftQty || '1');
+                                    const rightQty = parseFloat(conv.rightQty);
+                                    const conversionFactor = rightQty / leftQty;
+
+                                    // Save conversion to database
+                                    const newConversion: CPGUnitConversion = {
+                                      id: nanoid(),
+                                      company_id: companyId!,
+                                      category_id: item.category_id,
+                                      variant: item.variant || null,
+                                      from_unit: conv.leftUnit || warning.invoiceUnit || '',
+                                      to_unit: conv.rightUnit || warning.recipeUnit || '',
+                                      conversion_factor: conversionFactor,
+                                      effective_from: null,
+                                      created_at: Date.now(),
+                                      updated_at: Date.now(),
+                                      deleted_at: null,
+                                      version_vector: { [deviceId || 'default']: 1 }
+                                    };
+
+                                    await db.cpgUnitConversions.add(newConversion);
+                                    setUnitConversions([...unitConversions, newConversion]);
+                                    setShowConversionInput({ ...showConversionInput, [key]: false });
+                                    setConversionValues({ ...conversionValues, [key]: { leftQty: '', leftUnit: '', rightQty: '', rightUnit: '' } });
+                                  }}
+                                  style={{
+                                    padding: '0.375rem 0.75rem',
+                                    backgroundColor: '#059669',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 500,
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setShowConversionInput({ ...showConversionInput, [key]: false });
+                                  }}
+                                  style={{
+                                    padding: '0.375rem 0.75rem',
+                                    backgroundColor: 'transparent',
+                                    color: '#6b7280',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.75rem',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
 

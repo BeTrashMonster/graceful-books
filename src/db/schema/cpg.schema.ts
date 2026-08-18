@@ -967,8 +967,11 @@ export interface CPGRecipe extends BaseEntity {
   category_id: string; // Links to cpg_categories
   variant: string | null; // Specific variant (e.g., "1oz")
 
-  // Quantity needed
-  quantity: string; // e.g., "1.00" for 1oz oil, "1" for 1 bottle
+  // Quantity needed - supports batch-to-unit conversion
+  entry_mode?: 'per_batch' | 'per_unit'; // How user entered the quantity (default: per_unit for backward compat)
+  quantity_per_batch?: string | null; // Quantity per batch (e.g., "10" for 10 oz per batch)
+  batch_size?: string | null; // Units produced per batch (e.g., "100" units)
+  quantity: string; // Per-unit quantity: Direct entry OR calculated from per-batch (e.g., "0.10" for 0.10oz per unit)
   unit_of_measurement?: string; // Unit (oz, lb, ml, L, each, etc.) - defaults to 'each' for backward compatibility
 
   // Metadata
@@ -998,6 +1001,9 @@ export const createDefaultCPGRecipe = (
     finished_product_id: finishedProductId,
     category_id: categoryId,
     variant: null,
+    entry_mode: 'per_unit',
+    quantity_per_batch: null,
+    batch_size: null,
     quantity: '1.00',
     notes: null,
     active: true,
