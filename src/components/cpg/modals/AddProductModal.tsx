@@ -25,7 +25,7 @@ import { createDefaultCPGProductLabor, type CPGProductLabor } from '../../../db/
 import { createDefaultCPGLaborRole, type CPGLaborRole } from '../../../db/schema/cpg.schema';
 import type { CPGUnitConversion } from '../../../db/schema/cpg.schema';
 import { processMathInput } from '../../../utils/mathParser';
-import { areUnitsCompatible, getUnitType } from '../../../utils/unitConversion';
+import { areUnitsCompatible, getUnitType, type Unit } from '../../../utils/unitConversion';
 import styles from './CPGModals.module.css';
 
 export interface AddProductModalProps {
@@ -443,7 +443,7 @@ export function AddProductModal({
       const recipeUnit = item.unit_of_measurement;
 
       // Check if units are directly compatible (same type)
-      if (areUnitsCompatible(invoiceUnit, recipeUnit)) {
+      if (areUnitsCompatible(invoiceUnit as Unit, recipeUnit as Unit)) {
         return null; // Units can be auto-converted, no warning needed
       }
 
@@ -460,8 +460,8 @@ export function AddProductModal({
       }
 
       // Check if units can be converted (weight <-> volume)
-      const invoiceType = getUnitType(invoiceUnit);
-      const recipeType = getUnitType(recipeUnit);
+      const invoiceType = getUnitType(invoiceUnit as Unit);
+      const recipeType = getUnitType(recipeUnit as Unit);
       const canAddConversion =
         (invoiceType === 'weight' && recipeType === 'volume') ||
         (invoiceType === 'volume' && recipeType === 'weight');
@@ -1486,15 +1486,55 @@ export function AddProductModal({
                                     padding: '0.375rem',
                                     border: '1px solid #d1d5db',
                                     borderRadius: '0.25rem',
-                                    fontSize: '0.875rem'
+                                    fontSize: '0.875rem',
+                                    textAlign: 'center'
                                   }}
                                   step="0.01"
                                   min="0"
                                 />
-                                <span style={{ fontWeight: 500, color: '#374151' }}>
-                                  {conversionValues[key]?.leftUnit || warning.invoiceUnit}
-                                </span>
-                                <span style={{ color: '#6b7280' }}>=</span>
+                                <select
+                                  value={conversionValues[key]?.leftUnit || warning.invoiceUnit || ''}
+                                  onChange={(e) => {
+                                    const newUnit = e.target.value;
+                                    const newType = getUnitType(newUnit as Unit);
+                                    let newRightUnit = conversionValues[key]?.rightUnit || warning.recipeUnit || '';
+                                    // If both units would be same type, swap the right unit to opposite type
+                                    if (newType === getUnitType(newRightUnit as Unit)) {
+                                      newRightUnit = newType === 'weight' ? 'cup' : 'lb';
+                                    }
+                                    setConversionValues({
+                                      ...conversionValues,
+                                      [key]: { ...conversionValues[key], leftUnit: newUnit, rightUnit: newRightUnit }
+                                    });
+                                  }}
+                                  style={{
+                                    padding: '0.375rem',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.875rem',
+                                    backgroundColor: 'white'
+                                  }}
+                                >
+                                  <optgroup label="Weight">
+                                    <option value="mg">mg</option>
+                                    <option value="g">g</option>
+                                    <option value="kg">kg</option>
+                                    <option value="oz">oz</option>
+                                    <option value="lb">lb</option>
+                                  </optgroup>
+                                  <optgroup label="Volume">
+                                    <option value="ml">ml</option>
+                                    <option value="tsp">tsp</option>
+                                    <option value="tbsp">tbsp</option>
+                                    <option value="fl oz">fl oz</option>
+                                    <option value="cup">cup</option>
+                                    <option value="pt">pt</option>
+                                    <option value="qt">qt</option>
+                                    <option value="L">L</option>
+                                    <option value="gal">gal</option>
+                                  </optgroup>
+                                </select>
+                                <span style={{ fontWeight: 600, fontSize: '1rem', color: '#6b7280' }}>=</span>
                                 <input
                                   type="number"
                                   value={conversionValues[key]?.rightQty || ''}
@@ -1508,14 +1548,73 @@ export function AddProductModal({
                                     padding: '0.375rem',
                                     border: '1px solid #d1d5db',
                                     borderRadius: '0.25rem',
-                                    fontSize: '0.875rem'
+                                    fontSize: '0.875rem',
+                                    textAlign: 'center'
                                   }}
                                   step="0.01"
                                   min="0"
                                 />
-                                <span style={{ fontWeight: 500, color: '#374151' }}>
-                                  {conversionValues[key]?.rightUnit || warning.recipeUnit}
-                                </span>
+                                <select
+                                  value={conversionValues[key]?.rightUnit || warning.recipeUnit || ''}
+                                  onChange={(e) => {
+                                    const newUnit = e.target.value;
+                                    const newType = getUnitType(newUnit as Unit);
+                                    let newLeftUnit = conversionValues[key]?.leftUnit || warning.invoiceUnit || '';
+                                    // If both units would be same type, swap the left unit to opposite type
+                                    if (newType === getUnitType(newLeftUnit as Unit)) {
+                                      newLeftUnit = newType === 'weight' ? 'cup' : 'lb';
+                                    }
+                                    setConversionValues({
+                                      ...conversionValues,
+                                      [key]: { ...conversionValues[key], rightUnit: newUnit, leftUnit: newLeftUnit }
+                                    });
+                                  }}
+                                  style={{
+                                    padding: '0.375rem',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.875rem',
+                                    backgroundColor: 'white'
+                                  }}
+                                >
+                                  <optgroup label="Weight">
+                                    <option value="mg">mg</option>
+                                    <option value="g">g</option>
+                                    <option value="kg">kg</option>
+                                    <option value="oz">oz</option>
+                                    <option value="lb">lb</option>
+                                  </optgroup>
+                                  <optgroup label="Volume">
+                                    <option value="ml">ml</option>
+                                    <option value="tsp">tsp</option>
+                                    <option value="tbsp">tbsp</option>
+                                    <option value="fl oz">fl oz</option>
+                                    <option value="cup">cup</option>
+                                    <option value="pt">pt</option>
+                                    <option value="qt">qt</option>
+                                    <option value="L">L</option>
+                                    <option value="gal">gal</option>
+                                  </optgroup>
+                                </select>
+                              </div>
+                              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '0.75rem' }}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setShowConversionInput({ ...showConversionInput, [key]: false });
+                                  }}
+                                  style={{
+                                    padding: '0.5rem 1rem',
+                                    backgroundColor: 'white',
+                                    color: '#6b7280',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '0.375rem',
+                                    fontSize: '0.8125rem',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Cancel
+                                </button>
                                 <button
                                   type="button"
                                   onClick={async () => {
@@ -1524,7 +1623,26 @@ export function AddProductModal({
 
                                     const leftQty = parseFloat(conv.leftQty || '1');
                                     const rightQty = parseFloat(conv.rightQty);
-                                    const conversionFactor = rightQty / leftQty;
+
+                                    // Determine which unit is weight and which is volume for proper storage
+                                    const leftUnit = conv.leftUnit || warning.invoiceUnit || '';
+                                    const rightUnit = conv.rightUnit || warning.recipeUnit || '';
+                                    const leftType = getUnitType(leftUnit as Unit);
+
+                                    // Always store as weight -> volume (from_unit = weight, to_unit = volume)
+                                    let fromUnit: string;
+                                    let toUnit: string;
+                                    let factor: number;
+
+                                    if (leftType === 'weight') {
+                                      fromUnit = leftUnit;
+                                      toUnit = rightUnit;
+                                      factor = rightQty / leftQty;
+                                    } else {
+                                      fromUnit = rightUnit;
+                                      toUnit = leftUnit;
+                                      factor = leftQty / rightQty;
+                                    }
 
                                     // Save conversion to database
                                     const newConversion: CPGUnitConversion = {
@@ -1532,9 +1650,9 @@ export function AddProductModal({
                                       company_id: companyId!,
                                       category_id: item.category_id,
                                       variant: item.variant || null,
-                                      from_unit: conv.leftUnit || warning.invoiceUnit || '',
-                                      to_unit: conv.rightUnit || warning.recipeUnit || '',
-                                      conversion_factor: conversionFactor,
+                                      from_unit: fromUnit,
+                                      to_unit: toUnit,
+                                      conversion_factor: factor,
                                       effective_from: null,
                                       created_at: Date.now(),
                                       updated_at: Date.now(),
@@ -1548,34 +1666,17 @@ export function AddProductModal({
                                     setConversionValues({ ...conversionValues, [key]: { leftQty: '', leftUnit: '', rightQty: '', rightUnit: '' } });
                                   }}
                                   style={{
-                                    padding: '0.375rem 0.75rem',
+                                    padding: '0.5rem 1rem',
                                     backgroundColor: '#059669',
                                     color: 'white',
                                     border: 'none',
-                                    borderRadius: '0.25rem',
-                                    fontSize: '0.75rem',
+                                    borderRadius: '0.375rem',
+                                    fontSize: '0.8125rem',
                                     fontWeight: 500,
                                     cursor: 'pointer'
                                   }}
                                 >
-                                  Save
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setShowConversionInput({ ...showConversionInput, [key]: false });
-                                  }}
-                                  style={{
-                                    padding: '0.375rem 0.75rem',
-                                    backgroundColor: 'transparent',
-                                    color: '#6b7280',
-                                    border: '1px solid #d1d5db',
-                                    borderRadius: '0.25rem',
-                                    fontSize: '0.75rem',
-                                    cursor: 'pointer'
-                                  }}
-                                >
-                                  Cancel
+                                  Save Conversion
                                 </button>
                               </div>
                             </div>
