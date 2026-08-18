@@ -372,9 +372,9 @@ export default function WorkshopSignupPage() {
         <footer className={styles.workshopFooter}>
           <p className={styles.footerTagline}>You deserve financial clarity.</p>
           <nav className={styles.footerLinks}>
-            <a href="https://www.audacious.money/privacy/" className={styles.footerLink}>Privacy</a>
-            <a href="https://www.audacious.money/terms" className={styles.footerLink}>Terms</a>
-            <a href="https://www.audacious.money/contact" className={styles.footerLink}>Contact</a>
+            <a href="https://www.audacious.money/privacy/" className={styles.footerLink} target="_blank" rel="noopener noreferrer">Privacy</a>
+            <a href="https://www.audacious.money/terms" className={styles.footerLink} target="_blank" rel="noopener noreferrer">Terms</a>
+            <a href="https://www.audacious.money/contact" className={styles.footerLink} target="_blank" rel="noopener noreferrer">Contact</a>
           </nav>
           <p className={styles.footerCopyright}>&copy; 2026 Audacious Money LLC. Built with fierce softness.</p>
         </footer>
@@ -674,9 +674,9 @@ export default function WorkshopSignupPage() {
       <footer className={styles.workshopFooter}>
         <p className={styles.footerTagline}>You deserve financial clarity.</p>
         <nav className={styles.footerLinks}>
-          <a href="https://www.audacious.money/privacy/" className={styles.footerLink}>Privacy</a>
-          <a href="https://www.audacious.money/terms" className={styles.footerLink}>Terms</a>
-          <a href="https://www.audacious.money/contact" className={styles.footerLink}>Contact</a>
+          <a href="https://www.audacious.money/privacy/" className={styles.footerLink} target="_blank" rel="noopener noreferrer">Privacy</a>
+          <a href="https://www.audacious.money/terms" className={styles.footerLink} target="_blank" rel="noopener noreferrer">Terms</a>
+          <a href="https://www.audacious.money/contact" className={styles.footerLink} target="_blank" rel="noopener noreferrer">Contact</a>
         </nav>
         <p className={styles.footerCopyright}>&copy; 2026 Audacious Money LLC. Built with fierce softness.</p>
       </footer>
