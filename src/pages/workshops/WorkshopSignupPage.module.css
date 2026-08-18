@@ -376,7 +376,7 @@
 /* Sticky branding on left side */
 .stickyBrand {
   position: fixed;
-  left: 1rem;
+  left: 4rem;
   top: 50%;
   transform: translateY(-50%);
   width: 220px;
