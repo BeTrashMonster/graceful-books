@@ -1327,7 +1327,7 @@ auth.post('/workshop-login-enroll', async (c) => {
     }
 
     // Generate token
-    const token = await generateToken(user.id, db);
+    const token = await generateUserToken(user.id, user.email);
 
     // Get user's products
     const productsResult = await db.query(
