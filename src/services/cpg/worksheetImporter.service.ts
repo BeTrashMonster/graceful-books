@@ -26,6 +26,7 @@ import type {
   CPGFinishedProduct,
   CPGRecipe,
   CPGInvoice,
+  CPGUnitConversion,
 } from '../../db/schema/cpg.schema';
 
 // ============================================================================
@@ -80,6 +81,14 @@ interface WorksheetInvoice {
   notes?: string;
 }
 
+interface WorksheetUnitConversion {
+  category_id: string;
+  variant: string | null;
+  from_unit: string;  // e.g., 'lb' (invoice unit)
+  to_unit: string;    // e.g., 'cup' (recipe unit)
+  conversion_factor: string; // e.g., '3.5' means 1 lb = 3.5 cups
+}
+
 export interface WorksheetData {
   version: string;
   created_at: string;
@@ -87,6 +96,7 @@ export interface WorksheetData {
   finished_products: WorksheetFinishedProduct[];
   recipes: WorksheetRecipe[];
   invoices: WorksheetInvoice[];
+  unit_conversions?: WorksheetUnitConversion[]; // Optional for backward compatibility
 }
 
 export interface ImportResult {
@@ -97,6 +107,7 @@ export interface ImportResult {
     products: number;
     recipes: number;
     invoices: number;
+    unit_conversions: number;
   };
   idMap?: Map<string, string>; // temp ID → real UUID mapping (for debugging)
 }
@@ -360,6 +371,7 @@ export async function importWorksheetData(
       products: json.finished_products?.length ?? 0,
       recipes: json.recipes?.length ?? 0,
       invoices: json.invoices?.length ?? 0,
+      unit_conversions: json.unit_conversions?.length ?? 0,
     },
   });
 
@@ -371,6 +383,7 @@ export async function importWorksheetData(
       products: 0,
       recipes: 0,
       invoices: 0,
+      unit_conversions: 0,
     },
   };
 
@@ -498,6 +511,41 @@ export async function importWorksheetData(
     logger.info('Recipes imported', { count: result.counts.recipes });
 
     // ========================================================================
+    // 3.5 Import Unit Conversions (weight ↔ volume)
+    // ========================================================================
+    if (json.unit_conversions && json.unit_conversions.length > 0) {
+      logger.info('Importing unit conversions...', { count: json.unit_conversions.length });
+
+      for (const conv of json.unit_conversions) {
+        const realCategoryId = idMap.get(conv.category_id);
+        if (!realCategoryId) {
+          logger.warn(`Skipping unit conversion for unknown category: ${conv.category_id}`);
+          continue;
+        }
+
+        const dbConversion: CPGUnitConversion = {
+          id: generateId(),
+          company_id: companyId,
+          category_id: realCategoryId,
+          variant: conv.variant || null,
+          from_unit: conv.from_unit,
+          to_unit: conv.to_unit,
+          conversion_factor: parseFloat(conv.conversion_factor),
+          effective_from: null, // Applies to all data
+          created_at: now,
+          updated_at: now,
+          deleted_at: null,
+          version_vector: { [deviceId]: 1 },
+        };
+
+        await db.cpgUnitConversions.add(dbConversion);
+        result.counts.unit_conversions++;
+      }
+
+      logger.info('Unit conversions imported', { count: result.counts.unit_conversions });
+    }
+
+    // ========================================================================
     // 4. Import Invoices (requires transformation)
     // ========================================================================
     logger.info('Importing invoices...', { count: json.invoices.length });
@@ -584,7 +632,8 @@ export async function importWorksheetData(
         result.counts.categories +
         result.counts.products +
         result.counts.recipes +
-        result.counts.invoices,
+        result.counts.invoices +
+        result.counts.unit_conversions,
     });
   } catch (error) {
     logger.error('Worksheet import failed', { error });

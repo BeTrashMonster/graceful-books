@@ -9,7 +9,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import styles from './ComprehensiveWorksheet.module.css';
 import { processDateInput } from '../../utils/dateUtils';
 import { LoadingOverlay } from '../feedback/Loading';
-import { areUnitsCompatible, type Unit } from '../../utils/unitConversion';
+import { areUnitsCompatible, getUnitType, type Unit } from '../../utils/unitConversion';
 
 // Autosave configuration
 const AUTOSAVE_KEY = 'worksheet-autosave';
@@ -68,6 +68,25 @@ interface Invoice {
   notes?: string;
 }
 
+// Form state for conversion entry (all 4 values editable)
+interface ConversionFormState {
+  category_id: string;
+  variant: string | null;
+  leftQty: string;
+  leftUnit: string;
+  rightQty: string;
+  rightUnit: string;
+}
+
+// Export format for worksheet JSON (matches database schema)
+interface UnitConversion {
+  category_id: string;
+  variant: string | null;
+  from_unit: string;  // e.g., 'lb' (weight unit)
+  to_unit: string;    // e.g., 'cup' (volume unit)
+  conversion_factor: string; // Calculated: rightQty / leftQty (normalized)
+}
+
 interface WorksheetData {
   version: string;
   created_at: string;
@@ -75,6 +94,7 @@ interface WorksheetData {
   finished_products: Product[];
   recipes: Recipe[];
   invoices: Invoice[];
+  unit_conversions: UnitConversion[];
 }
 
 interface ComprehensiveWorksheetProps {
@@ -199,6 +219,9 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     }
   ]);
 
+  // Track unit conversions for weight ↔ volume mismatches (stores form state)
+  const [conversionForms, setConversionForms] = useState<ConversionFormState[]>([]);
+
   // Track which invoices are expanded (accordion)
   const [expandedInvoices, setExpandedInvoices] = useState<Set<string>>(new Set([invoices[0].id]));
 
@@ -215,6 +238,194 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   const [savedDataTimestamp, setSavedDataTimestamp] = useState<string | null>(null);
   const hasInitializedRef = useRef(false);
   const isRestoringRef = useRef(false);
+
+  // Weight and volume units for conversion dropdowns
+  const WEIGHT_UNITS = ['mg', 'g', 'kg', 'oz', 'lb'];
+  const VOLUME_UNITS = ['ml', 'tsp', 'tbsp', 'fl oz', 'cup', 'pt', 'qt', 'L', 'gal'];
+
+  // ========================================================================
+  // Unit Conversion Helper Functions
+  // ========================================================================
+
+  // Get recipe unit for a category+variant (returns first match found across all products)
+  const getRecipeUnit = useCallback((categoryId: string, variant: string | null | undefined): string | null => {
+    for (const product of products) {
+      const recipeItem = product.recipeItems.find(
+        r => r.category_id === categoryId && (r.variant || null) === (variant || null)
+      );
+      if (recipeItem?.unit_of_measurement) {
+        return recipeItem.unit_of_measurement;
+      }
+    }
+    return null;
+  }, [products]);
+
+  // Get existing conversion form for a category+variant
+  const getConversionForm = useCallback((categoryId: string, variant: string | null | undefined): ConversionFormState | null => {
+    return conversionForms.find(
+      c => c.category_id === categoryId && c.variant === (variant || null)
+    ) || null;
+  }, [conversionForms]);
+
+  // Check if a conversion exists and is valid for this category+variant
+  const hasValidConversion = useCallback((categoryId: string, variant: string | null | undefined): boolean => {
+    const form = conversionForms.find(
+      c => c.category_id === categoryId && c.variant === (variant || null)
+    );
+    if (!form) return false;
+    const leftQty = parseFloat(form.leftQty);
+    const rightQty = parseFloat(form.rightQty);
+    return !isNaN(leftQty) && !isNaN(rightQty) && leftQty > 0 && rightQty > 0;
+  }, [conversionForms]);
+
+  // Initialize or get conversion form for a category+variant with detected units
+  const getOrCreateConversionForm = useCallback((
+    categoryId: string,
+    variant: string | null | undefined,
+    invoiceUnit: string,
+    recipeUnit: string
+  ): ConversionFormState => {
+    const existing = conversionForms.find(
+      c => c.category_id === categoryId && c.variant === (variant || null)
+    );
+    if (existing) return existing;
+
+    // Create new form with detected units
+    const invoiceUnitType = getUnitType(invoiceUnit as Unit);
+    return {
+      category_id: categoryId,
+      variant: variant || null,
+      leftQty: '1',
+      leftUnit: invoiceUnitType === 'weight' ? invoiceUnit : recipeUnit,
+      rightQty: '',
+      rightUnit: invoiceUnitType === 'weight' ? recipeUnit : invoiceUnit
+    };
+  }, [conversionForms]);
+
+  // Update a specific field in a conversion form
+  const updateConversionForm = useCallback((
+    categoryId: string,
+    variant: string | null | undefined,
+    field: keyof ConversionFormState,
+    value: string
+  ) => {
+    setConversionForms(prev => {
+      const existingIndex = prev.findIndex(
+        c => c.category_id === categoryId && c.variant === (variant || null)
+      );
+
+      if (existingIndex >= 0) {
+        // Update existing
+        const updated = [...prev];
+        const current = updated[existingIndex];
+
+        // If changing a unit, ensure the other side stays opposite type
+        if (field === 'leftUnit') {
+          const newType = getUnitType(value as Unit);
+          const rightType = getUnitType(current.rightUnit as Unit);
+          if (newType === rightType) {
+            // Swap to opposite type
+            updated[existingIndex] = {
+              ...current,
+              leftUnit: value,
+              rightUnit: newType === 'weight' ? 'cup' : 'lb'
+            };
+          } else {
+            updated[existingIndex] = { ...current, [field]: value };
+          }
+        } else if (field === 'rightUnit') {
+          const newType = getUnitType(value as Unit);
+          const leftType = getUnitType(current.leftUnit as Unit);
+          if (newType === leftType) {
+            // Swap to opposite type
+            updated[existingIndex] = {
+              ...current,
+              rightUnit: value,
+              leftUnit: newType === 'weight' ? 'cup' : 'lb'
+            };
+          } else {
+            updated[existingIndex] = { ...current, [field]: value };
+          }
+        } else {
+          updated[existingIndex] = { ...current, [field]: value };
+        }
+        return updated;
+      } else {
+        // Create new (shouldn't normally happen, but handle it)
+        return [...prev, {
+          category_id: categoryId,
+          variant: variant || null,
+          leftQty: field === 'leftQty' ? value : '1',
+          leftUnit: field === 'leftUnit' ? value : 'lb',
+          rightQty: field === 'rightQty' ? value : '',
+          rightUnit: field === 'rightUnit' ? value : 'cup'
+        }];
+      }
+    });
+  }, []);
+
+  // Ensure a conversion form exists for a category+variant
+  const ensureConversionForm = useCallback((
+    categoryId: string,
+    variant: string | null | undefined,
+    invoiceUnit: string,
+    recipeUnit: string
+  ) => {
+    setConversionForms(prev => {
+      const exists = prev.some(
+        c => c.category_id === categoryId && c.variant === (variant || null)
+      );
+      if (exists) return prev;
+
+      const invoiceUnitType = getUnitType(invoiceUnit as Unit);
+      return [...prev, {
+        category_id: categoryId,
+        variant: variant || null,
+        leftQty: '1',
+        leftUnit: invoiceUnitType === 'weight' ? invoiceUnit : recipeUnit,
+        rightQty: '',
+        rightUnit: invoiceUnitType === 'weight' ? recipeUnit : invoiceUnit
+      }];
+    });
+  }, []);
+
+  // Convert form states to export format (UnitConversion[])
+  const convertFormsToExport = useCallback((): UnitConversion[] => {
+    return conversionForms
+      .filter(form => {
+        const leftQty = parseFloat(form.leftQty);
+        const rightQty = parseFloat(form.rightQty);
+        return !isNaN(leftQty) && !isNaN(rightQty) && leftQty > 0 && rightQty > 0;
+      })
+      .map(form => {
+        const leftQty = parseFloat(form.leftQty);
+        const rightQty = parseFloat(form.rightQty);
+        const leftType = getUnitType(form.leftUnit as Unit);
+
+        // Normalize: from_unit should always be weight, to_unit should be volume
+        let fromUnit: string;
+        let toUnit: string;
+        let factor: number;
+
+        if (leftType === 'weight') {
+          fromUnit = form.leftUnit;
+          toUnit = form.rightUnit;
+          factor = rightQty / leftQty;
+        } else {
+          fromUnit = form.rightUnit;
+          toUnit = form.leftUnit;
+          factor = leftQty / rightQty;
+        }
+
+        return {
+          category_id: form.category_id,
+          variant: form.variant,
+          from_unit: fromUnit,
+          to_unit: toUnit,
+          conversion_factor: factor.toString()
+        };
+      });
+  }, [conversionForms]);
 
   // Check for saved data on mount
   useEffect(() => {
@@ -257,6 +468,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
           categories,
           products,
           invoices,
+          conversionForms,
           expandedInvoices: Array.from(expandedInvoices)
         };
         localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(dataToSave));
@@ -281,7 +493,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       clearInterval(intervalId);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [currentStep, categories, products, invoices, expandedInvoices, importing]);
+  }, [currentStep, categories, products, invoices, conversionForms, expandedInvoices, importing]);
 
   // Warn before leaving with unsaved data
   useEffect(() => {
@@ -311,6 +523,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
         if (parsed.categories) setCategories(parsed.categories);
         if (parsed.products) setProducts(parsed.products);
         if (parsed.invoices) setInvoices(parsed.invoices);
+        if (parsed.conversionForms) setConversionForms(parsed.conversionForms);
         if (parsed.expandedInvoices) setExpandedInvoices(new Set(parsed.expandedInvoices));
 
         console.log('📂 Worksheet data restored');
@@ -867,13 +1080,14 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       }))
       .filter(i => i.items.length > 0);
 
-    const worksheetData = {
+    const worksheetData: WorksheetData = {
       version: '1.0.0',
       created_at: new Date().toISOString(),
       categories,
       finished_products: validProducts,
       recipes: validRecipes,
-      invoices: validInvoices
+      invoices: validInvoices,
+      unit_conversions: convertFormsToExport()
     };
 
     console.log('📤 Calling onComplete with data:', worksheetData);
@@ -1706,19 +1920,75 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         ✕
                       </button>
                       </div>
-                      {item.unitWarning && (
-                        <div style={{
-                          marginTop: '0.5rem',
-                          padding: '0.75rem',
-                          backgroundColor: '#fef3c7',
-                          border: '1px solid #fbbf24',
-                          borderRadius: '0.375rem',
-                          fontSize: '0.875rem',
-                          color: '#92400e'
-                        }}>
-                          {item.unitWarning}
-                        </div>
-                      )}
+                      {item.unitWarning && (() => {
+                        const recipeUnit = getRecipeUnit(item.category_id, item.variant);
+                        if (!recipeUnit || !item.unit_of_measurement) return null;
+
+                        // Ensure form exists for this category+variant
+                        ensureConversionForm(item.category_id, item.variant, item.unit_of_measurement, recipeUnit);
+                        const form = getConversionForm(item.category_id, item.variant);
+                        if (!form) return null;
+
+                        return (
+                          <div className={styles.unitConversionEntry}>
+                            <div className={styles.conversionLabel}>
+                              Unit mismatch with recipe. Enter conversion:
+                            </div>
+                            <div className={styles.conversionInputRow}>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                value={form.leftQty}
+                                onChange={(e) => updateConversionForm(item.category_id, item.variant, 'leftQty', e.target.value)}
+                                className={styles.conversionInput}
+                              />
+                              <select
+                                value={form.leftUnit}
+                                onChange={(e) => updateConversionForm(item.category_id, item.variant, 'leftUnit', e.target.value)}
+                                className={styles.conversionSelect}
+                              >
+                                <optgroup label="Weight">
+                                  {WEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                </optgroup>
+                                <optgroup label="Volume">
+                                  {VOLUME_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                </optgroup>
+                              </select>
+                              <span>=</span>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                placeholder="?"
+                                value={form.rightQty}
+                                onChange={(e) => updateConversionForm(item.category_id, item.variant, 'rightQty', e.target.value)}
+                                className={styles.conversionInput}
+                              />
+                              <select
+                                value={form.rightUnit}
+                                onChange={(e) => updateConversionForm(item.category_id, item.variant, 'rightUnit', e.target.value)}
+                                className={styles.conversionSelect}
+                              >
+                                <optgroup label="Weight">
+                                  {WEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                </optgroup>
+                                <optgroup label="Volume">
+                                  {VOLUME_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                </optgroup>
+                              </select>
+                            </div>
+                            {hasValidConversion(item.category_id, item.variant) ? (
+                              <div className={styles.conversionSuccess}>Conversion saved</div>
+                            ) : (
+                              <div className={styles.conversionNote}>
+                                You can skip this for now and add the conversion later in Categories.
+                                Note: Cost per unit won't calculate for this ingredient until the conversion is set.
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })}
