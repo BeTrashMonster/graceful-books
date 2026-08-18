@@ -372,7 +372,7 @@ export default function WorkshopSignupPage() {
         <footer className={styles.workshopFooter}>
           <p className={styles.footerTagline}>You deserve financial clarity.</p>
           <nav className={styles.footerLinks}>
-            <a href="https://www.audacious.money/privacy-policy" className={styles.footerLink}>Privacy</a>
+            <a href="https://www.audacious.money/privacy/" className={styles.footerLink}>Privacy</a>
             <a href="https://www.audacious.money/terms" className={styles.footerLink}>Terms</a>
             <a href="https://www.audacious.money/contact" className={styles.footerLink}>Contact</a>
           </nav>
@@ -674,7 +674,7 @@ export default function WorkshopSignupPage() {
       <footer className={styles.workshopFooter}>
         <p className={styles.footerTagline}>You deserve financial clarity.</p>
         <nav className={styles.footerLinks}>
-          <a href="https://www.audacious.money/privacy-policy" className={styles.footerLink}>Privacy</a>
+          <a href="https://www.audacious.money/privacy/" className={styles.footerLink}>Privacy</a>
           <a href="https://www.audacious.money/terms" className={styles.footerLink}>Terms</a>
           <a href="https://www.audacious.money/contact" className={styles.footerLink}>Contact</a>
         </nav>
