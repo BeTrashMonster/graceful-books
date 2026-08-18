@@ -36,6 +36,20 @@ export default function FinishedProducts() {
     }
   }, [location.state]);
 
+  // Listen for edit product requests (from RecipeBuilder "View batch units" link)
+  // Close the recipe modal so the edit modal can open
+  useEffect(() => {
+    const handleEditProductRequest = () => {
+      setRecipeModalOpen(false);
+      setSelectedProduct(null);
+    };
+
+    window.addEventListener('cpg:edit-product', handleEditProductRequest);
+    return () => {
+      window.removeEventListener('cpg:edit-product', handleEditProductRequest);
+    };
+  }, []);
+
   const handleOpenRecipeBuilder = async (productId: string) => {
     // Get product details
     const product = await db.cpgFinishedProducts.get(productId);

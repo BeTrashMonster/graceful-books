@@ -259,6 +259,23 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
     };
   }, [companyId]);
 
+  // Listen for external edit product requests (from RecipeBuilder "View batch units" link)
+  useEffect(() => {
+    const handleEditProductRequest = async (event: CustomEvent<{ productId: string; productName: string }>) => {
+      const { productId } = event.detail;
+      const product = await db.cpgFinishedProducts.get(productId);
+      if (product) {
+        setEditingProduct(product);
+        setShowAddModal(true);
+      }
+    };
+
+    window.addEventListener('cpg:edit-product', handleEditProductRequest as EventListener);
+    return () => {
+      window.removeEventListener('cpg:edit-product', handleEditProductRequest as EventListener);
+    };
+  }, []);
+
   const handleAddProduct = () => {
     setEditingProduct(null);
     setShowAddModal(true);

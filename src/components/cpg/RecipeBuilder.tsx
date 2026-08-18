@@ -876,15 +876,51 @@ export function RecipeBuilder({
       )}
 
       <div>
-        <h3 style={{
-          fontSize: '1.125rem',
-          fontWeight: 600,
-          color: '#4b006e',
+        <div style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
           marginBottom: '1rem',
-          marginTop: 0
+          flexWrap: 'wrap',
+          gap: '0.5rem'
         }}>
-          Recipe Components
-        </h3>
+          <h3 style={{
+            fontSize: '1.125rem',
+            fontWeight: 600,
+            color: '#4b006e',
+            margin: 0
+          }}>
+            Recipe Components
+          </h3>
+          <span style={{
+            fontSize: '0.8125rem',
+            color: '#6b7280',
+            fontStyle: 'italic'
+          }}>
+            Quantities shown per single unit.{' '}
+            <button
+              type="button"
+              onClick={() => {
+                // Dispatch custom event to trigger edit modal and close recipe modal
+                window.dispatchEvent(new CustomEvent('cpg:edit-product', {
+                  detail: { productId: finishedProductId, productName }
+                }));
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                color: '#4b006e',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                font: 'inherit',
+                fontStyle: 'italic'
+              }}
+            >
+              View batch units
+            </button>
+          </span>
+        </div>
         <div className={styles.componentList}>
           <div className={styles.componentHeader}>
             <div style={{ flex: 1.1 }}>Category</div>
