@@ -1924,10 +1924,9 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         const recipeUnit = getRecipeUnit(item.category_id, item.variant);
                         if (!recipeUnit || !item.unit_of_measurement) return null;
 
-                        // Ensure form exists for this category+variant
-                        ensureConversionForm(item.category_id, item.variant, item.unit_of_measurement, recipeUnit);
-                        const form = getConversionForm(item.category_id, item.variant);
-                        if (!form) return null;
+                        // Get form data without triggering state updates during render
+                        const form = getOrCreateConversionForm(item.category_id, item.variant, item.unit_of_measurement, recipeUnit);
+                        const conversionKey = `${item.category_id}_${item.variant || 'default'}`;
 
                         return (
                           <div className={styles.unitConversionEntry}>
@@ -1936,15 +1935,17 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                             </div>
                             <div className={styles.conversionInputRow}>
                               <input
+                                key={`${conversionKey}_leftQty`}
                                 type="number"
                                 step="0.01"
                                 min="0.01"
-                                value={form.leftQty}
-                                onChange={(e) => updateConversionForm(item.category_id, item.variant, 'leftQty', e.target.value)}
+                                defaultValue={form.leftQty}
+                                onBlur={(e) => updateConversionForm(item.category_id, item.variant, 'leftQty', e.target.value)}
                                 className={styles.conversionInput}
                               />
                               <select
-                                value={form.leftUnit}
+                                key={`${conversionKey}_leftUnit`}
+                                defaultValue={form.leftUnit}
                                 onChange={(e) => updateConversionForm(item.category_id, item.variant, 'leftUnit', e.target.value)}
                                 className={styles.conversionSelect}
                               >
@@ -1957,16 +1958,18 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                               </select>
                               <span>=</span>
                               <input
+                                key={`${conversionKey}_rightQty`}
                                 type="number"
                                 step="0.01"
                                 min="0.01"
                                 placeholder="?"
-                                value={form.rightQty}
-                                onChange={(e) => updateConversionForm(item.category_id, item.variant, 'rightQty', e.target.value)}
+                                defaultValue={form.rightQty}
+                                onBlur={(e) => updateConversionForm(item.category_id, item.variant, 'rightQty', e.target.value)}
                                 className={styles.conversionInput}
                               />
                               <select
-                                value={form.rightUnit}
+                                key={`${conversionKey}_rightUnit`}
+                                defaultValue={form.rightUnit}
                                 onChange={(e) => updateConversionForm(item.category_id, item.variant, 'rightUnit', e.target.value)}
                                 className={styles.conversionSelect}
                               >
