@@ -376,12 +376,15 @@
 /* Sticky branding on left side */
 .stickyBrand {
   position: fixed;
-  left: 1.5rem;
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
+  width: 220px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   z-index: 100;
   opacity: 0.95;
   transition: opacity 0.3s ease;
@@ -406,6 +409,7 @@
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
   letter-spacing: 0.02em;
   white-space: nowrap;
+  text-align: center;
 }
 
 /* Hide sticky brand on smaller screens */

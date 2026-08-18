@@ -428,6 +428,11 @@ export default function WorkshopSignupPage() {
               <strong>Location:</strong>{' '}
               {workshop.workshopType === 'online' ? 'Online (link provided after signup)' : (workshop.location || 'Location TBD')}
             </div>
+            {workshop.trialDurationDays && (
+              <div className={styles.metaItem}>
+                <strong>Free Trial For:</strong> {workshop.trialDurationDays} days
+              </div>
+            )}
             {workshop.maxEnrollment && (
               <div className={styles.metaItem}>
                 <strong>Enrolled:</strong> {enrollmentCount} / {workshop.maxEnrollment} participants
