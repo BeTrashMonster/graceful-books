@@ -2159,11 +2159,17 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                   <div className={styles.invoiceFieldsRow}>
                     <div className={styles.invoiceFieldCompact} style={{ flex: 2, position: 'relative' }}>
                       <label className={styles.label}>Vendor Name</label>
-                      <div className={styles.vendorDropdown}>
+                      <div
+                        className={styles.vendorDropdown}
+                        onMouseDown={(e) => e.stopPropagation()}
+                      >
                         <button
                           type="button"
                           className={`${styles.vendorDropdownTrigger} ${invoice.vendor_name ? styles.vendorSelected : ''}`}
-                          onClick={() => setOpenVendorDropdown(openVendorDropdown === invoice.id ? null : invoice.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenVendorDropdown(openVendorDropdown === invoice.id ? null : invoice.id);
+                          }}
                         >
                           {invoice.vendor_name || 'Select or create vendor...'}
                           <span className={styles.vendorDropdownArrow}>▼</span>
