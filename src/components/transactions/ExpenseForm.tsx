@@ -20,6 +20,8 @@ import { VendorModal } from '../vendors/VendorModal'
 import { useNewLineItem } from '../../hooks/useTransactions'
 import styles from './ExpenseForm.module.css'
 
+type ExpenseType = 'expense' | 'check' | 'bill'
+
 export interface ExpenseFormProps {
   transaction: JournalEntry
   accounts: Account[]
@@ -29,9 +31,9 @@ export interface ExpenseFormProps {
   onCancel: () => void
   isLoading?: boolean
   error?: string
+  /** Pre-select expense type when opening the form (defaults to 'expense') */
+  defaultExpenseType?: ExpenseType
 }
-
-type ExpenseType = 'expense' | 'check' | 'bill'
 
 interface CategoryLine {
   id: string
@@ -49,9 +51,10 @@ export function ExpenseForm({
   onCancel,
   isLoading = false,
   error,
+  defaultExpenseType = 'expense',
 }: ExpenseFormProps) {
   // Form state
-  const [expenseType, setExpenseType] = useState<ExpenseType>('expense')
+  const [expenseType, setExpenseType] = useState<ExpenseType>(defaultExpenseType)
   const [date, setDate] = useState<string>(
     transaction.date.toISOString().split('T')[0] || ''
   )

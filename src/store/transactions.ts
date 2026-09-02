@@ -127,6 +127,11 @@ function toTransactionEntity(
     paymentTerms: transaction.paymentTerms,
     linkedTransactionId: transaction.linkedTransactionId,
     personalAccountRef: transaction.personalAccountRef,
+    // Consolidation fields
+    linkedTransactionIds: transaction.linkedTransactionIds,
+    consolidatedIntoPaymentId: transaction.consolidatedIntoPaymentId,
+    consolidatedTransactionIds: transaction.consolidatedTransactionIds,
+    consolidatedCashOffset: transaction.consolidatedCashOffset,
     _encrypted: {
       memo: true,
       lines: true,
@@ -160,6 +165,11 @@ function fromTransactionEntity(entity: TransactionEntity): JournalEntry {
     paymentTerms: entity.paymentTerms,
     linkedTransactionId: entity.linkedTransactionId,
     personalAccountRef: entity.personalAccountRef,
+    // Consolidation fields
+    linkedTransactionIds: entity.linkedTransactionIds,
+    consolidatedIntoPaymentId: entity.consolidatedIntoPaymentId,
+    consolidatedTransactionIds: entity.consolidatedTransactionIds,
+    consolidatedCashOffset: entity.consolidatedCashOffset,
   }
 }
 
@@ -831,4 +841,70 @@ export async function batchCreateTransactions(
   }
 
   return { successful, failed }
+}
+
+/**
+ * Mark transactions as consolidated into a bill payment
+ *
+ * This is a metadata-only update that marks existing expenses/checks as being
+ * part of a bill payment. Unlike regular updates, this is allowed on posted
+ * transactions because it doesn't change accounting entries - it only adds
+ * linking information for display purposes.
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
+ */
+export async function markTransactionsConsolidated(
+  transactionIds: string[],
+  paymentId: string,
+  companyId: string
+): Promise<DatabaseResult<void>> {
+  try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
+    }
+
+    const now = new Date()
+    const deviceId = getDeviceId()
+
+    for (const txnId of transactionIds) {
+      const existing = await db.transactions.get(txnId)
+
+      // SECURITY: Verify resource ownership before allowing access
+      const authCheck = requireCompanyOwnership(existing, companyId)
+      if (!authCheck.authorized) {
+        console.warn(`Skipping consolidation of ${txnId}: not authorized`)
+        continue
+      }
+
+      const authorizedEntity = authCheck.resource
+
+      // Skip deleted transactions
+      if (authorizedEntity.deletedAt) {
+        console.warn(`Skipping consolidation of ${txnId}: deleted`)
+        continue
+      }
+
+      // Mark as consolidated (metadata update only - no accounting changes)
+      await db.transactions.update(txnId, {
+        consolidatedIntoPaymentId: paymentId,
+        updatedAt: now,
+        versionVector: incrementVersionVector(authorizedEntity.versionVector),
+        lastModifiedBy: deviceId,
+        lastModifiedAt: now,
+      })
+    }
+
+    return { success: true, data: undefined }
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: error,
+      },
+    }
+  }
 }

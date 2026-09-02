@@ -18,6 +18,7 @@ import { RecentActivityTable } from '../components/transactions/RecentActivityTa
 import { TransactionDetailDrawer } from '../components/transactions/TransactionDetailDrawer'
 import { Modal } from '../components/modals/Modal'
 import { useTransactions, useNewTransaction } from '../hooks/useTransactions'
+import { markTransactionsConsolidated, voidTransaction } from '../store/transactions'
 import { useAccounts } from '../hooks/useAccounts'
 import { useVendors } from '../hooks/useVendors'
 import { useCustomers } from '../hooks/useCustomers'
@@ -373,9 +374,47 @@ export default function Transactions() {
   }
 
   // Handle saving multiple bill-paid transactions
+  // Also marks any consolidated expenses/checks with the payment ID
+  // And voids any transactions that should be removed from register
   const handleSaveBillPayments = async (paymentTransactions: JournalEntry[]) => {
     for (const txn of paymentTransactions) {
-      await createNewTransaction(txn)
+      console.log('=== SAVING BILL PAYMENT ===')
+      console.log('Transaction:', txn)
+      console.log('Lines:', txn.lines)
+      console.log('Total debits:', txn.lines.reduce((sum, l) => sum + l.debit, 0))
+      console.log('Total credits:', txn.lines.reduce((sum, l) => sum + l.credit, 0))
+      console.log('Linked bill IDs:', txn.linkedTransactionId, txn.linkedTransactionIds)
+      console.log('Void IDs:', txn.voidTransactionIds)
+
+      // Save the payment transaction
+      const savedTxn = await createNewTransaction(txn)
+      console.log('Save result:', savedTxn ? 'SUCCESS' : 'FAILED (null)')
+
+      if (savedTxn) {
+        console.log('Saved transaction ID:', savedTxn.id)
+
+        // If payment has consolidated transactions (separate - keep in register), mark them
+        if (txn.consolidatedTransactionIds && txn.consolidatedTransactionIds.length > 0) {
+          console.log('Marking consolidated:', txn.consolidatedTransactionIds)
+          await markTransactionsConsolidated(
+            txn.consolidatedTransactionIds,
+            savedTxn.id,
+            activeCompanyId
+          )
+        }
+
+        // If payment has void transactions (included - remove from register), void them
+        if (txn.voidTransactionIds && txn.voidTransactionIds.length > 0) {
+          console.log('Voiding transactions:', txn.voidTransactionIds)
+          for (const voidId of txn.voidTransactionIds) {
+            const voidResult = await voidTransaction(voidId, activeCompanyId)
+            console.log('Void result for', voidId, ':', voidResult ? 'SUCCESS' : 'FAILED')
+          }
+        }
+      } else {
+        console.log('Transaction save failed - check useTransactions error state')
+      }
+      console.log('=== END BILL PAYMENT ===')
     }
     setSelectedSecondaryAction(null)
     loadTransactions({ companyId: activeCompanyId })

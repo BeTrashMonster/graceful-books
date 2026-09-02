@@ -97,6 +97,11 @@ export function BillPaidForm({
   // Track selected expense IDs separately so they persist when toggle is off
   const [persistedExpenseSelections, setPersistedExpenseSelections] = useState<Set<string>>(new Set())
 
+  // Track how each expense should be handled: 'separate' or 'included'
+  // 'separate' = already paid separately, reduce cash credit (keep in register)
+  // 'included' = should be merged into this payment, void original (remove from register)
+  const [expenseHandling, setExpenseHandling] = useState<Map<string, 'separate' | 'included'>>(new Map())
+
   // Filter state
   const [selectedVendorIds, setSelectedVendorIds] = useState<Set<string>>(new Set())
   const [vendorDropdownOpen, setVendorDropdownOpen] = useState<boolean>(false)
@@ -207,7 +212,11 @@ export function BillPaidForm({
 
     const recentExpenses = transactions.filter(txn => {
       if (txn.transactionType !== 'expense' && txn.transactionType !== 'check') return false
+      // Only posted transactions (excludes void, draft, etc.)
       if (txn.status !== 'posted') return false
+
+      // EXCLUDE expenses already consolidated into another payment
+      if (txn.consolidatedIntoPaymentId) return false
 
       // Always include if already selected (persisted selection)
       if (selectedBills.has(txn.id)) return true
@@ -278,13 +287,29 @@ export function BillPaidForm({
   }, [transactions, vendors])
 
   // Toggle bill selection
-  const toggleBillSelection = useCallback((billId: string, amountDue: number) => {
+  const toggleBillSelection = useCallback((billId: string, amountDue: number, isExpense: boolean) => {
     setSelectedBills(prev => {
       const newMap = new Map(prev)
       if (newMap.has(billId)) {
         newMap.delete(billId)
+        // Also remove from expense handling
+        if (isExpense) {
+          setExpenseHandling(prev => {
+            const newHandling = new Map(prev)
+            newHandling.delete(billId)
+            return newHandling
+          })
+        }
       } else {
         newMap.set(billId, amountDue.toFixed(2))
+        // Default to 'separate' for expenses (most common case - already paid)
+        if (isExpense) {
+          setExpenseHandling(prev => {
+            const newHandling = new Map(prev)
+            newHandling.set(billId, 'separate')
+            return newHandling
+          })
+        }
       }
       return newMap
     })
@@ -295,6 +320,15 @@ export function BillPaidForm({
     setSelectedBills(prev => {
       const newMap = new Map(prev)
       newMap.set(billId, amount)
+      return newMap
+    })
+  }, [])
+
+  // Update how an expense should be handled
+  const updateExpenseHandling = useCallback((expenseId: string, handling: 'separate' | 'included') => {
+    setExpenseHandling(prev => {
+      const newMap = new Map(prev)
+      newMap.set(expenseId, handling)
       return newMap
     })
   }, [])
@@ -391,6 +425,10 @@ export function BillPaidForm({
   }
 
   // Handle save - creates ONE payment transaction covering all selected bills
+  // Implements flexible consolidation model:
+  // - Bills (not yet hit cash): Create A/P debit, include in cash credit
+  // - Expenses marked 'separate': Already paid separately, OFFSET from cash credit
+  // - Expenses marked 'included': Merge into this payment, VOID original transaction
   const handleSave = useCallback(() => {
     if (selectedBills.size === 0 || !paymentAccountId || !isBalanced) return
 
@@ -401,9 +439,12 @@ export function BillPaidForm({
     // Build journal entry lines
     const lines = []
 
-    // For each selected bill, debit Accounts Payable
+    // Track bills vs consolidated expenses
     const vendorNames: string[] = []
     const linkedBillIds: string[] = []
+    const consolidatedTransactionIds: string[] = []  // Expenses that stay in register (separate)
+    const voidTransactionIds: string[] = []  // Expenses to remove from register (included)
+    let consolidatedCashOffset = 0  // Cash already recorded by 'separate' expenses
 
     selectedBills.forEach((amountStr, billId) => {
       const amount = parseFloat(amountStr) || 0
@@ -416,23 +457,49 @@ export function BillPaidForm({
         vendorNames.push(bill.vendor.name)
       }
 
-      if (!bill.isExpense) {
-        linkedBillIds.push(billId)
-      }
+      if (bill.isExpense) {
+        // This is an expense/check - check how user wants to handle it
+        const handling = expenseHandling.get(billId) || 'separate'
 
-      // Debit Accounts Payable (reduce liability)
-      if (accountsPayable) {
-        lines.push({
-          ...useNewLineItem(),
-          accountId: accountsPayable.id,
-          debit: amount,
-          credit: 0,
-          memo: bill.reference ? `Payment for ${bill.reference}` : (bill.memo || 'Bill payment'),
-        })
+        if (handling === 'separate') {
+          // Already paid separately - offset from cash credit, keep in register
+          consolidatedTransactionIds.push(billId)
+          consolidatedCashOffset += amount
+        } else {
+          // Include in this payment - void original, recreate expense in this payment
+          voidTransactionIds.push(billId)
+
+          // Add the expense account debit to this payment
+          // Find the expense account from the original transaction's debit lines
+          const expenseLines = bill.transaction.lines.filter(l => l.debit > 0)
+          expenseLines.forEach(expLine => {
+            lines.push({
+              ...useNewLineItem(),
+              accountId: expLine.accountId,
+              debit: expLine.debit,
+              credit: 0,
+              memo: expLine.memo || bill.memo || 'Expense included in payment',
+            })
+          })
+        }
+      } else {
+        // This is a bill - needs A/P debit
+        linkedBillIds.push(billId)
+
+        // Debit Accounts Payable (reduce liability)
+        if (accountsPayable) {
+          lines.push({
+            ...useNewLineItem(),
+            accountId: accountsPayable.id,
+            debit: amount,
+            credit: 0,
+            memo: bill.reference ? `Payment for ${bill.reference}` : (bill.memo || 'Bill payment'),
+          })
+        }
       }
     })
 
-    // Add discrepancy lines
+    // Add discrepancy lines (these are new expenses at payment time)
     discrepancies.forEach(disc => {
       const amount = parseFloat(disc.amount) || 0
       if (amount === 0 || !disc.categoryId) return
@@ -446,14 +513,30 @@ export function BillPaidForm({
       })
     })
 
-    // Credit payment account for total payment amount
-    lines.push({
-      ...useNewLineItem(),
-      accountId: paymentAccountId,
-      debit: 0,
-      credit: paymentAmountNum,
-      memo: memo || 'Bill payment',
-    })
+    // Calculate NEW cash outflow:
+    // Total payment - cash already recorded by consolidated expenses
+    const newCashCredit = paymentAmountNum - consolidatedCashOffset
+
+    // Only add cash credit line if there's new cash being spent
+    if (newCashCredit > 0.01) {
+      lines.push({
+        ...useNewLineItem(),
+        accountId: paymentAccountId,
+        debit: 0,
+        credit: newCashCredit,
+        memo: consolidatedCashOffset > 0
+          ? `Bill payment (${formatCurrency(consolidatedCashOffset)} already recorded)`
+          : (memo || 'Bill payment'),
+      })
+    }
+
+    // If we have NO lines (only consolidated expenses, no bills, no discrepancies)
+    // We still need to create the payment record to link everything, but it's a "linking" transaction
+    // In this case, we'll create a minimal balanced entry
+    if (lines.length === 0 && consolidatedTransactionIds.length > 0) {
+      // This is a consolidation-only payment - no new journal entries needed
+      // Just create the payment record to group the consolidated items
+    }
 
     // Create single payment transaction
     const paymentTransaction: JournalEntry = {
@@ -469,11 +552,18 @@ export function BillPaidForm({
       updatedAt: new Date(),
       transactionType: 'bill-payment',
       vendorId: selectableBills.find(b => selectedBills.has(b.id))?.vendor?.id,
+      // Link to bills
       linkedTransactionId: linkedBillIds.length === 1 ? linkedBillIds[0] : undefined,
+      linkedTransactionIds: linkedBillIds.length > 1 ? linkedBillIds : undefined,
+      // Track consolidated expenses/checks (separate - keep in register)
+      consolidatedTransactionIds: consolidatedTransactionIds.length > 0 ? consolidatedTransactionIds : undefined,
+      consolidatedCashOffset: consolidatedCashOffset > 0 ? consolidatedCashOffset : undefined,
+      // Track expenses to void (included - remove from register)
+      voidTransactionIds: voidTransactionIds.length > 0 ? voidTransactionIds : undefined,
     }
 
     onSave([paymentTransaction])
-  }, [selectedBills, paymentAccountId, paymentDate, paymentAmountNum, referenceNumber, memo, selectableBills, accountsPayable, discrepancies, companyId, userId, onSave, isBalanced])
+  }, [selectedBills, paymentAccountId, paymentDate, paymentAmountNum, referenceNumber, memo, selectableBills, accountsPayable, discrepancies, companyId, userId, onSave, isBalanced, expenseHandling])
 
   // Validation - must be balanced and have required fields
   const canSave = selectedBills.size > 0 && paymentAccountId && paymentAmountNum > 0 && isBalanced
@@ -697,7 +787,7 @@ export function BillPaidForm({
                 <input
                   type="checkbox"
                   checked={bill.selected}
-                  onChange={() => toggleBillSelection(bill.id, bill.amountDue)}
+                  onChange={() => toggleBillSelection(bill.id, bill.amountDue, bill.isExpense)}
                   disabled={isLoading}
                 />
               </div>
@@ -756,6 +846,39 @@ export function BillPaidForm({
                       onChange={(e) => updatePaymentAmount(bill.id, e.target.value)}
                       disabled={isLoading}
                     />
+                  </div>
+                </div>
+              )}
+              {bill.selected && bill.isExpense && (
+                <div className={styles.expenseHandlingChoice}>
+                  <label className={styles.handlingLabel}>This expense was:</label>
+                  <div className={styles.handlingOptions}>
+                    <label className={`${styles.handlingOption} ${expenseHandling.get(bill.id) === 'separate' ? styles.handlingSelected : ''}`}>
+                      <input
+                        type="radio"
+                        name={`handling-${bill.id}`}
+                        checked={expenseHandling.get(bill.id) === 'separate'}
+                        onChange={() => updateExpenseHandling(bill.id, 'separate')}
+                        disabled={isLoading}
+                      />
+                      <span className={styles.handlingText}>
+                        <strong>Paid separately</strong>
+                        <small>Already hit the bank - keep it in the register</small>
+                      </span>
+                    </label>
+                    <label className={`${styles.handlingOption} ${expenseHandling.get(bill.id) === 'included' ? styles.handlingSelected : ''}`}>
+                      <input
+                        type="radio"
+                        name={`handling-${bill.id}`}
+                        checked={expenseHandling.get(bill.id) === 'included'}
+                        onChange={() => updateExpenseHandling(bill.id, 'included')}
+                        disabled={isLoading}
+                      />
+                      <span className={styles.handlingText}>
+                        <strong>Included in this payment</strong>
+                        <small>Mistakenly recorded - remove from register</small>
+                      </span>
+                    </label>
                   </div>
                 </div>
               )}

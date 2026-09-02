@@ -170,6 +170,13 @@ export interface JournalEntry {
   paymentTerms?: string      // e.g., "Net 30", "Due on receipt"
   linkedTransactionId?: string  // Links bill-payment to bill, invoice-payment to invoice
   personalAccountRef?: string   // Reference to personal account used (for flex account transactions)
+
+  // Consolidation fields for bill payments
+  linkedTransactionIds?: string[]  // For payments that cover multiple bills
+  consolidatedIntoPaymentId?: string  // Marks expense/check as consolidated into a bill payment
+  consolidatedTransactionIds?: string[]  // IDs of expenses/checks absorbed into this payment (separate - already hit cash)
+  consolidatedCashOffset?: number  // Amount of cash already recorded by consolidated transactions
+  voidTransactionIds?: string[]  // IDs of expenses/checks to void (included - merge into this payment)
 }
 
 /**

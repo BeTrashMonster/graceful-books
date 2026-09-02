@@ -16,7 +16,10 @@
 import { type FC, useState, useMemo, useEffect, useRef } from 'react'
 import { Select, type SelectOption } from '../forms/Select'
 import { Button } from '../core/Button'
+import { useTransactions } from '../../hooks/useTransactions'
+import { useAccounts } from '../../hooks/useAccounts'
 import type { Vendor } from '../../types/vendor.types'
+import type { JournalEntry } from '../../types'
 import styles from './VendorInsights.module.css'
 
 type Vendor1099Filter = 'all' | '1099-only' | 'non-1099'
@@ -57,6 +60,9 @@ interface VendorSpendingSummary {
   transactionCount: number
   lastTransactionDate: Date | null
   is1099Eligible: boolean
+  // Cross-vendor consolidation tracking
+  crossVendorPaidAmount: number  // Amount paid to this vendor for OTHER vendors' expenses
+  consolidatedOutAmount: number   // Amount of this vendor's expenses consolidated into OTHER vendors' payments
 }
 
 interface GroupBreakdown {
@@ -74,6 +80,15 @@ interface TransactionClassification {
   name: string
   color: string
   amount: number
+  excludeFromBreakdown?: boolean  // True for "Paid Bills" - don't aggregate in category chart
+}
+
+interface PaymentDetail {
+  id: string
+  date: Date
+  reference: string
+  amount: number
+  memo: string
 }
 
 interface TransactionDetail {
@@ -90,6 +105,10 @@ interface TransactionDetail {
   daysLate: number
   classifications: TransactionClassification[]
   type: TransactionType
+  payments: PaymentDetail[]
+  isConsolidated: boolean  // True if this transaction is consolidated into a payment
+  consolidatedIntoPaymentId?: string
+  isLinkedToBills: boolean  // True if this payment pays bills (shows in bill dropdown instead)
 }
 
 type TransactionSortField = 'date' | 'reference' | 'description' | 'type' | 'classification' | 'amount'
@@ -105,11 +124,25 @@ function formatTransactionType(type: TransactionType): string {
     case 'bill':
       return 'Bill'
     case 'bill-payment':
-      return 'Bill Payment'
+      return 'Payment'
     case 'check':
       return 'Check'
     case 'journal-entry':
       return 'Journal Entry'
+  }
+}
+
+/**
+ * Get user-friendly status label
+ */
+function getStatusLabel(status: 'current' | 'overdue' | 'paid'): string {
+  switch (status) {
+    case 'paid':
+      return 'Paid'
+    case 'current':
+      return 'Due'
+    case 'overdue':
+      return 'Past Due'
   }
 }
 
@@ -223,7 +256,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
   vendors,
   onEditVendor,
   onCreateVendor,
-  isLoading = false,
+  isLoading: _isLoading = false,
 }) => {
   const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null)
   const [dateRange, setDateRange] = useState<DateRangeFilter>('12mo')
@@ -250,8 +283,51 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
   const [txnSortField, setTxnSortField] = useState<TransactionSortField>('date')
   const [txnSortDirection, setTxnSortDirection] = useState<SortDirection>('desc')
 
+  // Track expanded transactions (for showing payment details)
+  const [expandedTxnIds, setExpandedTxnIds] = useState<Set<string>>(new Set())
+
   // Track if we've done initial auto-selection
   const hasAutoSelected = useRef(false)
+
+  // Load real transactions from database
+  const { transactions: rawTransactions, loadTransactions } = useTransactions()
+  const { accounts } = useAccounts({ companyId, isActive: true })
+
+  // Load transactions on mount
+  useEffect(() => {
+    loadTransactions({ companyId })
+  }, [loadTransactions, companyId])
+
+  // DEBUG: Log Check 1234 and related payments
+  useEffect(() => {
+    const check1234 = rawTransactions.find(t => t.reference === '1234' && t.transactionType === 'check')
+    const payment1325 = rawTransactions.find(t => t.reference === '1325' && t.transactionType === 'bill-payment')
+
+    if (check1234 || payment1325) {
+      console.log('=== CHECK 1234 & PAYMENT DEBUG ===')
+      if (check1234) {
+        console.log('CHECK 1234:', {
+          id: check1234.id,
+          status: check1234.status,
+          consolidatedIntoPaymentId: check1234.consolidatedIntoPaymentId,
+        })
+        // Find the payment it THINKS it's consolidated into
+        if (check1234.consolidatedIntoPaymentId) {
+          const targetPayment = rawTransactions.find(t => t.id === check1234.consolidatedIntoPaymentId)
+          console.log('CHECK POINTS TO:', targetPayment ? {
+            ref: targetPayment.reference,
+            type: targetPayment.transactionType,
+          } : 'NOT FOUND - ID: ' + check1234.consolidatedIntoPaymentId)
+        }
+      }
+      if (payment1325) {
+        console.log('PAYMENT 1325:', {
+          id: payment1325.id,
+          linkedTransactionId: payment1325.linkedTransactionId,
+        })
+      }
+    }
+  }, [rawTransactions])
 
   // Get the active date range (either from preset or custom)
   const activeDateRange = useMemo(() => {
@@ -264,114 +340,186 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
     return getDateRange(dateRange)
   }, [dateRange, customStartDate, customEndDate])
 
-  // Generate ALL transactions for ALL vendors upfront (mock data - will be replaced with real data)
-  const allTransactions: TransactionDetail[] = useMemo(() => {
-    const types: TransactionType[] = ['expense', 'bill', 'bill-payment', 'check', 'journal-entry']
-    const descriptions = [
-      'Monthly service fee',
-      'Product delivery',
-      'Consulting services',
-      'Equipment purchase',
-      'Subscription renewal',
-      'Maintenance contract',
-      'Supply order',
-      'Project payment',
-    ]
+  // Build account lookup map for classification names
+  const accountMap = useMemo(() => {
+    const map = new Map<string, { name: string; color: string }>()
+    accounts.forEach((acc) => {
+      // Use account type to determine color
+      const typeColors: Record<string, string> = {
+        'expense': '#4b006e',
+        'cost-of-goods-sold': '#1e3a5f',
+        'asset': '#92400e',
+        'liability': '#742a2a',
+        'equity': '#1a4731',
+      }
+      map.set(acc.id, {
+        name: acc.name,
+        color: typeColors[acc.type] || '#6b7280',
+      })
+    })
+    return map
+  }, [accounts])
 
-    const transactions: TransactionDetail[] = []
+  // Convert real transactions to TransactionDetail format
+  // This includes ALL vendor transactions for accurate totals
+  const allTransactions: TransactionDetail[] = useMemo(() => {
     const today = new Date()
 
-    // Generate 10-50 transactions per vendor, spread across 2 years
-    vendors.forEach((vendor, vendorIndex) => {
-      const txnCount = 10 + Math.floor(Math.random() * 40)
+    // Filter to only vendor-related transactions (those with vendorId)
+    // Show: bills, expenses, checks, AND bill-payments
+    // Exclude voided transactions AND consolidated transactions - they're shown in the payment breakdown
+    const vendorTransactions = rawTransactions.filter(
+      (txn) => txn.vendorId &&
+        ['expense', 'bill', 'check', 'bill-payment'].includes(txn.transactionType || '') &&
+        txn.status !== 'void' &&
+        !txn.consolidatedIntoPaymentId  // Don't show separately - shown in payment dropdown
+    )
 
-      for (let i = 0; i < txnCount; i++) {
-        const totalAmount = Math.random() * 5000 + 100
+    // Build a map of bill payments by their linked bill ID
+    // Handles both single linkedTransactionId and multiple linkedTransactionIds
+    const billPaymentsByBillId = new Map<string, JournalEntry[]>()
+    rawTransactions
+      .filter((txn) => txn.transactionType === 'bill-payment')
+      .forEach((payment) => {
+        // Handle multiple linked bills
+        const linkedIds = payment.linkedTransactionIds ||
+          (payment.linkedTransactionId ? [payment.linkedTransactionId] : [])
 
-        // Randomly decide how many classifications (1-3, weighted toward 1)
-        const classificationCount = Math.random() < 0.6 ? 1 : Math.random() < 0.7 ? 2 : 3
-        const classifications: TransactionClassification[] = []
+        linkedIds.forEach((billId) => {
+          const existing = billPaymentsByBillId.get(billId) || []
+          existing.push(payment)
+          billPaymentsByBillId.set(billId, existing)
+        })
+      })
 
-        // Pick random unique groups
-        const shuffledGroups = [...CLASSIFICATION_GROUPS].sort(() => Math.random() - 0.5)
-        let remainingAmount = totalAmount
+    return vendorTransactions.map((txn) => {
+      const txnType = (txn.transactionType || 'expense') as TransactionType
 
-        for (let c = 0; c < classificationCount; c++) {
-          const group = shuffledGroups[c]!
-          const isLast = c === classificationCount - 1
-          const amount = isLast ? remainingAmount : Math.random() * remainingAmount * 0.6 + remainingAmount * 0.1
-          remainingAmount -= amount
+      // For bill-payments, amount is from credits (money leaving bank)
+      // For everything else, amount is from debits
+      const totalAmount = txnType === 'bill-payment'
+        ? txn.lines.reduce((sum, line) => sum + line.credit, 0)
+        : txn.lines.reduce((sum, line) => sum + line.debit, 0)
 
+      // Build classifications from line items
+      let classifications: TransactionClassification[] = []
+
+      if (txnType === 'bill-payment') {
+        // For bill-payments, show where the money went
+        const apAmount = txn.lines
+          .filter((line) => line.debit > 0 && accountMap.get(line.accountId)?.name === 'Accounts Payable')
+          .reduce((sum, line) => sum + line.debit, 0)
+
+        const expenseLines = txn.lines
+          .filter((line) => line.debit > 0 && accountMap.get(line.accountId)?.name !== 'Accounts Payable')
+
+        // Show bills paid portion with clear label (but don't include in category breakdown)
+        if (apAmount > 0) {
           classifications.push({
-            name: group.name,
-            color: group.color,
-            amount: isLast ? remainingAmount + amount : amount,
+            name: 'Paid Bills',
+            color: '#166534', // Green - money going to pay off what you owed
+            amount: apAmount,
+            excludeFromBreakdown: true, // Bills are already counted as separate transactions
           })
         }
 
-        // Generate transaction date (within last 2 years)
-        const txnDate = new Date(Date.now() - Math.random() * 730 * 24 * 60 * 60 * 1000)
-
-        // Due date is 30 days after transaction date (for bills)
-        const dueDate = new Date(txnDate.getTime() + 30 * 24 * 60 * 60 * 1000)
-
-        // Determine payment status
-        // Bills can be paid, current, or overdue
-        // Other types are always "paid"
-        const txnType = types[Math.floor(Math.random() * types.length)]!
-        let amountPaid = totalAmount
-        let amountDue = 0
-        let status: 'current' | 'overdue' | 'paid' = 'paid'
-        let daysLate = 0
-
-        if (txnType === 'bill') {
-          // 60% paid, 25% current (not yet due), 15% overdue
-          const paymentRoll = Math.random()
-          if (paymentRoll < 0.60) {
-            // Paid
-            status = 'paid'
-            amountPaid = totalAmount
-            amountDue = 0
-          } else if (paymentRoll < 0.85) {
-            // Current (due date is in the future or within last 30 days but not overdue)
-            // Make sure due date is in the future for "current" status
-            const currentDueDate = new Date(today.getTime() + Math.random() * 30 * 24 * 60 * 60 * 1000)
-            Object.assign(dueDate, currentDueDate)
-            status = 'current'
-            amountPaid = Math.random() < 0.3 ? totalAmount * Math.random() * 0.5 : 0
-            amountDue = totalAmount - amountPaid
-          } else {
-            // Overdue (due date is in the past)
-            const overdueDays = Math.floor(Math.random() * 90) + 1 // 1-90 days overdue
-            const overdueDueDate = new Date(today.getTime() - overdueDays * 24 * 60 * 60 * 1000)
-            Object.assign(dueDate, overdueDueDate)
-            status = 'overdue'
-            amountPaid = Math.random() < 0.2 ? totalAmount * Math.random() * 0.3 : 0
-            amountDue = totalAmount - amountPaid
-            daysLate = overdueDays
-          }
-        }
-
-        transactions.push({
-          id: `txn-${vendorIndex}-${i}`,
-          vendorId: vendor.id,
-          date: txnDate,
-          dueDate,
-          reference: `INV-${String(1000 + vendorIndex * 100 + i).padStart(4, '0')}`,
-          description: descriptions[Math.floor(Math.random() * descriptions.length)]!,
-          amount: totalAmount,
-          amountPaid,
-          amountDue,
-          status,
-          daysLate,
-          classifications,
-          type: txnType,
+        // Add individual expense categories (extra charges on this payment)
+        expenseLines.forEach((line) => {
+          const account = accountMap.get(line.accountId)
+          classifications.push({
+            name: account?.name || 'Other',
+            color: account?.color || '#6b7280',
+            amount: line.debit,
+          })
         })
+      } else {
+        // For bills, expenses, checks - show expense categories
+        classifications = txn.lines
+          .filter((line) => line.debit > 0)
+          .map((line) => {
+            const account = accountMap.get(line.accountId)
+            return {
+              name: account?.name || 'Uncategorized',
+              color: account?.color || '#6b7280',
+              amount: line.debit,
+            }
+          })
+          // For bills, filter out Accounts Payable - show the expense categories instead
+          .filter((cls) => txnType !== 'bill' || cls.name !== 'Accounts Payable')
       }
-    })
 
-    return transactions.sort((a, b) => b.date.getTime() - a.date.getTime())
-  }, [vendors])
+      // Determine payment status
+      let amountPaid = 0
+      let amountDue = totalAmount
+      let status: 'current' | 'overdue' | 'paid' = 'paid'
+      let daysLate = 0
+      const dueDate = txn.dueDate || new Date(txn.date.getTime() + 30 * 24 * 60 * 60 * 1000)
+      let paymentDetails: PaymentDetail[] = []
+
+      if (txnType === 'bill') {
+        // Check for payments linked to this bill
+        const payments = billPaymentsByBillId.get(txn.id) || []
+        paymentDetails = payments.map((p) => ({
+          id: p.id,
+          date: p.date,
+          reference: p.reference || '',
+          amount: p.lines.reduce((lineSum, line) => lineSum + line.credit, 0),
+          memo: p.memo || '',
+        }))
+        amountPaid = paymentDetails.reduce((sum, pd) => sum + pd.amount, 0)
+        amountDue = Math.max(0, totalAmount - amountPaid)
+
+        if (amountDue <= 0) {
+          status = 'paid'
+        } else if (dueDate > today) {
+          status = 'current'
+        } else {
+          status = 'overdue'
+          daysLate = Math.floor((today.getTime() - dueDate.getTime()) / (24 * 60 * 60 * 1000))
+        }
+      } else if (txnType === 'bill-payment') {
+        // Bill-payments are money out - always "paid"
+        amountPaid = totalAmount
+        amountDue = 0
+        status = 'paid'
+      } else {
+        // Expenses and checks are direct spending - they're already paid
+        amountPaid = totalAmount
+        amountDue = 0
+        status = 'paid'
+      }
+
+      // Check if this payment is linked to bills (will show in bill dropdown)
+      const linkedBillIds = txn.linkedTransactionIds ||
+        (txn.linkedTransactionId ? [txn.linkedTransactionId] : [])
+      const isLinkedToBills = txnType === 'bill-payment' && linkedBillIds.length > 0
+
+      return {
+        id: txn.id,
+        vendorId: txn.vendorId!,
+        date: txn.date,
+        dueDate,
+        reference: txn.reference || '',
+        description: txn.memo || '',
+        amount: totalAmount,
+        amountPaid,
+        amountDue,
+        status,
+        daysLate,
+        classifications,
+        type: txnType,
+        payments: paymentDetails,
+        isConsolidated: !!txn.consolidatedIntoPaymentId,
+        consolidatedIntoPaymentId: txn.consolidatedIntoPaymentId,
+        isLinkedToBills,
+      }
+    }).sort((a, b) => b.date.getTime() - a.date.getTime())
+  }, [rawTransactions, accountMap])
+
+  // Transactions for display - excludes consolidated items (they show nested under payments)
+  const _displayTransactions = useMemo(() => {
+    return allTransactions.filter((txn) => !txn.isConsolidated)
+  }, [allTransactions])
 
   // Filter ALL transactions by date range
   const filteredTransactions = useMemo(() => {
@@ -381,20 +529,208 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
     })
   }, [allTransactions, activeDateRange])
 
-  // Calculate vendor summaries from FILTERED transactions
+  // Build lookup for voided transactions (to track cross-vendor consolidations)
+  const voidedTransactionMap = useMemo(() => {
+    const map = new Map<string, { vendorId: string; amount: number }>()
+    rawTransactions
+      .filter((txn) => txn.status === 'void' && txn.vendorId)
+      .forEach((txn) => {
+        const amount = txn.lines.reduce((sum, line) => sum + line.debit, 0)
+        map.set(txn.id, { vendorId: txn.vendorId!, amount })
+      })
+    return map
+  }, [rawTransactions])
+
+  // Track cross-vendor consolidation amounts per vendor
+  const crossVendorAmounts = useMemo(() => {
+    // For each vendor, track:
+    // - crossVendorPaidAmount: payments TO this vendor that included OTHER vendors' expenses
+    // - consolidatedOutAmount: this vendor's expenses that were voided and consolidated INTO other vendors' payments
+    const amounts = new Map<string, { paidForOthers: number; consolidatedOut: number }>()
+
+    // Initialize for all vendors
+    vendors.forEach((v) => amounts.set(v.id, { paidForOthers: 0, consolidatedOut: 0 }))
+
+    // Look at all bill-payments with voidTransactionIds
+    rawTransactions
+      .filter((txn) => txn.transactionType === 'bill-payment' && txn.voidTransactionIds && txn.voidTransactionIds.length > 0)
+      .forEach((payment) => {
+        const paymentVendorId = payment.vendorId
+        if (!paymentVendorId) return
+
+        payment.voidTransactionIds!.forEach((voidedId) => {
+          const voidedInfo = voidedTransactionMap.get(voidedId)
+          if (!voidedInfo) return
+
+          // If voided expense belonged to a DIFFERENT vendor
+          if (voidedInfo.vendorId !== paymentVendorId) {
+            // This payment (to paymentVendorId) included an expense from another vendor
+            const paymentVendorAmounts = amounts.get(paymentVendorId)
+            if (paymentVendorAmounts) {
+              paymentVendorAmounts.paidForOthers += voidedInfo.amount
+            }
+
+            // The other vendor's expense was consolidated OUT
+            const otherVendorAmounts = amounts.get(voidedInfo.vendorId)
+            if (otherVendorAmounts) {
+              otherVendorAmounts.consolidatedOut += voidedInfo.amount
+            }
+          }
+        })
+      })
+
+    return amounts
+  }, [rawTransactions, voidedTransactionMap, vendors])
+
+  // Build set of expense account IDs for identifying expense debits in bill-payments
+  const expenseAccountIds = useMemo(() => {
+    const ids = new Set<string>()
+    accounts.forEach((acc) => {
+      if (acc.type === 'expense' || acc.type === 'cost-of-goods-sold') {
+        ids.add(acc.id)
+      }
+    })
+    return ids
+  }, [accounts])
+
+  // Calculate vendor summaries - directly from raw transactions for accuracy
   const vendorSummaries: VendorSpendingSummary[] = useMemo(() => {
+    // Get date range for filtering
+    const { start, end } = activeDateRange
+
     return vendors.map((vendor) => {
-      const vendorTxns = filteredTransactions.filter((t) => t.vendorId === vendor.id)
-      const totalBills = vendorTxns.reduce((sum, t) => sum + t.amount, 0)
-      const paidAmount = vendorTxns.reduce((sum, t) => sum + t.amountPaid, 0)
-      const currentAmount = vendorTxns
-        .filter((t) => t.status === 'current')
-        .reduce((sum, t) => sum + t.amountDue, 0)
-      const overdueAmount = vendorTxns
-        .filter((t) => t.status === 'overdue')
-        .reduce((sum, t) => sum + t.amountDue, 0)
+      // Filter raw transactions for this vendor within date range
+      const isInDateRange = (txn: JournalEntry) => {
+        const txnDateStr = toDateString(txn.date)
+        return isDateInRange(txnDateStr, start, end)
+      }
+
+      // ========================================
+      // TOTAL EXPENSES: Everything spent under this vendor's name
+      // ========================================
+      // 1. Bills (ALL - including voided, they represent real expenses)
+      // 2. Expenses (ALL - including voided)
+      // 3. Checks (ALL - including voided)
+      // 4. Expense-account debits from bill-payments (like the $24 added directly)
+
+      // Bills, Expenses, Checks for this vendor
+      // Exclude voided expenses/checks - they're captured in bill-payment expense debits
+      // Include voided bills - they still represent amounts owed
+      const billsExpensesChecks = rawTransactions.filter(
+        (txn) => txn.vendorId === vendor.id &&
+          ['bill', 'expense', 'check'].includes(txn.transactionType || '') &&
+          isInDateRange(txn) &&
+          (txn.transactionType === 'bill' || txn.status !== 'void')
+      )
+      const billExpenseCheckTotal = billsExpensesChecks.reduce(
+        (sum, txn) => sum + txn.lines.reduce((ls, l) => ls + l.debit, 0),
+        0
+      )
+
+      // Bill-payments for this vendor - extract expense-account debits
+      // (these are expenses added directly to the payment, like the $24 Software + Subscriptions)
+      const billPaymentsForVendor = rawTransactions.filter(
+        (txn) => txn.vendorId === vendor.id &&
+          txn.transactionType === 'bill-payment' &&
+          txn.status !== 'void' &&
+          isInDateRange(txn)
+      )
+      const expenseDebitsInPayments = billPaymentsForVendor.reduce((sum, payment) => {
+        // Sum debits to expense accounts (NOT A/P debits - those are bill payments)
+        const expenseDebits = payment.lines
+          .filter((line) => line.debit > 0 && expenseAccountIds.has(line.accountId))
+          .reduce((ls, l) => ls + l.debit, 0)
+        return sum + expenseDebits
+      }, 0)
+
+      const totalBills = billExpenseCheckTotal + expenseDebitsInPayments
+
+      // ========================================
+      // PAID: All money that left accounts for this vendor
+      // ========================================
+      // 1. Bill-payment credits (money leaving bank)
+      // 2. Non-voided expenses (they hit the bank directly)
+      // 3. Non-voided checks (they hit the bank directly)
+      // Note: Voided expenses are NOT counted - they're included in bill-payments
+
+      const billPaymentCredits = billPaymentsForVendor.reduce(
+        (sum, txn) => sum + txn.lines.reduce((ls, l) => ls + l.credit, 0),
+        0
+      )
+
+      const nonVoidedExpensesAndChecks = rawTransactions.filter(
+        (txn) => txn.vendorId === vendor.id &&
+          ['expense', 'check'].includes(txn.transactionType || '') &&
+          txn.status !== 'void' &&
+          !txn.consolidatedIntoPaymentId &&  // Exclude consolidated - already counted in payment
+          isInDateRange(txn)
+      )
+      const directSpendingTotal = nonVoidedExpensesAndChecks.reduce(
+        (sum, txn) => sum + txn.lines.reduce((ls, l) => ls + l.credit, 0),
+        0
+      )
+
+      const paidAmount = billPaymentCredits + directSpendingTotal
+
+      // ========================================
+      // STILL OWE: Unpaid portions of bills
+      // ========================================
+      const bills = billsExpensesChecks.filter(
+        (txn) => txn.transactionType === 'bill' && txn.status !== 'void'
+      )
+
+      // Track how much has been paid on each bill via A/P debits in payments
+      const paidPerBill = new Map<string, number>()
+      rawTransactions
+        .filter((txn) => txn.transactionType === 'bill-payment' && txn.status !== 'void')
+        .forEach((payment) => {
+          const linkedIds = payment.linkedTransactionIds ||
+            (payment.linkedTransactionId ? [payment.linkedTransactionId] : [])
+
+          // For each linked bill, find the A/P debit amount in this payment
+          // This is more accurate than equal distribution
+          linkedIds.forEach((billId) => {
+            // Find the bill to get its A/P amount
+            const bill = rawTransactions.find((t) => t.id === billId)
+            if (bill) {
+              const billApAmount = bill.lines.reduce((sum, l) => sum + l.debit, 0)
+              // Assume the payment covers this bill's full amount (or partial if multiple payments)
+              paidPerBill.set(billId, (paidPerBill.get(billId) || 0) + billApAmount)
+            }
+          })
+        })
+
+      let currentAmount = 0
+      let overdueAmount = 0
+      const today = new Date()
+
+      bills.forEach((bill) => {
+        const billAmount = bill.lines.reduce((sum, l) => sum + l.debit, 0)
+        const paidOnBill = paidPerBill.get(bill.id) || 0
+        const amountDue = Math.max(0, billAmount - paidOnBill)
+
+        if (amountDue > 0) {
+          const dueDate = bill.dueDate || new Date(bill.date.getTime() + 30 * 24 * 60 * 60 * 1000)
+          if (dueDate > today) {
+            currentAmount += amountDue
+          } else {
+            overdueAmount += amountDue
+          }
+        }
+      })
+
       const stillOwe = currentAmount + overdueAmount
-      const lastTxn = vendorTxns[0] // Already sorted by date desc
+
+      // Transaction count (all types for this vendor, excluding voided)
+      const allVendorTxns = rawTransactions.filter(
+        (txn) => txn.vendorId === vendor.id &&
+          txn.status !== 'void' &&
+          isInDateRange(txn)
+      )
+      const lastTxn = allVendorTxns.sort((a, b) => b.date.getTime() - a.date.getTime())[0]
+
+      // Get cross-vendor consolidation amounts
+      const crossAmounts = crossVendorAmounts.get(vendor.id) || { paidForOthers: 0, consolidatedOut: 0 }
 
       return {
         vendorId: vendor.id,
@@ -404,12 +740,14 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
         stillOwe,
         currentAmount,
         overdueAmount,
-        transactionCount: vendorTxns.length,
+        transactionCount: allVendorTxns.length,
         lastTransactionDate: lastTxn?.date || null,
         is1099Eligible: vendor.is1099Eligible ?? false,
+        crossVendorPaidAmount: crossAmounts.paidForOthers,
+        consolidatedOutAmount: crossAmounts.consolidatedOut,
       }
     })
-  }, [vendors, filteredTransactions])
+  }, [vendors, rawTransactions, activeDateRange, crossVendorAmounts, expenseAccountIds])
 
   // Close classification dropdown when clicking outside
   useEffect(() => {
@@ -423,9 +761,12 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
   }, [])
 
   // Get transactions for selected vendor (already filtered by date)
+  // Shows ALL transactions - payments are expandable to show what they paid
   const selectedVendorTransactions = useMemo(() => {
     if (!selectedVendorId) return []
-    return filteredTransactions.filter((t) => t.vendorId === selectedVendorId)
+    return filteredTransactions.filter((t) =>
+      t.vendorId === selectedVendorId
+    )
   }, [filteredTransactions, selectedVendorId])
 
   // Sort selected vendor transactions
@@ -469,6 +810,19 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
     }
   }
 
+  // Toggle payment details expansion for a transaction
+  const toggleTxnExpanded = (txnId: string) => {
+    setExpandedTxnIds((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(txnId)) {
+        newSet.delete(txnId)
+      } else {
+        newSet.add(txnId)
+      }
+      return newSet
+    })
+  }
+
   // Export vendor transactions to CSV
   const exportVendorTransactionsCSV = () => {
     if (!selectedVendor || sortedVendorTransactions.length === 0) return
@@ -501,14 +855,16 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
     const groupTotals = new Map<string, { spend: number; count: number; color: string }>()
 
     selectedVendorTransactions.forEach((txn) => {
-      txn.classifications.forEach((cls) => {
-        const existing = groupTotals.get(cls.name) || { spend: 0, count: 0, color: cls.color }
-        groupTotals.set(cls.name, {
-          spend: existing.spend + cls.amount,
-          count: existing.count + 1,
-          color: cls.color,
+      txn.classifications
+        .filter((cls) => !cls.excludeFromBreakdown) // Skip "Paid Bills" - already counted in bill rows
+        .forEach((cls) => {
+          const existing = groupTotals.get(cls.name) || { spend: 0, count: 0, color: cls.color }
+          groupTotals.set(cls.name, {
+            spend: existing.spend + cls.amount,
+            count: existing.count + 1,
+            color: cls.color,
+          })
         })
-      })
     })
 
     const totalSpend = Array.from(groupTotals.values()).reduce((sum, g) => sum + g.spend, 0)
@@ -959,7 +1315,19 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                       {selectedVendorFull.address && (
                         <div className={styles.contactDetailCompact}>
                           <span className={styles.contactDetailLabel}>Address</span>
-                          <span className={styles.contactDetailValue}>{selectedVendorFull.address}</span>
+                          <span className={styles.contactDetailValue}>
+                            {typeof selectedVendorFull.address === 'string'
+                              ? selectedVendorFull.address
+                              : [
+                                  selectedVendorFull.address.line1,
+                                  selectedVendorFull.address.line2,
+                                  [
+                                    selectedVendorFull.address.city,
+                                    selectedVendorFull.address.state,
+                                    selectedVendorFull.address.postalCode
+                                  ].filter(Boolean).join(', ')
+                                ].filter(Boolean).join(', ')}
+                          </span>
                         </div>
                       )}
                     </>
@@ -995,6 +1363,21 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                       <span className={styles.billingValueSmall}>{formatCurrency(selectedVendor.overdueAmount)}</span>
                     </div>
                   </div>
+                  {/* Cross-vendor consolidation notes */}
+                  {(selectedVendor.crossVendorPaidAmount > 0 || selectedVendor.consolidatedOutAmount > 0) && (
+                    <div className={styles.consolidationNote}>
+                      {selectedVendor.crossVendorPaidAmount > 0 && (
+                        <span className={styles.consolidationNoteItem}>
+                          Paid includes {formatCurrency(selectedVendor.crossVendorPaidAmount)} for other vendors' expenses
+                        </span>
+                      )}
+                      {selectedVendor.consolidatedOutAmount > 0 && (
+                        <span className={styles.consolidationNoteItem}>
+                          {formatCurrency(selectedVendor.consolidatedOutAmount)} was paid via another vendor's payment
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </>
@@ -1139,7 +1522,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                         className={`${styles.sortableHeader} ${txnSortField === 'classification' ? styles.sortActive : ''}`}
                         onClick={() => handleColumnSort('classification')}
                       >
-                        Classification {txnSortField === 'classification' && (txnSortDirection === 'asc' ? '↑' : '↓')}
+                        Category {txnSortField === 'classification' && (txnSortDirection === 'asc' ? '↑' : '↓')}
                       </button>
                       <button
                         className={`${styles.sortableHeader} ${txnSortField === 'amount' ? styles.sortActive : ''}`}
@@ -1148,27 +1531,289 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                         Amount {txnSortField === 'amount' && (txnSortDirection === 'asc' ? '↑' : '↓')}
                       </button>
                     </div>
-                    {sortedVendorTransactions.slice(0, 10).map((txn) => (
-                      <div key={txn.id} className={styles.transactionRow}>
-                        <span>{formatDate(txn.date)}</span>
-                        <span className={styles.transactionType}>{formatTransactionType(txn.type)}</span>
-                        <span className={styles.transactionRef}>{txn.reference}</span>
-                        <span className={styles.transactionDesc}>{txn.description}</span>
-                        <span className={styles.classificationTags}>
-                          {txn.classifications.map((cls, idx) => (
-                            <span
-                              key={idx}
-                              className={styles.groupTag}
-                              style={{ backgroundColor: cls.color }}
-                              title={`${cls.name}: ${formatCurrency(cls.amount)}`}
-                            >
-                              {cls.name}
+                    {sortedVendorTransactions.slice(0, 10).map((txn) => {
+                      const isExpanded = expandedTxnIds.has(txn.id)
+                      const isPayment = txn.type === 'bill-payment'
+
+                      // For payments, build the breakdown of what it paid
+                      let paymentBreakdownItems: Array<{
+                        type: 'bill' | 'expense' | 'consolidated'
+                        description: string
+                        category: string
+                        categoryColor: string
+                        amount: number
+                        vendorName?: string // For cross-vendor items
+                      }> = []
+
+                      if (isPayment) {
+                        // Find the raw transaction to get the actual line items
+                        const rawPayment = rawTransactions.find((t) => t.id === txn.id)
+                        if (rawPayment) {
+                          // Get linked bills
+                          const linkedBillIds = rawPayment.linkedTransactionIds ||
+                            (rawPayment.linkedTransactionId ? [rawPayment.linkedTransactionId] : [])
+
+                          // Get consolidated transactions from payment arrays
+                          const consolidatedFromArrays = [
+                            ...(rawPayment.voidTransactionIds || []),
+                            ...(rawPayment.consolidatedTransactionIds || []),
+                          ]
+
+                          // ALSO find any transactions that have consolidatedIntoPaymentId pointing to THIS payment
+                          // This catches cases where the check knows it was consolidated but payment wasn't updated
+                          const consolidatedByReference = rawTransactions
+                            .filter(t => t.consolidatedIntoPaymentId === rawPayment.id)
+                            .map(t => t.id)
+
+                          // Combine both sources, removing duplicates
+                          const consolidatedIds = [...new Set([...consolidatedFromArrays, ...consolidatedByReference])]
+
+                          // DEBUG: Log for payments 1325 and 1235
+                          if (rawPayment.reference === '1325' || rawPayment.reference === '1235') {
+                            const totalDebits = rawPayment.lines.reduce((s, l) => s + l.debit, 0)
+                            console.log(`=== PAYMENT ${rawPayment.reference} DEBUG ===`, {
+                              totalDebits,
+                              linkedBillIds,
+                              consolidatedIds,
+                              lines: rawPayment.lines.filter(l => l.debit > 0).map(l => ({
+                                account: accountMap.get(l.accountId)?.name,
+                                debit: l.debit,
+                                memo: l.memo,
+                              })),
+                            })
+                          }
+
+                          // Track amounts we've accounted for
+                          let accountedAPAmount = 0
+                          let accountedExpenseAmount = 0
+
+                          // 1. Add all linked bills directly
+                          linkedBillIds.forEach((billId) => {
+                            const bill = rawTransactions.find((t) => t.id === billId)
+                            if (bill) {
+                              const billVendor = vendors.find((v) => v.id === bill.vendorId)
+                              const isCrossVendor = billVendor && billVendor.id !== txn.vendorId
+                              const amount = bill.lines.reduce((s, l) => s + l.debit, 0)
+                              accountedAPAmount += amount
+
+                              // Find the expense category from the bill
+                              const expenseLine = bill.lines.find((l) => l.debit > 0 && accountMap.get(l.accountId)?.name !== 'Accounts Payable')
+                              const expenseAccount = expenseLine ? accountMap.get(expenseLine.accountId) : null
+
+                              paymentBreakdownItems.push({
+                                type: 'bill',
+                                description: `Bill ${bill.reference || ''}`.trim(),
+                                category: expenseAccount?.name || 'Accounts Payable',
+                                categoryColor: expenseAccount?.color || '#1e3a5f',
+                                amount,
+                                vendorName: isCrossVendor ? billVendor?.name : undefined,
+                              })
+                            }
+                          })
+
+                          // 2. Add all consolidated transactions directly (checks, expenses rolled in)
+                          consolidatedIds.forEach((consolidatedId) => {
+                            const consolidated = rawTransactions.find((t) => t.id === consolidatedId)
+                            if (consolidated) {
+                              const consolidatedVendor = vendors.find((v) => v.id === consolidated.vendorId)
+                              const isCrossVendor = consolidatedVendor && consolidatedVendor.id !== txn.vendorId
+                              const amount = consolidated.lines.reduce((s, l) => s + l.debit, 0)
+
+                              // Check if this consolidated item hit A/P or expense
+                              const hasAPDebit = consolidated.lines.some(l => l.debit > 0 && accountMap.get(l.accountId)?.name === 'Accounts Payable')
+                              if (hasAPDebit) {
+                                accountedAPAmount += amount
+                              } else {
+                                accountedExpenseAmount += amount
+                              }
+
+                              // Find the expense category
+                              const expenseLine = consolidated.lines.find((l) => l.debit > 0)
+                              const expenseAccount = expenseLine ? accountMap.get(expenseLine.accountId) : null
+
+                              // Determine what type of transaction this was
+                              const typeLabel = consolidated.transactionType === 'check' ? 'Check' :
+                                               consolidated.transactionType === 'expense' ? 'Expense' :
+                                               consolidated.transactionType === 'bill' ? 'Bill' : 'Transaction'
+
+                              paymentBreakdownItems.push({
+                                type: 'consolidated',
+                                description: `${typeLabel} ${consolidated.reference || ''}`.trim(),
+                                category: expenseAccount?.name || 'Expense',
+                                categoryColor: expenseAccount?.color || '#4b006e',
+                                amount,
+                                vendorName: isCrossVendor ? consolidatedVendor?.name : undefined,
+                              })
+                            }
+                          })
+
+                          // 3. Check for unaccounted A/P debits (bills not in linkedBillIds)
+                          const totalAPDebits = rawPayment.lines
+                            .filter(l => l.debit > 0 && accountMap.get(l.accountId)?.name === 'Accounts Payable')
+                            .reduce((s, l) => s + l.debit, 0)
+
+                          const unaccountedAP = totalAPDebits - accountedAPAmount
+                          if (unaccountedAP > 0.01) {
+                            paymentBreakdownItems.push({
+                              type: 'bill',
+                              description: 'Other bills paid',
+                              category: 'Accounts Payable',
+                              categoryColor: '#1e3a5f',
+                              amount: unaccountedAP,
+                            })
+                          }
+
+                          // 4. Add expense debits from payment lines (that weren't from consolidated items)
+                          const totalExpenseDebits = rawPayment.lines
+                            .filter(l => l.debit > 0 && accountMap.get(l.accountId)?.name !== 'Accounts Payable')
+                            .reduce((s, l) => s + l.debit, 0)
+
+                          const unaccountedExpense = totalExpenseDebits - accountedExpenseAmount
+                          if (unaccountedExpense > 0.01) {
+                            // Group by account for cleaner display
+                            const expenseByAccount = new Map<string, number>()
+                            rawPayment.lines
+                              .filter((line) => line.debit > 0 && accountMap.get(line.accountId)?.name !== 'Accounts Payable')
+                              .forEach((line) => {
+                                const current = expenseByAccount.get(line.accountId) || 0
+                                expenseByAccount.set(line.accountId, current + line.debit)
+                              })
+
+                            // Only add the unaccounted portion
+                            let remainingToAccount = unaccountedExpense
+                            expenseByAccount.forEach((amount, accountId) => {
+                              if (remainingToAccount > 0.01) {
+                                const amountToShow = Math.min(amount, remainingToAccount)
+                                remainingToAccount -= amountToShow
+                                const account = accountMap.get(accountId)
+                                paymentBreakdownItems.push({
+                                  type: 'expense',
+                                  description: 'Added expense',
+                                  category: account?.name || 'Expense',
+                                  categoryColor: account?.color || '#4b006e',
+                                  amount: amountToShow,
+                                })
+                              }
+                            })
+                          }
+                        }
+                      }
+
+                      const hasBreakdown = isPayment && paymentBreakdownItems.length > 0
+
+                      return (
+                        <div key={txn.id} className={styles.transactionRowWrapper}>
+                          <div className={`${styles.transactionRow} ${hasBreakdown ? styles.transactionRowExpandable : ''}`}>
+                            <span className={styles.transactionDateCell}>
+                              {hasBreakdown && (
+                                <button
+                                  className={`${styles.expandButton} ${isExpanded ? styles.expandButtonOpen : ''}`}
+                                  onClick={() => toggleTxnExpanded(txn.id)}
+                                  aria-expanded={isExpanded}
+                                  aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
+                                  title={`${paymentBreakdownItems.length} item${paymentBreakdownItems.length !== 1 ? 's' : ''}`}
+                                >
+                                  <svg
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    width="14"
+                                    height="14"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M9 5l7 7-7 7"
+                                    />
+                                  </svg>
+                                </button>
+                              )}
+                              {formatDate(txn.date)}
                             </span>
-                          ))}
-                        </span>
-                        <span className={styles.transactionAmount}>{formatCurrency(txn.amount)}</span>
-                      </div>
-                    ))}
+                            <span className={styles.transactionType}>
+                              {formatTransactionType(txn.type)}
+                              {txn.type === 'bill' && (
+                                <span className={`${styles.billStatusBadge} ${styles[`billStatus${txn.status.charAt(0).toUpperCase() + txn.status.slice(1)}`]}`}>
+                                  {getStatusLabel(txn.status)}
+                                </span>
+                              )}
+                              {txn.type === 'bill-payment' && (
+                                <span className={`${styles.billStatusBadge} ${styles.paymentBadge}`}>
+                                  Money Out
+                                </span>
+                              )}
+                              {txn.isConsolidated && (
+                                <span className={`${styles.billStatusBadge} ${styles.consolidatedBadge}`} title="Included in a bill payment">
+                                  Consolidated
+                                </span>
+                              )}
+                            </span>
+                            <span className={styles.transactionRef}>{txn.reference}</span>
+                            <span className={styles.transactionDesc}>{txn.description}</span>
+                            <span className={styles.classificationTags}>
+                              {txn.classifications.map((cls, idx) => (
+                                <span
+                                  key={idx}
+                                  className={styles.groupTag}
+                                  style={{ backgroundColor: cls.color }}
+                                  title={`${cls.name}: ${formatCurrency(cls.amount)}`}
+                                >
+                                  {txn.type === 'bill-payment'
+                                    ? `${cls.name} ${formatCurrency(cls.amount)}`
+                                    : cls.name
+                                  }
+                                </span>
+                              ))}
+                            </span>
+                            <span className={styles.transactionAmount}>
+                              {formatCurrency(txn.amount)}
+                              {txn.type === 'bill' && txn.amountDue > 0 && (
+                                <span className={styles.amountDue}>
+                                  {formatCurrency(txn.amountDue)} remaining
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                          {/* Payment breakdown - shows what this payment covered */}
+                          {hasBreakdown && isExpanded && (
+                            <div className={styles.paymentDetails}>
+                              <div className={styles.paymentDetailsHeader}>
+                                <span className={styles.paymentDetailsTitle}>
+                                  This payment covered:
+                                </span>
+                              </div>
+                              <div className={styles.paymentList}>
+                                {paymentBreakdownItems.map((item, idx) => (
+                                  <div key={idx} className={styles.paymentItem}>
+                                    <span className={styles.paymentItemType}>
+                                      {item.type === 'bill' ? '📋' : item.type === 'consolidated' ? '🔗' : '➕'}
+                                    </span>
+                                    <span className={styles.paymentItemDesc}>
+                                      {item.description}
+                                      {item.vendorName && (
+                                        <span className={styles.crossVendorTag}>
+                                          via {item.vendorName}
+                                        </span>
+                                      )}
+                                    </span>
+                                    <span className={styles.paymentBreakdown}>
+                                      <span
+                                        className={styles.groupTag}
+                                        style={{ backgroundColor: item.categoryColor }}
+                                      >
+                                        {item.category}
+                                      </span>
+                                    </span>
+                                    <span className={styles.paymentAmount}>{formatCurrency(item.amount)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
                 ) : (
                   <div className={styles.emptyState}>

@@ -870,3 +870,80 @@
     width: 100%;
   }
 }
+
+/* Expense Handling Choice */
+.expenseHandlingChoice {
+  grid-column: 1 / -1;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #fbbf24;
+  border-radius: 0.375rem;
+}
+
+.handlingLabel {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 0.5rem;
+}
+
+.handlingOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.handlingOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.handlingOption:hover {
+  border-color: #92400e;
+  background: #fffbeb;
+}
+
+.handlingOption.handlingSelected {
+  border-color: #92400e;
+  background: #fef3c7;
+}
+
+.handlingOption input[type="radio"] {
+  margin-top: 0.25rem;
+  accent-color: #92400e;
+}
+
+.handlingText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.handlingText strong {
+  font-size: 0.8125rem;
+  color: #1f2937;
+}
+
+.handlingText small {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+@media (min-width: 640px) {
+  .handlingOptions {
+    flex-direction: row;
+  }
+
+  .handlingOption {
+    flex: 1;
+  }
+}
