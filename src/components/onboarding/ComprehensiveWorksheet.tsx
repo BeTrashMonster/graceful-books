@@ -25,6 +25,11 @@ interface Category {
   is_distribution_category?: boolean; // For Shipping & Handling
 }
 
+interface Vendor {
+  id: string;
+  name: string;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -69,6 +74,7 @@ interface InvoiceItem {
 
 interface Invoice {
   id: string;
+  vendor_id: string;
   vendor_name: string;
   invoice_date: string;
   invoice_number?: string;
@@ -100,6 +106,7 @@ interface WorksheetData {
   version: string;
   created_at: string;
   categories: Category[];
+  vendors: Vendor[];
   finished_products: Product[];
   recipes: Recipe[];
   invoices: Invoice[];
@@ -199,6 +206,9 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     }
   ]);
 
+  // Track vendors as they're created
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+
   // Track products with embedded recipe UI
   const [products, setProducts] = useState<Array<Product & { recipeItems: RecipeItem[] }>>([
     {
@@ -213,6 +223,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   const [invoices, setInvoices] = useState<Invoice[]>([
     {
       id: generateTempId(),
+      vendor_id: '',
       vendor_name: '',
       invoice_date: '',
       invoice_total: '',
@@ -259,6 +270,11 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   // For adding new variant inline
   const [showNewVariantInput, setShowNewVariantInput] = useState<Record<string, boolean>>({});
   const [newVariantValue, setNewVariantValue] = useState<Record<string, string>>({});
+
+  // For adding new vendor inline
+  const [openVendorDropdown, setOpenVendorDropdown] = useState<string | null>(null);
+  const [newVendorName, setNewVendorName] = useState<Record<string, string>>({});
+  const [showNewVendorInput, setShowNewVendorInput] = useState<Record<string, boolean>>({});
 
   // Autosave state
   const [showRestoreModal, setShowRestoreModal] = useState(false);
@@ -465,7 +481,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     const saveData = () => {
       // Only save if there's meaningful data
       const hasProducts = products.some(p => p.name.trim());
-      const hasInvoices = invoices.some(i => i.vendor_name.trim());
+      const hasInvoices = invoices.some(i => i.vendor_id || i.vendor_name.trim());
 
       if (!hasProducts && !hasInvoices) return;
 
@@ -474,6 +490,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
           timestamp: new Date().toISOString(),
           currentStep,
           categories,
+          vendors,
           products,
           invoices,
           conversionForms,
@@ -501,11 +518,11 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       clearInterval(intervalId);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [currentStep, categories, products, invoices, conversionForms, expandedInvoices, importing]);
+  }, [currentStep, categories, vendors, products, invoices, conversionForms, expandedInvoices, importing]);
 
   // Warn before leaving with unsaved data
   useEffect(() => {
-    const hasUnsavedData = products.some(p => p.name.trim()) || invoices.some(i => i.vendor_name.trim());
+    const hasUnsavedData = products.some(p => p.name.trim()) || invoices.some(i => i.vendor_id || i.vendor_name.trim());
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedData && !importing) {
@@ -545,13 +562,17 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       if (!target.closest(`.${styles.invoiceCheckboxDropdown}`)) {
         setOpenInvoiceDropdown(null);
       }
+      // Check if click is inside a vendor dropdown
+      if (!target.closest(`.${styles.vendorDropdown}`)) {
+        setOpenVendorDropdown(null);
+      }
     };
 
-    if (openCategoryDropdown || openInvoiceDropdown) {
+    if (openCategoryDropdown || openInvoiceDropdown || openVendorDropdown) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [openCategoryDropdown, openInvoiceDropdown]);
+  }, [openCategoryDropdown, openInvoiceDropdown, openVendorDropdown]);
 
   // Restore saved data
   const handleRestoreData = useCallback(() => {
@@ -564,6 +585,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
         // Restore all state
         if (parsed.currentStep) setCurrentStep(parsed.currentStep);
         if (parsed.categories) setCategories(parsed.categories);
+        if (parsed.vendors) setVendors(parsed.vendors);
         if (parsed.products) setProducts(parsed.products);
         if (parsed.invoices) setInvoices(parsed.invoices);
         if (parsed.conversionForms) setConversionForms(parsed.conversionForms);
@@ -721,11 +743,51 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     });
   };
 
+  // Vendor handlers (create on-the-fly, like categories)
+  const createVendor = (invoiceId: string) => {
+    const name = newVendorName[invoiceId]?.trim();
+    if (!name) return;
+
+    // Check if vendor already exists
+    const existing = vendors.find(v => v.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      // Use existing vendor
+      updateInvoice(invoices.findIndex(i => i.id === invoiceId), 'vendor_id', existing.id);
+      updateInvoice(invoices.findIndex(i => i.id === invoiceId), 'vendor_name', existing.name);
+    } else {
+      // Create new vendor
+      const newVendor: Vendor = {
+        id: generateTempId(),
+        name
+      };
+      setVendors([...vendors, newVendor]);
+      const invIndex = invoices.findIndex(i => i.id === invoiceId);
+      updateInvoice(invIndex, 'vendor_id', newVendor.id);
+      updateInvoice(invIndex, 'vendor_name', newVendor.name);
+    }
+
+    // Clear input and close
+    setNewVendorName({ ...newVendorName, [invoiceId]: '' });
+    setShowNewVendorInput({ ...showNewVendorInput, [invoiceId]: false });
+    setOpenVendorDropdown(null);
+  };
+
+  const selectVendor = (invoiceId: string, vendorId: string) => {
+    const vendor = vendors.find(v => v.id === vendorId);
+    if (vendor) {
+      const invIndex = invoices.findIndex(i => i.id === invoiceId);
+      updateInvoice(invIndex, 'vendor_id', vendor.id);
+      updateInvoice(invIndex, 'vendor_name', vendor.name);
+    }
+    setOpenVendorDropdown(null);
+  };
+
   // Invoice handlers
   const addInvoice = () => {
     const newId = generateTempId();
     setInvoices([...invoices, {
       id: newId,
+      vendor_id: '',
       vendor_name: '',
       invoice_date: '',
       invoice_total: '',
@@ -846,7 +908,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   const getMissingInvoiceWarnings = () => {
     const warnings: string[] = [];
     const validProducts = products.filter(p => p.name.trim());
-    const validInvoices = invoices.filter(i => i.vendor_name.trim());
+    const validInvoices = invoices.filter(i => i.vendor_id || i.vendor_name.trim());
 
     // Collect all recipe ingredients (category + variant combinations)
     const recipeIngredients = new Set<string>();
@@ -901,7 +963,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   const getMinorWarnings = () => {
     const warnings: string[] = [];
     const validProducts = products.filter(p => p.name.trim());
-    const validInvoices = invoices.filter(i => i.vendor_name.trim());
+    const validInvoices = invoices.filter(i => i.vendor_id || i.vendor_name.trim());
 
     if (validProducts.length === 0) {
       warnings.push('No products added');
@@ -926,7 +988,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
 
   const getBlockingErrors = () => {
     const errors: string[] = [];
-    const validInvoices = invoices.filter(i => i.vendor_name.trim());
+    const validInvoices = invoices.filter(i => i.vendor_id || i.vendor_name.trim());
 
     validInvoices.forEach(inv => {
       const invErrors = getInvoiceErrors(inv);
@@ -1107,7 +1169,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
         return true;
       case 'invoices':
         // Block if any invoice has errors (doesn't balance)
-        const validInvoices = invoices.filter(i => i.vendor_name.trim());
+        const validInvoices = invoices.filter(i => i.vendor_id || i.vendor_name.trim());
         return validInvoices.every(inv => getInvoiceErrors(inv).length === 0);
       case 'review':
         return true;
@@ -1189,9 +1251,10 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
 
     // Extract valid invoices - category_id, variant, quantity, unit, unit_cost, line_total, invoice_total
     const validInvoices = invoices
-      .filter(i => i.vendor_name.trim() && i.items.length > 0)
+      .filter(i => (i.vendor_id || i.vendor_name.trim()) && i.items.length > 0)
       .map(inv => ({
         id: inv.id,
+        vendor_id: inv.vendor_id,
         vendor_name: inv.vendor_name,
         invoice_date: inv.invoice_date,
         ...(inv.invoice_number && { invoice_number: inv.invoice_number }), // Only include if present
@@ -1228,6 +1291,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       version: '1.0.0',
       created_at: new Date().toISOString(),
       categories,
+      vendors,
       finished_products: validProducts,
       recipes: validRecipes,
       invoices: validInvoices,
@@ -2093,15 +2157,81 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                 <div className={styles.invoiceContent}>
                   {/* Invoice Fields Row */}
                   <div className={styles.invoiceFieldsRow}>
-                    <div className={styles.invoiceFieldCompact} style={{ flex: 2 }}>
+                    <div className={styles.invoiceFieldCompact} style={{ flex: 2, position: 'relative' }}>
                       <label className={styles.label}>Vendor Name</label>
-                      <input
-                        type="text"
-                        value={invoice.vendor_name}
-                        onChange={(e) => updateInvoice(invIndex, 'vendor_name', e.target.value)}
-                        placeholder="Rose Mountain LLC"
-                        className={styles.input}
-                      />
+                      <div className={styles.vendorDropdown}>
+                        <button
+                          type="button"
+                          className={`${styles.vendorDropdownTrigger} ${invoice.vendor_name ? styles.vendorSelected : ''}`}
+                          onClick={() => setOpenVendorDropdown(openVendorDropdown === invoice.id ? null : invoice.id)}
+                        >
+                          {invoice.vendor_name || 'Select or create vendor...'}
+                          <span className={styles.vendorDropdownArrow}>▼</span>
+                        </button>
+                        {openVendorDropdown === invoice.id && (
+                          <div className={styles.vendorDropdownMenu}>
+                            {/* Existing vendors */}
+                            {vendors.length > 0 && (
+                              <div className={styles.vendorDropdownSection}>
+                                <div className={styles.vendorDropdownSectionLabel}>Select existing vendor</div>
+                                {vendors.map(v => (
+                                  <button
+                                    key={v.id}
+                                    type="button"
+                                    className={`${styles.vendorDropdownItem} ${invoice.vendor_id === v.id ? styles.vendorDropdownItemSelected : ''}`}
+                                    onClick={() => selectVendor(invoice.id, v.id)}
+                                  >
+                                    {v.name}
+                                    {invoice.vendor_id === v.id && <span className={styles.vendorCheckmark}>✓</span>}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                            {/* Create new vendor */}
+                            <div className={styles.vendorDropdownSection}>
+                              <div className={styles.vendorDropdownSectionLabel}>
+                                {vendors.length > 0 ? 'Or create new vendor' : 'Create new vendor'}
+                              </div>
+                              {showNewVendorInput[invoice.id] ? (
+                                <div className={styles.newVendorInputRow}>
+                                  <input
+                                    type="text"
+                                    value={newVendorName[invoice.id] || ''}
+                                    onChange={(e) => setNewVendorName({ ...newVendorName, [invoice.id]: e.target.value })}
+                                    placeholder="Vendor name"
+                                    className={styles.newVendorInput}
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        createVendor(invoice.id);
+                                      } else if (e.key === 'Escape') {
+                                        setShowNewVendorInput({ ...showNewVendorInput, [invoice.id]: false });
+                                        setNewVendorName({ ...newVendorName, [invoice.id]: '' });
+                                      }
+                                    }}
+                                  />
+                                  <button
+                                    type="button"
+                                    className={styles.newVendorSaveBtn}
+                                    onClick={() => createVendor(invoice.id)}
+                                  >
+                                    Add
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className={styles.vendorDropdownAddNew}
+                                  onClick={() => setShowNewVendorInput({ ...showNewVendorInput, [invoice.id]: true })}
+                                >
+                                  + Add new vendor
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className={styles.invoiceFieldCompact}>
                       <label className={styles.label}>Date</label>
@@ -2403,7 +2533,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         if (!isShipping || item.is_personal) return null;
 
                         // Get other invoices (excluding current one) for the invoice dropdown
-                        const otherInvoices = invoices.filter(inv => inv.id !== invoice.id && inv.vendor_name.trim());
+                        const otherInvoices = invoices.filter(inv => inv.id !== invoice.id && (inv.vendor_id || inv.vendor_name.trim()));
                         const targetInvoices = item.target_invoices || [];
                         const itemsFilter = item.items_filter || 'all';
                         const selectedCats = item.selected_categories || [];
@@ -2873,8 +3003,8 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                   <span className={styles.reviewStatLabel}>Categor{categories.length !== 1 ? 'ies' : 'y'}</span>
                 </div>
                 <div className={styles.reviewStat}>
-                  <span className={styles.reviewStatNumber}>{invoices.filter(i => i.vendor_name.trim()).length}</span>
-                  <span className={styles.reviewStatLabel}>Invoice{invoices.filter(i => i.vendor_name.trim()).length !== 1 ? 's' : ''}</span>
+                  <span className={styles.reviewStatNumber}>{invoices.filter(i => i.vendor_id || i.vendor_name.trim()).length}</span>
+                  <span className={styles.reviewStatLabel}>Invoice{invoices.filter(i => i.vendor_id || i.vendor_name.trim()).length !== 1 ? 's' : ''}</span>
                 </div>
               </div>
 
@@ -3008,12 +3138,12 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
             {/* Invoices Detail */}
             <div className={styles.reviewSection}>
               <h3 className={styles.reviewSectionTitle}>
-                Supplier Invoices ({invoices.filter(i => i.vendor_name.trim()).length})
+                Supplier Invoices ({invoices.filter(i => i.vendor_id || i.vendor_name.trim()).length})
               </h3>
-              {invoices.filter(i => i.vendor_name.trim()).length === 0 && (
+              {invoices.filter(i => i.vendor_id || i.vendor_name.trim()).length === 0 && (
                 <p className={styles.reviewEmpty}>No invoices added (optional)</p>
               )}
-              {invoices.filter(i => i.vendor_name.trim()).map(inv => {
+              {invoices.filter(i => i.vendor_id || i.vendor_name.trim()).map(inv => {
                 const warnings = getInvoiceWarnings(inv);
                 const errors = getInvoiceErrors(inv);
                 const total = calculateInvoiceLineItemsTotal(inv);
