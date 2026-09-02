@@ -266,9 +266,21 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   const hasInitializedRef = useRef(false);
   const isRestoringRef = useRef(false);
 
-  // Weight and volume units for conversion dropdowns
+  // Weight, volume, and count units for conversion dropdowns
   const WEIGHT_UNITS = ['mg', 'g', 'kg', 'oz', 'lb'];
   const VOLUME_UNITS = ['ml', 'tsp', 'tbsp', 'fl oz', 'cup', 'pt', 'qt', 'L', 'gal'];
+  const COUNT_UNITS = ['each', 'dozen', 'case'];
+
+  // Get units array for a given unit type
+  const getUnitsForType = (unitType: string | null): string[] => {
+    switch (unitType) {
+      case 'weight': return WEIGHT_UNITS;
+      case 'volume': return VOLUME_UNITS;
+      case 'count':
+      case 'each': return COUNT_UNITS;
+      default: return [...WEIGHT_UNITS, ...VOLUME_UNITS, ...COUNT_UNITS];
+    }
+  };
 
   // ========================================================================
   // Unit Conversion Helper Functions
@@ -342,40 +354,9 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       );
 
       if (existingIndex >= 0) {
-        // Update existing
+        // Update existing - dropdowns are now restricted to valid unit types
         const updated = [...prev];
-        const current = updated[existingIndex];
-
-        // If changing a unit, ensure the other side stays opposite type
-        if (field === 'leftUnit') {
-          const newType = getUnitType(value as Unit);
-          const rightType = getUnitType(current.rightUnit as Unit);
-          if (newType === rightType) {
-            // Swap to opposite type
-            updated[existingIndex] = {
-              ...current,
-              leftUnit: value,
-              rightUnit: newType === 'weight' ? 'cup' : 'lb'
-            };
-          } else {
-            updated[existingIndex] = { ...current, [field]: value };
-          }
-        } else if (field === 'rightUnit') {
-          const newType = getUnitType(value as Unit);
-          const leftType = getUnitType(current.leftUnit as Unit);
-          if (newType === leftType) {
-            // Swap to opposite type
-            updated[existingIndex] = {
-              ...current,
-              rightUnit: value,
-              leftUnit: newType === 'weight' ? 'cup' : 'lb'
-            };
-          } else {
-            updated[existingIndex] = { ...current, [field]: value };
-          }
-        } else {
-          updated[existingIndex] = { ...current, [field]: value };
-        }
+        updated[existingIndex] = { ...updated[existingIndex], [field]: value };
         return updated;
       } else {
         // Create new (shouldn't normally happen, but handle it)
@@ -2326,6 +2307,12 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                             const conversionKey = `${item.category_id}_${item.variant || 'default'}`;
                             const hasConversion = hasValidConversion(item.category_id, item.variant);
 
+                            // Get unit types to restrict dropdowns appropriately
+                            const invoiceUnitType = getUnitType(item.unit_of_measurement as Unit);
+                            const recipeUnitType = getUnitType(recipeUnit as Unit);
+                            const invoiceUnits = getUnitsForType(invoiceUnitType);
+                            const recipeUnits = getUnitsForType(recipeUnitType);
+
                             return (
                               <div className={styles.conversionInline}>
                                 <span className={styles.conversionInlineLabel}>Convert:</span>
@@ -2344,8 +2331,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                   onChange={(e) => updateConversionForm(item.category_id, item.variant, 'leftUnit', e.target.value)}
                                   className={styles.conversionInlineSelect}
                                 >
-                                  {WEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-                                  {VOLUME_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                  {invoiceUnits.map(u => <option key={u} value={u}>{u}</option>)}
                                 </select>
                                 <span className={styles.conversionInlineEquals}>=</span>
                                 <input
@@ -2364,8 +2350,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                   onChange={(e) => updateConversionForm(item.category_id, item.variant, 'rightUnit', e.target.value)}
                                   className={styles.conversionInlineSelect}
                                 >
-                                  {WEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-                                  {VOLUME_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                  {recipeUnits.map(u => <option key={u} value={u}>{u}</option>)}
                                 </select>
                                 {hasConversion ? (
                                   <span className={styles.conversionInlineSuccess}>✓ Saved</span>
