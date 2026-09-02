@@ -745,36 +745,43 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
 
     // Check if vendor already exists
     const existing = vendors.find(v => v.name.toLowerCase() === name.toLowerCase());
+
+    let vendorToUse: Vendor;
     if (existing) {
-      // Use existing vendor
-      updateInvoice(invoices.findIndex(i => i.id === invoiceId), 'vendor_id', existing.id);
-      updateInvoice(invoices.findIndex(i => i.id === invoiceId), 'vendor_name', existing.name);
+      vendorToUse = existing;
     } else {
       // Create new vendor
-      const newVendor: Vendor = {
+      vendorToUse = {
         id: generateTempId(),
         name
       };
-      setVendors([...vendors, newVendor]);
-      const invIndex = invoices.findIndex(i => i.id === invoiceId);
-      updateInvoice(invIndex, 'vendor_id', newVendor.id);
-      updateInvoice(invIndex, 'vendor_name', newVendor.name);
+      setVendors(prev => [...prev, vendorToUse]);
     }
 
+    // Update invoice with vendor in a single state update
+    setInvoices(prev => prev.map(inv =>
+      inv.id === invoiceId
+        ? { ...inv, vendor_id: vendorToUse.id, vendor_name: vendorToUse.name }
+        : inv
+    ));
+
     // Clear input and close
-    setNewVendorName({ ...newVendorName, [invoiceId]: '' });
-    setShowNewVendorInput({ ...showNewVendorInput, [invoiceId]: false });
-    setOpenVendorDropdown(null);
+    setNewVendorName(prev => ({ ...prev, [invoiceId]: '' }));
+    setShowNewVendorInput(prev => ({ ...prev, [invoiceId]: false }));
   };
 
   const selectVendor = (invoiceId: string, vendorId: string) => {
     const vendor = vendors.find(v => v.id === vendorId);
-    if (vendor) {
-      const invIndex = invoices.findIndex(i => i.id === invoiceId);
-      updateInvoice(invIndex, 'vendor_id', vendor.id);
-      updateInvoice(invIndex, 'vendor_name', vendor.name);
-    }
-    setOpenVendorDropdown(null);
+    // Update both vendor_id and vendor_name in a single state update
+    setInvoices(prev => prev.map(inv =>
+      inv.id === invoiceId
+        ? {
+            ...inv,
+            vendor_id: vendor?.id || '',
+            vendor_name: vendor?.name || ''
+          }
+        : inv
+    ));
   };
 
   // Invoice handlers
