@@ -27,11 +27,17 @@ import type {
   CPGRecipe,
   CPGInvoice,
   CPGUnitConversion,
+  CPGVendor,
 } from '../../db/schema/cpg.schema';
 
 // ============================================================================
 // Types matching the worksheet export format
 // ============================================================================
+
+interface WorksheetVendor {
+  id: string;
+  name: string;
+}
 
 interface WorksheetCategory {
   id: string;
@@ -73,6 +79,7 @@ interface WorksheetInvoiceItem {
 
 interface WorksheetInvoice {
   id: string;
+  vendor_id?: string;
   vendor_name: string;
   invoice_date: string;
   invoice_number?: string;
@@ -93,6 +100,7 @@ export interface WorksheetData {
   version: string;
   created_at: string;
   categories: WorksheetCategory[];
+  vendors?: WorksheetVendor[]; // Optional for backward compatibility
   finished_products: WorksheetFinishedProduct[];
   recipes: WorksheetRecipe[];
   invoices: WorksheetInvoice[];
@@ -104,6 +112,7 @@ export interface ImportResult {
   errors: string[];
   counts: {
     categories: number;
+    vendors: number;
     products: number;
     recipes: number;
     invoices: number;
@@ -380,6 +389,7 @@ export async function importWorksheetData(
     errors: [],
     counts: {
       categories: 0,
+      vendors: 0,
       products: 0,
       recipes: 0,
       invoices: 0,
@@ -436,6 +446,48 @@ export async function importWorksheetData(
     }
 
     logger.info('Categories imported', { count: result.counts.categories });
+
+    // ========================================================================
+    // 1b. Import Vendors (if present)
+    // ========================================================================
+    if (json.vendors && json.vendors.length > 0) {
+      logger.info('Importing vendors...', { count: json.vendors.length });
+
+      for (const vendor of json.vendors) {
+        // Check if vendor with same name already exists
+        const existingVendor = await db.cpgVendors
+          .where('[company_id+name]')
+          .equals([companyId, vendor.name])
+          .first();
+
+        if (existingVendor) {
+          // Map temp ID to existing vendor ID
+          idMap.set(vendor.id, existingVendor.id);
+          logger.debug('Vendor already exists, reusing', { name: vendor.name, id: existingVendor.id });
+        } else {
+          // Create new vendor
+          const realId = generateId();
+          idMap.set(vendor.id, realId);
+
+          const dbVendor: CPGVendor = {
+            id: realId,
+            company_id: companyId,
+            name: vendor.name,
+            notes: null,
+            active: true,
+            created_at: now,
+            updated_at: now,
+            deleted_at: null,
+            version_vector: { [deviceId]: 1 },
+          };
+
+          await db.cpgVendors.add(dbVendor);
+          result.counts.vendors++;
+        }
+      }
+
+      logger.info('Vendors imported', { count: result.counts.vendors });
+    }
 
     // ========================================================================
     // 2. Import Finished Products
@@ -630,6 +682,7 @@ export async function importWorksheetData(
       counts: result.counts,
       totalItems:
         result.counts.categories +
+        result.counts.vendors +
         result.counts.products +
         result.counts.recipes +
         result.counts.invoices +
