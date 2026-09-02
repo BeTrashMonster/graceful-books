@@ -555,15 +555,15 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       // Check if click is inside a category dropdown
-      if (!target.closest(`.${styles.categoryCheckboxDropdown}`)) {
+      if (openCategoryDropdown && !target.closest(`.${styles.categoryCheckboxDropdown}`)) {
         setOpenCategoryDropdown(null);
       }
       // Check if click is inside an invoice dropdown
-      if (!target.closest(`.${styles.invoiceCheckboxDropdown}`)) {
+      if (openInvoiceDropdown && !target.closest(`.${styles.invoiceCheckboxDropdown}`)) {
         setOpenInvoiceDropdown(null);
       }
       // Check if click is inside a vendor dropdown
-      if (!target.closest(`.${styles.vendorDropdown}`)) {
+      if (openVendorDropdown && !target.closest(`.${styles.vendorDropdown}`)) {
         setOpenVendorDropdown(null);
       }
     };
@@ -2159,23 +2159,20 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                   <div className={styles.invoiceFieldsRow}>
                     <div className={styles.invoiceFieldCompact} style={{ flex: 2, position: 'relative' }}>
                       <label className={styles.label}>Vendor Name</label>
-                      <div
-                        className={styles.vendorDropdown}
-                        onMouseDown={(e) => e.stopPropagation()}
-                      >
+                      <div className={styles.vendorDropdown}>
                         <button
                           type="button"
                           className={`${styles.vendorDropdownTrigger} ${invoice.vendor_name ? styles.vendorSelected : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenVendorDropdown(openVendorDropdown === invoice.id ? null : invoice.id);
-                          }}
+                          onClick={() => setOpenVendorDropdown(openVendorDropdown === invoice.id ? null : invoice.id)}
                         >
                           {invoice.vendor_name || 'Select or create vendor...'}
                           <span className={styles.vendorDropdownArrow}>▼</span>
                         </button>
                         {openVendorDropdown === invoice.id && (
-                          <div className={styles.vendorDropdownMenu}>
+                          <div
+                            className={styles.vendorDropdownMenu}
+                            onMouseDown={(e) => e.stopPropagation()}
+                          >
                             {/* Existing vendors */}
                             {vendors.length > 0 && (
                               <div className={styles.vendorDropdownSection}>
