@@ -537,6 +537,21 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [products, invoices, importing]);
 
+  // Ensure conversion forms exist for all invoice items with unit warnings
+  // This runs whenever invoices change and ensures forms are pre-populated
+  useEffect(() => {
+    invoices.forEach(invoice => {
+      invoice.items.forEach(item => {
+        if (item.unitWarning && item.category_id && item.unit_of_measurement) {
+          const recipeUnit = getRecipeUnit(item.category_id, item.variant);
+          if (recipeUnit) {
+            ensureConversionForm(item.category_id, item.variant, item.unit_of_measurement, recipeUnit);
+          }
+        }
+      });
+    });
+  }, [invoices, ensureConversionForm, getRecipeUnit]);
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -1068,11 +1083,13 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                 const invoiceUnit = field === 'unit_of_measurement' ? value : updatedItem.unit_of_measurement;
 
                 // Check if this category/variant exists in any recipes with incompatible units
+                // Normalize variants: treat undefined, null, and '' as equivalent (no variant)
+                const normalizeVariant = (v: string | null | undefined) => v || null;
                 const matchingRecipes = products.flatMap(product =>
                   product.recipeItems
                     .filter(recipeItem =>
                       recipeItem.category_id === categoryId &&
-                      recipeItem.variant === variant &&
+                      normalizeVariant(recipeItem.variant) === normalizeVariant(variant) &&
                       recipeItem.unit_of_measurement &&
                       invoiceUnit &&
                       !areUnitsCompatible(invoiceUnit, recipeItem.unit_of_measurement as Unit)

@@ -7,6 +7,7 @@ import { LoadingOverlay } from '../../components/feedback/Loading';
 import { useAuth } from '../../contexts/AuthContext';
 import { getDeviceId } from '../../utils/device';
 import styles from './WorkshopWorksheetPage.module.css';
+import signupStyles from '../auth/Signup.module.css';
 
 export default function WorkshopWorksheetPage() {
   console.log('[Worksheet] Component mounted');
@@ -142,8 +143,8 @@ export default function WorkshopWorksheetPage() {
   if (error && !enrollment) {
     console.log('[Worksheet] Rendering error state');
     return (
-      <div className={styles.container}>
-        <div className={styles.card}>
+      <div className={signupStyles.container}>
+        <div className={signupStyles.card}>
           <div className={styles.errorHeader}>
             <h1 className={styles.errorTitle}>Worksheet Not Available</h1>
             <p className={styles.errorMessage}>{error}</p>
@@ -155,13 +156,15 @@ export default function WorkshopWorksheetPage() {
 
   console.log('[Worksheet] Rendering ComprehensiveWorksheet');
   return (
-    <div className={styles.wideContainer}>
+    <div className={signupStyles.container}>
       {isSubmitting && <LoadingOverlay message="Saving your worksheet..." />}
-      {error && <div className={styles.error}>{error}</div>}
-      <ComprehensiveWorksheet
-        onComplete={handleWorksheetComplete}
-        onSkip={handleSkipWorksheet}
-      />
+      <div className={signupStyles.wideCard}>
+        {error && <div className={styles.error}>{error}</div>}
+        <ComprehensiveWorksheet
+          onComplete={handleWorksheetComplete}
+          onSkip={handleSkipWorksheet}
+        />
+      </div>
     </div>
   );
 }
