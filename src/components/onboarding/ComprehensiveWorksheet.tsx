@@ -5,12 +5,14 @@
  * Includes autosave to localStorage to prevent data loss
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import styles from './ComprehensiveWorksheet.module.css';
 import { processDateInput } from '../../utils/dateUtils';
 import { LoadingOverlay } from '../feedback/Loading';
 import { areUnitsCompatible, getUnitType, type Unit } from '../../utils/unitConversion';
+import { calculateSHDistribution, type Invoice as SHInvoice } from '../../utils/shDistribution';
 
+import { WorksheetSidebar, type WorksheetStep } from './WorksheetSidebar';
 // Autosave configuration
 const AUTOSAVE_KEY = 'worksheet-autosave';
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds
@@ -56,6 +58,13 @@ interface InvoiceItem {
   is_personal?: boolean; // True if this is a personal item (not business expense)
   distribution_method?: 'equal' | 'weighted'; // For S+H categories only
   unitWarning?: string; // Unit mismatch warning message
+  item_type?: 'regular' | 'shipping' | 'personal'; // Type of line item
+  // S+H distribution settings
+  target_invoices?: string[]; // Invoice IDs to apply S+H to. Empty/undefined = this invoice only
+  items_filter?: 'all' | 'categories'; // Apply to all items or specific categories
+  selected_categories?: string[]; // Categories to apply S+H to when items_filter is 'categories'
+  // Legacy field for backwards compatibility
+  distribution_target?: string;
 }
 
 interface Invoice {
@@ -102,7 +111,7 @@ interface ComprehensiveWorksheetProps {
   onSkip: () => void;
 }
 
-type Step = 'products' | 'invoices' | 'review';
+type Step = 'products' | 'recipes' | 'invoices' | 'review';
 
 // Generate temp ID in format expected by importer: temp-{timestamp}-{random}
 let tempIdCounter = 0;
@@ -224,6 +233,24 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
 
   // Track which invoices are expanded (accordion)
   const [expandedInvoices, setExpandedInvoices] = useState<Set<string>>(new Set([invoices[0].id]));
+
+  // Track which recipe cards are expanded
+  const [expandedRecipes, setExpandedRecipes] = useState<Set<string>>(new Set());
+  // Track which S+H dropdowns are open (invoice_id + item_index + type)
+  const [openCategoryDropdown, setOpenCategoryDropdown] = useState<string | null>(null);
+  const [openInvoiceDropdown, setOpenInvoiceDropdown] = useState<string | null>(null);
+
+  const toggleRecipeExpanded = (productId: string) => {
+    setExpandedRecipes(prev => {
+      const next = new Set(prev);
+      if (next.has(productId)) {
+        next.delete(productId);
+      } else {
+        next.add(productId);
+      }
+      return next;
+    });
+  };
 
   // For adding new category inline
   const [newCategoryName, setNewCategoryName] = useState<Record<string, string>>({});
@@ -510,6 +537,26 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [products, invoices, importing]);
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Check if click is inside a category dropdown
+      if (!target.closest(`.${styles.categoryCheckboxDropdown}`)) {
+        setOpenCategoryDropdown(null);
+      }
+      // Check if click is inside an invoice dropdown
+      if (!target.closest(`.${styles.invoiceCheckboxDropdown}`)) {
+        setOpenInvoiceDropdown(null);
+      }
+    };
+
+    if (openCategoryDropdown || openInvoiceDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [openCategoryDropdown, openInvoiceDropdown]);
+
   // Restore saved data
   const handleRestoreData = useCallback(() => {
     try {
@@ -549,19 +596,21 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     console.log('🧹 Autosave data cleared after successful save');
   }, []);
 
-  const steps: Step[] = ['products', 'invoices', 'review'];
+  const steps: Step[] = ['products', 'recipes', 'invoices', 'review'];
   const currentStepIndex = steps.indexOf(currentStep);
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
   const stepTitles: Record<Step, string> = {
-    products: 'Your Products + Recipes',
+    products: 'Your Products',
+    recipes: 'Product Recipes',
     invoices: 'Supplier Invoices',
-    review: 'Review + Sign'
+    review: 'Review & Submit'
   };
 
   const stepDescriptions: Record<Step, string> = {
-    products: 'Add your products and the ingredients that go into each one.',
-    invoices: 'Add recent supplier invoices to track ingredient costs.',
+    products: 'Add your products with their basic info.',
+    recipes: 'Add the pieces that go into each product.',
+    invoices: 'Add recent supplier invoices to track the cost of each category.',
     review: 'Double-check everything looks right, then confirm to save.'
   };
 
@@ -915,7 +964,55 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
               quantity: '',
               unit_of_measurement: 'oz',
               unit_cost: '',
-              line_total: '0.00'
+              line_total: '0.00',
+              item_type: 'regular' as const
+            }]
+          }
+        : inv
+    );
+    setInvoices(updated);
+  };
+
+  // Add Shipping & Handling item
+  const addShippingItem = (invoiceId: string) => {
+    // Find the S+H category
+    const shCategory = categories.find(c => c.is_distribution_category);
+    if (!shCategory) return;
+
+    const updated = invoices.map(inv =>
+      inv.id === invoiceId
+        ? {
+            ...inv,
+            items: [...inv.items, {
+              category_id: shCategory.id,
+              quantity: '1',
+              unit_of_measurement: 'each' as Unit,
+              unit_cost: '',
+              line_total: '0.00',
+              item_type: 'shipping' as const,
+              distribution_method: 'weighted' as const,
+              distribution_target: 'invoice' as const
+            }]
+          }
+        : inv
+    );
+    setInvoices(updated);
+  };
+
+  // Add Personal Item
+  const addPersonalItem = (invoiceId: string) => {
+    const updated = invoices.map(inv =>
+      inv.id === invoiceId
+        ? {
+            ...inv,
+            items: [...inv.items, {
+              category_id: '__personal__',
+              quantity: '1',
+              unit_of_measurement: 'each' as Unit,
+              unit_cost: '',
+              line_total: '0.00',
+              item_type: 'personal' as const,
+              is_personal: true
             }]
           }
         : inv
@@ -933,7 +1030,8 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   };
 
   const updateInvoiceItem = (invoiceId: string, itemIndex: number, field: keyof InvoiceItem, value: any) => {
-    const updated = invoices.map(inv =>
+    // Use functional update to ensure we're always working with the latest state
+    setInvoices(prevInvoices => prevInvoices.map(inv =>
       inv.id === invoiceId
         ? {
             ...inv,
@@ -998,15 +1096,17 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
             })
           }
         : inv
-    );
-    setInvoices(updated);
+    ));
   };
 
   // Navigation
-  const canProceed = () => {
-    switch (currentStep) {
+  const canProceedFromStep = (step: Step): boolean => {
+    switch (step) {
       case 'products':
         return products.some(p => p.name.trim() && p.msrp.trim());
+      case 'recipes':
+        // Recipes are optional - can always proceed
+        return true;
       case 'invoices':
         // Block if any invoice has errors (doesn't balance)
         const validInvoices = invoices.filter(i => i.vendor_name.trim());
@@ -1015,6 +1115,31 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
         return true;
       default:
         return false;
+    }
+  };
+
+  const canProceed = () => canProceedFromStep(currentStep);
+
+  // Check if user can navigate to a specific step (for sidebar click-to-jump)
+  const canNavigateToStep = (targetStep: Step): boolean => {
+    const targetIndex = steps.indexOf(targetStep);
+
+    // Can always go back to completed steps
+    if (targetIndex < currentStepIndex) return true;
+
+    // Can go to current step
+    if (targetIndex === currentStepIndex) return true;
+
+    // Can only go forward if all previous steps are valid
+    for (let i = 0; i < targetIndex; i++) {
+      if (!canProceedFromStep(steps[i])) return false;
+    }
+    return true;
+  };
+
+  const handleStepClick = (step: Step) => {
+    if (canNavigateToStep(step)) {
+      setCurrentStep(step);
     }
   };
 
@@ -1029,6 +1154,15 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     const prevIndex = currentStepIndex - 1;
     if (prevIndex >= 0) {
       setCurrentStep(steps[prevIndex]);
+    }
+  };
+
+  // Handler for Continue button (sidebar and footer)
+  const handleContinue = () => {
+    if (currentStep === 'review') {
+      handleSubmit();
+    } else {
+      handleNext();
     }
   };
 
@@ -1065,7 +1199,14 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
         ...(inv.invoice_number && { invoice_number: inv.invoice_number }), // Only include if present
         ...(inv.invoice_total && { invoice_total: inv.invoice_total }), // FIX: Include invoice total
         items: inv.items
-          .filter(item => item.category_id && item.quantity.trim() && item.unit_cost.trim() && item.unit_of_measurement)
+          .filter(item => {
+            // For S+H and Personal items, only need unit_cost
+            if (item.item_type === 'shipping' || item.item_type === 'personal' || item.is_personal) {
+              return item.unit_cost && item.unit_cost.trim();
+            }
+            // For regular items, need category_id, quantity, unit_cost, unit
+            return item.category_id && item.quantity.trim() && item.unit_cost.trim() && item.unit_of_measurement;
+          })
           .map(item => ({
             category_id: item.category_id,
             ...(item.variant && { variant: item.variant }), // Only include if present
@@ -1074,7 +1215,12 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
             unit_cost: item.unit_cost,
             line_total: item.line_total || (parseFloat(item.quantity || '0') * parseFloat(item.unit_cost || '0')).toFixed(2),
             ...(item.is_personal && { is_personal: true }), // Include if personal item
-            ...(item.distribution_method && { distribution_method: item.distribution_method }) // Include if S+H category
+            ...(item.item_type && { item_type: item.item_type }), // Include item type
+            ...(item.distribution_method && { distribution_method: item.distribution_method }), // Include S+H distribution method
+            // S+H targeting fields
+            ...(item.target_invoices && item.target_invoices.length > 0 && { target_invoices: item.target_invoices }), // Invoice IDs to distribute to
+            ...(item.items_filter && { items_filter: item.items_filter }), // 'all' or 'categories'
+            ...(item.selected_categories && item.selected_categories.length > 0 && { selected_categories: item.selected_categories }) // Categories when items_filter is 'categories'
           })),
         ...(inv.notes && { notes: inv.notes }) // Only include if present
       }))
@@ -1100,8 +1246,9 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.worksheetLayout}>
       {/* Restore saved data modal */}
+      <div className={styles.mainContent}>
       {showRestoreModal && (
         <div style={{
           position: 'fixed',
@@ -1168,16 +1315,6 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
         </div>
       )}
 
-      {/* Progress bar */}
-      <div className={styles.progressContainer}>
-        <div className={styles.progressBar}>
-          <div className={styles.progressFill} style={{ width: `${progress}%` }} />
-        </div>
-        <p className={styles.progressText}>
-          Step {currentStepIndex + 1} of {steps.length}
-        </p>
-      </div>
-
       {/* Step header */}
       <div className={styles.header}>
         <h2 className={styles.title}>{stepTitles[currentStep]}</h2>
@@ -1189,23 +1326,9 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
         {currentStep === 'products' && (
           <div className={styles.stepContent}>
             {products.map((product, prodIndex) => (
-              <div key={product.id} className={styles.productCard}>
-                <div className={styles.cardHeader}>
-                  <h3 className={styles.cardTitle}>Product {prodIndex + 1}</h3>
-                  {products.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeProduct(prodIndex)}
-                      className={styles.removeButton}
-                      aria-label="Remove product"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-
-                {/* Product details - all on one line */}
-                <div className={styles.productDetails}>
+              <div key={product.id} className={styles.productCardCompact}>
+                <div className={styles.productNumberBadge}>{prodIndex + 1}</div>
+                <div className={styles.productFieldsRow}>
                   <div className={styles.fieldRow3}>
                     <div className={styles.field}>
                       <label htmlFor={`product-name-${prodIndex}`} className={styles.label}>
@@ -1221,7 +1344,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                       />
                     </div>
 
-                    <div className={styles.fieldSmall}>
+                    <div className={styles.field}>
                       <label htmlFor={`product-msrp-${prodIndex}`} className={styles.label}>
                         Retail Price <span className={styles.required}>*</span>
                       </label>
@@ -1240,7 +1363,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                       </div>
                     </div>
 
-                    <div className={styles.fieldSmall}>
+                    <div className={styles.field}>
                       <label htmlFor={`product-sku-${prodIndex}`} className={styles.label}>
                         SKU
                       </label>
@@ -1255,8 +1378,19 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                     </div>
                   </div>
                 </div>
+                {products.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeProduct(prodIndex)}
+                    className={styles.removeProductButton}
+                    aria-label="Remove product"
+                  >
+                    ✕
+                  </button>
+                )}
 
-                {/* Recipe section */}
+                {/* Recipe section - moved to recipes step */}
+                {false && (
                 <div className={styles.recipeSection}>
                   <h4 className={styles.recipeTitle}>What goes into this product?</h4>
                   <p className={styles.recipeHint}>
@@ -1578,6 +1712,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                     + Add Item
                   </button>
                 </div>
+                )}
               </div>
             ))}
 
@@ -1593,32 +1728,353 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
           </div>
         )}
 
+        {currentStep === 'recipes' && (
+          <div className={styles.stepContent}>
+            {products.filter(p => p.name.trim()).length === 0 ? (
+              <div className={styles.note}>
+                <p>
+                  <strong>No products yet!</strong> Go back to add at least one product before adding recipes.
+                </p>
+              </div>
+            ) : (
+              <div className={styles.recipeGrid}>
+                {products.filter(p => p.name.trim()).map((product, prodIndex) => {
+                  const actualIndex = products.findIndex(p => p.id === product.id);
+                  const isExpanded = expandedRecipes.has(product.id);
+                  const ingredientCount = product.recipeItems.length;
+
+                  return (
+                    <div key={product.id} className={`${styles.recipeCard} ${isExpanded ? styles.recipeCardExpanded : ''}`}>
+                      <div
+                        className={styles.recipeCardHeader}
+                        onClick={() => toggleRecipeExpanded(product.id)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <span className={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
+                        <div className={styles.productNumberBadge}>{actualIndex + 1}</div>
+                        <div className={styles.recipeProductInfo}>
+                          <span className={styles.recipeProductName}>{product.name}</span>
+                          {product.msrp && <span className={styles.recipeProductPrice}>${product.msrp}</span>}
+                        </div>
+                        {!isExpanded && (
+                          <span className={styles.ingredientCount}>
+                            {ingredientCount} {ingredientCount === 1 ? 'piece' : 'pieces'}
+                          </span>
+                        )}
+                      </div>
+
+                      {isExpanded && (
+                      <div className={styles.ingredientsList}>
+                        {/* Table header */}
+                        <div className={styles.ingredientHeader}>
+                          <div className={styles.headerLeftSection}>
+                            <span className={styles.headerCell} style={{ flex: 2 }}>Category</span>
+                            <span className={styles.headerCell} style={{ flex: 1.5 }}>Variant</span>
+                            <span className={styles.headerCell} style={{ flex: 1 }}>Mode</span>
+                          </div>
+                          <div className={styles.headerRightSection}>
+                            <span className={styles.headerCell} style={{ flex: 1 }}>Qty</span>
+                            <span className={styles.headerCell} style={{ flex: 0.8 }}>Unit</span>
+                            <span className={styles.headerCell} style={{ flex: 1.5 }}>Batch Size</span>
+                          </div>
+                          <span className={styles.headerCell} style={{ width: '24px' }}></span>
+                        </div>
+
+                        {product.recipeItems.map((item, itemIndex) => {
+                          const key = `${actualIndex}-${itemIndex}`;
+                          const selectedCategory = categories.find(c => c.id === item.category_id);
+
+                          return (
+                            <div key={itemIndex} className={styles.ingredientRowCompact}>
+                              {/* Left side - Category, Variant, Mode (vertically centered) */}
+                              <div className={styles.rowLeftSection}>
+                                {/* Category */}
+                                <div className={styles.tableCell} style={{ flex: 2, minWidth: 0 }}>
+                                  {showNewCategoryInput[key] ? (
+                                    <input
+                                      type="text"
+                                      value={newCategoryName[key] || ''}
+                                      onChange={(e) => setNewCategoryName({ ...newCategoryName, [key]: e.target.value })}
+                                      placeholder="Type name..."
+                                      className={styles.tableCellInput}
+                                      autoFocus
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          e.preventDefault();
+                                          createCategory(actualIndex, itemIndex);
+                                        } else if (e.key === 'Escape') {
+                                          setShowNewCategoryInput({ ...showNewCategoryInput, [key]: false });
+                                          setNewCategoryName({ ...newCategoryName, [key]: '' });
+                                        }
+                                      }}
+                                      onBlur={(e) => {
+                                        const value = e.target.value.trim();
+                                        if (value) {
+                                          createCategory(actualIndex, itemIndex);
+                                        } else {
+                                          setShowNewCategoryInput({ ...showNewCategoryInput, [key]: false });
+                                        }
+                                      }}
+                                    />
+                                  ) : categories.filter(c => !c.is_distribution_category).length > 0 ? (
+                                    <select
+                                      value={item.category_id}
+                                      onChange={(e) => {
+                                        if (e.target.value === '__new__') {
+                                          setShowNewCategoryInput({ ...showNewCategoryInput, [key]: true });
+                                        } else {
+                                          updateRecipeItem(actualIndex, itemIndex, 'category_id', e.target.value);
+                                        }
+                                      }}
+                                      className={styles.tableCellSelect}
+                                    >
+                                      <option value="">Select...</option>
+                                      {categories.filter(c => !c.is_distribution_category).map(cat => (
+                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                      ))}
+                                      <option value="__new__">+ New</option>
+                                    </select>
+                                  ) : (
+                                    <input
+                                      type="text"
+                                      value={newCategoryName[key] || ''}
+                                      onChange={(e) => setNewCategoryName({ ...newCategoryName, [key]: e.target.value })}
+                                      placeholder="Type name..."
+                                      className={styles.tableCellInput}
+                                      onBlur={(e) => {
+                                        const value = e.target.value.trim();
+                                        if (value) createCategory(actualIndex, itemIndex);
+                                      }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          e.preventDefault();
+                                          const value = e.currentTarget.value.trim();
+                                          if (value) createCategory(actualIndex, itemIndex);
+                                        }
+                                      }}
+                                    />
+                                  )}
+                                </div>
+
+                                {/* Variant */}
+                                <div className={styles.tableCell} style={{ flex: 1.5, minWidth: 0 }}>
+                                  {selectedCategory ? (
+                                    showNewVariantInput[key] ? (
+                                      <input
+                                        type="text"
+                                        value={newVariantValue[key] || ''}
+                                        onChange={(e) => setNewVariantValue({ ...newVariantValue, [key]: e.target.value })}
+                                        placeholder="Type name..."
+                                        className={styles.tableCellInput}
+                                        autoFocus
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            const variant = newVariantValue[key]?.trim();
+                                            if (variant) {
+                                              addVariantToCategory(selectedCategory.id, variant);
+                                              updateRecipeItem(actualIndex, itemIndex, 'variant', variant);
+                                              setNewVariantValue({ ...newVariantValue, [key]: '' });
+                                              setShowNewVariantInput({ ...showNewVariantInput, [key]: false });
+                                            }
+                                          } else if (e.key === 'Escape') {
+                                            setShowNewVariantInput({ ...showNewVariantInput, [key]: false });
+                                            setNewVariantValue({ ...newVariantValue, [key]: '' });
+                                          }
+                                        }}
+                                        onBlur={(e) => {
+                                          const variant = e.target.value.trim();
+                                          if (variant) {
+                                            addVariantToCategory(selectedCategory.id, variant);
+                                            updateRecipeItem(actualIndex, itemIndex, 'variant', variant);
+                                            setNewVariantValue({ ...newVariantValue, [key]: '' });
+                                          }
+                                          setShowNewVariantInput({ ...showNewVariantInput, [key]: false });
+                                        }}
+                                      />
+                                    ) : selectedCategory.variants.length > 0 ? (
+                                      <select
+                                        value={item.variant || ''}
+                                        onChange={(e) => {
+                                          if (e.target.value === '__new__') {
+                                            setShowNewVariantInput({ ...showNewVariantInput, [key]: true });
+                                          } else {
+                                            updateRecipeItem(actualIndex, itemIndex, 'variant', e.target.value);
+                                          }
+                                        }}
+                                        className={styles.tableCellSelect}
+                                      >
+                                        <option value="">(optional)</option>
+                                        {selectedCategory.variants.map((variant, i) => (
+                                          <option key={i} value={variant}>{variant}</option>
+                                        ))}
+                                        <option value="__new__">+ New</option>
+                                      </select>
+                                    ) : (
+                                      <input
+                                        type="text"
+                                        value={item.variant || ''}
+                                        onChange={(e) => updateRecipeItem(actualIndex, itemIndex, 'variant', e.target.value)}
+                                        placeholder="(optional)"
+                                        className={styles.tableCellInput}
+                                        onBlur={(e) => {
+                                          const value = e.target.value.trim();
+                                          if (value && !selectedCategory.variants.includes(value)) {
+                                            addVariantToCategory(selectedCategory.id, value);
+                                          }
+                                        }}
+                                      />
+                                    )
+                                  ) : (
+                                    <span className={styles.tableCellDisabled}>—</span>
+                                  )}
+                                </div>
+
+                                {/* Mode Toggle */}
+                                <div className={styles.tableCell} style={{ flex: 1 }}>
+                                  <div className={styles.modeToggle}>
+                                    <button
+                                      type="button"
+                                      className={item.entry_mode === 'per_unit' ? styles.modeActive : styles.modeInactive}
+                                      onClick={() => updateRecipeItem(actualIndex, itemIndex, 'entry_mode', 'per_unit')}
+                                    >
+                                      Unit
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className={item.entry_mode === 'per_batch' ? styles.modeActive : styles.modeInactive}
+                                      onClick={() => updateRecipeItem(actualIndex, itemIndex, 'entry_mode', 'per_batch')}
+                                    >
+                                      Batch
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Right side - Qty, Unit, Batch Size with calculation below */}
+                              <div className={styles.rowRightSection}>
+                                <div className={styles.rowRightTop}>
+                                  {/* Quantity */}
+                                  <div className={styles.tableCell} style={{ flex: 1 }}>
+                                    <input
+                                      type="number"
+                                      value={item.entry_mode === 'per_batch' ? (item.quantity_per_batch || '') : item.quantity}
+                                      onChange={(e) => updateRecipeItem(
+                                        actualIndex,
+                                        itemIndex,
+                                        item.entry_mode === 'per_batch' ? 'quantity_per_batch' : 'quantity',
+                                        e.target.value
+                                      )}
+                                      placeholder="0"
+                                      step={item.entry_mode === 'per_batch' ? '0.01' : '0.000001'}
+                                      min="0"
+                                      className={styles.tableCellInput}
+                                    />
+                                  </div>
+
+                                  {/* Unit */}
+                                  <div className={styles.tableCell} style={{ flex: 0.7 }}>
+                                    <select
+                                      value={item.unit_of_measurement || ''}
+                                      onChange={(e) => updateRecipeItem(actualIndex, itemIndex, 'unit_of_measurement', e.target.value)}
+                                      className={styles.tableCellSelectSmall}
+                                    >
+                                      {UNITS_OF_MEASUREMENT.map(unit => (
+                                        <option key={unit} value={unit}>{unit}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  {/* Batch Size */}
+                                  <div className={styles.tableCell} style={{ flex: 1.8 }}>
+                                    {item.entry_mode === 'per_batch' ? (
+                                      <div className={styles.batchSizeCell}>
+                                        <span className={styles.batchArrow}>→</span>
+                                        <input
+                                          type="number"
+                                          value={item.batch_size || ''}
+                                          onChange={(e) => updateRecipeItem(actualIndex, itemIndex, 'batch_size', e.target.value)}
+                                          placeholder="0"
+                                          step="1"
+                                          min="1"
+                                          className={styles.tableCellInputBatch}
+                                        />
+                                        <span className={styles.batchUnitsLabel}>units</span>
+                                      </div>
+                                    ) : (
+                                      <span className={styles.tableCellDisabled}>—</span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Calculation row - only shows for batch mode, centered */}
+                                {item.entry_mode === 'per_batch' && item.quantity_per_batch && item.batch_size && (
+                                  <div className={styles.rowRightCalc}>
+                                    = {item.quantity} {item.unit_of_measurement} per unit
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Remove */}
+                              <button
+                                type="button"
+                                onClick={() => removeRecipeItem(actualIndex, itemIndex)}
+                                className={styles.removeInlineBtn}
+                                aria-label="Remove ingredient"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          );
+                        })}
+
+                        <button
+                          type="button"
+                          onClick={() => addRecipeItem(actualIndex)}
+                          className={styles.addIngredientButton}
+                        >
+                          + Add Piece
+                        </button>
+                      </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {currentStep === 'invoices' && (
           <div className={styles.stepContent}>
+            <div className={styles.invoiceGrid}>
             {invoices.map((invoice, invIndex) => {
               const isExpanded = expandedInvoices.has(invoice.id);
               const lineItemsTotal = calculateInvoiceLineItemsTotal(invoice);
-              const hasMismatch = isInvoiceTotalMismatch(invoice);
+              const itemCount = invoice.items.length;
 
               return (
-              <div key={invoice.id} className={styles.card}>
+              <div key={invoice.id} className={`${styles.invoiceCard} ${isExpanded ? styles.invoiceCardExpanded : ''}`}>
+                {/* Card Header - always visible */}
                 <div
-                  className={styles.cardHeader}
+                  className={styles.invoiceCardHeader}
                   onClick={() => toggleInvoiceExpanded(invoice.id)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
-                    <h3 className={styles.cardTitle}>
-                      Invoice {invIndex + 1}
-                      {invoice.vendor_name && ` - ${invoice.vendor_name}`}
-                      {!isExpanded && invoice.invoice_total && (
-                        <span style={{ marginLeft: '0.5rem', fontSize: '0.875rem', color: '#666' }}>
-                          (${invoice.invoice_total})
-                        </span>
-                      )}
-                    </h3>
+                  <span className={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
+                  <div className={styles.invoiceVendorInfo}>
+                    <span className={styles.invoiceVendorName}>
+                      {invoice.vendor_name || `Invoice ${invIndex + 1}`}
+                    </span>
+                    {invoice.invoice_total && (
+                      <span className={styles.invoiceTotalBadge}>${invoice.invoice_total}</span>
+                    )}
                   </div>
+                  {!isExpanded && (
+                    <span className={styles.invoiceItemCount}>
+                      {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                    </span>
+                  )}
                   {invoices.length > 1 && (
                     <button
                       type="button"
@@ -1626,7 +2082,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         e.stopPropagation();
                         removeInvoice(invIndex);
                       }}
-                      className={styles.removeButton}
+                      className={styles.invoiceRemoveBtn}
                       aria-label="Remove invoice"
                     >
                       ✕
@@ -1634,54 +2090,48 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                   )}
                 </div>
 
-                {!isExpanded && (
-                  <div className={styles.collapsedSummary}>
-                    <div>
-                      {invoice.invoice_date && `Date: ${invoice.invoice_date}`}
-                      {invoice.invoice_number && ` • #${invoice.invoice_number}`}
-                    </div>
-                    <div>Line Items: {invoice.items.length}</div>
-                  </div>
-                )}
-
+                {/* Expanded Content */}
                 {isExpanded && (
-                <div>
-
-                <div className={styles.fieldRow}>
-                  <div className={styles.field}>
-                    <label className={styles.label}>Vendor Name</label>
-                    <input
-                      type="text"
-                      value={invoice.vendor_name}
-                      onChange={(e) => updateInvoice(invIndex, 'vendor_name', e.target.value)}
-                      placeholder="ex:Mountain Rose Herbs"
-                      className={styles.input}
-                    />
-                  </div>
-
-                  <div className={styles.field}>
-                    <label className={styles.label}>Invoice Date</label>
-                    <input
-                      type="date"
-                      value={invoice.invoice_date}
-                      onChange={(e) => updateInvoice(invIndex, 'invoice_date', e.target.value)}
-                      onBlur={(e) => {
-                        // Process date input to expand 2-digit years (26 → 2026) and handle timezone
-                        const { iso } = processDateInput(e.target.value);
-                        if (iso !== e.target.value) {
-                          updateInvoice(invIndex, 'invoice_date', iso);
-                        }
-                      }}
-                      className={styles.input}
-                    />
-                  </div>
-                </div>
-
-                <div className={styles.fieldRow}>
-                  <div className={styles.field}>
-                    <label className={styles.label}>Invoice Total</label>
-                    <div className={styles.inputGroup}>
-                      <span className={styles.inputPrefix}>$</span>
+                <div className={styles.invoiceContent}>
+                  {/* Invoice Fields Row */}
+                  <div className={styles.invoiceFieldsRow}>
+                    <div className={styles.invoiceFieldCompact} style={{ flex: 2 }}>
+                      <label className={styles.label}>Vendor Name</label>
+                      <input
+                        type="text"
+                        value={invoice.vendor_name}
+                        onChange={(e) => updateInvoice(invIndex, 'vendor_name', e.target.value)}
+                        placeholder="Rose Mountain LLC"
+                        className={styles.input}
+                      />
+                    </div>
+                    <div className={styles.invoiceFieldCompact}>
+                      <label className={styles.label}>Date</label>
+                      <input
+                        type="date"
+                        value={invoice.invoice_date}
+                        onChange={(e) => updateInvoice(invIndex, 'invoice_date', e.target.value)}
+                        onBlur={(e) => {
+                          const { iso } = processDateInput(e.target.value);
+                          if (iso !== e.target.value) {
+                            updateInvoice(invIndex, 'invoice_date', iso);
+                          }
+                        }}
+                        className={styles.input}
+                      />
+                    </div>
+                    <div className={styles.invoiceFieldCompact}>
+                      <label className={styles.label}>Invoice #</label>
+                      <input
+                        type="text"
+                        value={invoice.invoice_number || ''}
+                        onChange={(e) => updateInvoice(invIndex, 'invoice_number', e.target.value)}
+                        placeholder="INV-001"
+                        className={styles.input}
+                      />
+                    </div>
+                    <div className={styles.invoiceFieldCompact}>
+                      <label className={styles.label}>Total ($)</label>
                       <input
                         type="text"
                         value={invoice.invoice_total || ''}
@@ -1689,11 +2139,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         onBlur={(e) => {
                           const value = e.target.value.trim();
                           if (!value) return;
-
-                          // Always try to evaluate (handles both math and plain numbers)
                           const evaluated = evaluateMathExpression(value);
-
-                          // Always update to ensure formatting
                           if (evaluated !== value) {
                             updateInvoice(invIndex, 'invoice_total', evaluated);
                           }
@@ -1704,361 +2150,701 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                     </div>
                   </div>
 
-                  <div className={styles.field}>
-                    <label className={styles.label}>Invoice #</label>
-                    <input
-                      type="text"
-                      value={invoice.invoice_number || ''}
-                      onChange={(e) => updateInvoice(invIndex, 'invoice_number', e.target.value)}
-                      placeholder="ex:INV-2026-001"
-                      className={styles.input}
-                    />
-                  </div>
-                </div>
+                  {/* Line Items Table - Regular Items Only */}
+                  <div>
+                    {/* Table Header */}
+                    <div className={styles.lineItemsHeader}>
+                      <span className={styles.headerCell} style={{ flex: 2 }}>Category</span>
+                      <span className={styles.headerCell} style={{ flex: 1.5 }}>Variant</span>
+                      <span className={styles.headerCell} style={{ flex: 0.8 }}>Qty</span>
+                      <span className={styles.headerCell} style={{ flex: 0.8 }}>Unit</span>
+                      <span className={styles.headerCell} style={{ flex: 1 }}>$/Unit</span>
+                      <span className={styles.headerCell} style={{ flex: 1 }}>Total</span>
+                      <span style={{ width: '24px' }}></span>
+                    </div>
+                    {/* Regular Line Item Rows */}
+                    {invoice.items.map((item, itemIndex) => {
+                      // Skip S+H and Personal items - they have their own sections
+                      if (item.item_type === 'shipping' || item.item_type === 'personal' || item.is_personal) return null;
 
-                <h4 className={styles.invoiceItemsTitle}>Line Items</h4>
-                {invoice.items.map((item, itemIndex) => {
-                  const selectedCategory = categories.find(c => c.id === item.category_id);
+                      const selectedCategory = categories.find(c => c.id === item.category_id);
+                      // Also skip if category is a distribution category (S+H)
+                      if (selectedCategory?.is_distribution_category) return null;
 
-                  return (
-                    <div key={itemIndex}>
-                      <div className={styles.invoiceItemRow}>
-                      {/* Category and Variant grouped */}
-                      <div className={styles.fieldMedium}>
-                        <label className={styles.label}>Category</label>
-                        <select
-                          value={item.category_id}
-                          onChange={(e) => {
-                            const selectedValue = e.target.value;
-                            const isPersonal = selectedValue === '__personal__';
-                            const selectedCat = categories.find(c => c.id === selectedValue);
-                            const isDistribution = selectedCat?.is_distribution_category;
+                      return (
+                        <div key={itemIndex}>
+                          <div className={styles.lineItemRow}>
+                            {/* Category - only show non-distribution categories */}
+                            <div className={styles.lineItemCell} style={{ flex: 2 }}>
+                              <select
+                                value={item.category_id}
+                                onChange={(e) => {
+                                  const selectedValue = e.target.value;
+                                  const updated = invoices.map(inv =>
+                                    inv.id === invoice.id
+                                      ? {
+                                          ...inv,
+                                          items: inv.items.map((itm, i) =>
+                                            i === itemIndex
+                                              ? {
+                                                  ...itm,
+                                                  category_id: selectedValue,
+                                                  variant: ''
+                                                }
+                                              : itm
+                                          )
+                                        }
+                                      : inv
+                                  );
+                                  setInvoices(updated);
+                                }}
+                                className={styles.lineItemSelect}
+                              >
+                                <option value="">Select...</option>
+                                {[...categories]
+                                  .filter(cat => !cat.is_distribution_category)
+                                  .sort((a, b) => a.name.localeCompare(b.name))
+                                  .map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                  ))}
+                              </select>
+                            </div>
 
-                            // Update all fields in a single state update
-                            const updated = invoices.map(inv =>
-                              inv.id === invoice.id
-                                ? {
-                                    ...inv,
-                                    items: inv.items.map((item, i) =>
-                                      i === itemIndex
-                                        ? {
-                                            ...item,
-                                            category_id: selectedValue,
-                                            is_personal: isPersonal,
-                                            variant: '', // Reset variant when category changes
-                                            // Set defaults for S+H categories and Personal Items
-                                            distribution_method: isDistribution ? 'weighted' : undefined,
-                                            quantity: isDistribution || isPersonal ? '1' : item.quantity,
-                                            unit_of_measurement: isDistribution || isPersonal ? 'each' : item.unit_of_measurement
-                                          }
-                                        : item
-                                    )
-                                  }
-                                : inv
-                            );
-                            setInvoices(updated);
-                          }}
-                          className={styles.select}
-                        >
-                          <option value="">Select...</option>
-                          <option value="__personal__" style={{ fontStyle: 'italic', color: '#6b7280' }}>
-                            👤 Personal Item
-                          </option>
-                          <option value="" disabled>
-                            ────────────
-                          </option>
-                          {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                          ))}
-                        </select>
-                      </div>
+                            {/* Variant */}
+                            <div className={styles.lineItemCell} style={{ flex: 1.5 }}>
+                              {selectedCategory && selectedCategory.variants.length > 0 ? (
+                                <select
+                                  value={item.variant || ''}
+                                  onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'variant', e.target.value)}
+                                  className={styles.lineItemSelect}
+                                >
+                                  <option value="">(none)</option>
+                                  {selectedCategory.variants.map((v, i) => (
+                                    <option key={i} value={v}>{v}</option>
+                                  ))}
+                                </select>
+                              ) : (
+                                <span style={{ color: '#9ca3af', fontSize: '0.75rem', padding: '0.25rem' }}>—</span>
+                              )}
+                            </div>
 
-                      {/* Variant (hide for personal items) */}
-                      {selectedCategory && selectedCategory.variants.length > 0 && !item.is_personal && (
-                        <div className={styles.fieldMedium}>
-                          <label className={styles.label}>Variant</label>
-                          <select
-                            value={item.variant || ''}
-                            onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'variant', e.target.value)}
-                            className={styles.select}
-                          >
-                            <option value="">Select...</option>
-                            {selectedCategory.variants.map((variant, i) => (
-                              <option key={i} value={variant}>{variant}</option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
+                            {/* Qty */}
+                            <div className={styles.lineItemCell} style={{ flex: 0.8 }}>
+                              <input
+                                type="number"
+                                value={item.quantity}
+                                onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'quantity', e.target.value)}
+                                placeholder="1"
+                                step="0.01"
+                                min="0"
+                                className={styles.lineItemInput}
+                              />
+                            </div>
 
-                      {/* Distribution Method (S+H categories only) - hide for personal items */}
-                      {selectedCategory?.is_distribution_category && !item.is_personal && (
-                        <div className={styles.fieldMedium}>
-                          <label className={styles.label}>Distribution</label>
-                          <select
-                            value={item.distribution_method || 'weighted'}
-                            onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'distribution_method', e.target.value)}
-                            className={styles.select}
-                          >
-                            <option value="weighted">Weighted (by value)</option>
-                            <option value="equal">Equal Split</option>
-                          </select>
-                        </div>
-                      )}
+                            {/* Unit */}
+                            <div className={styles.lineItemCell} style={{ flex: 0.8 }}>
+                              <select
+                                value={item.unit_of_measurement || ''}
+                                onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'unit_of_measurement', e.target.value)}
+                                className={styles.lineItemSelect}
+                              >
+                                {UNITS_OF_MEASUREMENT.map(unit => (
+                                  <option key={unit} value={unit}>{unit}</option>
+                                ))}
+                              </select>
+                            </div>
 
-                      {/* For S+H categories and personal items: just show Total Cost/Amount */}
-                      {selectedCategory?.is_distribution_category || item.is_personal ? (
-                        <div className={styles.fieldMedium}>
-                          <label className={styles.label}>{item.is_personal ? 'Amount' : 'Total Cost'}</label>
-                          <div className={styles.inputGroup}>
-                            <span className={styles.inputPrefix}>$</span>
-                            <input
-                              type="text"
-                              value={item.unit_cost}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                const updated = invoices.map(inv =>
-                                  inv.id === invoice.id
-                                    ? {
-                                        ...inv,
-                                        items: inv.items.map((item, i) =>
-                                          i === itemIndex
-                                            ? {
-                                                ...item,
-                                                unit_cost: value,
-                                                quantity: '1',
-                                                unit_of_measurement: 'each',
-                                                line_total: value // For Personal/S+H, line_total = unit_cost (since qty = 1)
-                                              }
-                                            : item
-                                        )
-                                      }
-                                    : inv
-                                );
-                                setInvoices(updated);
-                              }}
-                              placeholder="0.00"
-                              className={styles.input}
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          {/* For regular categories: show Qty, Unit, $/Unit, Total */}
-                          <div className={styles.fieldSmall}>
-                            <label className={styles.label}>Qty</label>
-                            <input
-                              type="number"
-                              value={item.quantity}
-                              onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'quantity', e.target.value)}
-                              placeholder="16"
-                              step="0.01"
-                              min="0"
-                              className={styles.input}
-                            />
-                          </div>
-
-                          <div className={styles.fieldSmall}>
-                            <label className={styles.label}>Unit</label>
-                            <select
-                              value={item.unit_of_measurement || ''}
-                              onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'unit_of_measurement', e.target.value)}
-                              className={styles.select}
-                            >
-                              {UNITS_OF_MEASUREMENT.map(unit => (
-                                <option key={unit} value={unit}>{unit}</option>
-                              ))}
-                            </select>
-                          </div>
-
-                          <div className={styles.invoicePriceFields}>
-                            <div className={styles.fieldXSmall}>
-                              <label className={styles.label}>$/Unit</label>
-                              <div className={styles.inputGroup}>
+                            {/* $/Unit */}
+                            <div className={styles.lineItemCell} style={{ flex: 1 }}>
+                              <div className={styles.lineItemMoneyGroup}>
                                 <span className={styles.inputPrefix}>$</span>
                                 <input
                                   type="number"
                                   value={item.unit_cost}
                                   onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'unit_cost', e.target.value)}
-                                  placeholder="12.99"
+                                  placeholder="0.00"
                                   step="0.01"
                                   min="0"
-                                  className={styles.input}
+                                  className={styles.lineItemInputMoney}
                                 />
                               </div>
                             </div>
 
-                            <div className={styles.fieldXSmall}>
-                              <label className={styles.label}>Total</label>
-                              <div className={styles.inputGroup}>
+                            {/* Total */}
+                            <div className={styles.lineItemCell} style={{ flex: 1 }}>
+                              <div className={styles.lineItemMoneyGroup}>
                                 <span className={styles.inputPrefix}>$</span>
                                 <input
                                   type="text"
                                   value={item.line_total || ''}
                                   onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'line_total', e.target.value)}
                                   onBlur={(e) => {
-                                    // Evaluate math expressions (150-15.99 = 134.01)
                                     const evaluated = evaluateMathExpression(e.target.value);
                                     if (evaluated !== e.target.value) {
                                       updateInvoiceItem(invoice.id, itemIndex, 'line_total', evaluated);
                                     }
                                   }}
                                   placeholder="0.00"
-                                  className={styles.input}
+                                  className={styles.lineItemInputMoney}
                                 />
                               </div>
                             </div>
+
+                            {/* Remove */}
+                            <button
+                              type="button"
+                              onClick={() => removeInvoiceItem(invoice.id, itemIndex)}
+                              className={styles.lineItemRemove}
+                              aria-label="Remove item"
+                            >
+                              ✕
+                            </button>
                           </div>
-                        </>
-                      )}
 
-                      <button
-                        type="button"
-                        onClick={() => removeInvoiceItem(invoice.id, itemIndex)}
-                        className={styles.removeInlineButton}
-                        aria-label="Remove item"
-                      >
-                        ✕
-                      </button>
+                          {/* Conversion Row - only for regular items with unit mismatches */}
+                          {item.unitWarning && (() => {
+                            const recipeUnit = getRecipeUnit(item.category_id, item.variant);
+                            if (!recipeUnit || !item.unit_of_measurement) return null;
+                            const form = getOrCreateConversionForm(item.category_id, item.variant, item.unit_of_measurement, recipeUnit);
+                            const conversionKey = `${item.category_id}_${item.variant || 'default'}`;
+                            const hasConversion = hasValidConversion(item.category_id, item.variant);
+
+                            return (
+                              <div className={styles.conversionInline}>
+                                <span className={styles.conversionInlineLabel}>Convert:</span>
+                                <input
+                                  key={`${conversionKey}_leftQty`}
+                                  type="number"
+                                  step="0.01"
+                                  min="0.01"
+                                  defaultValue={form.leftQty}
+                                  onBlur={(e) => updateConversionForm(item.category_id, item.variant, 'leftQty', e.target.value)}
+                                  className={styles.conversionInlineInput}
+                                />
+                                <select
+                                  key={`${conversionKey}_leftUnit`}
+                                  defaultValue={form.leftUnit}
+                                  onChange={(e) => updateConversionForm(item.category_id, item.variant, 'leftUnit', e.target.value)}
+                                  className={styles.conversionInlineSelect}
+                                >
+                                  {WEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                  {VOLUME_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                </select>
+                                <span className={styles.conversionInlineEquals}>=</span>
+                                <input
+                                  key={`${conversionKey}_rightQty`}
+                                  type="number"
+                                  step="0.01"
+                                  min="0.01"
+                                  placeholder="?"
+                                  defaultValue={form.rightQty}
+                                  onBlur={(e) => updateConversionForm(item.category_id, item.variant, 'rightQty', e.target.value)}
+                                  className={styles.conversionInlineInput}
+                                />
+                                <select
+                                  key={`${conversionKey}_rightUnit`}
+                                  defaultValue={form.rightUnit}
+                                  onChange={(e) => updateConversionForm(item.category_id, item.variant, 'rightUnit', e.target.value)}
+                                  className={styles.conversionInlineSelect}
+                                >
+                                  {WEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                  {VOLUME_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                </select>
+                                {hasConversion ? (
+                                  <span className={styles.conversionInlineSuccess}>✓ Saved</span>
+                                ) : (
+                                  <span className={styles.conversionInlineNote}>Enter conversion</span>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className={styles.invoiceActionButtons}>
+                    <button
+                      type="button"
+                      onClick={() => addInvoiceItem(invoice.id)}
+                      className={styles.addSmallButton}
+                    >
+                      + Add Line Item
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => addShippingItem(invoice.id)}
+                      className={styles.addShippingButton}
+                    >
+                      + Shipping & Handling
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => addPersonalItem(invoice.id)}
+                      className={styles.addPersonalButton}
+                    >
+                      + Personal Item
+                    </button>
+                  </div>
+
+                  {/* Shipping & Handling Section */}
+                  {invoice.items.some(item => item.item_type === 'shipping' || (categories.find(c => c.id === item.category_id)?.is_distribution_category && item.item_type !== 'personal')) && (
+                    <div className={styles.specialItemSection}>
+                      <div className={styles.specialItemHeader}>
+                        <span className={styles.specialItemIcon}>📦</span>
+                        <span className={styles.specialItemTitle}>Shipping & Handling</span>
                       </div>
-                      {item.unitWarning && (() => {
-                        const recipeUnit = getRecipeUnit(item.category_id, item.variant);
-                        if (!recipeUnit || !item.unit_of_measurement) return null;
+                      {invoice.items.map((item, itemIndex) => {
+                        const selectedCategory = categories.find(c => c.id === item.category_id);
+                        const isShipping = item.item_type === 'shipping' || selectedCategory?.is_distribution_category;
+                        if (!isShipping || item.is_personal) return null;
 
-                        // Get form data without triggering state updates during render
-                        const form = getOrCreateConversionForm(item.category_id, item.variant, item.unit_of_measurement, recipeUnit);
-                        const conversionKey = `${item.category_id}_${item.variant || 'default'}`;
+                        // Get other invoices (excluding current one) for the invoice dropdown
+                        const otherInvoices = invoices.filter(inv => inv.id !== invoice.id && inv.vendor_name.trim());
+                        const targetInvoices = item.target_invoices || [];
+                        const itemsFilter = item.items_filter || 'all';
+                        const selectedCats = item.selected_categories || [];
+
+                        // Dropdown keys for this item
+                        const invoiceDropdownKey = `inv_${invoice.id}_${itemIndex}`;
+                        const categoryDropdownKey = `cat_${invoice.id}_${itemIndex}`;
+
+                        // Get sorted categories (excluding S+H)
+                        const sortedCategories = [...categories]
+                          .filter(cat => !cat.is_distribution_category)
+                          .sort((a, b) => a.name.localeCompare(b.name));
 
                         return (
-                          <div className={styles.unitConversionEntry}>
-                            <div className={styles.conversionLabel}>
-                              Unit mismatch with recipe. Enter conversion:
-                            </div>
-                            <div className={styles.conversionInputRow}>
-                              <input
-                                key={`${conversionKey}_leftQty`}
-                                type="number"
-                                step="0.01"
-                                min="0.01"
-                                defaultValue={form.leftQty}
-                                onBlur={(e) => updateConversionForm(item.category_id, item.variant, 'leftQty', e.target.value)}
-                                className={styles.conversionInput}
-                              />
-                              <select
-                                key={`${conversionKey}_leftUnit`}
-                                defaultValue={form.leftUnit}
-                                onChange={(e) => updateConversionForm(item.category_id, item.variant, 'leftUnit', e.target.value)}
-                                className={styles.conversionSelect}
-                              >
-                                <optgroup label="Weight">
-                                  {WEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-                                </optgroup>
-                                <optgroup label="Volume">
-                                  {VOLUME_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-                                </optgroup>
-                              </select>
-                              <span>=</span>
-                              <input
-                                key={`${conversionKey}_rightQty`}
-                                type="number"
-                                step="0.01"
-                                min="0.01"
-                                placeholder="?"
-                                defaultValue={form.rightQty}
-                                onBlur={(e) => updateConversionForm(item.category_id, item.variant, 'rightQty', e.target.value)}
-                                className={styles.conversionInput}
-                              />
-                              <select
-                                key={`${conversionKey}_rightUnit`}
-                                defaultValue={form.rightUnit}
-                                onChange={(e) => updateConversionForm(item.category_id, item.variant, 'rightUnit', e.target.value)}
-                                className={styles.conversionSelect}
-                              >
-                                <optgroup label="Weight">
-                                  {WEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-                                </optgroup>
-                                <optgroup label="Volume">
-                                  {VOLUME_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-                                </optgroup>
-                              </select>
-                            </div>
-                            {hasValidConversion(item.category_id, item.variant) ? (
-                              <div className={styles.conversionSuccess}>Conversion saved</div>
-                            ) : (
-                              <div className={styles.conversionNote}>
-                                You can skip this for now and add the conversion later in Categories.
-                                Note: Cost per unit won't calculate for this ingredient until the conversion is set.
+                          <div key={itemIndex} className={styles.specialItemRow}>
+                            <div className={styles.shippingRowInline}>
+                              {/* Invoice Target dropdown */}
+                              <div className={styles.shippingFieldInline}>
+                                <label className={styles.shippingLabelInline}>Invoices:</label>
+                                {otherInvoices.length === 0 ? (
+                                  <span className={styles.shippingValueText}>This Invoice</span>
+                                ) : (
+                                  <div className={styles.invoiceCheckboxDropdown}>
+                                    <button
+                                      type="button"
+                                      className={styles.invoiceDropdownTrigger}
+                                      onClick={() => setOpenInvoiceDropdown(
+                                        openInvoiceDropdown === invoiceDropdownKey ? null : invoiceDropdownKey
+                                      )}
+                                    >
+                                      <span>
+                                        {targetInvoices.length === 0
+                                          ? 'This Invoice'
+                                          : `${targetInvoices.length} invoice${targetInvoices.length > 1 ? 's' : ''}`}
+                                      </span>
+                                      <span className={styles.dropdownArrow}>
+                                        {openInvoiceDropdown === invoiceDropdownKey ? '▲' : '▼'}
+                                      </span>
+                                    </button>
+                                    {openInvoiceDropdown === invoiceDropdownKey && (
+                                      <div
+                                        className={styles.invoiceDropdownMenu}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                      >
+                                        {otherInvoices.map(inv => {
+                                          const isChecked = targetInvoices.includes(inv.id);
+                                          return (
+                                            <div
+                                              key={inv.id}
+                                              className={styles.invoiceDropdownItem}
+                                              onClick={() => {
+                                                const newSelected = isChecked
+                                                  ? targetInvoices.filter((id: string) => id !== inv.id)
+                                                  : [...targetInvoices, inv.id];
+                                                updateInvoiceItem(invoice.id, itemIndex, 'target_invoices', newSelected);
+                                              }}
+                                            >
+                                              <input
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                readOnly
+                                              />
+                                              <span className={styles.invoiceDropdownName}>{inv.vendor_name}</span>
+                                              {inv.invoice_total && (
+                                                <span className={styles.invoiceDropdownTotal}>${inv.invoice_total}</span>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                            )}
+
+                              {/* Items Filter dropdown */}
+                              <div className={styles.shippingFieldInline}>
+                                <label className={styles.shippingLabelInline}>Items:</label>
+                                <div className={styles.categoryCheckboxDropdown}>
+                                  <button
+                                    type="button"
+                                    className={styles.categoryDropdownTrigger}
+                                    onClick={() => {
+                                      if (itemsFilter === 'all') {
+                                        // Switch to categories mode and open dropdown
+                                        updateInvoiceItem(invoice.id, itemIndex, 'items_filter', 'categories');
+                                        setOpenCategoryDropdown(categoryDropdownKey);
+                                      } else {
+                                        // Toggle dropdown
+                                        setOpenCategoryDropdown(
+                                          openCategoryDropdown === categoryDropdownKey ? null : categoryDropdownKey
+                                        );
+                                      }
+                                    }}
+                                  >
+                                    <span>
+                                      {itemsFilter === 'all'
+                                        ? 'All Items'
+                                        : selectedCats.length === 0
+                                          ? 'Select categories...'
+                                          : `${selectedCats.length} categor${selectedCats.length > 1 ? 'ies' : 'y'}`}
+                                    </span>
+                                    <span className={styles.dropdownArrow}>
+                                      {openCategoryDropdown === categoryDropdownKey ? '▲' : '▼'}
+                                    </span>
+                                  </button>
+                                  {openCategoryDropdown === categoryDropdownKey && (
+                                    <div
+                                      className={styles.categoryDropdownMenu}
+                                      onMouseDown={(e) => e.stopPropagation()}
+                                    >
+                                      {/* All Items option */}
+                                      <div
+                                        className={`${styles.categoryDropdownItem} ${styles.categoryDropdownAll}`}
+                                        onClick={() => {
+                                          updateInvoiceItem(invoice.id, itemIndex, 'items_filter', 'all');
+                                          updateInvoiceItem(invoice.id, itemIndex, 'selected_categories', []);
+                                          setOpenCategoryDropdown(null);
+                                        }}
+                                      >
+                                        <input
+                                          type="radio"
+                                          name={`items_filter_${invoice.id}_${itemIndex}`}
+                                          checked={itemsFilter === 'all'}
+                                          readOnly
+                                        />
+                                        <span>All Items</span>
+                                      </div>
+                                      <div className={styles.categoryDropdownDivider} />
+                                      {/* Category checkboxes */}
+                                      {sortedCategories.map(cat => {
+                                        const isChecked = selectedCats.includes(cat.id);
+                                        return (
+                                          <div
+                                            key={cat.id}
+                                            className={styles.categoryDropdownItem}
+                                            onClick={() => {
+                                              console.log('DEBUG: Category clicked', { cat: cat.name, catId: cat.id, isChecked, invoiceId: invoice.id, itemIndex });
+                                              const newSelected = isChecked
+                                                ? selectedCats.filter((id: string) => id !== cat.id)
+                                                : [...selectedCats, cat.id];
+                                              console.log('DEBUG: newSelected', newSelected);
+                                              updateInvoiceItem(invoice.id, itemIndex, 'selected_categories', newSelected);
+                                              // Auto-switch to categories mode when selecting
+                                              if (newSelected.length > 0) {
+                                                updateInvoiceItem(invoice.id, itemIndex, 'items_filter', 'categories');
+                                              }
+                                            }}
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              checked={isChecked}
+                                              readOnly
+                                            />
+                                            <span>{cat.name}</span>
+                                          </div>
+                                        );
+                                      })}
+                                      {sortedCategories.length === 0 && (
+                                        <div className={styles.categoryDropdownEmpty}>No categories available</div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Split method toggle */}
+                              <div className={styles.shippingFieldInline}>
+                                <label className={styles.shippingLabelInline}>Split:</label>
+                                <div className={styles.distributionToggle}>
+                                  <button
+                                    type="button"
+                                    className={item.distribution_method !== 'equal' ? styles.distToggleActive : styles.distToggleInactive}
+                                    onClick={() => updateInvoiceItem(invoice.id, itemIndex, 'distribution_method', 'weighted')}
+                                  >
+                                    by %
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className={item.distribution_method === 'equal' ? styles.distToggleActive : styles.distToggleInactive}
+                                    onClick={() => updateInvoiceItem(invoice.id, itemIndex, 'distribution_method', 'equal')}
+                                  >
+                                    Evenly
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* S+H Amount */}
+                              <div className={styles.shippingFieldInline}>
+                                <label className={styles.shippingLabelInline}>Amount:</label>
+                                <div className={styles.shippingAmountInputInline}>
+                                  <span className={styles.inputPrefix}>$</span>
+                                  <input
+                                    type="text"
+                                    value={item.unit_cost}
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      const updated = invoices.map(inv =>
+                                        inv.id === invoice.id
+                                          ? {
+                                              ...inv,
+                                              items: inv.items.map((itm, i) =>
+                                                i === itemIndex
+                                                  ? { ...itm, unit_cost: value, quantity: '1', unit_of_measurement: 'each', line_total: value }
+                                                  : itm
+                                              )
+                                            }
+                                          : inv
+                                      );
+                                      setInvoices(updated);
+                                    }}
+                                    placeholder="0.00"
+                                    className={styles.shippingAmountFieldInline}
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Remove S+H */}
+                              <button
+                                type="button"
+                                onClick={() => removeInvoiceItem(invoice.id, itemIndex)}
+                                className={styles.specialItemRemoveInline}
+                                aria-label="Remove shipping"
+                              >
+                                ✕
+                              </button>
+                            </div>
+
+                            {/* Distribution Preview */}
+                            {(() => {
+                              const shAmount = parseFloat(item.unit_cost || '0');
+                              if (shAmount <= 0) return null;
+
+                              // Convert invoices to the format expected by the distribution calculator
+                              const invoicesForCalc: SHInvoice[] = invoices.map(inv => ({
+                                id: inv.id,
+                                vendor_name: inv.vendor_name,
+                                items: inv.items.map(itm => ({
+                                  category_id: itm.category_id,
+                                  variant: itm.variant,
+                                  line_total: itm.line_total,
+                                  unit_cost: itm.unit_cost,
+                                  quantity: itm.quantity
+                                }))
+                              }));
+
+                              // Get S+H category IDs to exclude from distribution
+                              const shCategoryIds = categories
+                                .filter(c => c.is_distribution_category)
+                                .map(c => c.id);
+
+                              const distribution = calculateSHDistribution({
+                                amount: shAmount,
+                                distribution_method: item.distribution_method || 'weighted',
+                                items_filter: item.items_filter || 'all',
+                                selected_categories: item.selected_categories || [],
+                                target_invoices: item.target_invoices || [],
+                                current_invoice_id: invoice.id,
+                                excluded_category_ids: shCategoryIds
+                              }, invoicesForCalc);
+
+                              if (distribution.eligibleItemsCount === 0) {
+                                return (
+                                  <div className={styles.distributionPreview}>
+                                    <span className={styles.distributionPreviewWarning}>
+                                      No eligible items to distribute to
+                                    </span>
+                                  </div>
+                                );
+                              }
+
+                              // Get category name with optional variant
+                              const getItemLabel = (catId: string, variant?: string) => {
+                                const cat = categories.find(c => c.id === catId);
+                                const catName = cat?.name || catId;
+                                return variant ? `${catName} (${variant})` : catName;
+                              };
+
+                              // Get invoice vendor name
+                              const getInvoiceVendor = (invId: string) => {
+                                const inv = invoices.find(i => i.id === invId);
+                                return inv?.vendor_name || 'Unknown';
+                              };
+
+                              // Group distributions by invoice
+                              const invoiceGroups = distribution.distributions.reduce((acc, dist) => {
+                                if (!acc[dist.invoiceId]) {
+                                  acc[dist.invoiceId] = [];
+                                }
+                                acc[dist.invoiceId].push(dist);
+                                return acc;
+                              }, {} as Record<string, typeof distribution.distributions>);
+
+                              const invoiceIds = Object.keys(invoiceGroups);
+                              const hasMultipleInvoices = invoiceIds.length > 1;
+
+                              return (
+                                <div className={styles.distributionPreview}>
+                                  <span className={styles.distributionPreviewLabel}>
+                                    Distribution ({distribution.method === 'weighted' ? 'by %' : 'even'}):
+                                  </span>
+                                  <div className={styles.distributionPreviewItems}>
+                                    {invoiceIds.map((invId, invIdx) => (
+                                      <div key={invId} className={styles.distributionInvoiceGroup}>
+                                        {hasMultipleInvoices && (
+                                          <span className={styles.distributionInvoiceLabel}>
+                                            {getInvoiceVendor(invId)}:
+                                          </span>
+                                        )}
+                                        <div className={hasMultipleInvoices ? styles.distributionInvoiceItems : undefined}>
+                                          {invoiceGroups[invId].map((dist, idx) => (
+                                            <span key={idx} className={styles.distributionPreviewItem}>
+                                              {getItemLabel(dist.categoryId, dist.variant)}: ${dist.distributedAmount.toFixed(2)}
+                                              {distribution.method === 'weighted' && (
+                                                <span className={styles.distributionPreviewPercent}>
+                                                  ({dist.percentage.toFixed(1)}%)
+                                                </span>
+                                              )}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })()}
                           </div>
                         );
-                      })()}
+                      })}
                     </div>
-                  );
-                })}
+                  )}
 
-                <button
-                  type="button"
-                  onClick={() => addInvoiceItem(invoice.id)}
-                  className={styles.addSmallButton}
-                >
-                  + Add Line Item
-                </button>
+                  {/* Personal Items Section */}
+                  {invoice.items.some(item => item.item_type === 'personal' || item.is_personal) && (
+                    <div className={styles.specialItemSection}>
+                      <div className={styles.specialItemHeader}>
+                        <span className={styles.specialItemIcon}>👤</span>
+                        <span className={styles.specialItemTitle}>Personal Items</span>
+                        <span className={styles.specialItemSubtitle}>(not a business expense)</span>
+                      </div>
+                      {invoice.items.map((item, itemIndex) => {
+                        const isPersonal = item.item_type === 'personal' || item.is_personal;
+                        if (!isPersonal) return null;
 
-                {invoice.items.length > 0 && invoice.invoice_total && (
-                  <div className={styles.invoiceBalanceSection}>
-                    {(() => {
-                      const invoiceTotal = parseFloat(invoice.invoice_total || '0');
-                      const remaining = invoiceTotal - lineItemsTotal;
-                      const isBalanced = Math.abs(remaining) <= 0.01;
+                        return (
+                          <div key={itemIndex} className={styles.personalItemRow}>
+                            <div className={styles.personalItemControls}>
+                              <div className={styles.personalItemField}>
+                                <label className={styles.personalItemLabel}>Amount:</label>
+                                <div className={styles.personalAmountInput}>
+                                  <span className={styles.inputPrefix}>$</span>
+                                  <input
+                                    type="text"
+                                    value={item.unit_cost}
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      const updated = invoices.map(inv =>
+                                        inv.id === invoice.id
+                                          ? {
+                                              ...inv,
+                                              items: inv.items.map((itm, i) =>
+                                                i === itemIndex
+                                                  ? { ...itm, unit_cost: value, quantity: '1', unit_of_measurement: 'each', line_total: value }
+                                                  : itm
+                                              )
+                                            }
+                                          : inv
+                                      );
+                                      setInvoices(updated);
+                                    }}
+                                    placeholder="0.00"
+                                    className={styles.personalAmountField}
+                                  />
+                                </div>
+                              </div>
 
-                      return (
-                        <>
-                          {!isBalanced && (
-                            <div className={styles.remainingAmount}>
-                              <span className={styles.remainingLabel}>
-                                {remaining > 0 ? 'Still need:' : 'Over by:'}
-                              </span>
-                              <span className={styles.remainingValue}>
-                                ${Math.abs(remaining).toFixed(2)}
-                              </span>
+                              {/* Remove Personal Item */}
+                              <button
+                                type="button"
+                                onClick={() => removeInvoiceItem(invoice.id, itemIndex)}
+                                className={styles.specialItemRemove}
+                                aria-label="Remove personal item"
+                              >
+                                ✕
+                              </button>
                             </div>
-                          )}
-                          <div className={styles.invoiceTotal}>
-                            <span className={styles.invoiceTotalLabel}>Line Items Sum:</span>
-                            <span className={styles.invoiceTotalAmount}>
-                              ${lineItemsTotal.toFixed(2)}
-                            </span>
                           </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-                )}
+                        );
+                      })}
+                    </div>
+                  )}
 
-                {invoice.items.length > 0 && !invoice.invoice_total && (
-                  <div className={styles.invoiceTotal}>
-                    <span className={styles.invoiceTotalLabel}>Line Items Sum:</span>
-                    <span className={styles.invoiceTotalAmount}>
-                      ${lineItemsTotal.toFixed(2)}
-                    </span>
-                  </div>
-                )}
+                  {/* Balance Section - Compact */}
+                  {invoice.items.length > 0 && (() => {
+                    const invoiceTotal = parseFloat(invoice.invoice_total || '0');
+                    const difference = invoiceTotal - lineItemsTotal;
+                    const isBalanced = Math.abs(difference) <= 0.01;
+                    const hasInvoiceTotal = invoice.invoice_total && invoice.invoice_total.trim();
 
-                <div className={styles.field}>
-                  <label className={styles.label}>Notes</label>
-                  <textarea
-                    value={invoice.notes || ''}
-                    onChange={(e) => updateInvoice(invIndex, 'notes', e.target.value)}
-                    placeholder="Any additional notes about this invoice..."
-                    className={styles.textarea}
-                    rows={2}
-                  />
-                </div>
+                    return (
+                      <div className={`${styles.invoiceBalanceCompact} ${
+                        hasInvoiceTotal
+                          ? isBalanced
+                            ? styles.balanceBalanced
+                            : difference > 0
+                              ? styles.balanceUnder
+                              : styles.balanceOver
+                          : ''
+                      }`}>
+                        <span className={styles.balanceContent}>
+                          <span className={styles.balanceLabel}>Line Items:</span>
+                          <span className={styles.balanceAmount}>${lineItemsTotal.toFixed(2)}</span>
+                          {hasInvoiceTotal && !isBalanced && (
+                            <span className={styles.balanceDiff}>
+                              {difference > 0 ? `$${difference.toFixed(2)} under` : `$${Math.abs(difference).toFixed(2)} over`}
+                            </span>
+                          )}
+                          {hasInvoiceTotal && isBalanced && (
+                            <span className={styles.balanceCheck}>Balanced</span>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Notes - Compact */}
+                  <div className={styles.invoiceNotesCompact}>
+                    <label className={styles.label}>Notes</label>
+                    <textarea
+                      value={invoice.notes || ''}
+                      onChange={(e) => updateInvoice(invIndex, 'notes', e.target.value)}
+                      placeholder="Optional notes..."
+                      className={styles.textarea}
+                      rows={1}
+                    />
+                  </div>
                 </div>
                 )}
               </div>
               );
             })}
+            </div>
 
             <button
               type="button"
@@ -2286,14 +3072,6 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
               })}
             </div>
 
-            {/* Sign-off */}
-            <div className={styles.reviewSignature}>
-              <div className={styles.reviewSignatureContent}>
-                <p className={styles.reviewSignatureText}>
-                  By clicking "Confirm & Save" below, I confirm that the information above is accurate to the best of my knowledge.
-                </p>
-              </div>
-            </div>
           </div>
         )}
       </div>
@@ -2368,6 +3146,15 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
         isVisible={importing}
         message="This is the 'calm before your clarity' moment"
         showLogo
+      />
+      </div>
+      <WorksheetSidebar
+        currentStep={currentStep as WorksheetStep}
+        onStepClick={handleStepClick as (step: WorksheetStep) => void}
+        onSkip={onSkip}
+        onContinue={handleContinue}
+        canNavigateToStep={canNavigateToStep as (step: WorksheetStep) => boolean}
+        canContinue={canProceed()}
       />
     </div>
   );

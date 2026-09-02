@@ -1,0 +1,279 @@
+/**
+ * WorksheetSidebar Styles
+ *
+ * Fixed sidebar with step navigation and calculator
+ * Uses brand colors: purple primary, gold accent
+ */
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--color-bg-base, #ffffff);
+  border-left: 1px solid var(--color-border, #d9d9d9);
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  height: fit-content;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+/* Progress Section */
+.progressSection {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border-light, #f0f0f0);
+}
+
+.progressLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #595959);
+  margin-bottom: 0.5rem;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: var(--color-bg-tertiary, #f5f5f5);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent, #D4AF37) 0%, #E8D4A0 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Steps Navigation */
+.stepsNav {
+  flex: 0 0 auto;
+}
+
+.stepsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: var(--border-radius-sm, 0.25rem);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  font-size: 0.9375rem;
+}
+
+.stepItem:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.stepItem:not(:disabled):hover {
+  background: var(--color-bg-secondary, #fafafa);
+}
+
+.stepItem:focus-visible {
+  outline: 2px solid var(--color-accent, #D4AF37);
+  outline-offset: 1px;
+}
+
+/* Step States */
+.stepItem.completed {
+  color: var(--color-text-secondary, #595959);
+}
+
+.stepItem.completed .stepNumber {
+  background: var(--color-accent, #D4AF37);
+  color: white;
+}
+
+.stepItem.completed .checkmark {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.stepItem.current {
+  background: #f3e8ff;
+  border-left: 3px solid var(--color-primary, #4b006e);
+  color: var(--color-primary, #4b006e);
+  font-weight: 600;
+}
+
+.stepItem.current .stepNumber {
+  background: var(--color-primary, #4b006e);
+  color: white;
+}
+
+.stepItem.pending {
+  color: var(--color-text-tertiary, #8c8c8c);
+}
+
+.stepItem.pending .stepNumber {
+  background: var(--color-bg-tertiary, #f5f5f5);
+  color: var(--color-text-tertiary, #8c8c8c);
+  border: 1px solid var(--color-border, #d9d9d9);
+}
+
+/* Step Number */
+.stepNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.stepLabel {
+  flex: 1;
+}
+
+.currentIndicator {
+  color: var(--color-primary, #4b006e);
+  font-size: 1rem;
+}
+
+/* Continue Section */
+.continueSection {
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--color-border-light, #f0f0f0);
+}
+
+.continueButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #D4AF37;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #4b006e 0%, #6b1a8f 100%);
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(75, 0, 110, 0.25);
+}
+
+.continueButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3d0052 0%, #5a1475 100%);
+  box-shadow: 0 4px 12px rgba(75, 0, 110, 0.35);
+  transform: translateY(-1px);
+}
+
+.continueButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.continueArrow {
+  transition: transform 0.15s ease;
+}
+
+.continueButton:hover:not(:disabled) .continueArrow {
+  transform: translateX(2px);
+}
+
+/* Skip Section */
+.skipSection {
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--color-border-light, #f0f0f0);
+}
+
+.skipButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--color-border, #d9d9d9);
+  border-radius: var(--border-radius-sm, 0.25rem);
+  background: transparent;
+  color: var(--color-text-secondary, #595959);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.skipButton:hover {
+  border-color: var(--color-primary, #4b006e);
+  color: var(--color-primary, #4b006e);
+  background: #f3e8ff;
+}
+
+.skipButton:focus-visible {
+  outline: 2px solid var(--color-accent, #D4AF37);
+  outline-offset: 1px;
+}
+
+.skipArrow {
+  transition: transform 0.15s ease;
+}
+
+.skipButton:hover .skipArrow {
+  transform: translateX(2px);
+}
+
+.skipHint {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #8c8c8c);
+  text-align: center;
+}
+
+/* Calculator Section */
+.calculatorSection {
+  padding-top: 0.5rem;
+}
+
+.calculatorTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #595959);
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Mobile: Hide sidebar */
+@media (max-width: 1024px) {
+  .sidebar {
+    display: none;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .progressFill,
+  .stepItem,
+  .skipButton,
+  .skipArrow {
+    transition: none;
+  }
+
+  .skipButton:hover .skipArrow {
+    transform: none;
+  }
+}
