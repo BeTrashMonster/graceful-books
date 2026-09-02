@@ -2951,10 +2951,40 @@
   border-radius: 0.25rem;
   cursor: pointer;
   transition: background 0.15s;
+  flex-shrink: 0;
 }
 
 .newVendorSaveBtn:hover {
   background: #5a0082;
+}
+
+.newVendorCancelBtn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.newVendorCancelBtn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.newVendorInputRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.newVendorInputRow .input {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Reduced motion support */

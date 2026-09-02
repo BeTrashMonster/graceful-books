@@ -272,7 +272,6 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   const [newVariantValue, setNewVariantValue] = useState<Record<string, string>>({});
 
   // For adding new vendor inline
-  const [openVendorDropdown, setOpenVendorDropdown] = useState<string | null>(null);
   const [newVendorName, setNewVendorName] = useState<Record<string, string>>({});
   const [showNewVendorInput, setShowNewVendorInput] = useState<Record<string, boolean>>({});
 
@@ -562,17 +561,13 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       if (openInvoiceDropdown && !target.closest(`.${styles.invoiceCheckboxDropdown}`)) {
         setOpenInvoiceDropdown(null);
       }
-      // Check if click is inside a vendor dropdown
-      if (openVendorDropdown && !target.closest(`.${styles.vendorDropdown}`)) {
-        setOpenVendorDropdown(null);
-      }
     };
 
-    if (openCategoryDropdown || openInvoiceDropdown || openVendorDropdown) {
+    if (openCategoryDropdown || openInvoiceDropdown) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [openCategoryDropdown, openInvoiceDropdown, openVendorDropdown]);
+  }, [openCategoryDropdown, openInvoiceDropdown]);
 
   // Restore saved data
   const handleRestoreData = useCallback(() => {
@@ -2157,84 +2152,67 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                 <div className={styles.invoiceContent}>
                   {/* Invoice Fields Row */}
                   <div className={styles.invoiceFieldsRow}>
-                    <div className={styles.invoiceFieldCompact} style={{ flex: 2, position: 'relative' }}>
+                    <div className={styles.invoiceFieldCompact} style={{ flex: 2 }}>
                       <label className={styles.label}>Vendor Name</label>
-                      <div className={styles.vendorDropdown}>
-                        <button
-                          type="button"
-                          className={`${styles.vendorDropdownTrigger} ${invoice.vendor_name ? styles.vendorSelected : ''}`}
-                          onClick={() => setOpenVendorDropdown(openVendorDropdown === invoice.id ? null : invoice.id)}
-                        >
-                          {invoice.vendor_name || 'Select or create vendor...'}
-                          <span className={styles.vendorDropdownArrow}>▼</span>
-                        </button>
-                        {openVendorDropdown === invoice.id && (
-                          <div
-                            className={styles.vendorDropdownMenu}
-                            onMouseDown={(e) => e.stopPropagation()}
+                      {showNewVendorInput[invoice.id] ? (
+                        <div className={styles.newVendorInputRow}>
+                          <input
+                            type="text"
+                            value={newVendorName[invoice.id] || ''}
+                            onChange={(e) => setNewVendorName({ ...newVendorName, [invoice.id]: e.target.value })}
+                            placeholder="Enter vendor name"
+                            className={styles.input}
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                createVendor(invoice.id);
+                              } else if (e.key === 'Escape') {
+                                setShowNewVendorInput({ ...showNewVendorInput, [invoice.id]: false });
+                                setNewVendorName({ ...newVendorName, [invoice.id]: '' });
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className={styles.newVendorSaveBtn}
+                            onClick={() => createVendor(invoice.id)}
                           >
-                            {/* Existing vendors */}
-                            {vendors.length > 0 && (
-                              <div className={styles.vendorDropdownSection}>
-                                <div className={styles.vendorDropdownSectionLabel}>Select existing vendor</div>
-                                {vendors.map(v => (
-                                  <button
-                                    key={v.id}
-                                    type="button"
-                                    className={`${styles.vendorDropdownItem} ${invoice.vendor_id === v.id ? styles.vendorDropdownItemSelected : ''}`}
-                                    onClick={() => selectVendor(invoice.id, v.id)}
-                                  >
-                                    {v.name}
-                                    {invoice.vendor_id === v.id && <span className={styles.vendorCheckmark}>✓</span>}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                            {/* Create new vendor */}
-                            <div className={styles.vendorDropdownSection}>
-                              <div className={styles.vendorDropdownSectionLabel}>
-                                {vendors.length > 0 ? 'Or create new vendor' : 'Create new vendor'}
-                              </div>
-                              {showNewVendorInput[invoice.id] ? (
-                                <div className={styles.newVendorInputRow}>
-                                  <input
-                                    type="text"
-                                    value={newVendorName[invoice.id] || ''}
-                                    onChange={(e) => setNewVendorName({ ...newVendorName, [invoice.id]: e.target.value })}
-                                    placeholder="Vendor name"
-                                    className={styles.newVendorInput}
-                                    autoFocus
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        createVendor(invoice.id);
-                                      } else if (e.key === 'Escape') {
-                                        setShowNewVendorInput({ ...showNewVendorInput, [invoice.id]: false });
-                                        setNewVendorName({ ...newVendorName, [invoice.id]: '' });
-                                      }
-                                    }}
-                                  />
-                                  <button
-                                    type="button"
-                                    className={styles.newVendorSaveBtn}
-                                    onClick={() => createVendor(invoice.id)}
-                                  >
-                                    Add
-                                  </button>
-                                </div>
-                              ) : (
-                                <button
-                                  type="button"
-                                  className={styles.vendorDropdownAddNew}
-                                  onClick={() => setShowNewVendorInput({ ...showNewVendorInput, [invoice.id]: true })}
-                                >
-                                  + Add new vendor
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.newVendorCancelBtn}
+                            onClick={() => {
+                              setShowNewVendorInput({ ...showNewVendorInput, [invoice.id]: false });
+                              setNewVendorName({ ...newVendorName, [invoice.id]: '' });
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <select
+                          value={invoice.vendor_id || ''}
+                          onChange={(e) => {
+                            const selectedValue = e.target.value;
+                            if (selectedValue === '__new__') {
+                              setShowNewVendorInput({ ...showNewVendorInput, [invoice.id]: true });
+                            } else {
+                              selectVendor(invoice.id, selectedValue);
+                            }
+                          }}
+                          className={styles.input}
+                        >
+                          <option value="">Select vendor...</option>
+                          {vendors
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map(v => (
+                              <option key={v.id} value={v.id}>{v.name}</option>
+                            ))}
+                          <option value="__new__">+ Add new vendor...</option>
+                        </select>
+                      )}
                     </div>
                     <div className={styles.invoiceFieldCompact}>
                       <label className={styles.label}>Date</label>
