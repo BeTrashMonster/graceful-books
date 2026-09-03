@@ -253,33 +253,42 @@ app.post('/setup/fix-user-subscription', async (c) => {
 });
 
 // ==========================================
-// Health Check Endpoint
+// Health Check Endpoints
 // ==========================================
 
+// Lightweight ping for load balancers (no DB check)
+app.get('/ping', (c) => {
+  return c.json({ status: 'ok', timestamp: Date.now() });
+});
+
+// Full health check with DB connectivity
 app.get('/health', async (c) => {
+  const startTime = Date.now();
   const dbHealth = await checkDatabaseHealth();
 
+  const healthData = {
+    status: dbHealth.healthy ? 'healthy' : 'unhealthy',
+    version: process.env.npm_package_version || '1.0.0',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    database: {
+      healthy: dbHealth.healthy,
+      responseTime: dbHealth.responseTime,
+      ...(dbHealth.error && { error: dbHealth.error }),
+    },
+    memory: {
+      heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+      heapTotal: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+      unit: 'MB',
+    },
+    responseTime: Date.now() - startTime,
+  };
+
   if (!dbHealth.healthy) {
-    return c.json(
-      {
-        status: 'unhealthy',
-        database: {
-          healthy: false,
-          error: dbHealth.error,
-        },
-      },
-      503
-    );
+    return c.json(healthData, 503);
   }
 
-  return success(c, {
-    status: 'healthy',
-    database: {
-      healthy: true,
-      responseTime: dbHealth.responseTime,
-    },
-    timestamp: new Date().toISOString(),
-  });
+  return success(c, healthData);
 });
 
 // ==========================================

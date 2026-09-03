@@ -8,10 +8,17 @@
 // API URL - use proxy in development, direct URL in production
 const API_URL = import.meta.env.DEV ? '/api' : 'https://api.audacious.money';
 
+// Default timeout for API requests (30 seconds)
+const DEFAULT_TIMEOUT_MS = 30000;
+
 interface ApiError {
   message: string;
   code?: string;
   status: number;
+}
+
+interface RequestOptions extends RequestInit {
+  timeout?: number; // Override default timeout in milliseconds
 }
 
 class ApiClient {
@@ -22,13 +29,18 @@ class ApiClient {
   }
 
   /**
-   * Make an authenticated API request
+   * Make an authenticated API request with timeout
    */
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestOptions = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
+    const timeout = options.timeout ?? DEFAULT_TIMEOUT_MS;
+
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     // Get auth token from session storage (check both user and admin sessions)
     const userSessionData = sessionStorage.getItem('graceful_books_session');
@@ -61,8 +73,10 @@ class ApiClient {
       const response = await fetch(url, {
         ...options,
         headers,
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
       console.log(`🌐 Response status: ${response.status} ${response.statusText}`);
 
       // Handle error responses
@@ -104,9 +118,21 @@ class ApiClient {
       // Parse and return JSON response
       return await response.json();
     } catch (error) {
+      clearTimeout(timeoutId);
+
       // If it's already an ApiError (thrown from !response.ok above), re-throw it
       if (error && typeof error === 'object' && 'status' in error) {
         throw error; // Already an ApiError
+      }
+
+      // Handle timeout/abort errors
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error(`🌐 Request timed out after ${timeout}ms: ${url}`);
+        throw {
+          message: 'Request timed out. Please check your connection and try again.',
+          code: 'TIMEOUT',
+          status: 0,
+        } as ApiError;
       }
 
       // Otherwise it's a network/parsing error
@@ -120,47 +146,51 @@ class ApiClient {
   /**
    * GET request
    */
-  async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET' });
+  async get<T>(endpoint: string, options?: { timeout?: number }): Promise<T> {
+    return this.request<T>(endpoint, { method: 'GET', ...options });
   }
 
   /**
    * POST request
    */
-  async post<T>(endpoint: string, data?: unknown): Promise<T> {
+  async post<T>(endpoint: string, data?: unknown, options?: { timeout?: number }): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
+      ...options,
     });
   }
 
   /**
    * PUT request
    */
-  async put<T>(endpoint: string, data?: unknown): Promise<T> {
+  async put<T>(endpoint: string, data?: unknown, options?: { timeout?: number }): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
+      ...options,
     });
   }
 
   /**
    * DELETE request
    */
-  async delete<T>(endpoint: string, data?: unknown): Promise<T> {
+  async delete<T>(endpoint: string, data?: unknown, options?: { timeout?: number }): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'DELETE',
       body: data ? JSON.stringify(data) : undefined,
+      ...options,
     });
   }
 
   /**
    * PATCH request
    */
-  async patch<T>(endpoint: string, data?: unknown): Promise<T> {
+  async patch<T>(endpoint: string, data?: unknown, options?: { timeout?: number }): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
+      ...options,
     });
   }
 }
