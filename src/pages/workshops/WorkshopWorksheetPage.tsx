@@ -111,9 +111,21 @@ export default function WorkshopWorksheetPage() {
       }));
       console.log('[Worksheet] Stored import results in sessionStorage');
 
-      // Mark worksheet as completed in workshop enrollment
+      // Mark worksheet as completed in workshop enrollment (non-blocking)
+      // If this fails, we still proceed - the import was successful
       console.log('[Worksheet] Marking worksheet as completed...');
-      await completeWorksheet();
+      try {
+        await Promise.race([
+          completeWorksheet(),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), 10000)
+          )
+        ]);
+        console.log('[Worksheet] Worksheet marked as completed');
+      } catch (apiError) {
+        // Log but don't block - the import succeeded, that's what matters
+        console.warn('[Worksheet] Failed to mark worksheet complete (non-blocking):', apiError);
+      }
 
       // Navigate to countdown page
       console.log('[Worksheet] Navigating to countdown page');

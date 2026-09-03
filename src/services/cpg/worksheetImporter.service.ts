@@ -304,8 +304,11 @@ export function validateWorksheetData(
 
   // Check invoice references exist
   json.invoices?.forEach((inv, idx) => {
+    // Vendor name or vendor_id should be present, but it's not a blocking error
+    // The UI already filters out invoices without vendors
     if (!inv.vendor_name || inv.vendor_name.trim() === '') {
-      errors.push(`Invoice at index ${idx} has no vendor name`);
+      // Not a blocking error - invoice can still be imported
+      // errors.push(`Invoice at index ${idx} has no vendor name`);
     }
     if (!inv.invoice_date) {
       errors.push(`Invoice at index ${idx} has no date`);
@@ -377,12 +380,15 @@ export async function importWorksheetData(
     deviceId,
     dataReceived: {
       categories: json.categories?.length ?? 0,
+      vendors: json.vendors?.length ?? 0,
       products: json.finished_products?.length ?? 0,
       recipes: json.recipes?.length ?? 0,
       invoices: json.invoices?.length ?? 0,
       unit_conversions: json.unit_conversions?.length ?? 0,
     },
   });
+
+  console.log('[Importer] Starting import with companyId:', companyId, 'deviceId:', deviceId);
 
   const result: ImportResult = {
     success: false,
@@ -446,6 +452,7 @@ export async function importWorksheetData(
     }
 
     logger.info('Categories imported', { count: result.counts.categories });
+    console.log('[Importer] Categories imported:', result.counts.categories);
 
     // ========================================================================
     // 1b. Import Vendors (if present)
@@ -454,10 +461,16 @@ export async function importWorksheetData(
       logger.info('Importing vendors...', { count: json.vendors.length });
 
       for (const vendor of json.vendors) {
+        // Skip vendors with empty names
+        if (!vendor.name || vendor.name.trim() === '') {
+          logger.warn('Skipping vendor with empty name', { vendorId: vendor.id });
+          continue;
+        }
+
         // Check if vendor with same name already exists
         const existingVendor = await db.cpgVendors
           .where('[company_id+name]')
-          .equals([companyId, vendor.name])
+          .equals([companyId, vendor.name.trim()])
           .first();
 
         if (existingVendor) {
@@ -472,7 +485,7 @@ export async function importWorksheetData(
           const dbVendor: CPGVendor = {
             id: realId,
             company_id: companyId,
-            name: vendor.name,
+            name: vendor.name.trim(),
             notes: null,
             active: true,
             created_at: now,
@@ -487,6 +500,7 @@ export async function importWorksheetData(
       }
 
       logger.info('Vendors imported', { count: result.counts.vendors });
+      console.log('[Importer] Vendors imported:', result.counts.vendors);
     }
 
     // ========================================================================
@@ -519,6 +533,7 @@ export async function importWorksheetData(
     }
 
     logger.info('Products imported', { count: result.counts.products });
+    console.log('[Importer] Products imported:', result.counts.products);
 
     // ========================================================================
     // 3. Import Recipes
@@ -561,6 +576,7 @@ export async function importWorksheetData(
     }
 
     logger.info('Recipes imported', { count: result.counts.recipes });
+    console.log('[Importer] Recipes imported:', result.counts.recipes);
 
     // ========================================================================
     // 3.5 Import Unit Conversions (weight ↔ volume)
@@ -644,13 +660,13 @@ export async function importWorksheetData(
         cost_attribution[key] = {
           category_id: realCategoryId,
           variant: item.variant || null,
-          units_purchased: item.quantity, // RENAME: quantity → units_purchased
-          unit_of_measurement: item.unit, // FIX: Include unit from worksheet
-          unit_price: item.unit_cost, // RENAME: unit_cost → unit_price
-          units_received: item.quantity, // Default to units_purchased
-          manual_line_total: item.line_total, // FIX: Use exact line total from worksheet (preserves user's rounding decisions)
-          ...(isPersonal && { is_personal: true }), // Mark as personal
-          ...(item.distribution_method && { distribution_method: item.distribution_method }), // Include distribution method for S+H
+          units_purchased: parseFloat(item.quantity) || 0, // Convert string → number
+          unit_of_measurement: item.unit,
+          unit_price: parseFloat(item.unit_cost) || 0, // Convert string → number
+          units_received: parseFloat(item.quantity) || 0, // Convert string → number
+          manual_line_total: parseFloat(item.line_total) || 0, // Convert string → number
+          ...(isPersonal && { is_personal: true }),
+          ...(item.distribution_method && { distribution_method: item.distribution_method }),
         };
       }
 
@@ -671,6 +687,7 @@ export async function importWorksheetData(
     }
 
     logger.info('Invoices imported', { count: result.counts.invoices });
+    console.log('[Importer] Invoices imported:', result.counts.invoices);
 
     // ========================================================================
     // Success!
@@ -688,8 +705,10 @@ export async function importWorksheetData(
         result.counts.invoices +
         result.counts.unit_conversions,
     });
+    console.log('[Importer] ✅ Import completed successfully!', result.counts);
   } catch (error) {
     logger.error('Worksheet import failed', { error });
+    console.error('[Importer] ❌ Import failed with error:', error);
     result.errors.push(
       error instanceof Error ? error.message : 'Unknown error during import'
     );
