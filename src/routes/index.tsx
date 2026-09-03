@@ -72,6 +72,7 @@ const TradeSpendReport = lazy(() => import('../pages/cpg/reports/TradeSpendRepor
 const LoaderTest = lazy(() => import('../pages/LoaderTest'))
 const ProductSetupTest = lazy(() => import('../pages/ProductSetupTest'))
 const WorksheetImportTest = lazy(() => import('../pages/WorksheetImportTest'))
+const WorksheetFlowTest = lazy(() => import('../pages/WorksheetFlowTest'))
 const LoadingOverlayDemo = lazy(() => import('../pages/LoadingOverlayDemo'))
 const CharitySelectorTest = lazy(() => import('../pages/CharitySelectorTest'))
 
@@ -119,6 +120,7 @@ export function AppRoutes() {
         <Route path="/loader-test" element={<LoaderTest />} />
         <Route path="/product-setup-test" element={<ProductSetupTest />} />
         <Route path="/worksheet-import-test" element={<WorksheetImportTest />} />
+        <Route path="/worksheet-flow-test" element={<WorksheetFlowTest />} />
         <Route path="/loading-overlay-demo" element={<LoadingOverlayDemo />} />
         <Route path="/charity-selector-test" element={<CharitySelectorTest />} />
 
