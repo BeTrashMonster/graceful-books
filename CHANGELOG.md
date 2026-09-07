@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Corrected documentation that inaccurately described local data as encrypted at rest. Local data is stored unencrypted on the user's device; backup files remain encrypted with a user-chosen passphrase.
+
 ### Added
 - Full requirements specification aligned with requirements-reviewer.md rubric
 - 26 main sections + 3 appendices covering all aspects of product development

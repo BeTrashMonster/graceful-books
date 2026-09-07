@@ -114,8 +114,8 @@ Every agent working on the CPG (Consumer Packaged Goods) Module MUST complete th
 - [ ] Reassuring tone throughout
 
 ### Security (Financial Data)
-- [ ] **Cost data encrypted:** All CPG invoices encrypted client-side
-- [ ] **Distributor data encrypted:** Fee structures encrypted
+- [ ] **Cost data stored locally:** All CPG invoices stored on user's device (never sent to servers)
+- [ ] **Distributor data stored locally:** Fee structures stay on device
 - [ ] **No proprietary data leakage:** User's specific categories/costs never logged
 - [ ] **Input sanitization:** Prevent injection attacks in custom fee names
 - [ ] **Authorization:** Verify user owns company before accessing CPG data

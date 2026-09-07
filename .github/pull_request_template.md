@@ -30,7 +30,7 @@
 - [ ] E2E tests added/updated
 - [ ] Manual testing completed
 - [ ] Tested offline functionality (if applicable)
-- [ ] Tested with encryption enabled (if handling user data)
+- [ ] Tested backup encryption (if handling backup/restore functionality)
 
 ## Security Review
 

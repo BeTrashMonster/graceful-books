@@ -10,7 +10,7 @@ An educational accounting platform for entrepreneurs who are numbers-adverse.
 
 Graceful Books helps small business owners build financial confidence through:
 
-- **Zero-knowledge encryption** - Your data stays private with local-first architecture
+- **Local-first architecture** - Your data stays on your device, never sent to our servers
 - **Progressive disclosure** - Features reveal as you're ready, preventing overwhelm
 - **Patient, supportive guidance** - Clear, step-by-step communication throughout
 - **GAAP compliance** - Professional accounting beneath an accessible interface
@@ -252,17 +252,17 @@ graceful_books/
 
 ## Architecture Highlights
 
-### Zero-Knowledge Encryption
-- All user financial data encrypted client-side before transmission
-- Master key derived from passphrase using Argon2id
-- Hierarchical key derivation for multi-user access
-- Sync relay servers are "dumb pipes" with no decryption capability
-
 ### Local-First Data
 - Primary data store is client-side (IndexedDB via Dexie)
 - Full functionality works offline
-- CRDTs for automatic conflict resolution
-- Sync queue for changes made while offline
+- Your financial data never leaves your device
+- Our servers hold only account info (email, company name, support key, product tier) and billing
+
+### Encrypted Backups
+- Backup files are encrypted with a user-chosen passphrase
+- Key derivation uses Argon2id (memory-hard, GPU-resistant)
+- Encryption uses AES-256-GCM
+- We never receive or store your backup passphrase
 
 ### Progressive Feature Disclosure
 - All features technically available from day one

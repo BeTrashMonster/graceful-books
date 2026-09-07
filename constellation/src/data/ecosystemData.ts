@@ -25,7 +25,7 @@ export const ecosystemNodes: EcosystemNode[] = [
     price: '$40/month',
     type: 'hub',
     color: '#7C3AED', // Royal purple
-    description: 'The heart of your financial ecosystem. Zero-knowledge encrypted, local-first accounting that makes bookkeeping feel like magic instead of math.',
+    description: 'The heart of your financial ecosystem. Local-first accounting that makes bookkeeping feel like magic instead of math. Your data stays on your device.',
     keyFeatures: [
       'Full double-entry accounting (hidden complexity)',
       'Invoicing & proposal generation',

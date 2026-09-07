@@ -10,7 +10,7 @@
 
 **Project Name:** Graceful Books
 
-**Description:** Graceful Books is an immersive, educational accounting platform designed to empower entrepreneurs—especially those who are numbers-averse—to build, understand, and maintain their financial foundation. The software prioritizes user data ownership through zero-knowledge encryption, progressive feature disclosure based on readiness, and personality-adapted communication.
+**Description:** Graceful Books is an immersive, educational accounting platform designed to empower entrepreneurs—especially those who are numbers-averse—to build, understand, and maintain their financial foundation. The software prioritizes user data ownership through local-first architecture (data stored on user's device, never sent to servers), progressive feature disclosure based on readiness, and personality-adapted communication.
 
 ---
 
@@ -20,7 +20,7 @@ These principles guide all development decisions and feature implementations:
 
 | Principle | Description |
 |-----------|-------------|
-| **User Data Sovereignty** | Users own their data via encrypted local-first architecture; no server-side access to unencrypted information |
+| **User Data Sovereignty** | Users own their data via local-first architecture; data stored on device, never sent to servers; backup files encrypted |
 | **Progressive Empowerment** | Features reveal as users are ready, preventing overwhelm |
 | **Judgment-Free Education** | All language and interactions are supportive, flexible, and shame-free |
 | **GAAP Compliance** | Full professional accounting capabilities beneath the accessible interface |
@@ -32,23 +32,17 @@ These principles guide all development decisions and feature implementations:
 
 ### Core Technology Stack
 
-**Encryption & Security:**
-- Zero-knowledge encryption architecture
-- AES-256 encryption for data at rest
-- TLS 1.3+ for data in transit with additional payload encryption
-- Argon2id for passphrase-based key derivation
-
 **Data Architecture:**
 - Local-first data storage using IndexedDB (via Dexie.js)
 - Full offline capability - no network required for core operations
-- Encrypted sync relay for multi-device support
+- Data stored locally on user's device, never sent to servers
 - CRDTs (Conflict-free Replicated Data Types) for conflict resolution
+- Backup files encrypted with user passphrase (AES-256-GCM, Argon2id key derivation)
 
 **Key Architectural Constraints:**
-- All user financial data encrypted on-device before transmission
-- Sync relay servers act as "dumb pipes" with no decryption capability
-- Encryption keys never leave user devices in unencrypted form
-- Platform operator cannot access user financial data under any circumstances
+- User financial data stored locally on device
+- Server holds only account info (email, company name, support key, product tier) and billing
+- Platform operator cannot access user financial data (it never leaves the device)
 
 ---
 
@@ -118,16 +112,18 @@ All accounting terminology must have plain English explanations available via to
 
 ## Architectural Constraints
 
-### Zero-Knowledge Encryption
+### Data Privacy
 
-**Requirements:**
-- Data at rest encrypted with AES-256 or equivalent
-- Master key generated from strong passphrase using Argon2id
-- Hierarchical key management for multi-user access
-- Permission-based key derivation for different user roles
-- Key rotation capability for instant access revocation
-- No plaintext passphrase or keys transmitted over network
-- Server code must have no decryption capability
+**Local Data Storage:**
+- All user financial data stored locally on device (IndexedDB)
+- Data never transmitted to servers
+- Server holds only account info (email, company name, support key, product tier) and billing
+- Platform operator cannot access user financial data
+
+**Encrypted Backups:**
+- Backup files encrypted with AES-256-GCM
+- Encryption key derived from user passphrase using Argon2id
+- Backup passphrase never transmitted to servers
 
 **User Roles:**
 - Admin (full access, key management)

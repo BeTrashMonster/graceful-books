@@ -2,7 +2,7 @@
 
 ## The Real Talk
 
-Hey! I'm Audrey, and I'm building **Audacious Money** - a zero-knowledge accounting platform for entrepreneurs who find traditional accounting software intimidating (because, honestly, QuickBooks can feel like punishment).
+Hey! I'm Audrey, and I'm building **Audacious Money** - a local-first accounting platform for entrepreneurs who find traditional accounting software intimidating (because, honestly, QuickBooks can feel like punishment).
 
 Here's the honest truth: **We're in the messy middle.** The backend is humming, emails are sending, Stripe is connected, we've got a PostgreSQL database on Digital Ocean, and the foundation is solid. But there's a lot of "we'll circle back to that" comments in the code, some features are half-built, and I need someone who can jump into organized chaos and help me ship this thing.
 
@@ -10,7 +10,7 @@ This isn't a "work under me" situation. This is **"work alongside me"** while I 
 
 ## What We're Building
 
-A local-first, zero-knowledge encrypted accounting app that:
+A local-first accounting app that:
 - Makes bookkeeping feel empowering, not punishing
 - Uses plain English ("money customers owe you" not "accounts receivable")
 - Celebrates small wins (yes, there's confetti)
@@ -23,7 +23,7 @@ A local-first, zero-knowledge encrypted accounting app that:
 
 - **Frontend:** React 18 + TypeScript, Vite, CSS Modules
 - **Backend:** Bun + Hono (Node.js alternative), PostgreSQL
-- **Encryption:** Web Crypto API (zero-knowledge architecture)
+- **Encryption:** Web Crypto API (for backup file encryption)
 - **Payments:** Stripe
 - **Email:** Postmark
 - **Hosting:** Digital Ocean (database), Vercel (frontend likely)
@@ -57,7 +57,7 @@ Yes, we use Bun. Yes, we built a custom component library instead of using a fra
 - **Values alignment:** You believe in lifting people up, giving back, and being part of the change you want to see in the world.
 
 **Bonus points:**
-- You've worked with zero-knowledge encryption or local-first architectures
+- You've worked with local-first architectures or IndexedDB
 - You've built financial or accounting software before
 - You have strong opinions about user experience (and can defend them)
 - You understand what it's like to be an entrepreneur

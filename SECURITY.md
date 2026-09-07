@@ -193,23 +193,32 @@ To stay informed about security issues:
 
 ## Security Architecture
 
-### Zero-Knowledge Encryption
+### Local-First Data Storage
 
-Graceful Books uses a zero-knowledge architecture where:
+Graceful Books uses a local-first architecture where:
 
-- All financial data is encrypted on your device before transmission
-- Encryption keys are derived from your passphrase using Argon2id
-- The server only stores encrypted data it cannot decrypt
-- Even in the event of a server breach, your data remains encrypted
+- All financial data is stored locally on your device (never sent to our servers)
+- Our servers hold only account info (email, company name, support key, product tier) and billing
+- Full functionality works offline
+- Your data is under your control
+
+### Encrypted Backups
+
+When you create backups, they are encrypted with a passphrase you choose:
+
+- Backup encryption uses AES-256-GCM
+- Key derivation uses Argon2id (memory-hard, GPU-resistant)
+- We never receive or store your backup passphrase
+- If you forget your passphrase, we cannot recover your backup files
 
 ### Key Security Features
 
 | Feature | Description |
 |---------|-------------|
-| **Client-side encryption** | AES-256 encryption before any data leaves your device |
-| **Key derivation** | Argon2id with secure parameters |
-| **Transport security** | TLS 1.2+ for all communications |
-| **Zero-knowledge sync** | Servers cannot decrypt your data |
+| **Local storage** | Financial data stays on your device |
+| **Encrypted backups** | Backup files encrypted with AES-256-GCM |
+| **Key derivation** | Argon2id for backup passphrase (memory-hard) |
+| **Transport security** | TLS 1.2+ for all server communications |
 | **Audit trail** | Immutable log of all financial transactions |
 | **Role-based access** | Granular permissions for multi-user accounts |
 
@@ -246,7 +255,7 @@ See [docs/SECURITY_SCANNING.md](docs/SECURITY_SCANNING.md) for details.
 
 ## Compliance
 
-While Graceful Books is designed with security in mind, users are responsible for ensuring their use complies with applicable regulations. Our zero-knowledge architecture supports compliance with:
+While Graceful Books is designed with security in mind, users are responsible for ensuring their use complies with applicable regulations. Our local-first architecture supports compliance with:
 
 - **GDPR:** User data sovereignty and right to deletion
 - **CCPA:** User control over personal information

@@ -489,9 +489,9 @@ Build the user interface at `src/pages/cpg/SalesPromoDecisionTool.tsx` to:
 
 ## Security & Privacy
 
-- ✅ All promo data encrypted client-side (via database encryption)
+- ✅ All promo data stored locally on user's device (never sent to servers)
 - ✅ No proprietary cost data logged or transmitted
-- ✅ CRDT version vectors enable secure multi-device sync
+- ✅ CRDT version vectors enable multi-device sync
 - ✅ Soft deletes preserve audit trail
 
 ---

@@ -32,7 +32,7 @@ So let's get you ready.
 **[Click here to log in and pick up where you left off →](https://app.audacious.money/login)**
 https://app.audacious.money/login
 
-**Now, about your recipes.** I know your formulations are sacred — they are the heart of everything you have built. So let me be completely clear: this software is *zero-knowledge*. Your recipes, your invoices, your numbers are encrypted in a way that only you can see them.
+**Now, about your recipes.** I know your formulations are sacred — they are the heart of everything you have built. So let me be completely clear: your data stays on your device. Your recipes, your invoices, your numbers are stored locally and never sent to our servers.
 
 Sovereignty over your data and your business is crucial to our next evolution. 
 

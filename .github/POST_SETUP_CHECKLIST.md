@@ -8,7 +8,7 @@ Use this checklist after completing the initial repository setup to ensure every
 - [ ] Repository created on GitHub
 - [ ] Repository name: `graceful-books`
 - [ ] Repository visibility set (Private or Public)
-- [ ] Description added: "A local-first, zero-knowledge accounting platform for entrepreneurs who find traditional accounting software intimidating"
+- [ ] Description added: "A local-first accounting platform for entrepreneurs who find traditional accounting software intimidating"
 - [ ] Repository URL noted: `https://github.com/[USERNAME]/graceful-books`
 
 ### Initial Push
@@ -65,9 +65,7 @@ Use this checklist after completing the initial repository setup to ensure every
 
 ### Topics/Tags
 - [ ] `accounting` added
-- [ ] `zero-knowledge` added
 - [ ] `local-first` added
-- [ ] `encryption` added
 - [ ] `react` added
 - [ ] `typescript` added
 - [ ] `bookkeeping` added

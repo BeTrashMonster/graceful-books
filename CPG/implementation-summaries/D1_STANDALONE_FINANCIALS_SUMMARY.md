@@ -453,8 +453,8 @@ Suggested route: `/company/:companyId/cpg/financials`
 - [x] Reassuring tone throughout
 
 #### ✅ Security:
-- [x] All data encrypted (via existing CRDT infrastructure)
-- [x] Client-side encryption before storage
+- [x] Data stored locally on user's device (never sent to servers)
+- [x] Backup files encrypted with user passphrase
 - [x] No proprietary data leakage
 - [x] Input sanitization
 

@@ -37,7 +37,7 @@
 
 ## 1. Security Review
 
-### Zero-Knowledge Architecture
+### Local-First Architecture
 - [x] **No sensitive data in console logs**: All logging reviewed
 - [x] **All data access validates companyId**: Prop interfaces require companyId
 - [x] **Authorization helpers used correctly**: Data access through database layer
@@ -386,7 +386,7 @@ These are pre-existing issues not introduced by the refactoring.
 
 ### Mission Alignment
 - [x] **Progressive Empowerment**: ✅ Modular structure supports incremental features
-- [x] **User Data Sovereignty**: ✅ Zero-knowledge architecture maintained
+- [x] **User Data Sovereignty**: ✅ Local-first architecture maintained (data on device, never sent to servers)
 - [x] **Judgment-Free Education**: ✅ Clear code reflects clear UX
 - [x] **GAAP Compliance**: ✅ Accounting integrity preserved
 - [x] **Accessibility**: ✅ WCAG 2.1 AA compliance maintained

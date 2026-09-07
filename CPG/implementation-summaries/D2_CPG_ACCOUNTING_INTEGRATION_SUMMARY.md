@@ -546,11 +546,11 @@ Gross Margin % = (Gross Profit / Revenue) × 100
 
 ## Security Considerations
 
-### Data Encryption:
-- ✅ All CPG invoices encrypted client-side (existing CRDT layer)
-- ✅ Product links encrypted client-side
+### Data Storage:
+- ✅ All CPG invoices stored locally on user's device (never sent to servers)
+- ✅ Product links stored locally
 - ✅ No proprietary cost data logged
-- ✅ Vendor data encrypted
+- ✅ Vendor data stored locally
 
 ### Authorization:
 - ✅ Verify user owns company before accessing CPG data

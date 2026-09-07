@@ -420,9 +420,9 @@ Total Paid: $500.00
 
 ## Security Considerations
 
-### Data Encryption:
-- ✅ All CPG invoice data encrypted client-side (inherits from base encryption layer)
-- ✅ Cost attribution data encrypted (sensitive business information)
+### Data Storage:
+- ✅ All CPG invoice data stored locally on user's device (never sent to servers)
+- ✅ Cost attribution data stays on device (sensitive business information)
 - ✅ No proprietary data logged (calculations happen client-side)
 
 ### Input Sanitization:

@@ -518,9 +518,9 @@ Code reviews are opportunities for learning and improvement. We approach them wi
    - Are tests meaningful (not just coverage)?
 
 4. **Security & Privacy**
-   - Is sensitive data encrypted?
+   - Is local data stored appropriately?
    - Are inputs validated?
-   - Does it maintain zero-knowledge architecture?
+   - Does it maintain local-first architecture (no financial data to server)?
 
 5. **User Experience**
    - Does it follow Steadiness communication style?
@@ -559,7 +559,7 @@ A PR should be approved when:
 - [ ] Tests are comprehensive and passing
 - [ ] No obvious bugs or security issues
 - [ ] Documentation is updated
-- [ ] Zero-knowledge architecture maintained
+- [ ] Local-first architecture maintained (no financial data to server)
 - [ ] Steadiness communication style followed
 - [ ] All review comments resolved
 
@@ -605,13 +605,12 @@ A task is considered "done" only when ALL applicable criteria are met. Review th
 - [ ] Cross-browser testing completed
 - [ ] Mobile responsive design tested
 
-**Zero-Knowledge Encryption:**
+**Local-First Data:**
 *(For features handling financial/sensitive data)*
-- [ ] All financial data encrypted before storage
-- [ ] Encryption uses AES-256 or equivalent
-- [ ] No plaintext sensitive data in console or network
-- [ ] Server cannot access unencrypted data
-- [ ] Key derivation uses Argon2id
+- [ ] Financial data stored locally only (IndexedDB)
+- [ ] No financial data sent to server
+- [ ] No plaintext sensitive data in console logs
+- [ ] Backup encryption (if applicable) uses AES-256-GCM with Argon2id key derivation
 
 **Documentation:**
 - [ ] Code comments for complex logic
@@ -1232,8 +1231,8 @@ If you find documentation unclear or incomplete:
 As you contribute, keep these principles in mind:
 
 ### User Data Sovereignty
-- All financial data must be encrypted client-side
-- Zero-knowledge architecture is non-negotiable
+- All financial data stored locally on user's device
+- Local-first architecture is non-negotiable (no financial data to server)
 - Users own and control their data completely
 
 ### Progressive Empowerment

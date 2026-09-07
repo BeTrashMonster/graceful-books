@@ -1,29 +1,31 @@
 # Graceful Books Encryption Layer
 
-Zero-knowledge encryption implementation for Graceful Books financial data protection.
+Encryption implementation for Graceful Books backup file protection.
 
 ## Overview
 
-This module implements a complete zero-knowledge encryption architecture per specifications ARCH-001 and ARCH-002. All user financial data is encrypted on-device before transmission, ensuring the platform operator cannot access user data under any circumstances.
+This module provides encryption for **backup files only**. Financial data in IndexedDB is stored in plaintext locally. Encryption is applied when users create backup files that may be stored externally.
 
 ## Architecture
 
-### Zero-Knowledge Encryption (ARCH-001)
+### Backup Encryption
 
-- **Data at Rest**: AES-256-GCM encryption for all sensitive data in IndexedDB
-- **Data in Transit**: TLS 1.3 + additional AES-256-GCM payload encryption
-- **Server Role**: Sync relay servers act as "dumb pipes" with no decryption capability
-- **Key Storage**: Encryption keys never leave user devices in unencrypted form
+- **Purpose**: Protect backup files with user-chosen passphrase
+- **Algorithm**: AES-256-GCM (Galois/Counter Mode)
+- **Key Derivation**: Argon2id (memory-hard, GPU-resistant)
+- **Passphrase**: User-chosen, never sent to our servers
 
-### Hierarchical Key Management (ARCH-002)
+### What This Module Does NOT Do
+
+- Does NOT encrypt IndexedDB data at rest (local data is plaintext)
+- Does NOT encrypt data in transit (only TLS protects server communication)
+- Is NOT used for real-time data operations
+
+### Key Management
 
 ```
-Master Key (derived from passphrase via Argon2id)
-  ├── Admin Key (full access)
-  ├── Manager Key (edit access)
-  ├── Accountant Key (view + export)
-  ├── User Key (basic access)
-  └── Consultant Key (view-only)
+Backup Master Key (derived from user passphrase via Argon2id)
+  └── Used only for encrypting/decrypting backup files
 ```
 
 ## Security Specifications
@@ -37,11 +39,18 @@ Master Key (derived from passphrase via Argon2id)
 
 ### Key Derivation Function
 
+**Current Implementation (PBKDF2 fallback):**
+- **Algorithm**: PBKDF2-SHA256
+- **Iterations**: 100,000 (auth) / 300,000 (backups)
+- **Output**: 256-bit key
+
+**Target (Argon2id - migration implemented, see kdfMigration.ts):**
 - **Algorithm**: Argon2id
-- **Memory**: 64 MB minimum
-- **Iterations**: 3 minimum
+- **Memory**: 32 MB (tuned for ~1s derivation)
+- **Time Cost**: 4 iterations
 - **Parallelism**: 4 threads
 - **Output**: 256-bit key
+- **iOS Fallback**: 16 MB memory, 8 iterations
 
 ### Passphrase Requirements (NIST 800-63B)
 
@@ -55,7 +64,9 @@ Master Key (derived from passphrase via Argon2id)
 src/crypto/
 ├── types.ts                  # TypeScript type definitions
 ├── encryption.ts             # AES-256-GCM encryption/decryption
-├── keyDerivation.ts          # Argon2id key derivation
+├── keyDerivation.ts          # PBKDF2/Argon2id key derivation
+├── kdfMigration.ts           # PBKDF2 → Argon2id migration service
+├── argon2Loader.ts           # Argon2 WASM loader
 ├── keyManagement.ts          # Hierarchical key management
 ├── passphraseValidation.ts   # Strength validation
 ├── index.ts                  # Barrel exports
@@ -321,7 +332,7 @@ Tests cover:
 
 ### Benchmarks (typical modern device)
 
-- Key derivation: ~500ms (Argon2id with spec parameters)
+- Key derivation: ~150ms (PBKDF2 100k iter) / ~1s (Argon2id 32MB)
 - Encryption: ~1ms per KB
 - Decryption: ~1ms per KB
 - Key rotation: <10s for 1000 records
@@ -342,7 +353,7 @@ Tests cover:
 
 ### Optional
 
-- `argon2-browser` - For Argon2id key derivation (recommended)
+- `argon2-browser` - For Argon2id key derivation (installed, migration ready)
 - `@noble/ciphers` - Alternative to Web Crypto API (future enhancement)
 
 ## Compliance

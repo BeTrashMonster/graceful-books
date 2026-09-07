@@ -606,7 +606,7 @@ All acceptance criteria met. Service is production-ready.
 6. ✅ Color-coded margins accurate (poor/good/better/best, user-configurable)
 7. ✅ Documentation complete (formulas explained, user guide, implementation summary)
 8. ✅ Audacious Money branding (not Graceful Books) - N/A for service layer
-9. ✅ Zero-knowledge encryption support (CRDT-compatible schema)
+9. ✅ Local-first architecture (CRDT-compatible schema, data never sent to servers)
 10. ✅ GAAP compliance (accurate financial calculations)
 
 **Work is COMPLETE and production-ready.**

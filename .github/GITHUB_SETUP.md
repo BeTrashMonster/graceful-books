@@ -29,7 +29,7 @@ This document provides complete instructions for setting up the Graceful Books G
 1. Navigate to [https://github.com/new](https://github.com/new)
 2. Configure repository:
    - **Repository name**: `graceful-books`
-   - **Description**: `A local-first, zero-knowledge accounting platform for entrepreneurs who find traditional accounting software intimidating`
+   - **Description**: `A local-first accounting platform for entrepreneurs who find traditional accounting software intimidating`
    - **Visibility**: Private (recommended initially) or Public
    - **DO NOT** initialize with README, .gitignore, or license (we have these already)
 3. Click "Create repository"
@@ -38,10 +38,10 @@ This document provides complete instructions for setting up the Graceful Books G
 
 ```bash
 # Create private repository
-gh repo create graceful-books --private --source=. --remote=origin --description "A local-first, zero-knowledge accounting platform for entrepreneurs who find traditional accounting software intimidating"
+gh repo create graceful-books --private --source=. --remote=origin --description "A local-first accounting platform for entrepreneurs who find traditional accounting software intimidating"
 
 # Or create public repository
-gh repo create graceful-books --public --source=. --remote=origin --description "A local-first, zero-knowledge accounting platform for entrepreneurs who find traditional accounting software intimidating"
+gh repo create graceful-books --public --source=. --remote=origin --description "A local-first accounting platform for entrepreneurs who find traditional accounting software intimidating"
 ```
 
 ### Option 3: Manual Remote Setup
@@ -109,12 +109,10 @@ git branch -vv
 Via GitHub Web Interface:
 1. Go to repository homepage
 2. Click the gear icon next to "About" (right side)
-3. Add description: `A local-first, zero-knowledge accounting platform for entrepreneurs who find traditional accounting software intimidating`
+3. Add description: `A local-first accounting platform for entrepreneurs who find traditional accounting software intimidating`
 4. Add topics (tags):
    - `accounting`
-   - `zero-knowledge`
    - `local-first`
-   - `encryption`
    - `react`
    - `typescript`
    - `bookkeeping`
@@ -126,10 +124,10 @@ Via GitHub Web Interface:
 
 Via GitHub CLI:
 ```bash
-gh repo edit --description "A local-first, zero-knowledge accounting platform for entrepreneurs who find traditional accounting software intimidating"
+gh repo edit --description "A local-first accounting platform for entrepreneurs who find traditional accounting software intimidating"
 
 # Add topics (requires gh extension or API)
-gh api repos/:owner/:repo/topics -X PUT -f names[]="accounting" -f names[]="zero-knowledge" -f names[]="local-first" -f names[]="encryption" -f names[]="react" -f names[]="typescript" -f names[]="bookkeeping" -f names[]="small-business" -f names[]="gaap" -f names[]="progressive-disclosure"
+gh api repos/:owner/:repo/topics -X PUT -f names[]="accounting" -f names[]="local-first" -f names[]="react" -f names[]="typescript" -f names[]="bookkeeping" -f names[]="small-business" -f names[]="gaap" -f names[]="progressive-disclosure"
 ```
 
 ### Step 2: Configure General Settings

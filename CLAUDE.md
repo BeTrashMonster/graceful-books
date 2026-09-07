@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Summary
 
-Graceful Books is a local-first, zero-knowledge accounting platform targeting entrepreneurs who find traditional accounting software intimidating. The project prioritizes:
+Graceful Books is a local-first accounting platform targeting entrepreneurs who find traditional accounting software intimidating. The project prioritizes:
 
-1. **User data sovereignty** via zero-knowledge encryption
+1. **User data sovereignty** - Data stored locally on user's device, never sent to our servers
 2. **Progressive empowerment** through phase-based feature disclosure
 3. **Judgment-free education** with patient, supportive communication
 4. **GAAP compliance** beneath an accessible interface
@@ -22,13 +22,11 @@ Graceful Books is a local-first, zero-knowledge accounting platform targeting en
 
 ## Key Technical Concepts
 
-### Zero-Knowledge Encryption Architecture
-- All user financial data encrypted client-side before transmission
-- Sync relay servers act as "dumb pipes" with no ability to decrypt
-- Master key derived from passphrase using Argon2id
-- Hierarchical key derivation for multi-user access (Admin/Manager/Bookkeeper/View-Only)
-- Key rotation enables instant access revocation
-- **Critical:** Platform operator cannot access user data under any circumstances
+### Data Architecture
+- **Local storage:** All financial data stored locally on user's device (IndexedDB)
+- **Server data:** Our servers hold only account info (email, company name, support key, product tier) and billing
+- **Backup encryption:** Backup files are encrypted with a user passphrase using Argon2id key derivation
+- **Backup passphrase:** We never receive or store the backup passphrase
 
 ### Local-First Data Architecture
 - Primary data store is client-side (IndexedDB/SQLite)
@@ -55,10 +53,9 @@ Graceful Books is a local-first, zero-knowledge accounting platform targeting en
 ## Architecture Principles
 
 ### Security
-- Zero-knowledge encryption is non-negotiable
-- AES-256 for data at rest
-- TLS 1.3+ with additional payload encryption for transit
-- Argon2id for key derivation
+- Local-first: financial data stays on user's device
+- TLS 1.3+ for all server communication
+- Backup files encrypted with AES-256-GCM, key derived via Argon2id
 - Audit trail for all financial changes (immutable, 7-year retention)
 
 ### User Experience
@@ -72,15 +69,14 @@ Graceful Books is a local-first, zero-knowledge accounting platform targeting en
 - Page load: <2 seconds
 - Transaction save: <500ms
 - Report generation: <5 seconds (standard), <30 seconds (complex)
-- Sync completion: <5 seconds (typical changes)
-- Encryption/decryption: imperceptible to user
+- Backup creation: <30 seconds (including encryption)
 
 ## Development Phases
 
 The `ROADMAP.md` uses a group-based structure optimized for parallel development:
 
 ### Phase 1: The Foundation (Groups A-C)
-- Database schema, encryption layer, local-first data store
+- Database schema, local-first data store
 - Authentication, UI component library, application shell
 - Chart of accounts, basic transactions, dashboard
 - Business phase assessment and checklist generation
@@ -214,11 +210,11 @@ The brand uses sophisticated, muted autumn colors - NOT bright spring colors. Al
 
 1. **Tech stack chosen** - React + TypeScript + Vite with custom components
 2. **Follow the roadmap groups** - Group A items can be done in parallel, Group B requires Group A, etc.
-3. **Zero-knowledge is sacred** - Never compromise on encryption architecture
+3. **Local-first architecture** - Financial data stays on user's device, never sent to our servers
 4. **Delight is a feature** - User experience joy is as important as functionality
 5. **Steadiness communication only** - Patient, supportive, step-by-step tone throughout
 6. **Plain English** - Avoid accounting jargon without explanation
 7. **GAAP compliance** - Beneath the friendly UI, accounting must be professional-grade
 8. **Accessibility first** - WCAG 2.1 AA compliance is not optional
-9. **SECURITY: Before running `npm install`, ALWAYS run `npm audit` first** - See `NPM_INSTALL_CHECKLIST.md` for detailed security protocol. This is non-negotiable for a zero-knowledge security platform.
+9. **SECURITY: Before running `npm install`, ALWAYS run `npm audit` first** - See `NPM_INSTALL_CHECKLIST.md` for detailed security protocol.
 10. **Brand colors only** - Use the autumn/professional color palette. No bright spring colors or emojis.
