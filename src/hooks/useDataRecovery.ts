@@ -137,6 +137,17 @@ export function useDataRecovery(options: UseDataRecoveryOptions = {}) {
 
       // Read the backup file
       const file = await fileHandle.getFile();
+
+      // Size limit: 100MB - prevents memory exhaustion from malicious/corrupted files
+      const MAX_BACKUP_SIZE = 100 * 1024 * 1024;
+      if (file.size > MAX_BACKUP_SIZE) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        throw new Error(
+          `Backup file is too large (${sizeMB} MB). Maximum supported size is 100 MB. ` +
+          `If this is a valid backup, please contact support.`
+        );
+      }
+
       const fileText = await file.text();
 
       // Parse the backup bundle

@@ -31,6 +31,7 @@ import {
   writeBackupToFile,
 } from '../../services/backup/FileSystemBackup'
 import { generateBackupBundle } from '../../services/backup/BackupEncryption'
+import { EncryptedBackup } from '../backup/EncryptedBackup'
 import styles from './DataSafetyPanel.module.css'
 
 /**
@@ -104,6 +105,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
   const [creatingBackup, setCreatingBackup] = useState(false)
   const [backupSuccess, setBackupSuccess] = useState(false)
   const [backupSavedToFolder, setBackupSavedToFolder] = useState(false)
+  const [showRestoreModal, setShowRestoreModal] = useState(false)
 
   // Load backup status and history on mount
   useEffect(() => {
@@ -684,6 +686,14 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             >
               {creatingBackup ? 'Creating Backup...' : 'Backup Now'}
             </Button>
+
+            <Button
+              variant="secondary"
+              onClick={() => setShowRestoreModal(true)}
+              aria-label="Restore from backup file"
+            >
+              Restore from Backup
+            </Button>
           </div>
 
           {/* Informational Message */}
@@ -786,6 +796,18 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
           </div>
         </CardBody>
       </Card>
+
+      {/* Restore from Backup Modal */}
+      <EncryptedBackup
+        isOpen={showRestoreModal}
+        onClose={() => setShowRestoreModal(false)}
+        initialMode="restore"
+        onRestoreComplete={() => {
+          setShowRestoreModal(false)
+          // Reload the page to reflect restored data
+          window.location.reload()
+        }}
+      />
     </div>
   )
 }
