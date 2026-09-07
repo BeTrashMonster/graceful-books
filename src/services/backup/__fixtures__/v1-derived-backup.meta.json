@@ -1,0 +1,8 @@
+{
+  "userId": "fixture-user-v1-derived-key-test",
+  "companyId": "fixture-company-v1",
+  "createdAt": "2026-09-07T22:16:52.704Z",
+  "keyScheme": "v1-derived",
+  "note": "DO NOT MODIFY - represents real beta user backups",
+  "derivationPattern": "SHA-256(\"audacious-money-backup:${userId}:stable-v1\")"
+}

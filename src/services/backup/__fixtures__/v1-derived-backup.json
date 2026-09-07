@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "companyId": "fixture-company-v1",
+    "userId": "fixture-user-v1-derived-key-test",
+    "userRole": "Admin",
+    "timestamp": 1788819412430,
+    "keyRotationEpoch": 1
+  },
+  "encryptedData": {
+    "transactions": "{\"ciphertext\":\"YtY1RVhtsH63nxzsiFypb0npYnllRGZyNqDlF3+xDw3mGLvtmuskblGqJTKM4cagtlgayZSpX09I2V3kJryfgBGHbrPMQ62n7D6gSuxtr2qtFd9wEgWnJ/uMMVUgD/KVI9DnitSmcLkGi/nzvUogDX5JG4jqEdn0v9oKug9k0kkROt0IMTeoublegOdrCu+N60cSnrt8s/1wsmObev8HIwUv4ckekEd0Gs/x8n4zQmhcKEKGXksTnU+R89mSgCCqKU18hd4C6M9x36Dt8r7foXq5d3sMhWtwb68o9jZEWzI6c+OWbjMiLZO//JhPGYqlVFw8x7GLN1XSWkKJosDo0Ve5g6e5/mn5ieQzG9PLhYYT7Qy32fE=\",\"iv\":\"U5UcxeFCwTyjKpY6\",\"authTag\":\"0ZS3REpThdVSN72kgjLKjA==\",\"keyId\":\"backup-1788819412426\",\"algorithm\":\"AES-256-GCM\",\"encryptedAt\":1788819412429}",
+    "accounts": "{\"ciphertext\":\"etxka7KKpT7rkvK9+7QSXT3qWyBjyiSMr+v7FjKLZukjwh+8ERzH4yDDerxjUebJI4GxR8xX37IkhaMgwK/FR41IqBvUKwNA2v6+aLxm9piOXUom6Z5LeR1ZX1LdIDYf5622ZlM0A7u94rl/S4mQukeA/Zq+X2UGxs3SA9MrCKF9ctf4luHPMFHlei016avDi3sFQ0eiriN3YhZmazqAkupyT+lOvOevsAzbvOEOg3YMo5PuT0dvM6Vgr2B/1IRYb6pFxCGxxwCLZFNMWbDofEtuLNHRhQZu+716lv5uWE2O\",\"iv\":\"T2pQ9RxQ+1aIP9RQ\",\"authTag\":\"8BW6GVtBvnfO4HcFbOTIAQ==\",\"keyId\":\"backup-1788819412426\",\"algorithm\":\"AES-256-GCM\",\"encryptedAt\":1788819412429}",
+    "reports": "{\"ciphertext\":\"ZyehrgGk/QElZm60RtfWIoLPap1yC/+st7/tV/IUAMGxNlbInNcdh6eqPNSKDy30w8EJ4EN7o7O+nR1l472TXmKpw7+jOw==\",\"iv\":\"Uqx/KFPZdWevjCNY\",\"authTag\":\"lJAK1dsJrs5chW9ieDI09A==\",\"keyId\":\"backup-1788819412426\",\"algorithm\":\"AES-256-GCM\",\"encryptedAt\":1788819412430}",
+    "preferences": "{\"ciphertext\":\"/UcqURRzv8ByjNgdKCdzwK+u6hQZ3fVEaROSbiIlLfHTq+P1DjmDywvucvpNwodlbPshwucrRdW0iq4tuu/UvdnQPtQTQK/aAtRIU/f51ipan1dt7quz\",\"iv\":\"LN32Ngl1KUkP0Tjy\",\"authTag\":\"QyTtP4pzYrMfMZ/dJZBx2g==\",\"keyId\":\"backup-1788819412426\",\"algorithm\":\"AES-256-GCM\",\"encryptedAt\":1788819412430}"
+  },
+  "encryptedKeys": {
+    "derivedKey": "iN60czxl7kKPWmqXpdQ/r+Fsk0HhqDCWibZxuv7RKH8=",
+    "keyId": "backup-1788819412426",
+    "salt": "XtyqUYrfTX4wWkXzwiYUTrczjp9KScS9D+A7pYlDLw0=",
+    "iterations": 3,
+    "memoryCost": 65536,
+    "parallelism": 4
+  },
+  "integrity": {
+    "hmac": "ew4opxsq4C/Fq+qMSezgSx8j96QrJNuL1D9u/e8wlz8=",
+    "hmacSalt": "x/YKvtgJ9MDASDjtSUcK9U2tyliE29KBnnLCkGKUFmc="
+  }
+}
