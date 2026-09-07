@@ -3,6 +3,7 @@
   "companyId": "fixture-company-v1",
   "createdAt": "2026-09-07T22:16:52.704Z",
   "keyScheme": "v1-derived",
-  "note": "DO NOT MODIFY - represents real beta user backups",
-  "derivationPattern": "SHA-256(\"audacious-money-backup:${userId}:stable-v1\")"
+  "note": "DO NOT MODIFY OR REGENERATE - represents legacy beta user backups",
+  "derivationPattern": "SHA-256(\"audacious-money-backup:${userId}:stable-v1\")",
+  "warning": "SYNTHETIC FIXTURE - uses a test userId, not a real beta user. Proves the v1 derivation scheme works, but real beta user backups should also be tested before deployment."
 }
