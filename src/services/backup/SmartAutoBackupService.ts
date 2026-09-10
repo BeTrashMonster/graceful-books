@@ -334,8 +334,9 @@ class SmartAutoBackupService {
       }> = [];
 
       // List all backup files
+      // Real filenames: graceful-books-backup-2026-09-09T19-30-00.gbbackup
       for await (const entry of dirHandle.values()) {
-        if (entry.kind === 'file' && entry.name.startsWith('audacious-backup-')) {
+        if (entry.kind === 'file' && entry.name.startsWith('graceful-books-backup-')) {
           const time = this.extractTimestamp(entry.name);
           if (time) {
             backupFiles.push({ name: entry.name, time });
@@ -421,12 +422,13 @@ class SmartAutoBackupService {
    * Extract timestamp from backup filename
    */
   private extractTimestamp(fileName: string): Date | null {
-    // Format: audacious-backup-2024-03-29T14-30-00.encrypted
-    const match = fileName.match(/audacious-backup-(.+)\.encrypted/);
+    // Real format: graceful-books-backup-2026-09-09T19-30-00.gbbackup
+    // (ISO timestamp with colons replaced by hyphens)
+    const match = fileName.match(/graceful-books-backup-(.+)\.gbbackup/);
     if (!match) return null;
 
     try {
-      // Replace hyphens in time portion back to colons
+      // Replace hyphens in time portion back to colons: T19-30-00 -> T19:30:00
       const timestamp = match[1].replace(/T(\d{2})-(\d{2})-(\d{2})/, 'T$1:$2:$3');
       const date = new Date(timestamp);
 
@@ -599,7 +601,18 @@ class SmartAutoBackupService {
   getSettings(): BackupSettings {
     return { ...this.settings };
   }
+
+  /**
+   * Exposed for testing only - triggers backup cleanup
+   * @internal
+   */
+  async _testCleanOldBackups(): Promise<void> {
+    return this.cleanOldBackups();
+  }
 }
 
 // Singleton instance
 export const smartAutoBackup = new SmartAutoBackupService();
+
+// Alias for testing
+export const smartAutoBackupService = smartAutoBackup;
