@@ -359,8 +359,10 @@ export function EncryptedBackup({
   /**
    * Handle close
    */
-  const handleClose = () => {
-    if (!isProcessing) {
+  const handleClose = (force = false) => {
+    // Allow closing if not processing, or if forced (e.g., after error)
+    if (!isProcessing || force) {
+      setIsProcessing(false); // Ensure processing state is cleared
       resetState();
       onClose();
     }
@@ -560,11 +562,20 @@ export function EncryptedBackup({
       }
     } catch (err) {
       backupLogger.error('Failed to create backup', err);
+      const errorMessage = err instanceof Error
+        ? err.message
+        : 'An unexpected error occurred. Please try again.';
+      // Check for CSP/WASM-related errors
+      const isCspError = errorMessage.includes('Content Security Policy') ||
+        errorMessage.includes('WebAssembly') ||
+        errorMessage.includes('wasm');
       setError(
-        err instanceof Error
-          ? err.message
-          : 'An unexpected error occurred. Please try again.'
+        isCspError
+          ? 'Backup encryption failed due to browser security settings. Please try again or contact support.'
+          : errorMessage
       );
+    } finally {
+      // Always reset processing state to keep modal interactive
       setIsProcessing(false);
     }
   };

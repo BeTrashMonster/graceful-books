@@ -9,7 +9,8 @@
   # Note: More restrictive than dev mode (no 'unsafe-eval')
   # Stripe domains: js.stripe.com, api.stripe.com
   # API domains: api.audacious.money, sync.audacious.money
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; connect-src 'self' https://api.audacious.money wss://sync.audacious.money https://api.stripe.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src https://js.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'
+  # 'wasm-unsafe-eval' allows WebAssembly compilation (for Argon2id) without enabling general eval()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://js.stripe.com; connect-src 'self' https://api.audacious.money wss://sync.audacious.money https://api.stripe.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src https://js.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'
 
   # X-Frame-Options - Prevents clickjacking (DENY = cannot be framed by any site)
   X-Frame-Options: DENY

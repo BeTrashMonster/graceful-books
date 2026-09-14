@@ -227,18 +227,26 @@ async function deriveKeyWithArgon2(
   if (typeof window !== 'undefined' && (window as any).argon2) {
     const argon2 = (window as any).argon2;
 
-    const result = await argon2.hash({
-      pass: passphrase,
-      salt: params.salt,
-      time: params.timeCost,
-      mem: params.memoryCost,
-      parallelism: params.parallelism,
-      hashLen: params.keyLength,
-      type: argon2.ArgonType.Argon2id,
-    });
+    try {
+      const result = await argon2.hash({
+        pass: passphrase,
+        salt: params.salt,
+        time: params.timeCost,
+        mem: params.memoryCost,
+        parallelism: params.parallelism,
+        hashLen: params.keyLength,
+        type: argon2.ArgonType.Argon2id,
+      });
 
-    console.log('[KDF] Key derived using Argon2id');
-    return result.hash;
+      console.log('[KDF] Key derived using Argon2id');
+      return result.hash;
+    } catch (argon2Error) {
+      // Argon2 hash failed - likely CSP blocking WASM compilation
+      // This happens when script loads but WASM can't instantiate
+      console.error('[KDF] Argon2 hash failed (CSP may be blocking WASM):', argon2Error);
+      console.warn('[KDF] Falling back to PBKDF2');
+      // Fall through to PBKDF2 fallback below
+    }
   }
 
   // Fallback to Web Crypto API PBKDF2

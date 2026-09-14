@@ -248,17 +248,49 @@ The `.gbbackup` files were created via DataSafetyPanel's "Backup Now" button, wh
 
 ---
 
+## Production Environment Differences
+
+### Content Security Policy (CSP)
+
+**CRITICAL:** Production serves a CSP header that dev does not. Anything touching WebAssembly or inline scripts MUST be verified against the deployed site, not just `npm run preview`.
+
+**CSP location:** `public/_headers` (Cloudflare Pages)
+
+**Current script-src:**
+```
+script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://js.stripe.com
+```
+
+**What this means:**
+- `'wasm-unsafe-eval'` permits WASM compilation (required for Argon2)
+- Vite dev server sends NO CSP header — WASM works silently
+- `npm run preview` also sends no CSP — still not a valid test
+- Only the deployed site (app.audacious.money) enforces CSP
+
+**How to test CSP locally:**
+Add a meta tag to `index.html` temporarily:
+```html
+<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'">
+```
+Or use browser DevTools to add the header via a local proxy.
+
+**Failure mode:** If WASM is blocked:
+1. `argon2-bundled.min.js` loads successfully
+2. `window.argon2` exists with function stubs
+3. `argon2.hash()` throws `RuntimeError: abort(CompileError: ...)`
+4. Key derivation falls back to PBKDF2 (less secure but functional)
+
+---
+
 ## Working Rules
 
-1. **Feature branch only.** Do not merge or deploy.
+1. **Dev server on port 3006 only.** IndexedDB is per-origin — real test data lives on 3006. Port 3007 is empty/safe for experiments.
 
-2. **Dev server on port 3006 only.** IndexedDB is per-origin — real test data lives on 3006. Port 3007 is empty/safe for experiments.
+2. **Report before implementing anything structural.**
 
-3. **Report before implementing anything structural.**
+3. **No performance work.** Not the priority.
 
-4. **No performance work.** Not the priority.
-
-5. **Test skepticism rule:** Before reporting any test as passing, ask: "What would this look like if the thing under test were completely broken?" If the answer is "the same," the test isn't doing its job.
+4. **Test skepticism rule:** Before reporting any test as passing, ask: "What would this look like if the thing under test were completely broken?" If the answer is "the same," the test isn't doing its job.
 
    Examples from this project:
    - Stubbed KDF (test passed but crypto was mocked)
