@@ -263,7 +263,7 @@ describe('EmailBackupPanel', () => {
       expect(screen.getByText(/can only be used once/i)).toBeInTheDocument()
     })
 
-    it('should explain zero-knowledge', () => {
+    it('should explain encryption protection', () => {
       render(<EmailBackupPanel {...mockProps} />)
 
       expect(screen.getByText(/never have access to your unencrypted data/i)).toBeInTheDocument()

@@ -109,7 +109,8 @@ export interface WorksheetData {
 
 export interface ImportResult {
   success: boolean;
-  errors: string[];
+  errors: string[]; // Fatal errors that stopped import
+  warnings: ImportWarning[]; // Non-fatal issues - some data may have been skipped
   counts: {
     categories: number;
     vendors: number;
@@ -118,13 +119,36 @@ export interface ImportResult {
     invoices: number;
     unit_conversions: number;
   };
+  skipped: {
+    categories: number;
+    vendors: number;
+    products: number;
+    recipes: number;
+    invoiceItems: number;
+    unit_conversions: number;
+  };
   idMap?: Map<string, string>; // temp ID → real UUID mapping (for debugging)
 }
 
 export interface ImportWarning {
-  type: 'info' | 'warning' | 'suggestion';
+  // Type can be:
+  // - Specific import issue types (for post-import warnings with fix instructions)
+  // - General review types (for pre-import review warnings)
+  type:
+    | 'category_save_failed'
+    | 'invoice_item_skipped'
+    | 'vendor_skipped'
+    | 'recipe_item_skipped'
+    | 'general'
+    | 'info'
+    | 'warning'
+    | 'suggestion';
+  severity?: 'info' | 'warning' | 'error'; // Optional - only for import warnings
   title: string;
   message: string;
+  itemName?: string; // Name of the affected item (e.g., category name)
+  fixInstructions?: string; // How to fix this issue (only for import warnings)
+  fixLocation?: string; // Where in the app to fix it (only for import warnings)
 }
 
 export interface ReviewResult {
@@ -393,12 +417,21 @@ export async function importWorksheetData(
   const result: ImportResult = {
     success: false,
     errors: [],
+    warnings: [],
     counts: {
       categories: 0,
       vendors: 0,
       products: 0,
       recipes: 0,
       invoices: 0,
+      unit_conversions: 0,
+    },
+    skipped: {
+      categories: 0,
+      vendors: 0,
+      products: 0,
+      recipes: 0,
+      invoiceItems: 0,
       unit_conversions: 0,
     },
   };
@@ -448,6 +481,27 @@ export async function importWorksheetData(
       };
 
       await db.cpgCategories.add(dbCategory);
+
+      // Defensive check: Verify category was actually saved
+      const savedCategory = await db.cpgCategories.get(realId);
+      if (!savedCategory) {
+        logger.error('Category failed to save!', { tempId: cat.id, realId, name: cat.name });
+        console.error(`[Importer] ❌ Category "${cat.name}" failed to save! tempId=${cat.id}, realId=${realId}`);
+        // Remove from idMap to prevent orphan references
+        idMap.delete(cat.id);
+        result.warnings.push({
+          type: 'category_save_failed',
+          severity: 'error',
+          title: 'Category Not Saved',
+          message: `The category "${cat.name}" could not be saved to the database.`,
+          itemName: cat.name,
+          fixInstructions: 'Add this category manually in the Raw Materials section.',
+          fixLocation: 'Raw Materials → Click "Add Category" button',
+        });
+        result.skipped.categories++;
+        continue;
+      }
+
       result.counts.categories++;
     }
 
@@ -648,7 +702,21 @@ export async function importWorksheetData(
         } else {
           realCategoryId = idMap.get(item.category_id) || '';
           if (!realCategoryId) {
-            result.errors.push(`Invoice item references unmapped category: ${item.category_id}`);
+            // Try to find the category name for a better error message
+            const categoryInfo = json.categories.find(c => c.id === item.category_id);
+            const categoryName = categoryInfo?.name || 'Unknown';
+            const variantInfo = item.variant ? ` (${item.variant})` : '';
+
+            result.warnings.push({
+              type: 'invoice_item_skipped',
+              severity: 'warning',
+              title: 'Invoice Item Skipped',
+              message: `An item for "${categoryName}${variantInfo}" on invoice from "${inv.vendor_name}" was skipped because the category wasn't saved.`,
+              itemName: `${categoryName}${variantInfo}`,
+              fixInstructions: 'Edit this invoice and re-add the line item with the correct category.',
+              fixLocation: `Raw Materials → Find invoice from "${inv.vendor_name}" → Click Edit`,
+            });
+            result.skipped.invoiceItems++;
             continue;
           }
         }

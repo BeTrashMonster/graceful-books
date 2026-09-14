@@ -77,7 +77,7 @@ function distributeWithLargestRemainder(
   const flooredAmounts = rawAmounts.map(a => Math.floor(a));
   const remainders = rawAmounts.map((raw, i) => ({
     index: i,
-    remainder: raw - flooredAmounts[i]
+    remainder: raw - (flooredAmounts[i] ?? 0)
   }));
 
   // Calculate how many cents we need to distribute
@@ -88,7 +88,9 @@ function distributeWithLargestRemainder(
   remainders.sort((a, b) => b.remainder - a.remainder);
   for (const item of remainders) {
     if (centsToDistribute <= 0) break;
-    flooredAmounts[item.index]++;
+    if (flooredAmounts[item.index] !== undefined) {
+      flooredAmounts[item.index]++;
+    }
     centsToDistribute--;
   }
 
@@ -122,7 +124,7 @@ function distributePercentages(
   const flooredPercentages = rawPercentages.map(p => Math.floor(p));
   const remainders = rawPercentages.map((raw, i) => ({
     index: i,
-    remainder: raw - flooredPercentages[i]
+    remainder: raw - (flooredPercentages[i] ?? 0)
   }));
 
   // Distribute remaining tenths
@@ -132,7 +134,9 @@ function distributePercentages(
   remainders.sort((a, b) => b.remainder - a.remainder);
   for (const item of remainders) {
     if (tenthsToDistribute <= 0) break;
-    flooredPercentages[item.index]++;
+    if (flooredPercentages[item.index] !== undefined) {
+      flooredPercentages[item.index]++;
+    }
     tenthsToDistribute--;
   }
 

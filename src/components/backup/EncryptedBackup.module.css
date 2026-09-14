@@ -191,6 +191,91 @@
   line-height: 1.5;
 }
 
+/* Comparison section for restore */
+.comparisonSection {
+  margin-top: 1rem;
+}
+
+.comparisonSection h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.813rem;
+}
+
+.comparisonTable th,
+.comparisonTable td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-gray-200, #e5e7eb);
+}
+
+.comparisonTable th {
+  font-weight: 600;
+  color: var(--color-text-secondary, #4b5563);
+  background-color: var(--color-gray-100, #f3f4f6);
+}
+
+.comparisonTable td {
+  color: var(--color-text-primary, #111827);
+}
+
+.comparisonTable .totalRow {
+  background-color: var(--color-gray-100, #f3f4f6);
+}
+
+.comparisonTable .totalRow td {
+  border-bottom: none;
+}
+
+/* Data loss warning */
+.dataLossWarning {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--color-red-50, #fef2f2);
+  border: 2px solid var(--color-red-300, #fca5a5);
+  border-radius: 0.5rem;
+}
+
+.dataLossWarning strong {
+  display: block;
+  color: var(--color-red-800, #991b1b);
+  margin-bottom: 0.5rem;
+}
+
+.dataLossWarning p {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  color: var(--color-red-700, #b91c1c);
+  line-height: 1.5;
+}
+
+.confirmCheckbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.confirmCheckbox input {
+  margin-top: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.confirmCheckbox span {
+  font-size: 0.875rem;
+  color: var(--color-red-800, #991b1b);
+  font-weight: 500;
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .footer {
@@ -214,6 +299,393 @@
   .actions button {
     flex: 1;
   }
+}
+
+/* Passphrase mode selection */
+.modeOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.modeOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.modeOption:hover {
+  border-color: var(--color-blue-300, #93c5fd);
+  background-color: var(--color-blue-50, #eff6ff);
+}
+
+.modeOptionSelected {
+  border-color: var(--color-blue-500, #3b82f6);
+  background-color: var(--color-blue-50, #eff6ff);
+}
+
+.modeOption input[type="radio"] {
+  margin-top: 0.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+}
+
+.modeOptionContent {
+  flex: 1;
+}
+
+.modeOptionContent strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--color-text-primary, #111827);
+  margin-bottom: 0.25rem;
+}
+
+.modeOptionContent p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #4b5563);
+  line-height: 1.5;
+}
+
+.modeProsCons {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.813rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.modeProsCons li {
+  margin: 0.25rem 0;
+  line-height: 1.4;
+}
+
+.modeWarning {
+  margin-top: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  background-color: var(--color-amber-50, #fffbeb);
+  border: 1px solid var(--color-amber-200, #fde68a);
+  border-radius: 0.375rem;
+  font-size: 0.813rem;
+  color: var(--color-amber-800, #92400e);
+  line-height: 1.4;
+}
+
+/* Configured status */
+.configuredStatus {
+  padding: 1rem;
+  background-color: var(--color-green-50, #f0fdf4);
+  border: 1px solid var(--color-green-200, #bbf7d0);
+  border-radius: 0.5rem;
+}
+
+.statusBox {
+  font-size: 0.875rem;
+  color: var(--color-green-800, #166534);
+}
+
+.statusNote {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.813rem;
+  color: var(--color-green-700, #15803d);
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--color-text-secondary, #4b5563);
+  font-size: 0.875rem;
+}
+
+/* Passphrase input with visibility toggle */
+.inputWithToggle {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.inputWithToggle > div {
+  flex: 1;
+}
+
+.toggleVisibility {
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-gray-100, #f3f4f6);
+  border: 1px solid var(--color-gray-300, #d1d5db);
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #4b5563);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  min-width: 3.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.toggleVisibility:hover {
+  background-color: var(--color-gray-200, #e5e7eb);
+  border-color: var(--color-gray-400, #9ca3af);
+}
+
+.toggleVisibility:focus {
+  outline: 2px solid var(--color-blue-500, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* Field error message */
+.fieldError {
+  padding: 0.75rem;
+  background-color: var(--color-red-50, #fef2f2);
+  border: 1px solid var(--color-red-200, #fecaca);
+  border-radius: 0.375rem;
+  color: var(--color-red-700, #b91c1c);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Confirmation box for manual passphrase */
+.confirmationBox {
+  padding: 1.25rem;
+  background-color: var(--color-amber-50, #fffbeb);
+  border: 2px solid var(--color-amber-400, #fbbf24);
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+.confirmationBox strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--color-amber-900, #78350f);
+  margin-bottom: 0.5rem;
+}
+
+.confirmationBox p {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: var(--color-amber-800, #92400e);
+  line-height: 1.5;
+}
+
+.confirmationActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+/* Company mismatch dialog */
+.mismatchDialog {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1rem 0;
+}
+
+.mismatchHeader h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-amber-800, #92400e);
+}
+
+.mismatchContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mismatchWarning {
+  margin: 0;
+  padding: 1rem;
+  background-color: var(--color-amber-50, #fffbeb);
+  border: 1px solid var(--color-amber-300, #fcd34d);
+  border-radius: 0.5rem;
+  color: var(--color-amber-800, #92400e);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.mismatchAccounts {
+  padding: 1rem;
+  background-color: var(--color-gray-50, #f9fafb);
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.mismatchAccounts strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #111827);
+}
+
+.mismatchAccounts ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #4b5563);
+}
+
+.mismatchAccounts li {
+  margin: 0.25rem 0;
+}
+
+.mismatchComparison {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: var(--color-gray-50, #f9fafb);
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.mismatchAccount {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mismatchAccount strong {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.accountName {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+}
+
+.recordCount {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.mismatchExplanation {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #4b5563);
+  line-height: 1.5;
+}
+
+.showDetailsToggle {
+  background: none;
+  border: none;
+  padding: 0.25rem 0;
+  font-size: 0.813rem;
+  color: var(--color-blue-600, #2563eb);
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+}
+
+.showDetailsToggle:hover {
+  color: var(--color-blue-800, #1e40af);
+}
+
+.mismatchDetails {
+  padding: 0.75rem;
+  background-color: var(--color-gray-100, #f3f4f6);
+  border-radius: 0.375rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #4b5563);
+}
+
+.mismatchDetails p {
+  margin: 0.25rem 0;
+  word-break: break-all;
+}
+
+.mismatchActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-gray-200, #e5e7eb);
+}
+
+.mismatchExplainer {
+  padding: 1rem;
+  background-color: var(--color-blue-50, #eff6ff);
+  border: 1px solid var(--color-blue-200, #bfdbfe);
+  border-radius: 0.5rem;
+}
+
+.mismatchExplainer p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.813rem;
+  color: var(--color-blue-900, #1e3a8a);
+  line-height: 1.5;
+}
+
+.mismatchExplainer p:last-child {
+  margin-bottom: 0;
+}
+
+/* Restore complete state */
+.restoreComplete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.successIcon {
+  color: var(--color-green-600, #16a34a);
+}
+
+.successIcon svg {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.restoreComplete h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.restoreStats {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-text-secondary, #4b5563);
+}
+
+.restoreStats strong {
+  color: var(--color-green-700, #15803d);
+}
+
+.restoreInstructions {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary, #6b7280);
+  max-width: 400px;
+}
+
+.restoreCompleteActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 /* Reduced motion support */

@@ -75,10 +75,10 @@ describe('EmailTemplate', () => {
       expect(result.html).toContain('Rate limited')
     })
 
-    it('should include zero-knowledge explanation in HTML', () => {
+    it('should include encryption explanation in HTML', () => {
       const result = generateRestorationEmail(mockOptions)
 
-      expect(result.html).toContain('Zero-Knowledge')
+      expect(result.html).toContain('Passphrase-Protected')
       expect(result.html).toContain('encrypted')
       expect(result.html).toContain('passphrase')
     })
@@ -149,10 +149,10 @@ describe('EmailTemplate', () => {
       expect(result.text).toContain('expires')
     })
 
-    it('should include zero-knowledge explanation in text', () => {
+    it('should include encryption explanation in text', () => {
       const result = generateRestorationEmail(mockOptions)
 
-      expect(result.text).toContain('ZERO-KNOWLEDGE')
+      expect(result.text).toContain('PASSPHRASE-PROTECTED')
       expect(result.text).toContain('encrypted')
     })
 
@@ -319,7 +319,7 @@ describe('EmailTemplate', () => {
       expect(result.text).toContain('Don\'t share this link')
     })
 
-    it('should explain zero-knowledge encryption', () => {
+    it('should explain passphrase-protected encryption', () => {
       const result = generateRestorationEmail(mockOptions)
 
       expect(result.html).toContain('We never have access to your passphrase')

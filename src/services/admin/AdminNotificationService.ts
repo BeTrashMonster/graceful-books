@@ -340,7 +340,7 @@ export async function notifyKeyRotation(
             </ul>
 
             <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 0.9em; color: #666;">
-              This is an automated security notification from Audacious Money. Zero-knowledge encryption ensures your data remains secure throughout this process.
+              This is an automated security notification from Audacious Money. Your data remains encrypted and secure throughout this process.
             </p>
           </div>
         </body>
@@ -491,7 +491,7 @@ export async function notifyFailedRestoration(
             </div>
 
             <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 0.9em; color: #666;">
-              This is an automated security notification from Audacious Money. Your zero-knowledge encryption remains secure.
+              This is an automated security notification from Audacious Money. Your encryption remains secure.
             </p>
           </div>
         </body>

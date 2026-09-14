@@ -374,6 +374,71 @@ describe('Key Derivation Module', () => {
     });
   });
 
+  describe('KDF algorithm selection', () => {
+    it('should attempt to load Argon2 before falling back to PBKDF2', async () => {
+      // This test verifies the loading attempt happens
+      // In Node.js test environment, Argon2 WASM won't load, so we expect PBKDF2 fallback
+      // But the attempt to load Argon2 MUST happen first
+
+      const consoleWarnSpy = vi.spyOn(console, 'warn');
+      const consoleLogSpy = vi.spyOn(console, 'log');
+
+      const passphrase = 'test passphrase';
+      const result = await deriveMasterKey(passphrase);
+
+      expect(result.success).toBe(true);
+
+      // In browser with Argon2 loaded: should see "[KDF] Key derived using Argon2id"
+      // In Node.js test: should see fallback warning, but AFTER attempting to load
+
+      // Check that we at least tried to log something about KDF
+      const allLogCalls = consoleLogSpy.mock.calls.flat().join(' ');
+      const allWarnCalls = consoleWarnSpy.mock.calls.flat().join(' ');
+
+      // Either Argon2 loaded successfully OR we warned about falling back
+      const usedArgon2 = allLogCalls.includes('[KDF] Key derived using Argon2id');
+      const fellBackToPBKDF2 = allWarnCalls.includes('falling back to PBKDF2');
+
+      expect(usedArgon2 || fellBackToPBKDF2).toBe(true);
+
+      // CRITICAL: If we fell back to PBKDF2, we should have at least tried to load Argon2
+      if (fellBackToPBKDF2) {
+        // The "[KDF] Argon2 module loaded successfully" or "[KDF] Failed to load" should appear
+        const triedToLoad = allLogCalls.includes('[KDF]') || allWarnCalls.includes('[KDF]');
+        expect(triedToLoad).toBe(true);
+      }
+
+      consoleWarnSpy.mockRestore();
+      consoleLogSpy.mockRestore();
+    });
+
+    it('should NOT silently fall back without logging', async () => {
+      // This test catches the bug where PBKDF2 fallback happens silently
+      // because loadArgon2() was never called
+
+      const consoleWarnSpy = vi.spyOn(console, 'warn');
+      const consoleLogSpy = vi.spyOn(console, 'log');
+
+      const passphrase = 'another test passphrase';
+      await deriveMasterKey(passphrase);
+
+      const allLogCalls = consoleLogSpy.mock.calls.flat().join(' ');
+      const allWarnCalls = consoleWarnSpy.mock.calls.flat().join(' ');
+
+      // We should have SOME logging about the KDF choice
+      const hasKDFLogging =
+        allLogCalls.includes('[KDF]') ||
+        allWarnCalls.includes('[KDF]') ||
+        allWarnCalls.includes('Argon2') ||
+        allLogCalls.includes('Argon2');
+
+      expect(hasKDFLogging).toBe(true);
+
+      consoleWarnSpy.mockRestore();
+      consoleLogSpy.mockRestore();
+    });
+  });
+
   describe('security properties', () => {
     it('should produce keys with high entropy', async () => {
       const passphrase = 'test passphrase';

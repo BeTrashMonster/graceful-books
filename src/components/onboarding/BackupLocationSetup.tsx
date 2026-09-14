@@ -386,11 +386,11 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
           <div className={styles.features}>
             <div className={styles.feature}>
               <span className={styles.featureText}>
-                Zero-knowledge encryption (we can never see your data)
+                Passphrase-protected encryption (only you know your passphrase)
               </span>
             </div>
             <div className={styles.feature}>
-              <span className={styles.featureText}>Your data never leaves your computer</span>
+              <span className={styles.featureText}>Your data stays on your computer</span>
             </div>
             <div className={styles.feature}>
               <span className={styles.featureText}>You're always in control</span>

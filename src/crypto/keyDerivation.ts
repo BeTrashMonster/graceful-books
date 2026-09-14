@@ -30,6 +30,7 @@ import {
 } from '../utils/rateLimiter';
 
 import { constantTimeEqual } from '../utils/crypto/constantTime';
+import { loadArgon2 } from './argon2Loader';
 
 /**
  * Default Argon2id parameters per ARCH-002 specification
@@ -210,7 +211,19 @@ async function deriveKeyWithArgon2(
   passphrase: string,
   params: KeyDerivationParams
 ): Promise<Uint8Array> {
-  // Try to use argon2-browser if available
+  // Load argon2-browser module (lazy-loaded, safe to call multiple times)
+  // This is the fix: we must call loadArgon2() before checking window.argon2
+  if (typeof window !== 'undefined') {
+    try {
+      await loadArgon2();
+      console.log('[KDF] Argon2 module loaded successfully');
+    } catch (err) {
+      console.warn('[KDF] Failed to load Argon2 module:', err);
+      // Fall through to PBKDF2 fallback
+    }
+  }
+
+  // Now check if argon2 is available (should be after loadArgon2())
   if (typeof window !== 'undefined' && (window as any).argon2) {
     const argon2 = (window as any).argon2;
 
@@ -224,12 +237,13 @@ async function deriveKeyWithArgon2(
       type: argon2.ArgonType.Argon2id,
     });
 
+    console.log('[KDF] Key derived using Argon2id');
     return result.hash;
   }
 
   // Fallback to Web Crypto API PBKDF2
   // Note: This is less secure than Argon2id but provides compatibility
-  console.warn('Argon2 not available, falling back to PBKDF2 (less secure)');
+  console.warn('[KDF] Argon2 not available, falling back to PBKDF2 (less secure)');
   return deriveKeyWithPBKDF2(passphrase, params);
 }
 

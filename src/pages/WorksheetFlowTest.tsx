@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ComprehensiveWorksheet } from '../components/onboarding/ComprehensiveWorksheet';
-import { importWorksheetData } from '../services/cpg/worksheetImporter.service';
+import { importWorksheetData, type WorksheetData } from '../services/cpg/worksheetImporter.service';
 import { getDeviceId } from '../utils/device';
 import styles from './auth/Signup.module.css';
 
@@ -13,6 +13,60 @@ import styles from './auth/Signup.module.css';
 // Generate a test company ID
 const generateTestCompanyId = (): string => {
   return `test-company-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+};
+
+// Generate temp IDs matching the expected format
+let tempIdCounter = 1000;
+const generateTempId = (): string => {
+  tempIdCounter++;
+  const random = Math.random().toString(36).substring(2, 10);
+  return `temp-${tempIdCounter}-${random}`;
+};
+
+// Create mock worksheet data with variants (Packaging: Pouch, Label, Sticker)
+const createMockWorksheetData = (): WorksheetData => {
+  const packagingCategoryId = generateTempId();
+  const ingredientsCategoryId = generateTempId();
+  const shCategoryId = generateTempId();
+  const vendorId = generateTempId();
+  const productId = generateTempId();
+  const invoiceId = generateTempId();
+
+  return {
+    version: '1.0.0',
+    created_at: new Date().toISOString(),
+    categories: [
+      { id: packagingCategoryId, name: 'Packaging', variants: ['Pouch', 'Label', 'Sticker'], sort_order: 1 },
+      { id: ingredientsCategoryId, name: 'Ingredients', variants: ['Organic', 'Regular'], sort_order: 2 },
+      { id: shCategoryId, name: 'Shipping & Handling', variants: [], sort_order: 9999, is_distribution_category: true }
+    ],
+    vendors: [{ id: vendorId, name: 'Test Supplier Co' }],
+    finished_products: [{ id: productId, name: 'Test Product', msrp: '29.99', sku: 'TEST-001' }],
+    recipes: [{
+      product_id: productId,
+      items: [
+        { category_id: packagingCategoryId, variant: 'Pouch', quantity: '1', unit: 'each' },
+        { category_id: packagingCategoryId, variant: 'Label', quantity: '1', unit: 'each' },
+        { category_id: ingredientsCategoryId, variant: 'Organic', quantity: '8', unit: 'oz' }
+      ]
+    }],
+    invoices: [{
+      id: invoiceId,
+      vendor_id: vendorId,
+      vendor_name: 'Test Supplier Co',
+      invoice_date: new Date().toISOString().split('T')[0],
+      invoice_number: 'INV-TEST-001',
+      invoice_total: '45.00',
+      items: [
+        { category_id: packagingCategoryId, variant: 'Pouch', quantity: '100', unit: 'each', unit_cost: '0.15', line_total: '15.00' },
+        { category_id: packagingCategoryId, variant: 'Label', quantity: '100', unit: 'each', unit_cost: '0.10', line_total: '10.00' },
+        { category_id: packagingCategoryId, variant: 'Sticker', quantity: '100', unit: 'each', unit_cost: '0.05', line_total: '5.00' },
+        { category_id: ingredientsCategoryId, variant: 'Organic', quantity: '10', unit: 'lb', unit_cost: '1.50', line_total: '15.00' }
+      ],
+      notes: 'Test invoice with Pouch/Label/Sticker variants'
+    }],
+    unit_conversions: []
+  };
 };
 
 export default function WorksheetFlowTest() {
@@ -31,6 +85,8 @@ export default function WorksheetFlowTest() {
     const testSession = {
       token: 'test-token-not-real',
       userId: companyId,
+      companyId: companyId,  // Auth context looks for this
+      companyName: 'Test Company',
       email: 'test@example.com',
       isTestMode: true
     };
@@ -109,6 +165,38 @@ export default function WorksheetFlowTest() {
     navigate('/cpg');
   };
 
+  const handleQuickImport = async () => {
+    if (!testCompanyId) return;
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const deviceId = getDeviceId();
+      const mockData = createMockWorksheetData();
+
+      console.log('🚀 Quick import with mock data:', mockData);
+
+      const result = await importWorksheetData(mockData, testCompanyId, deviceId);
+
+      console.log('✅ Quick import result:', result);
+      setImportResult(result);
+
+      if (!result.success) {
+        setError(`Import failed: ${result.errors.join(', ')}`);
+        return;
+      }
+
+      alert(`Quick Import Success!\n\nImported:\n- ${result.counts.categories} categories\n- ${result.counts.vendors} vendors\n- ${result.counts.products} products\n- ${result.counts.recipes} recipe items\n- ${result.counts.invoices} invoices\n\nClick OK to view in software.`);
+      navigate('/cpg');
+    } catch (err) {
+      console.error('❌ Quick import error:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (!testCompanyId) {
     return <div>Setting up test environment...</div>;
   }
@@ -171,6 +259,37 @@ export default function WorksheetFlowTest() {
             </div>
           </div>
         )}
+
+        {/* Quick Import Button - Skip manual data entry */}
+        <div style={{
+          marginBottom: '1.5rem',
+          padding: '1rem',
+          backgroundColor: '#fef3c7',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <button
+            onClick={handleQuickImport}
+            disabled={isSubmitting}
+            style={{
+              padding: '0.75rem 1.5rem',
+              backgroundColor: '#7c2d12',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: isSubmitting ? 'not-allowed' : 'pointer',
+              fontWeight: 600,
+              opacity: isSubmitting ? 0.6 : 1
+            }}
+          >
+            Quick Import (Mock Data)
+          </button>
+          <span style={{ color: '#92400e', fontSize: '0.875rem' }}>
+            Skip manual entry - imports test data with Packaging (Pouch/Label/Sticker), Ingredients, and S&H categories
+          </span>
+        </div>
 
         <ComprehensiveWorksheet
           onComplete={handleWorksheetComplete}

@@ -18,6 +18,62 @@ Local-first bookkeeping app (React/TS/Vite/Dexie). A security review found sever
 
 3. **Server holds only:** email, company name, support key, product tier, billing.
 
+4. **Dual-database architecture (intentional):**
+   - `TreasureChest` (`src/db/database.ts`) — CPG product, in beta with real users
+   - `GracefulBooksDB` (`src/store/database.ts`) — Bookkeeping product, unfinished, no users yet
+
+   Routes are gated by `requireProduct` in `src/routes/index.tsx`:
+   - CPG users (`cpu-cpg-calculator`) → `/cpg/*` routes → TreasureChest
+   - Bookkeeping users (`bookkeeping-suite`) → `/accounts`, `/vendors`, etc. → GracefulBooksDB
+
+   **Backup currently covers TreasureChest only.** When bookkeeping ships, its backup coverage must be built separately. No cross-database reads/writes exist.
+
+---
+
+## Known Architectural Constraints
+
+### companyId = userId (Temporary Shortcut)
+
+The app uses `userId` as `companyId` for data isolation. This is set in `src/contexts/AuthContext.tsx:57`:
+
+```typescript
+companyId: userId, // Use user ID as company ID for data isolation
+```
+
+**Why this matters:**
+- All data records include a `company_id` field for multi-tenant isolation
+- Currently, this is ALWAYS the user's ID (no true multi-company support yet)
+- Dev auth bypass (localhost + DEV mode) lets you access the app without a session
+- But WITHOUT a session, `companyId` is `null` — causing Dexie `.where().equals(undefined)` errors
+- This affects: CPG queries, backup restore, and any company-scoped data access
+
+**Symptoms of missing companyId:**
+- Cryptic Dexie error: `"Failed to execute 'only' on 'IDBKeyRange': The parameter is not a valid key."`
+- Console shows Dexie stack trace mentioning `.equals(undefined)`
+- Data exists but queries return nothing (because WHERE company_id = null matches nothing)
+
+**Guards added:**
+- `cpgSettings.service.ts` — throws meaningful error if companyId undefined
+- `cpgReporting.service.ts` — all exported functions guard companyId
+- `EncryptedBackup.tsx` — warns in dev mode, blocks in production
+
+**For testing on fresh browser profile:**
+Set sessionStorage before accessing protected routes:
+```javascript
+sessionStorage.setItem('graceful_books_session', JSON.stringify({
+  token: 'dev-test-token',
+  userId: 'YOUR-COMPANY-ID-FROM-BACKUP',  // See "Finding companyId in backup files"
+  userEmail: 'test@example.com',
+  expiresAt: Date.now() + 86400000
+}))
+```
+
+**Finding companyId in backup files:**
+1. Open any `.gbbackup` file in a text editor
+2. The file is JSON — look for `company_id` fields in any table data
+3. Or decrypt and search: any record's `company_id` is what you need
+4. Common locations: `cpgSettings[0].company_id`, `cpgCategories[0].company_id`
+
 ---
 
 ## What's Been Fixed on This Branch
@@ -30,7 +86,12 @@ Local-first bookkeeping app (React/TS/Vite/Dexie). A security review found sever
 ### 2. Auto-Backup Key Was Derivable
 Key was `SHA-256("audacious-money-backup:${userId}:stable-v1")` — derivable from a value our server holds.
 
-**Fix:** Being replaced with a random key.
+**Fix:** Now fully replaced with random-key system in ALL backup paths:
+- `EncryptedBackup.tsx` — Modal path, uses backupPreferences (auto-key or sentinel)
+- `SmartAutoBackupService.ts` — Auto-backup path, now reads from folder/IndexedDB, generates on first use
+- `DataSafetyPanel.tsx` — "Backup Now" button now opens EncryptedBackup modal instead of raw prompt()
+
+**AUDIT NOTE (2026-09-13):** SmartAutoBackupService.ts was marked "being replaced" but the old derivable key code (`audacious-money-backup:${userId}:stable-v1`) was still live at line 498. Now fixed.
 
 ### 3. Restore UI Was Dead Code
 `EncryptedBackup.tsx` existed but was never imported anywhere.
@@ -51,10 +112,38 @@ No way to see what restore would do.
 **Auto mode:** Uses a random key stored in the backup folder (or IndexedDB fallback).
 **Manual mode:** Uses a user passphrase verified by an encrypted sentinel. The passphrase itself is NOT stored.
 
-### 7. Argon2id Was Never Loading
+### 7. Argon2id Was Never Loading — FIXED (DEV AND PRODUCTION)
 `argon2-browser` was in package.json but never imported — everything silently fell back to PBKDF2.
 
-**Fix:** KDF migration designed with version markers and a legacy read path.
+**Status (2026-09-13):** FIXED in both dev and production builds.
+
+**Root cause:** Rollup couldn't bundle the WASM file. Dynamic `import('argon2-browser')` worked in dev (Vite serves from node_modules) but failed in production builds.
+
+**Solution:**
+1. Copy `argon2-bundled.min.js` to `public/` (has WASM embedded as base64)
+2. Load via script tag at runtime instead of dynamic import
+3. This bypasses Rollup entirely — works in both dev and prod
+
+**Files changed:**
+- `src/crypto/argon2Loader.ts` — Rewrote to use script tag loading
+- `public/argon2-bundled.min.js` — Added bundled version with embedded WASM
+
+**Verification (PRODUCTION BUILD):**
+```bash
+npm run build && npm run preview -- --port 3008
+BASE_URL=http://localhost:3008 npx playwright test kdf-argon2-production.spec.ts
+```
+
+**E2E test output (production build):**
+```
+[Argon2] Module loaded successfully via script tag
+[KDF] Key derived using Argon2id
+Duration: 1566ms (Argon2 expected >500ms, PBKDF2 would be <200ms)
+PBKDF2 fallback: NO (correct)
+2 passed
+```
+
+**Production test added:** `e2e/kdf-argon2-production.spec.ts` — Runs against production build, not dev server. This test exists because Argon2 was incorrectly reported "fixed" 4 times while only working in dev.
 
 ---
 
@@ -128,25 +217,22 @@ export function generateAutoBackupKey(): string {
 
 **Answer:** It IS `crypto.getRandomValues(new Uint8Array(32))` — full 256-bit entropy, NOT 32 chars from an alphabet (which would only be ~190 bits).
 
-### e) Auto-Mode Key File Investigation ⏳ PENDING
+### e) Auto-Mode Key File Investigation ✅ RESOLVED
 
-**Evidence:** After creating another backup at 8:53 PM on 9/9, the backup folder contains four `.gbbackup` files and NO key file. Screenshot confirmed.
+**Root cause found (2026-09-13):** `backupPreferences` was EMPTY (scenario c).
 
-**Tomorrow, determine which of these is true:**
+The `.gbbackup` files were created via DataSafetyPanel's "Backup Now" button, which used a raw browser `prompt()` for passphrase — completely bypassing the preference system. Each backup could have a different passphrase with no record of which.
 
-a) Every backup so far was manual mode, so no key file is expected — correct behavior, nothing to fix.
+**Fixes applied:**
+1. `DataSafetyPanel.tsx` — "Backup Now" now opens `EncryptedBackup` modal instead of `prompt()`
+2. `SmartAutoBackupService.ts` — Replaced derivable key with random-key system that reads from folder/IndexedDB
+3. `EncryptedBackup.tsx` — Added `onBackupComplete` callback prop
 
-b) At least one was auto mode, and the folder write is silently failing — a real bug, and one our "fail loudly" test should have caught but didn't.
-
-**Steps:**
-
-1. Check `backupPreferences` in IndexedDB on 3006. What is `passphrase_mode` set to right now? That tells us which mode has actually been used.
-
-2. Enable hidden files in Explorer — `.graceful-books-key` starts with a dot and may just not be displayed.
-
-3. Deliberately create a backup in AUTO mode, watch the console, and confirm both that `saveAutoModePreference()` runs and that a key file appears.
-
-4. If it doesn't appear: the folder write is failing without surfacing an error. Find out why, and fix the fail-loudly path — a silent failure here means unopenable auto-backups, since `backupPreferences` is excluded from backups and the folder copy is the only durable copy.
+**All backup paths now use the unified preference system:**
+- First backup triggers mode selection (auto vs manual)
+- Auto mode: generates random key, writes to folder (authoritative) + IndexedDB (fallback)
+- Manual mode: creates sentinel for passphrase verification, never stores passphrase
+- Subsequent backups verify against stored preference
 
 ### f) Rotation Pattern Fix ✅ DONE
 

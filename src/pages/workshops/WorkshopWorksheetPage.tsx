@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { getMyWorkshopEnrollment, completeWorksheet, type WorkshopEnrollment } from '../../services/workshops.api';
 import { ComprehensiveWorksheet } from '../../components/onboarding/ComprehensiveWorksheet';
-import { importWorksheetData } from '../../services/cpg/worksheetImporter.service';
+import { importWorksheetData, type ImportResult } from '../../services/cpg/worksheetImporter.service';
+import { ImportWarningsModal } from '../../components/cpg/modals/ImportWarningsModal';
 import { LoadingOverlay } from '../../components/feedback/Loading';
 import { useAuth } from '../../contexts/AuthContext';
 import { getDeviceId } from '../../utils/device';
@@ -17,6 +18,8 @@ export default function WorkshopWorksheetPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showWarningsModal, setShowWarningsModal] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
 
   // Load enrollment on mount
   useEffect(() => {
@@ -106,6 +109,8 @@ export default function WorkshopWorksheetPage() {
       // Store import results so they can be shown on the countdown page
       sessionStorage.setItem('worksheet_import_results', JSON.stringify({
         counts: result.counts,
+        skipped: result.skipped,
+        warnings: result.warnings,
         importedAt: new Date().toISOString(),
         companyId: companyId,
       }));
@@ -127,7 +132,16 @@ export default function WorkshopWorksheetPage() {
         console.warn('[Worksheet] Failed to mark worksheet complete (non-blocking):', apiError);
       }
 
-      // Navigate to countdown page
+      // Check if there are warnings to show
+      if (result.warnings && result.warnings.length > 0) {
+        console.log('[Worksheet] Import has warnings, showing modal:', result.warnings);
+        setImportResult(result);
+        setShowWarningsModal(true);
+        // Don't navigate yet - let user review warnings first
+        return;
+      }
+
+      // No warnings - navigate directly to countdown page
       console.log('[Worksheet] Navigating to countdown page');
       navigate('/workshops/countdown');
     } catch (error) {
@@ -143,6 +157,21 @@ export default function WorkshopWorksheetPage() {
     // For workshop flow, we don't allow skipping - they must complete the worksheet
     // But we can handle this gracefully by just logging
     navigate('/workshops/countdown');
+  };
+
+  const handleWarningsModalContinue = () => {
+    console.log('[Worksheet] User acknowledged warnings, navigating to countdown page');
+    setShowWarningsModal(false);
+    navigate('/workshops/countdown');
+  };
+
+  const handleWarningsModalClose = () => {
+    // User wants to review - close modal but stay on page
+    // They can see their data was imported and decide what to do
+    console.log('[Worksheet] User wants to review warnings');
+    setShowWarningsModal(false);
+    // Show a helpful message
+    setError('Your data has been imported. Some items need attention - you can fix them in the software after the workshop.');
   };
 
   console.log('[Worksheet] Render - isLoading:', isLoading, 'error:', error, 'enrollment:', enrollment);
@@ -177,6 +206,18 @@ export default function WorkshopWorksheetPage() {
           onSkip={handleSkipWorksheet}
         />
       </div>
+
+      {/* Warnings Modal - shown when import succeeds but has warnings */}
+      {importResult && (
+        <ImportWarningsModal
+          isOpen={showWarningsModal}
+          onClose={handleWarningsModalClose}
+          onContinue={handleWarningsModalContinue}
+          warnings={importResult.warnings}
+          counts={importResult.counts}
+          skipped={importResult.skipped}
+        />
+      )}
     </div>
   );
 }

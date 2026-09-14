@@ -54,7 +54,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setAuthState({
             isAuthenticated: !!parsed.token,
             userIdentifier: userEmail,
-            companyId: userId, // Use user ID as company ID for data isolation
+            // IMPORTANT: companyId = userId is a temporary architectural shortcut.
+            // See HANDOFF.md "Known Architectural Constraints" for implications.
+            // If null (dev bypass without session), Dexie queries will fail.
+            companyId: userId,
             currentCompany: userId ? {
               id: userId,
               name: userName || userId

@@ -431,7 +431,7 @@ export const RecentActivityTable: FC<RecentActivityTableProps> = ({
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-testid="transactions-table">
       {/* Header */}
       <div className={styles.header}>
         <h2 className={styles.title}>{title}</h2>

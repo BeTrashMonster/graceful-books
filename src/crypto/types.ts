@@ -18,11 +18,12 @@
 export type PermissionLevel = 'admin' | 'manager' | 'user' | 'consultant' | 'accountant';
 
 /**
- * Key derivation parameters for Argon2id
+ * Key derivation parameters for PBKDF2/Argon2id
  *
- * Based on ARCH-002 requirements:
- * - Memory: 64 MB minimum
- * - Iterations: 3 minimum (adjusted based on device performance)
+ * Current implementation: PBKDF2 with iterations = timeCost * 10000 (min 100k)
+ * Target (Argon2id migration ready via kdfMigration.ts):
+ * - Memory: 32 MB (tuned for ~1s)
+ * - Iterations: 4 (timeCost)
  * - Parallelism: 4 threads
  * - Output: 256-bit key
  */
@@ -42,8 +43,8 @@ export interface KeyDerivationParams {
 /**
  * Master encryption key derived from user passphrase
  *
- * Per ARCH-001: The master key is derived using Argon2id and
- * stored encrypted in the local device only. Never transmitted
+ * Per ARCH-001: The master key is derived using PBKDF2 (Argon2id migration
+ * available) and stored encrypted in the local device only. Never transmitted
  * in unencrypted form.
  */
 export interface MasterKey {

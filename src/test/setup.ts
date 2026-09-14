@@ -3,6 +3,25 @@ import { cleanup } from '@testing-library/react'
 import { afterEach, vi } from 'vitest'
 import 'fake-indexeddb/auto'
 
+// Polyfill Blob.text() for jsdom (missing in older jsdom versions)
+if (typeof Blob !== 'undefined' && !Blob.prototype.text) {
+  Blob.prototype.text = function(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = () => reject(reader.error)
+      reader.readAsText(this)
+    })
+  }
+}
+
+// Polyfill File.text() for jsdom (File extends Blob)
+if (typeof File !== 'undefined' && !File.prototype.text) {
+  File.prototype.text = function(): Promise<string> {
+    return Blob.prototype.text.call(this)
+  }
+}
+
 // Cleanup after each test
 afterEach(() => {
   cleanup()

@@ -66,7 +66,7 @@ export const DEFAULT_EMAIL_TEMPLATES: Record<EmailType, EmailTemplate> = {
   </div>
 
   <h3 style="color: #4b006e;">Now, about your recipes.</h3>
-  <p>I know your formulations are sacred — they are the heart of everything you have built. So let me be completely clear: this software is <em>zero-knowledge</em>. Your recipes, your invoices, your numbers are encrypted in a way that only you can see them.</p>
+  <p>I know your formulations are sacred — they are the heart of everything you have built. So let me be completely clear: your data is encrypted with a passphrase that only you know. Your recipes, your invoices, your numbers — no one can see them but you.</p>
 
   <p>Sovereignty over your data and your business is crucial to our next evolution.</p>
 

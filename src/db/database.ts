@@ -5,6 +5,25 @@
  * Implements local-first storage using Dexie.js (IndexedDB wrapper)
  * with CRDT-compatible schema design for offline-first multi-device sync.
  *
+ * IMPORTANT: DUAL-DATABASE ARCHITECTURE
+ * ======================================
+ * This codebase has TWO separate IndexedDB databases by design:
+ *
+ * 1. TreasureChest (THIS FILE: src/db/database.ts)
+ *    - Product: CPG Tool (cpu-cpg-calculator)
+ *    - Status: In beta with real users
+ *    - Routes: /cpg/* (gated by requireProduct="cpu-cpg-calculator")
+ *    - Backup: YES - exportAllData() and backupService.ts use this db
+ *
+ * 2. GracefulBooksDB (src/store/database.ts)
+ *    - Product: Bookkeeping Suite (bookkeeping-suite)
+ *    - Status: Unfinished, no users yet
+ *    - Routes: /accounts, /vendors, etc. (gated by requireProduct="bookkeeping-suite")
+ *    - Backup: NOT YET - must be built when bookkeeping ships
+ *
+ * No cross-database reads/writes exist. Routes enforce product separation.
+ * See HANDOFF.md "Architecture Decisions" section 4 for details.
+ *
  * Requirements:
  * - ARCH-003: Local-First Data Store
  * - ARCH-004: CRDT-Compatible Schema Design
@@ -273,6 +292,10 @@ import type {
   ProcedureInstance,
   ProcedureTaskCompletion,
 } from './schema/checklistCalendar.schema';
+import {
+  backupPreferencesSchema,
+  type BackupPreference,
+} from './schema/backupPreferences.schema';
 
 /**
  * TreasureChest Database Class
@@ -382,6 +405,9 @@ export class TreasureChestDB extends Dexie {
   // Transaction Groups (v32)
   transactionGroups!: Table<TransactionGroup, string>;
   transactionGroupAssignments!: Table<TransactionGroupAssignment, string>;
+
+  // Backup Preferences (v33)
+  backupPreferences!: Table<BackupPreference, string>;
 
   constructor() {
     super('TreasureChest');
@@ -2312,11 +2338,119 @@ export class TreasureChestDB extends Dexie {
       transactionGroupAssignments: transactionGroupAssignmentsSchema,
     });
 
+    // Version 33: Add Backup Preferences table for passphrase mode
+    this.version(33).stores({
+      // All existing tables remain unchanged
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      charities: charitiesSchema,
+      subscriptions: subscriptionsSchema,
+      advisorClients: advisorClientsSchema,
+      advisorTeamMembers: advisorTeamMembersSchema,
+      paymentMethods: paymentMethodsSchema,
+      billingInvoices: billingInvoicesSchema,
+      stripeWebhookEvents: stripeWebhookEventsSchema,
+      charityDistributions: charityDistributionsSchema,
+      financialGoals: financialGoalsSchema,
+      goalProgressSnapshots: goalProgressSnapshotsSchema,
+      taxDocuments: taxDocumentsSchema,
+      taxCategoryStatus: taxCategoryStatusSchema,
+      taxPrepSessions: taxPrepSessionsSchema,
+      taxAdvisorAccess: taxAdvisorAccessSchema,
+      taxPackages: taxPackagesSchema,
+      currencies: currenciesSchema,
+      exchangeRates: exchangeRatesSchema,
+      cpgCategories: cpgCategoriesSchema,
+      cpgInvoices: cpgInvoicesSchema,
+      cpgVendors: cpgVendorsSchema,
+      cpgDistributors: cpgDistributorsSchema,
+      cpgDistributionCalculations: cpgDistributionCalculationsSchema,
+      cpgSalesPromos: cpgSalesPromosSchema,
+      cpgProductLinks: cpgProductLinksSchema,
+      standaloneFinancials: standaloneFinancialsSchema,
+      skuCountTrackers: skuCountTrackersSchema,
+      cpgFinishedProducts: cpgFinishedProductsSchema,
+      cpgRecipes: cpgRecipesSchema,
+      cpgSettings: cpgSettingsSchema,
+      cpgEvents: cpgEventsSchema,
+      cpgLaborRoles: cpgLaborRolesSchema,
+      cpgProductLabors: cpgProductLaborsSchema,
+      cpgUnitConversions: cpgUnitConversionsSchema,
+      userFeaturePreferences: userFeaturePreferencesSchema,
+      tabPreferences: tabPreferencesSchema,
+      backupAuditLogs: backupAuditLogsSchema,
+      adminChecklists: adminChecklistsSchema,
+      adminTasks: adminTasksSchema,
+      adminTaskCompletions: adminTaskCompletionsSchema,
+      adminTaskComments: adminTaskCommentsSchema,
+      userChecklistPreferences: userChecklistPreferencesSchema,
+      checklistWizardProgress: checklistWizardProgressSchema,
+      procedureInstances: procedureInstancesSchema,
+      procedureTaskCompletions: procedureTaskCompletionsSchema,
+      transactionGroups: transactionGroupsSchema,
+      transactionGroupAssignments: transactionGroupAssignmentsSchema,
+      // NEW: Backup Preferences for passphrase mode
+      backupPreferences: backupPreferencesSchema,
+    });
+
     // Add hooks for automatic audit logging
     this.setupAuditHooks();
 
     // Add hooks for CRDT timestamp updates
     this.setupCRDTHooks();
+
+    // DEV ONLY: Add guards for company_id mismatch (after db is ready)
+    this.on('ready', () => {
+      try {
+        this.setupCompanyIdGuard();
+      } catch (err) {
+        console.warn('[DEV] Failed to setup company_id guards:', err);
+      }
+    });
   }
 
   /**
@@ -2342,6 +2476,129 @@ export class TreasureChestDB extends Dexie {
    * Setup CRDT hooks
    * Automatically updates timestamps and version vectors
    */
+  /**
+   * DEV ONLY: Guard against writing records with company_id that doesn't match session.
+   * This would have caught the cpg-demo vs demo-user-cpg split issue.
+   *
+   * SAFETY: This is wrapped in try/catch and checks table existence.
+   * A dev diagnostic must never take down the app.
+   */
+  private setupCompanyIdGuard() {
+    try {
+      // Only in development mode
+      if (typeof window === 'undefined' || !import.meta.env.DEV) {
+        return;
+      }
+
+      // Get session company_id
+      const getSessionCompanyId = (): string | null => {
+        try {
+          const session = sessionStorage.getItem('graceful_books_session');
+          if (session) {
+            const parsed = JSON.parse(session);
+            // Handle both session formats
+            return parsed.userId || parsed.user?.id || null;
+          }
+          // Fallback to localStorage
+          const local = localStorage.getItem('graceful_books_user');
+          if (local) {
+            const parsed = JSON.parse(local);
+            return parsed.companyId || null;
+          }
+        } catch {
+          // Ignore parse errors
+        }
+        return null;
+      };
+
+      // Create a hook that validates company_id on insert
+      const validateCompanyId = (tableName: string) => {
+        return (primKey: unknown, obj: unknown) => {
+          try {
+            const record = obj as Record<string, unknown>;
+            const recordCompanyId = record.company_id ?? record.companyId;
+
+            const sessionCompanyId = getSessionCompanyId();
+
+            // Check for null/undefined company_id - this creates orphaned records
+            if (recordCompanyId === null || recordCompanyId === undefined) {
+              const errorMsg = `[DEV GUARD] company_id is NULL/UNDEFINED in ${tableName}!\n` +
+                `  This record will be orphaned and invisible to all sessions.\n` +
+                `  Session company_id: "${sessionCompanyId || 'none'}"\n` +
+                `  See HANDOFF.md "Known Architectural Constraints" for details.`;
+              console.error(errorMsg);
+              this.showCompanyIdWarning(tableName, 'NULL/UNDEFINED');
+              return;
+            }
+
+            // Skip if no session (can't validate mismatch)
+            if (!sessionCompanyId) return;
+
+            // Check for mismatch
+            if (recordCompanyId !== sessionCompanyId) {
+              const errorMsg = `[DEV GUARD] company_id MISMATCH in ${tableName}!\n` +
+                `  Record company_id: "${recordCompanyId}"\n` +
+                `  Session company_id: "${sessionCompanyId}"\n` +
+                `  This will cause data to become invisible to the current session.\n` +
+                `  See HANDOFF.md "Known Architectural Constraints" for details.`;
+              console.error(errorMsg);
+              this.showCompanyIdWarning(tableName, 'MISMATCH');
+            }
+          } catch (err) {
+            // Never let the guard crash a write operation
+            console.warn(`[DEV GUARD] Error in validateCompanyId for ${tableName}:`, err);
+          }
+        };
+      };
+
+      // Helper to show visual warning (deduplicated)
+      this.showCompanyIdWarning = (tableName: string, type: string) => {
+        if (typeof document === 'undefined') return;
+        const existing = document.getElementById('company-id-mismatch-warning');
+        if (!existing) {
+          const warning = document.createElement('div');
+          warning.id = 'company-id-mismatch-warning';
+          warning.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:12px;background:#7c2d12;color:white;font-family:monospace;font-size:12px;z-index:99999;text-align:center;';
+          warning.innerHTML = `<strong>DEV WARNING:</strong> company_id ${type} in ${tableName}! Check console. <button onclick="this.parentElement.remove()" style="margin-left:10px;padding:2px 8px;">Dismiss</button>`;
+          document.body.prepend(warning);
+        }
+      };
+
+      // Safely add hook to a table (skip if table doesn't exist)
+      const safeAddHook = (table: unknown, tableName: string) => {
+        if (table && typeof (table as any).hook === 'function') {
+          (table as any).hook('creating', validateCompanyId(tableName));
+        }
+      };
+
+      // Apply to all CPG tables (safely)
+      safeAddHook(this.cpgCategories, 'cpgCategories');
+      safeAddHook(this.cpgInvoices, 'cpgInvoices');
+      safeAddHook(this.cpgVendors, 'cpgVendors');
+      safeAddHook(this.cpgDistributors, 'cpgDistributors');
+      safeAddHook(this.cpgDistributionCalculations, 'cpgDistributionCalculations');
+      safeAddHook(this.cpgSalesPromos, 'cpgSalesPromos');
+      safeAddHook(this.cpgEvents, 'cpgEvents');
+      safeAddHook(this.cpgFinishedProducts, 'cpgFinishedProducts');
+      safeAddHook(this.cpgRecipes, 'cpgRecipes');
+      safeAddHook(this.cpgProductLinks, 'cpgProductLinks');
+      safeAddHook(this.cpgSettings, 'cpgSettings');
+      safeAddHook(this.cpgLaborRoles, 'cpgLaborRoles');
+      safeAddHook(this.cpgProductLabors, 'cpgProductLabors');
+      safeAddHook(this.cpgUnitConversions, 'cpgUnitConversions');
+      safeAddHook(this.cpgImpactScenarios, 'cpgImpactScenarios');
+      safeAddHook(this.standaloneFinancials, 'standaloneFinancials');
+
+      dbLogger.info('[DEV] company_id validation hooks installed on CPG tables');
+    } catch (err) {
+      // Never let guard setup crash the app
+      console.warn('[DEV] Failed to setup company_id guards:', err);
+    }
+  }
+
+  // Helper method for showing warnings (defined in setupCompanyIdGuard)
+  private showCompanyIdWarning?: (tableName: string, type: string) => void;
+
   private setupCRDTHooks() {
     // Hook to update updated_at timestamp on modifications
     // Type-safe hook that works with any entity extending BaseEntity
@@ -2534,108 +2791,208 @@ export class TreasureChestDB extends Dexie {
 
   /**
    * Export all data for backup
+   * Version 3: DYNAMIC - iterates db.tables at runtime
+   *
+   * Every table is included by default UNLESS it's in BACKUP_EXCLUDED_TABLES.
+   * Adding a new table will automatically include it in backups.
    */
   async exportAllData(): Promise<DatabaseExport> {
-    const [
-      accounts,
-      transactions,
-      transactionLineItems,
-      contacts,
-      products,
-      users,
-      companies,
-      companyUsers,
-      auditLogs,
-      sessions,
-      devices,
-    ] = await Promise.all([
-      this.accounts.toArray(),
-      this.transactions.toArray(),
-      this.transactionLineItems.toArray(),
-      this.contacts.toArray(),
-      this.products.toArray(),
-      this.users.toArray(),
-      this.companies.toArray(),
-      this.companyUsers.toArray(),
-      this.auditLogs.toArray(),
-      this.sessions.toArray(),
-      this.devices.toArray(),
-    ]);
+    dbLogger.info('Starting dynamic database export');
+
+    const tables: Record<string, unknown[]> = {};
+    const excludedTables: string[] = [];
+    let totalRecords = 0;
+
+    // Get all table names from Dexie
+    const allTableNames = this.tables.map((t) => t.name);
+    dbLogger.debug('Found tables', { count: allTableNames.length, tables: allTableNames });
+
+    // Export each table (unless excluded)
+    for (const tableName of allTableNames) {
+      // Check if table is excluded
+      if (BACKUP_EXCLUDED_TABLES[tableName]) {
+        excludedTables.push(tableName);
+        dbLogger.debug(`Skipping excluded table: ${tableName}`, {
+          reason: BACKUP_EXCLUDED_TABLES[tableName],
+        });
+        continue;
+      }
+
+      // Get the table and export its data
+      try {
+        const table = this.table(tableName);
+        const data = await table.toArray();
+        tables[tableName] = data;
+        totalRecords += data.length;
+
+        if (data.length > 0) {
+          dbLogger.debug(`Exported table: ${tableName}`, { records: data.length });
+        }
+      } catch (err) {
+        dbLogger.warn(`Failed to export table: ${tableName}`, { error: err });
+        // Continue with other tables - don't fail entire export
+      }
+    }
+
+    // Log summary
+    const tablesWithData = Object.entries(tables).filter(([_, data]) => data.length > 0);
+    dbLogger.info('Database export complete', {
+      totalTables: allTableNames.length,
+      exportedTables: Object.keys(tables).length,
+      excludedTables: excludedTables.length,
+      tablesWithData: tablesWithData.length,
+      totalRecords,
+    });
 
     return {
-      version: 1,
+      version: 3, // Dynamic export version
       exported_at: Date.now(),
-      data: {
-        accounts,
-        transactions,
-        transactionLineItems,
-        contacts,
-        products,
-        users,
-        companies,
-        companyUsers,
-        auditLogs,
-        sessions,
-        devices,
-      },
+      tables,
+      excludedTables,
+      totalRecords,
     };
   }
 
   /**
-   * Import data from backup
+   * Get list of all table names in the database
+   * Useful for testing and validation
    */
-  async importAllData(backup: DatabaseExport): Promise<void> {
-    if (backup.version !== 1) {
-      throw new Error(`Unsupported backup version: ${backup.version}`);
+  getAllTableNames(): string[] {
+    return this.tables.map((t) => t.name);
+  }
+
+  /**
+   * Get list of tables that would be exported (not excluded)
+   */
+  getExportedTableNames(): string[] {
+    return this.tables
+      .map((t) => t.name)
+      .filter((name) => !BACKUP_EXCLUDED_TABLES[name]);
+  }
+
+  /**
+   * Get list of excluded tables with reasons
+   */
+  getExcludedTablesWithReasons(): Record<string, string> {
+    return { ...BACKUP_EXCLUDED_TABLES };
+  }
+
+  /**
+   * Import data from backup
+   * Supports all versions:
+   * - Version 1: Core 11 tables only (legacy)
+   * - Version 2: Core tables + extendedData object
+   * - Version 3: Dynamic tables object
+   *
+   * Unknown tables in backup are skipped with a warning (partial restore).
+   */
+  async importAllData(backup: DatabaseExport): Promise<{
+    importedTables: string[];
+    skippedTables: string[];
+    totalRecords: number;
+  }> {
+    // Version check - future versions should fail gracefully
+    if (backup.version > 3) {
+      throw new Error(
+        `This backup was created with a newer version of the app (v${backup.version}). ` +
+        `Please update to the latest version to restore this backup.`
+      );
     }
 
-    await this.transaction(
-      'rw',
-      [
-        this.accounts,
-        this.transactions,
-        this.transactionLineItems,
-        this.contacts,
-        this.products,
-        this.users,
-        this.companies,
-        this.companyUsers,
-        this.auditLogs,
-        this.sessions,
-        this.devices,
-      ],
-      async () => {
-        // Clear existing data
-        await Promise.all([
-          this.accounts.clear(),
-          this.transactions.clear(),
-          this.transactionLineItems.clear(),
-          this.contacts.clear(),
-          this.products.clear(),
-          this.users.clear(),
-          this.companies.clear(),
-          this.companyUsers.clear(),
-          this.auditLogs.clear(),
-          this.sessions.clear(),
-          this.devices.clear(),
-        ]);
+    dbLogger.info('Starting database import', { version: backup.version });
 
-        // Import new data
-        await Promise.all([
-          this.accounts.bulkAdd(backup.data.accounts),
-          this.transactions.bulkAdd(backup.data.transactions),
-          this.transactionLineItems.bulkAdd(backup.data.transactionLineItems),
-          this.contacts.bulkAdd(backup.data.contacts),
-          this.products.bulkAdd(backup.data.products),
-          this.users.bulkAdd(backup.data.users),
-          this.companies.bulkAdd(backup.data.companies),
-          this.companyUsers.bulkAdd(backup.data.companyUsers),
-          this.auditLogs.bulkAdd(backup.data.auditLogs),
-          this.sessions.bulkAdd(backup.data.sessions),
-          this.devices.bulkAdd(backup.data.devices),
-        ]);
+    const importedTables: string[] = [];
+    const skippedTables: string[] = [];
+    let totalRecords = 0;
+
+    // Build a unified tables map from any version
+    const tablesToImport: Record<string, unknown[]> = {};
+
+    if (backup.version === 3 && backup.tables) {
+      // Version 3: Use tables directly
+      Object.assign(tablesToImport, backup.tables);
+    } else {
+      // Version 1/2: Convert to unified format
+      if (backup.data) {
+        Object.entries(backup.data).forEach(([key, value]) => {
+          if (Array.isArray(value)) {
+            tablesToImport[key] = value;
+          }
+        });
       }
-    );
+      if (backup.extendedData) {
+        Object.entries(backup.extendedData).forEach(([key, value]) => {
+          if (Array.isArray(value)) {
+            tablesToImport[key] = value;
+          }
+        });
+      }
+    }
+
+    // Get list of known tables in this database
+    const knownTableNames = new Set(this.tables.map((t) => t.name));
+
+    // First pass: Clear all tables that will receive data
+    const tablesToClear: string[] = [];
+    for (const tableName of Object.keys(tablesToImport)) {
+      if (knownTableNames.has(tableName)) {
+        tablesToClear.push(tableName);
+      }
+    }
+
+    dbLogger.debug('Clearing tables for import', { tables: tablesToClear });
+    for (const tableName of tablesToClear) {
+      try {
+        await this.table(tableName).clear();
+      } catch (err) {
+        dbLogger.warn(`Failed to clear table: ${tableName}`, { error: err });
+      }
+    }
+
+    // Second pass: Import data into each table
+    for (const [tableName, data] of Object.entries(tablesToImport)) {
+      if (!Array.isArray(data) || data.length === 0) {
+        continue; // Skip empty arrays
+      }
+
+      // Check if this table exists in current database
+      if (!knownTableNames.has(tableName)) {
+        dbLogger.warn(`Skipping unknown table from backup: ${tableName}`, {
+          records: data.length,
+        });
+        skippedTables.push(tableName);
+        continue;
+      }
+
+      // Import data
+      try {
+        const table = this.table(tableName);
+        await table.bulkAdd(data as any[]);
+        importedTables.push(tableName);
+        totalRecords += data.length;
+        dbLogger.debug(`Imported table: ${tableName}`, { records: data.length });
+      } catch (err) {
+        dbLogger.error(`Failed to import table: ${tableName}`, { error: err });
+        skippedTables.push(tableName);
+      }
+    }
+
+    // Log summary
+    dbLogger.info('Database import complete', {
+      importedTables: importedTables.length,
+      skippedTables: skippedTables.length,
+      totalRecords,
+    });
+
+    // Warn user if tables were skipped
+    if (skippedTables.length > 0) {
+      dbLogger.warn('Some tables from backup were skipped', {
+        skippedTables,
+        reason: 'Tables not recognized by current database version',
+      });
+    }
+
+    return { importedTables, skippedTables, totalRecords };
   }
 
   /**
@@ -2660,7 +3017,7 @@ export class TreasureChestDB extends Dexie {
 
     // Get database size estimate (IndexedDB doesn't provide exact size)
     let estimatedSize = 0;
-    if ('estimate' in navigator.storage) {
+    if (typeof navigator !== 'undefined' && navigator.storage && 'estimate' in navigator.storage) {
       const estimate = await navigator.storage.estimate();
       estimatedSize = estimate.usage || 0;
     }
@@ -2675,15 +3032,100 @@ export class TreasureChestDB extends Dexie {
       estimatedSizeBytes: estimatedSize,
     };
   }
+
+  /**
+   * Get comprehensive statistics for ALL tables in the database.
+   * Used for backup comparison to ensure no data is silently lost.
+   * Returns per-table counts and total record count.
+   */
+  async getComprehensiveStatistics(): Promise<ComprehensiveStatistics> {
+    const tableCounts: Record<string, number> = {};
+    let totalRecords = 0;
+
+    // Count all tables dynamically
+    for (const table of this.tables) {
+      try {
+        const count = await table.count();
+        tableCounts[table.name] = count;
+        totalRecords += count;
+      } catch (err) {
+        dbLogger.warn(`Failed to count table: ${table.name}`, { error: err });
+        tableCounts[table.name] = 0;
+      }
+    }
+
+    return {
+      tableCounts,
+      totalRecords,
+      tableCount: Object.keys(tableCounts).length,
+    };
+  }
 }
 
 /**
+ * Tables explicitly excluded from backup.
+ * Every table MUST be either exported OR listed here with a reason.
+ * Adding a table without making this decision will fail tests.
+ */
+export const BACKUP_EXCLUDED_TABLES: Record<string, string> = {
+  // Sessions are ephemeral - they expire and user will re-authenticate
+  sessions: 'Ephemeral: sessions expire and require re-authentication',
+
+  // Devices can be re-registered on restore
+  devices: 'Ephemeral: devices re-register on next use',
+
+  // Email queue is transient - pending emails would be stale after restore
+  emailQueue: 'Transient: pending emails would be stale after restore',
+
+  // Email logs are operational history, not user data
+  emailLogs: 'Operational: delivery logs are not user data',
+
+  // Conflict history is sync-specific, not portable between databases
+  conflict_history: 'Sync-specific: not portable between database instances',
+  conflict_notifications: 'Sync-specific: notifications for resolved conflicts',
+
+  // Recent activity is UI state (recent searches, views for quick-access menus)
+  // NOT audit trail - auditLogs table IS backed up. Regenerates as user interacts.
+  recentActivity: 'UI state: recent searches/views for quick-access, regenerates on use',
+
+  // Portal tokens are auth tokens - would be invalid after restore
+  portalTokens: 'Auth tokens: would be invalid in different context',
+
+  // Stripe webhook events are operational logs
+  stripeWebhookEvents: 'Operational: payment processor webhook history',
+
+  // Billing invoices = OUR invoices TO the user for their Graceful Books subscription
+  // Contains stripe_invoice_id references. Actual data lives in Stripe, resyncs via API.
+  // NOT the user's business invoices (those are in `invoices` table, which IS backed up)
+  billingInvoices: 'Platform billing: Stripe subscription invoices, resync via Stripe API',
+
+  // Payment methods contain stripe_payment_method_id tokens, not actual card data
+  // Real payment data lives in Stripe. Resyncs on next Stripe webhook/API call.
+  paymentMethods: 'Platform billing: Stripe token references, resync via Stripe API',
+
+  // Backup preferences contain stored passphrase/keys - must not be in backup!
+  // Also contains file system handles which are device-specific
+  backupPreferences: 'Security: contains local passphrase/key and device-specific file handles',
+};
+
+/**
  * Database export format
+ * Version 3: Fully dynamic - exports all tables not in BACKUP_EXCLUDED_TABLES
+ *
+ * Backward compatibility:
+ * - Version 1: Original 11-table format (accounts, transactions, etc.)
+ * - Version 2: Added extendedData object with additional tables
+ * - Version 3: Single `tables` object with all table data dynamically
  */
 export interface DatabaseExport {
   version: number;
   exported_at: number;
-  data: {
+
+  /**
+   * Version 1/2 format: Fixed structure for backward compatibility
+   * Only present in v1/v2 exports, not used in v3+
+   */
+  data?: {
     accounts: Account[];
     transactions: Transaction[];
     transactionLineItems: TransactionLineItem[];
@@ -2696,10 +3138,32 @@ export interface DatabaseExport {
     sessions: Session[];
     devices: Device[];
   };
+
+  /**
+   * Version 2 format: Extended data (deprecated in v3)
+   */
+  extendedData?: Record<string, unknown[]>;
+
+  /**
+   * Version 3+ format: All tables dynamically enumerated
+   * Key is table name, value is array of records
+   */
+  tables?: Record<string, unknown[]>;
+
+  /**
+   * List of tables that were excluded from this export (with reasons)
+   * Helps identify if a table was intentionally excluded vs missing
+   */
+  excludedTables?: string[];
+
+  /**
+   * Total record count across all exported tables
+   */
+  totalRecords?: number;
 }
 
 /**
- * Database statistics
+ * Database statistics (legacy - limited tables)
  */
 export interface DatabaseStatistics {
   accounts: number;
@@ -2709,6 +3173,19 @@ export interface DatabaseStatistics {
   companies: number;
   auditLogs: number;
   estimatedSizeBytes: number;
+}
+
+/**
+ * Comprehensive statistics for ALL tables.
+ * Used for backup comparison to prevent data loss.
+ */
+export interface ComprehensiveStatistics {
+  /** Per-table record counts */
+  tableCounts: Record<string, number>;
+  /** Total records across all tables */
+  totalRecords: number;
+  /** Number of tables counted */
+  tableCount: number;
 }
 
 /**

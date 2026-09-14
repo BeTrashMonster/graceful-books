@@ -1062,8 +1062,6 @@ export function RecipeBuilder({
                       </optgroup>
                       <optgroup label="Count">
                         <option value="each">each</option>
-                        <option value="dozen">dozen</option>
-                        <option value="case">case</option>
                       </optgroup>
                     </select>
                   </div>

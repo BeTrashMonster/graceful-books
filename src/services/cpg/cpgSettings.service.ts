@@ -28,6 +28,15 @@ export class CPGSettingsService {
     companyId: string,
     deviceId: string
   ): Promise<CPGSettings> {
+    // Guard against undefined/null companyId - Dexie throws cryptic error on .equals(undefined)
+    // See HANDOFF.md "Known Architectural Constraints" for why this can happen
+    if (!companyId) {
+      throw new Error(
+        'companyId is required to access CPG settings. ' +
+        'This usually means no user session exists. Please log in first.'
+      );
+    }
+
     // Check if settings exist
     const existing = await this.db.cpgSettings
       .where('company_id')
@@ -98,6 +107,13 @@ export class CPGSettingsService {
     companyId: string,
     deviceId: string
   ): Promise<CPGSettings> {
+    // Guard against undefined/null companyId
+    if (!companyId) {
+      throw new Error(
+        'companyId is required to reset CPG settings. Please log in first.'
+      );
+    }
+
     // Get existing settings
     const existing = await this.db.cpgSettings
       .where('company_id')

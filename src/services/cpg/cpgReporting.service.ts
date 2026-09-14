@@ -169,6 +169,11 @@ export async function generateCPGProfitLoss(
   startDate: number,
   endDate: number
 ): Promise<CPGProfitLossReport> {
+  // Guard against undefined/null companyId
+  if (!companyId) {
+    throw new Error('companyId is required to generate CPG P&L report. Please log in first.');
+  }
+
   try {
     reportLogger.info('Generating CPG P&L report', { companyId, startDate, endDate });
 
@@ -368,6 +373,10 @@ export async function getGrossMarginByProduct(
   companyId: string,
   filters?: MarginFilters
 ): Promise<GrossMarginData[]> {
+  if (!companyId) {
+    throw new Error('companyId is required to get gross margin data. Please log in first.');
+  }
+
   try {
     reportLogger.info('Getting gross margin by product', { companyId, filters });
 
@@ -474,6 +483,10 @@ export async function compareDistributors(
   companyId: string,
   distributorIds: string[]
 ): Promise<DistributorComparison> {
+  if (!companyId) {
+    throw new Error('companyId is required to compare distributors. Please log in first.');
+  }
+
   try {
     reportLogger.info('Comparing distributors', { companyId, distributorIds });
 
@@ -593,6 +606,10 @@ export async function getTradeSpendSummary(
   startDate: number,
   endDate: number
 ): Promise<TradeSpendSummary> {
+  if (!companyId) {
+    throw new Error('companyId is required to get trade spend summary. Please log in first.');
+  }
+
   try {
     reportLogger.info('Getting trade spend summary', { companyId, startDate, endDate });
 
