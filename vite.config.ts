@@ -125,7 +125,10 @@ export default defineConfig({
     // SRI validation - warns about external resources without integrity attributes
     sriValidationPlugin(),
   ],
-  // Prevent Vite from pre-bundling WASM modules (let vite-plugin-wasm handle them)
+  // argon2-browser is excluded from optimizeDeps because:
+  // 1. It's a UMD module that loads WASM dynamically via fetch()
+  // 2. vite-plugin-wasm conflicts with argon2-browser's internal WASM loading
+  // 3. We access it via window.argon2 after loading
   optimizeDeps: {
     exclude: ['argon2-browser', 'pdf-parse'],
   },

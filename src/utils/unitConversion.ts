@@ -10,7 +10,7 @@ export type UnitType = 'weight' | 'volume' | 'count' | 'each';
 
 export type WeightUnit = 'mg' | 'g' | 'kg' | 'oz' | 'lb';
 export type VolumeUnit = 'ml' | 'tsp' | 'tbsp' | 'fl oz' | 'cup' | 'pt' | 'qt' | 'L' | 'gal';
-export type CountUnit = 'each' | 'dozen' | 'case';
+export type CountUnit = 'each';
 export type Unit = WeightUnit | VolumeUnit | CountUnit;
 
 export interface UnitDefinition {
@@ -43,8 +43,6 @@ export const UNIT_CATALOG: Record<Unit, UnitDefinition> = {
 
   // Count units (base: each)
   'each': { unit: 'each', type: 'count', label: 'Each', baseUnit: 'each', toBaseMultiplier: 1 },
-  'dozen': { unit: 'dozen', type: 'count', label: 'Dozen', baseUnit: 'each', toBaseMultiplier: 12 },
-  'case': { unit: 'case', type: 'count', label: 'Case', baseUnit: 'each', toBaseMultiplier: 24 }, // Default case size, can be customized
 };
 
 /**
@@ -162,6 +160,29 @@ export function isValidUnit(unit: string): unit is Unit {
  */
 export function getUnitType(unit: Unit): UnitType | null {
   return UNIT_CATALOG[unit]?.type || null;
+}
+
+/**
+ * Check if a custom conversion is possible between two units
+ * Count units (each) cannot be converted to/from weight or volume
+ * Weight ↔ Volume conversions are possible with density (grams per cup)
+ */
+export function canHaveCustomConversion(unit1: Unit, unit2: Unit): boolean {
+  const type1 = getUnitType(unit1);
+  const type2 = getUnitType(unit2);
+
+  if (!type1 || !type2) return false;
+
+  // Same type - automatic conversion, no custom conversion needed
+  if (type1 === type2) return false;
+
+  // Count (each) cannot convert to/from weight or volume
+  if (type1 === 'count' || type1 === 'each' || type2 === 'count' || type2 === 'each') {
+    return false;
+  }
+
+  // Weight ↔ Volume can have custom density-based conversion
+  return true;
 }
 
 // ============================================================================

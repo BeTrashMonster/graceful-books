@@ -109,7 +109,8 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
     }
     const category = categories.find(c => c.id === categoryId);
     if (!category) {
-      return 'Unknown Category (deleted)';
+      // Include ID for debugging orphan categories
+      return `Unknown Category (deleted) (${categoryId})`;
     }
     if (category.deleted_at !== null) {
       return `${category.name} (deleted)`;

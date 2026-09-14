@@ -1,0 +1,676 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\Admin\\graceful_books\\playwright.config.ts",
+    "rootDir": "C:/Users/Admin/graceful_books/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Admin/graceful_books/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/Admin/graceful_books/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Admin/graceful_books/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/Admin/graceful_books/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Admin/graceful_books/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/Admin/graceful_books/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Admin/graceful_books/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "C:/Users/Admin/graceful_books/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Admin/graceful_books/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "C:/Users/Admin/graceful_books/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "playwright-results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 2,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3006",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "kdf-argon2-production.spec.ts",
+      "file": "kdf-argon2-production.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Argon2id in Production Build",
+          "file": "kdf-argon2-production.spec.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [
+            {
+              "title": "deriveMasterKey uses Argon2id NOT PBKDF2 in production",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9435,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[PROD-TEST] Running against: http://localhost:3008\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] This test MUST run against production build (npm run preview)\n"
+                        },
+                        {
+                          "text": "[BROWSER log] [Argon2] Module loaded successfully via script tag\n"
+                        },
+                        {
+                          "text": "[BROWSER log] [Argon2] Available methods: [ArgonType, hash, verify, unloadRuntime]\n"
+                        },
+                        {
+                          "text": "[BROWSER log] [KDF] Argon2 module loaded successfully\n"
+                        },
+                        {
+                          "text": "[BROWSER log] [KDF] Key derived using Argon2id\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] Result: {\n  \"success\": true,\n  \"keyIdPrefix\": \"dd130d45b312d7c3\",\n  \"duration\": 2102\n}\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] Duration: 2102ms (Argon2 expected >500ms, PBKDF2 would be <200ms)\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] Argon2 script loaded: YES\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] Argon2id used: YES\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] PBKDF2 fallback: NO (correct)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-14T05:29:12.549Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "da343092f5b6debc07cd-c8c175de010556647ff9",
+              "file": "kdf-argon2-production.spec.ts",
+              "line": 26,
+              "column": 3
+            },
+            {
+              "title": "argon2-bundled.min.js is served from production build",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3795,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[PROD-TEST] Running against: http://localhost:3008\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] This test MUST run against production build (npm run preview)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-14T05:29:12.526Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "da343092f5b6debc07cd-1c08328e2cc987fb5a43",
+              "file": "kdf-argon2-production.spec.ts",
+              "line": 100,
+              "column": 3
+            },
+            {
+              "title": "deriveMasterKey uses Argon2id NOT PBKDF2 in production",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 6,
+                      "error": {
+                        "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\firefox-1509\\firefox\\firefox.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\firefox-1509\\firefox\\firefox.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\firefox-1509\\firefox\\firefox.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[PROD-TEST] Running against: http://localhost:3008\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] This test MUST run against production build (npm run preview)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-14T05:29:34.774Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "da343092f5b6debc07cd-5c2414b7ffc78623a47e",
+              "file": "kdf-argon2-production.spec.ts",
+              "line": 26,
+              "column": 3
+            },
+            {
+              "title": "argon2-bundled.min.js is served from production build",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5,
+                      "error": {
+                        "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\firefox-1509\\firefox\\firefox.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\firefox-1509\\firefox\\firefox.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\firefox-1509\\firefox\\firefox.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[PROD-TEST] Running against: http://localhost:3008\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] This test MUST run against production build (npm run preview)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-14T05:29:34.757Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "da343092f5b6debc07cd-0695c3c1547dfc31a0ab",
+              "file": "kdf-argon2-production.spec.ts",
+              "line": 100,
+              "column": 3
+            },
+            {
+              "title": "deriveMasterKey uses Argon2id NOT PBKDF2 in production",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5,
+                      "error": {
+                        "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[PROD-TEST] Running against: http://localhost:3008\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] This test MUST run against production build (npm run preview)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-14T05:29:44.413Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "da343092f5b6debc07cd-9955bea329c4bc270331",
+              "file": "kdf-argon2-production.spec.ts",
+              "line": 26,
+              "column": 3
+            },
+            {
+              "title": "argon2-bundled.min.js is served from production build",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 6,
+                      "error": {
+                        "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[PROD-TEST] Running against: http://localhost:3008\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] This test MUST run against production build (npm run preview)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-14T05:29:44.399Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "da343092f5b6debc07cd-304f1c72cd3b3064bc60",
+              "file": "kdf-argon2-production.spec.ts",
+              "line": 100,
+              "column": 3
+            },
+            {
+              "title": "deriveMasterKey uses Argon2id NOT PBKDF2 in production",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 9078,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[PROD-TEST] Running against: http://localhost:3008\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] This test MUST run against production build (npm run preview)\n"
+                        },
+                        {
+                          "text": "[BROWSER log] [Argon2] Module loaded successfully via script tag\n"
+                        },
+                        {
+                          "text": "[BROWSER log] [Argon2] Available methods: [ArgonType, hash, verify, unloadRuntime]\n"
+                        },
+                        {
+                          "text": "[BROWSER log] [KDF] Argon2 module loaded successfully\n"
+                        },
+                        {
+                          "text": "[BROWSER log] [KDF] Key derived using Argon2id\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] Result: {\n  \"success\": true,\n  \"keyIdPrefix\": \"a49d88f0f6d3aa1a\",\n  \"duration\": 2115\n}\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] Duration: 2115ms (Argon2 expected >500ms, PBKDF2 would be <200ms)\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] Argon2 script loaded: YES\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] Argon2id used: YES\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] PBKDF2 fallback: NO (correct)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-14T05:29:53.952Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "da343092f5b6debc07cd-0916872ccdaebe975f6c",
+              "file": "kdf-argon2-production.spec.ts",
+              "line": 26,
+              "column": 3
+            },
+            {
+              "title": "argon2-bundled.min.js is served from production build",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3855,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[PROD-TEST] Running against: http://localhost:3008\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] This test MUST run against production build (npm run preview)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-14T05:29:53.894Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "da343092f5b6debc07cd-7881a2861cad7aeb7f08",
+              "file": "kdf-argon2-production.spec.ts",
+              "line": 100,
+              "column": 3
+            },
+            {
+              "title": "deriveMasterKey uses Argon2id NOT PBKDF2 in production",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5,
+                      "error": {
+                        "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[PROD-TEST] Running against: http://localhost:3008\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] This test MUST run against production build (npm run preview)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-14T05:30:11.776Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "da343092f5b6debc07cd-d99e182e1896aec5611b",
+              "file": "kdf-argon2-production.spec.ts",
+              "line": 26,
+              "column": 3
+            },
+            {
+              "title": "argon2-bundled.min.js is served from production build",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 4,
+                      "error": {
+                        "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Executable doesn't exist at C:\\Users\\Admin\\AppData\\Local\\ms-playwright\\webkit-2248\\Playwright.exe\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[PROD-TEST] Running against: http://localhost:3008\n"
+                        },
+                        {
+                          "text": "[PROD-TEST] This test MUST run against production build (npm run preview)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-14T05:30:13.842Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "da343092f5b6debc07cd-978f1af22b5c53b048f0",
+              "file": "kdf-argon2-production.spec.ts",
+              "line": 100,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-14T05:29:03.219Z",
+    "duration": 71091.031,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 6,
+    "flaky": 0
+  }
+}

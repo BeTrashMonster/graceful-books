@@ -11,11 +11,13 @@ export {
   initializeDatabase,
   closeDatabase,
   deleteDatabase,
+  BACKUP_EXCLUDED_TABLES,
 } from './database';
 
 export type {
   DatabaseExport,
   DatabaseStatistics,
+  ComprehensiveStatistics,
 } from './database';
 
 // CRDT utilities

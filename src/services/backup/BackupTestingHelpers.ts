@@ -110,7 +110,7 @@ export async function restoreFromBackup(
   options: RestoreBackupOptions
 ): Promise<RestoreBackupResult> {
   try {
-    const { backupData, isolated, testMode } = options;
+    const { companyId, backupData, isolated, testMode } = options;
 
     let recordsRestored = 0;
 
@@ -131,31 +131,48 @@ export async function restoreFromBackup(
       };
     }
 
-    // In production mode, actually restore the data
-    if (backupData.transactions) {
-      await db.transactions.bulkPut(backupData.transactions);
-      recordsRestored += backupData.transactions.length;
-    }
+    // In production mode, clear existing company data first, then restore
+    // This prevents orphan records from persisting after restore
+    await db.transaction(
+      'rw',
+      [db.transactions, db.accounts, db.contacts, db.invoices, db.bills],
+      async () => {
+        // Clear existing data for this company
+        await Promise.all([
+          db.transactions.where('companyId').equals(companyId).delete(),
+          db.accounts.where('companyId').equals(companyId).delete(),
+          db.contacts.where('companyId').equals(companyId).delete(),
+          db.invoices.where('company_id').equals(companyId).delete(),
+          db.bills.where('company_id').equals(companyId).delete(),
+        ]);
 
-    if (backupData.accounts) {
-      await db.accounts.bulkPut(backupData.accounts);
-      recordsRestored += backupData.accounts.length;
-    }
+        // Restore from backup
+        if (backupData.transactions) {
+          await db.transactions.bulkPut(backupData.transactions);
+          recordsRestored += backupData.transactions.length;
+        }
 
-    if (backupData.contacts) {
-      await db.contacts.bulkPut(backupData.contacts);
-      recordsRestored += backupData.contacts.length;
-    }
+        if (backupData.accounts) {
+          await db.accounts.bulkPut(backupData.accounts);
+          recordsRestored += backupData.accounts.length;
+        }
 
-    if (backupData.invoices) {
-      await db.invoices.bulkPut(backupData.invoices);
-      recordsRestored += backupData.invoices.length;
-    }
+        if (backupData.contacts) {
+          await db.contacts.bulkPut(backupData.contacts);
+          recordsRestored += backupData.contacts.length;
+        }
 
-    if (backupData.bills) {
-      await db.bills.bulkPut(backupData.bills);
-      recordsRestored += backupData.bills.length;
-    }
+        if (backupData.invoices) {
+          await db.invoices.bulkPut(backupData.invoices);
+          recordsRestored += backupData.invoices.length;
+        }
+
+        if (backupData.bills) {
+          await db.bills.bulkPut(backupData.bills);
+          recordsRestored += backupData.bills.length;
+        }
+      }
+    );
 
     return {
       success: true,

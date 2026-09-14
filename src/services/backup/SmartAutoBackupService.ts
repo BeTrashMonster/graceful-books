@@ -17,10 +17,17 @@
  * @module services/backup/SmartAutoBackupService
  */
 
-import { writeBackupToFile, retrieveDirectoryHandle, getBackupDirectoryStatus } from './FileSystemBackup';
+import {
+  writeBackupToFile,
+  retrieveDirectoryHandle,
+  getBackupDirectoryStatus,
+  readAutoKeyFromFolder,
+  writeAutoKeyToFolder,
+} from './FileSystemBackup';
 import { generateBackupBundle } from './BackupEncryption';
 import type { BackupData } from './BackupEncryption';
-import { db } from '../../store/database';
+import { db } from '../../db';
+import { generateAutoBackupKey, getKeyFingerprint } from '../../db/schema/backupPreferences.schema';
 import { logger } from '../../utils/logger';
 
 const backupLogger = logger.child('SmartAutoBackup');
@@ -163,8 +170,9 @@ class SmartAutoBackupService {
     };
 
     // Hook into Dexie table hooks for change detection
-    // Track changes on critical tables
-    const tables = [db.transactions, db.accounts, db.invoices, db.cpgInvoices];
+    // Track changes on critical CPG tables in TreasureChest
+    // Note: When bookkeeping ships, it will need its own auto-backup for GracefulBooksDB
+    const tables = [db.cpgInvoices, db.cpgCategories, db.cpgProductLinks, db.cpgVendors];
 
     tables.forEach(table => {
       if (table) {
@@ -204,6 +212,7 @@ class SmartAutoBackupService {
 
     try {
       // Export data and calculate hash
+      // Use TreasureChest (CPG database) for backups - this is where user data lives
       const allData = await db.exportAllData();
       const dataString = JSON.stringify(allData);
       const dataHash = await this.calculateHash(dataString);
@@ -232,6 +241,7 @@ class SmartAutoBackupService {
       });
 
       // Get data if not provided
+      // Use TreasureChest (CPG database) for backups
       if (!allData) {
         allData = await db.exportAllData();
       }
@@ -275,10 +285,11 @@ class SmartAutoBackupService {
       const bundle = bundleResult.bundle;
 
       // Generate filename with timestamp
+      // Format: graceful-books-backup-2026-09-09T19-30-00.gbbackup
       const timestamp = new Date().toISOString()
         .replace(/:/g, '-')
         .replace(/\..+/, '');
-      const fileName = `audacious-backup-${timestamp}.encrypted`;
+      const fileName = `graceful-books-backup-${timestamp}.gbbackup`;
 
       // Write to filesystem
       const result = await writeBackupToFile({
@@ -334,8 +345,9 @@ class SmartAutoBackupService {
       }> = [];
 
       // List all backup files
+      // Real filenames: graceful-books-backup-2026-09-09T19-30-00.gbbackup
       for await (const entry of dirHandle.values()) {
-        if (entry.kind === 'file' && entry.name.startsWith('audacious-backup-')) {
+        if (entry.kind === 'file' && entry.name.startsWith('graceful-books-backup-')) {
           const time = this.extractTimestamp(entry.name);
           if (time) {
             backupFiles.push({ name: entry.name, time });
@@ -421,12 +433,13 @@ class SmartAutoBackupService {
    * Extract timestamp from backup filename
    */
   private extractTimestamp(fileName: string): Date | null {
-    // Format: audacious-backup-2024-03-29T14-30-00.encrypted
-    const match = fileName.match(/audacious-backup-(.+)\.encrypted/);
+    // Real format: graceful-books-backup-2026-09-09T19-30-00.gbbackup
+    // (ISO timestamp with colons replaced by hyphens)
+    const match = fileName.match(/graceful-books-backup-(.+)\.gbbackup/);
     if (!match) return null;
 
     try {
-      // Replace hyphens in time portion back to colons
+      // Replace hyphens in time portion back to colons: T19-30-00 -> T19:30:00
       const timestamp = match[1].replace(/T(\d{2})-(\d{2})-(\d{2})/, 'T$1:$2:$3');
       const date = new Date(timestamp);
 
@@ -451,54 +464,105 @@ class SmartAutoBackupService {
   }
 
   /**
-   * Get encryption password from user's session
+   * Get encryption key for auto-backup
    *
-   * CRITICAL: Uses ONLY userId (not session token) so password stays
-   * consistent across sessions. This allows users to restore backups
-   * even after logging out and back in.
+   * SECURITY FIX: Uses random 256-bit key instead of derivable key.
+   * The old derivable key (SHA-256 of userId) was a security vulnerability
+   * because our server holds userId and could derive the backup key.
+   *
+   * Key storage strategy:
+   * 1. Read from backup folder (AUTHORITATIVE - travels with backups)
+   * 2. Fall back to IndexedDB (backupPreferences.auto_key)
+   * 3. Generate new key on first use and write to both locations
    */
   private async getEncryptionPassword(): Promise<string> {
     try {
-      // Get user session data
-      const sessionData = sessionStorage.getItem('graceful_books_session');
-      if (!sessionData) {
-        throw new Error('No active session found');
+      // 1. Try to read from backup folder (authoritative source)
+      let autoKey = await readAutoKeyFromFolder();
+
+      if (autoKey) {
+        const fingerprint = await getKeyFingerprint(autoKey);
+        console.log(`[SmartAutoBackup] Using auto-key from folder, fingerprint: ${fingerprint}`);
+        backupLogger.debug('Using auto-key from backup folder', { fingerprint });
+        return autoKey;
       }
 
-      const session = JSON.parse(sessionData);
-      const userId = session.userId || session.user?.id;
+      // 2. Try IndexedDB fallback
+      const prefs = await db.backupPreferences.toArray();
+      const pref = prefs[0];
 
-      if (!userId) {
-        throw new Error('User ID not found in session');
+      if (pref?.passphrase_mode === 'auto' && pref.auto_key) {
+        const fingerprint = await getKeyFingerprint(pref.auto_key);
+        console.log(`[SmartAutoBackup] Using auto-key from IndexedDB, fingerprint: ${fingerprint}`);
+        backupLogger.debug('Using auto-key from IndexedDB fallback', { fingerprint });
+        // Also write to folder if missing (recovery scenario)
+        const writeResult = await writeAutoKeyToFolder(pref.auto_key);
+        if (!writeResult.success) {
+          backupLogger.warn('Failed to restore key file to folder', { error: writeResult.error });
+        }
+        return pref.auto_key;
       }
 
-      // CRITICAL: Derive password from userId ONLY (not session token)
-      // This ensures the same password works across all sessions for this user
-      const backupKey = await this.deriveBackupPassword(userId);
+      // 3. Generate new key on first use
+      autoKey = generateAutoBackupKey();
+      const fingerprint = await getKeyFingerprint(autoKey);
+      console.log(`[SmartAutoBackup] Generated new auto-key, fingerprint: ${fingerprint}`);
+      backupLogger.info('Generating new auto-backup key', { fingerprint });
 
-      return backupKey;
+      // Write to folder FIRST (authoritative)
+      const writeResult = await writeAutoKeyToFolder(autoKey);
+      if (!writeResult.success) {
+        throw new Error(`Failed to write key to backup folder: ${writeResult.error}`);
+      }
+
+      // Write to IndexedDB as fallback
+      console.log(`[SmartAutoBackup] Storing auto-key in IndexedDB, fingerprint: ${fingerprint}`);
+      const now = Date.now();
+      if (pref) {
+        // Update existing preference
+        await db.backupPreferences.update(pref.id, {
+          passphrase_mode: 'auto',
+          auto_key: autoKey,
+          passphrase_configured_at: now,
+          updated_at: now,
+        });
+      } else {
+        // Create new preference record
+        const { nanoid } = await import('nanoid');
+        await db.backupPreferences.add({
+          id: nanoid(),
+          user_id: 'default',
+          company_id: 'default',
+          backup_directory_path: null,
+          backup_directory_handle_key: null,
+          passphrase_mode: 'auto',
+          sentinel_ciphertext: null,
+          sentinel_iv: null,
+          sentinel_salt: null,
+          auto_key: autoKey,
+          passphrase_configured_at: now,
+          auto_backup_enabled: true,
+          backup_on_change: true,
+          backup_on_idle: true,
+          backup_on_close: true,
+          daily_backup_enabled: true,
+          last_backup_at: null,
+          last_backup_size: null,
+          backup_count: 0,
+          last_backup_error: null,
+          show_backup_notifications: true,
+          backup_retention_days: 30,
+          created_at: now,
+          updated_at: now,
+        });
+      }
+
+      backupLogger.info('Auto-backup key generated and stored');
+      return autoKey;
     } catch (error) {
-      backupLogger.error('Failed to get encryption password', { error });
-      throw new Error('Cannot encrypt backup: no encryption password available');
+      backupLogger.error('Failed to get encryption key', { error });
+      throw new Error('Cannot encrypt backup: failed to get or generate encryption key');
     }
-  }
-
-  /**
-   * Derive a backup-specific password from userId
-   *
-   * CRITICAL: Uses ONLY userId (stable) not session token (changes)
-   * This ensures backups can be restored across sessions
-   */
-  private async deriveBackupPassword(userId: string): Promise<string> {
-    // Create a deterministic password that's consistent across sessions
-    // Uses Web Crypto API to hash userId + stable salt
-    const encoder = new TextEncoder();
-    const data = encoder.encode(`audacious-money-backup:${userId}:stable-v1`);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-    return hashHex;
   }
 
   /**
@@ -555,7 +619,9 @@ class SmartAutoBackupService {
 
       if (dirHandle) {
         for await (const entry of dirHandle.values()) {
-          if (entry.kind === 'file' && entry.name.startsWith('audacious-backup-')) {
+          // Count both old (audacious-) and new (graceful-books-) backup formats
+          if (entry.kind === 'file' &&
+              (entry.name.startsWith('graceful-books-backup-') || entry.name.startsWith('audacious-backup-'))) {
             totalBackups++;
           }
         }
@@ -599,7 +665,18 @@ class SmartAutoBackupService {
   getSettings(): BackupSettings {
     return { ...this.settings };
   }
+
+  /**
+   * Exposed for testing only - triggers backup cleanup
+   * @internal
+   */
+  async _testCleanOldBackups(): Promise<void> {
+    return this.cleanOldBackups();
+  }
 }
 
 // Singleton instance
 export const smartAutoBackup = new SmartAutoBackupService();
+
+// Alias for testing
+export const smartAutoBackupService = smartAutoBackup;

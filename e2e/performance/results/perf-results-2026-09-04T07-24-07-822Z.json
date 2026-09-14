@@ -1,0 +1,221 @@
+{
+  "runId": "run-2026-09-04T07-24-07-822Z",
+  "timestamp": "2026-09-04T07:24:07.822Z",
+  "scenarios": [
+    {
+      "scenario": "cold-start",
+      "datasetSize": "1k",
+      "throttleLevel": "1x",
+      "metrics": {
+        "wallTimeMs": 64601,
+        "longTasks": [],
+        "blockingTimeMs": 0,
+        "heapSizeBefore": 0,
+        "heapSizeAfter": 26759404,
+        "heapDelta": 26759404
+      },
+      "timestamp": "2026-09-04T07:13:32.872Z",
+      "success": true
+    },
+    {
+      "scenario": "cold-start",
+      "datasetSize": "5k",
+      "throttleLevel": "1x",
+      "metrics": {
+        "wallTimeMs": 64772,
+        "longTasks": [],
+        "blockingTimeMs": 0,
+        "heapSizeBefore": 0,
+        "heapSizeAfter": 26764402,
+        "heapDelta": 26764402
+      },
+      "timestamp": "2026-09-04T07:15:19.907Z",
+      "success": true
+    },
+    {
+      "scenario": "unlock",
+      "datasetSize": "1k",
+      "throttleLevel": "1x",
+      "metrics": {
+        "wallTimeMs": 1107,
+        "longTasks": [],
+        "blockingTimeMs": 0,
+        "heapSizeBefore": 40472044,
+        "heapSizeAfter": 40525016,
+        "heapDelta": 52972
+      },
+      "timestamp": "2026-09-04T07:15:35.578Z",
+      "success": true,
+      "timedOut": false
+    },
+    {
+      "scenario": "unlock",
+      "datasetSize": "5k",
+      "throttleLevel": "1x",
+      "metrics": {
+        "wallTimeMs": 1522,
+        "longTasks": [],
+        "blockingTimeMs": 0,
+        "heapSizeBefore": 47257306,
+        "heapSizeAfter": 47299638,
+        "heapDelta": 42332
+      },
+      "timestamp": "2026-09-04T07:16:46.491Z",
+      "success": true,
+      "timedOut": false
+    },
+    {
+      "scenario": "list-render",
+      "datasetSize": "1k",
+      "throttleLevel": "1x",
+      "metrics": {
+        "wallTimeMs": -1,
+        "longTasks": [],
+        "blockingTimeMs": 0,
+        "heapSizeBefore": 37907067,
+        "heapSizeAfter": 34529193,
+        "heapDelta": -3377874
+      },
+      "timestamp": "2026-09-04T07:19:01.486Z",
+      "success": false,
+      "timedOut": true
+    },
+    {
+      "scenario": "list-render",
+      "datasetSize": "5k",
+      "throttleLevel": "1x",
+      "metrics": {
+        "wallTimeMs": -1,
+        "longTasks": [],
+        "blockingTimeMs": 0,
+        "heapSizeBefore": 47188203,
+        "heapSizeAfter": 38944592,
+        "heapDelta": -8243611
+      },
+      "timestamp": "2026-09-04T07:21:51.315Z",
+      "success": false,
+      "timedOut": true
+    },
+    {
+      "scenario": "search-filter",
+      "datasetSize": "1k",
+      "throttleLevel": "1x",
+      "metrics": {
+        "wallTimeMs": 3522,
+        "longTasks": [
+          {
+            "name": "self",
+            "startTime": 3348.6850004196167,
+            "duration": 52,
+            "attribution": "unknown"
+          },
+          {
+            "name": "unknown",
+            "startTime": 3431.284999847412,
+            "duration": 1347,
+            "attribution": "unknown"
+          }
+        ],
+        "blockingTimeMs": 1299,
+        "heapSizeBefore": 60307484,
+        "heapSizeAfter": 36511605,
+        "heapDelta": -23795879
+      },
+      "timestamp": "2026-09-04T07:22:10.542Z",
+      "success": true,
+      "timedOut": false
+    },
+    {
+      "scenario": "search-filter",
+      "datasetSize": "5k",
+      "throttleLevel": "1x",
+      "metrics": {
+        "wallTimeMs": 3428,
+        "longTasks": [
+          {
+            "name": "self",
+            "startTime": 3488.8950004577637,
+            "duration": 60,
+            "attribution": "unknown"
+          },
+          {
+            "name": "unknown",
+            "startTime": 3574.510000228882,
+            "duration": 1171,
+            "attribution": "unknown"
+          },
+          {
+            "name": "self",
+            "startTime": 5150.0300006866455,
+            "duration": 85,
+            "attribution": "unknown"
+          },
+          {
+            "name": "self",
+            "startTime": 5614.465000152588,
+            "duration": 84,
+            "attribution": "unknown"
+          }
+        ],
+        "blockingTimeMs": 1200,
+        "heapSizeBefore": 59650980,
+        "heapSizeAfter": 49069837,
+        "heapDelta": -10581143
+      },
+      "timestamp": "2026-09-04T07:22:59.607Z",
+      "success": true,
+      "timedOut": false
+    },
+    {
+      "scenario": "bulk-insert",
+      "datasetSize": "1k",
+      "throttleLevel": "1x",
+      "metrics": {
+        "wallTimeMs": 4291,
+        "longTasks": [
+          {
+            "name": "self",
+            "startTime": 12035.664999961853,
+            "duration": 118,
+            "attribution": "unknown"
+          }
+        ],
+        "blockingTimeMs": 68,
+        "heapSizeBefore": 37866935,
+        "heapSizeAfter": 45436702,
+        "heapDelta": 7569767
+      },
+      "timestamp": "2026-09-04T07:23:17.975Z",
+      "success": true,
+      "timedOut": false
+    },
+    {
+      "scenario": "bulk-insert",
+      "datasetSize": "5k",
+      "throttleLevel": "1x",
+      "metrics": {
+        "wallTimeMs": 9035,
+        "longTasks": [
+          {
+            "name": "self",
+            "startTime": 40410.530000686646,
+            "duration": 118,
+            "attribution": "unknown"
+          }
+        ],
+        "blockingTimeMs": 68,
+        "heapSizeBefore": 47166467,
+        "heapSizeAfter": 52788850,
+        "heapDelta": 5622383
+      },
+      "timestamp": "2026-09-04T07:24:06.891Z",
+      "success": true,
+      "timedOut": false
+    }
+  ],
+  "environment": {
+    "platform": "win32",
+    "cpuCount": 4,
+    "memoryGB": 12
+  }
+}

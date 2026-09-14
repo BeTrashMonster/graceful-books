@@ -149,8 +149,7 @@ describe('DataSafetyPanel', () => {
 
       await waitFor(() => {
         expect(screen.getByText('How your backups are protected')).toBeInTheDocument()
-        expect(screen.getByText(/Bank-level encryption/)).toBeInTheDocument()
-        expect(screen.getByText(/Zero-knowledge security/)).toBeInTheDocument()
+        expect(screen.getByText(/Passphrase encryption/)).toBeInTheDocument()
         expect(screen.getByText(/Multiple safety nets/)).toBeInTheDocument()
         expect(screen.getByText(/Smart retention/)).toBeInTheDocument()
       })

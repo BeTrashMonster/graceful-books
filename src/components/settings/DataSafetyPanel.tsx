@@ -28,9 +28,8 @@ import {
   retrieveDirectoryHandle,
   storeDirectoryHandle,
   getBackupDirectoryStatus,
-  writeBackupToFile,
 } from '../../services/backup/FileSystemBackup'
-import { generateBackupBundle } from '../../services/backup/BackupEncryption'
+import { EncryptedBackup } from '../backup/EncryptedBackup'
 import styles from './DataSafetyPanel.module.css'
 
 /**
@@ -104,6 +103,8 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
   const [creatingBackup, setCreatingBackup] = useState(false)
   const [backupSuccess, setBackupSuccess] = useState(false)
   const [backupSavedToFolder, setBackupSavedToFolder] = useState(false)
+  const [showRestoreModal, setShowRestoreModal] = useState(false)
+  const [showBackupModal, setShowBackupModal] = useState(false)
 
   // Load backup status and history on mount
   useEffect(() => {
@@ -344,158 +345,38 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
 
   /**
    * Handle manual backup creation
-   * Creates encrypted backup and saves to selected folder or downloads
+   * Opens the EncryptedBackup modal which handles mode selection,
+   * passphrase/auto-key management, and sentinel verification.
+   *
+   * IMPORTANT: Do NOT bypass this with direct BackupService.createBackup() calls.
+   * The modal ensures:
+   * - Mode selection (auto vs manual) with persistent preference
+   * - Passphrase verification via encrypted sentinel (manual mode)
+   * - Auto-key storage in folder and IndexedDB fallback (auto mode)
+   * - Consistent encryption across all backups
    */
-  const handleBackupNow = async () => {
-    setCreatingBackup(true)
-    setError(null)
-    setBackupSuccess(false)
+  const handleBackupNow = () => {
+    setShowBackupModal(true)
+  }
 
-    try {
-      // For manual backups, we'll prompt for passphrase
-      // TODO: Show passphrase modal instead of prompt
-      const passphrase = prompt(
-        'Enter a passphrase to encrypt your backup.\n\nThis passphrase will be required to restore your data, so please keep it safe!'
-      )
+  /**
+   * Handle successful backup completion from EncryptedBackup modal
+   */
+  const handleBackupComplete = async () => {
+    setShowBackupModal(false)
+    setBackupSuccess(true)
+    setBackupSavedToFolder(true)
 
-      if (!passphrase) {
-        setCreatingBackup(false)
-        return
-      }
+    // Reload backup status and history
+    await loadBackupData()
 
-      // Check if user has a backup folder configured
-      const dirHandle = await retrieveDirectoryHandle()
-      console.log('🔍 Backup Now: Retrieved directory handle:', dirHandle)
+    // Auto-hide success message after 5 seconds
+    setTimeout(() => {
+      setBackupSuccess(false)
+      setBackupSavedToFolder(false)
+    }, 5000)
 
-      if (dirHandle) {
-        console.log('✅ Using File System Access API - saving to configured folder')
-        // USE FILE SYSTEM ACCESS API - Save to configured folder
-        const bundle = await generateBackupBundle(passphrase, companyId || '')
-        console.log('📦 Generated backup bundle:', bundle)
-
-        // Generate unique filename with timestamp (YYYY-MM-DD-HHMMSS)
-        // This ensures each backup has a unique name and won't overwrite previous backups
-        const now = new Date()
-        const dateStr = now.toISOString().slice(0, 10) // YYYY-MM-DD
-        const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '') // HHMMSS
-        const fileName = `audacious-backup-${dateStr}-${timeStr}.json`
-        console.log('📝 Backup filename:', fileName)
-
-        const writeResult = await writeBackupToFile({
-          bundle,
-          fileName,
-          onProgress: (progress) => {
-            console.log(`Backup progress: ${progress.percent}% - ${progress.message}`)
-          },
-        })
-
-        console.log('💾 Write result:', writeResult)
-
-        if (writeResult.success) {
-          console.log('✅ Backup saved to folder successfully!')
-          setBackupSuccess(true)
-          setBackupSavedToFolder(true)
-
-          // Update backup status with location and timestamp
-          const backupTimestamp = new Date()
-          const newStatus = {
-            enabled: true,
-            location: writeResult.filePath || 'Configured',
-            lastBackup: backupTimestamp,
-            nextBackup: null,
-            error: null,
-          }
-          console.log('📝 Updating backup status to:', newStatus)
-          setBackupStatus(newStatus)
-
-          // Add to backup history
-          const historyEntry: BackupHistoryEntry = {
-            id: `backup-${Date.now()}`,
-            filename: writeResult.fileName || fileName,
-            timestamp: backupTimestamp,
-            size: writeResult.fileSize || 0,
-            status: 'success',
-            companyId: companyId || undefined,
-          }
-          await saveToBackupHistory(historyEntry)
-
-          // Reload history to show the new backup
-          const updatedHistory = await loadBackupHistory()
-          setBackupHistory(updatedHistory)
-
-          // Auto-hide success message after 5 seconds
-          setTimeout(() => {
-            setBackupSuccess(false)
-            setBackupSavedToFolder(false)
-          }, 5000)
-
-          onSettingsChange?.()
-        } else {
-          console.error('❌ Failed to save backup to folder:', writeResult.error)
-          setError(
-            writeResult.error ||
-              'Failed to save backup to your folder. Please check folder permissions.'
-          )
-        }
-      } else {
-        console.log('⚠️ No directory handle found - falling back to Downloads folder')
-        // FALLBACK - Download to browser downloads folder
-        const result = await BackupService.createBackup(passphrase)
-
-        if (result.success && result.blob && result.filename) {
-          // Download the backup
-          BackupService.downloadBackup(result.blob, result.filename)
-          console.log('⬇️ Backup downloaded to Downloads folder')
-
-          setBackupSuccess(true)
-          setBackupSavedToFolder(false)
-
-          // Update backup status with timestamp (no location since this is Downloads)
-          const backupTimestamp = new Date()
-          setBackupStatus((prev) => ({
-            enabled: false,
-            location: null,
-            lastBackup: backupTimestamp,
-            nextBackup: prev?.nextBackup || null,
-            error: null,
-          }))
-
-          // Add to backup history
-          const historyEntry: BackupHistoryEntry = {
-            id: `backup-${Date.now()}`,
-            filename: result.filename,
-            timestamp: backupTimestamp,
-            size: result.blob.size,
-            status: 'success',
-            companyId: companyId || undefined,
-          }
-          await saveToBackupHistory(historyEntry)
-
-          // Reload history to show the new backup
-          const updatedHistory = await loadBackupHistory()
-          setBackupHistory(updatedHistory)
-
-          // Auto-hide success message after 5 seconds
-          setTimeout(() => {
-            setBackupSuccess(false)
-            setBackupSavedToFolder(false)
-          }, 5000)
-
-          onSettingsChange?.()
-        } else {
-          console.error('❌ Failed to create backup:', result.error)
-          setError(result.error || 'Failed to create backup. Please try again.')
-        }
-      }
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Oops! Something unexpected happened while creating your backup. Please try again.'
-      )
-    } finally {
-      setCreatingBackup(false)
-    }
+    onSettingsChange?.()
   }
 
   /**
@@ -684,6 +565,14 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             >
               {creatingBackup ? 'Creating Backup...' : 'Backup Now'}
             </Button>
+
+            <Button
+              variant="secondary"
+              onClick={() => setShowRestoreModal(true)}
+              aria-label="Restore from backup file"
+            >
+              Restore from Backup
+            </Button>
           </div>
 
           {/* Informational Message */}
@@ -701,8 +590,8 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             <div className={styles.infoBox}>
               <p className={styles.infoText}>
                 Your backup folder is configured at <strong>{backupStatus.location}</strong>. Click
-                "Backup Now" to save an encrypted backup. Zero-knowledge encryption means we can never
-                see your data - only you have the key.
+                "Backup Now" to save an encrypted backup. Your backup is protected by a passphrase
+                that only you know.
               </p>
               <p className={styles.infoText} style={{ marginTop: '0.5rem', fontSize: '0.9em', opacity: 0.8 }}>
                 📅 <em>Automatic daily backups coming soon! For now, use "Backup Now" to manually save
@@ -770,8 +659,8 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             <h4 className={styles.securityTitle}>How your backups are protected</h4>
             <ul className={styles.securityList}>
               <li>
-                <strong>Zero-knowledge encryption:</strong> Your backup files are encrypted before
-                leaving your device. We can never see your data - only you have the key.
+                <strong>Passphrase encryption:</strong> Your manual backups are encrypted with a
+                passphrase that only you know. Without it, no one can read your backup files.
               </li>
               <li>
                 <strong>Multiple safety nets:</strong> Keep backups on your computer, in your
@@ -786,6 +675,36 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
           </div>
         </CardBody>
       </Card>
+
+      {/* Create Backup Modal */}
+      <EncryptedBackup
+        isOpen={showBackupModal}
+        onClose={() => setShowBackupModal(false)}
+        initialMode="backup"
+        hideModeToggle={true}
+        onBackupComplete={handleBackupComplete}
+        companyId={companyId}
+      />
+
+      {/* Restore from Backup Modal */}
+      <EncryptedBackup
+        isOpen={showRestoreModal}
+        onClose={() => {
+          setShowRestoreModal(false)
+          // Reload backup data to show any restored entries
+          loadBackupData()
+        }}
+        initialMode="restore"
+        hideModeToggle={true}
+        onRestoreComplete={() => {
+          // Don't auto-reload - let EncryptedBackup show the restore complete state
+          // User will click "Close and View Data" which triggers onClose
+          setShowRestoreModal(false)
+          // Reload backup data to show restored entries in history
+          loadBackupData()
+        }}
+        companyId={companyId}
+      />
     </div>
   )
 }

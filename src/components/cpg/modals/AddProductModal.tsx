@@ -37,8 +37,6 @@ export interface AddProductModalProps {
 
 const UNIT_OPTIONS = [
   { value: 'each', label: 'Each' },
-  { value: 'case', label: 'Case' },
-  { value: 'dozen', label: 'Dozen' },
   { value: 'pack', label: 'Pack' },
 ];
 
@@ -49,7 +47,7 @@ const UNITS_OF_MEASUREMENT = [
   // Volume (small to large)
   'ml', 'tsp', 'tbsp', 'fl oz', 'cup', 'pt', 'qt', 'L', 'gal',
   // Count
-  'each', 'dozen', 'case'
+  'each'
 ];
 
 // Recipe item interface
@@ -915,7 +913,7 @@ export function AddProductModal({
               ))}
             </select>
             <p style={{ fontSize: '0.8125rem', color: '#6b7280', margin: '0.25rem 0 0 0' }}>
-              How you sell this product (each, case, dozen, etc.)
+              How you sell this product (each, pack)
             </p>
           </div>
 
@@ -928,7 +926,7 @@ export function AddProductModal({
             error={errors.piecesPerUnit}
             required
             fullWidth
-            helperText="How many individual items in one unit (ex: 12 bottles per case)"
+            helperText="How many individual items in one unit (ex: 6 bottles per pack)"
           />
         </div>
 

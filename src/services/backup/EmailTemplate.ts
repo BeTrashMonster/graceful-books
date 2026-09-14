@@ -15,7 +15,7 @@
  * - Restoration links expire in 7 days
  * - One-time use tokens
  * - Rate limiting enforced
- * - Zero-knowledge encryption explained
+ * - Passphrase-protected encryption explained
  */
 
 /**
@@ -375,9 +375,9 @@ function generateHTMLTemplate(options: EmailTemplateOptions): string {
         </ul>
       </div>
 
-      <!-- Zero Knowledge Explanation -->
+      <!-- Encryption Explanation -->
       <div class="info-box">
-        <h3>🛡️ Zero-Knowledge Encryption</h3>
+        <h3>🛡️ Passphrase-Protected Encryption</h3>
         <p>
           Your backup is encrypted on your device before it ever leaves your computer.
           We never have access to your passphrase or your unencrypted data. This means:
@@ -393,7 +393,7 @@ function generateHTMLTemplate(options: EmailTemplateOptions): string {
             We cannot recover your data if you lose your passphrase
           </li>
         </ul>
-        <div class="security-badge">🔐 Zero-Knowledge Protected</div>
+        <div class="security-badge">🔐 Passphrase Protected</div>
       </div>
 
       <!-- Help Text -->
@@ -490,8 +490,8 @@ SECURITY NOTICE
 • Don't share this link: Anyone with this link can access your backup
 • Rate limited: Maximum 5 access attempts per hour
 
-ZERO-KNOWLEDGE ENCRYPTION
--------------------------
+PASSPHRASE-PROTECTED ENCRYPTION
+--------------------------------
 Your backup is encrypted on your device before it ever leaves your computer.
 We never have access to your passphrase or your unencrypted data. This means:
 
@@ -499,7 +499,7 @@ We never have access to your passphrase or your unencrypted data. This means:
 • Your financial data remains completely private
 • We cannot recover your data if you lose your passphrase
 
-🔐 Zero-Knowledge Protected
+🔐 Passphrase Protected
 
 NEED HELP?
 ----------

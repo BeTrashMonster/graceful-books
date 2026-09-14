@@ -9,7 +9,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import styles from './ComprehensiveWorksheet.module.css';
 import { processDateInput } from '../../utils/dateUtils';
 import { LoadingOverlay } from '../feedback/Loading';
-import { areUnitsCompatible, getUnitType, type Unit } from '../../utils/unitConversion';
+import { areUnitsCompatible, getUnitType, canHaveCustomConversion, type Unit } from '../../utils/unitConversion';
 import { calculateSHDistribution, type Invoice as SHInvoice } from '../../utils/shDistribution';
 
 import { WorksheetSidebar, type WorksheetStep } from './WorksheetSidebar';
@@ -135,7 +135,7 @@ const UNITS_OF_MEASUREMENT = [
   // Volume (small to large)
   'ml', 'tsp', 'tbsp', 'fl oz', 'cup', 'pt', 'qt', 'L', 'gal',
   // Count
-  'each', 'dozen', 'case'
+  'each'
 ];
 
 // Calculate quantity per unit from batch data
@@ -284,7 +284,28 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   // Weight, volume, and count units for conversion dropdowns
   const WEIGHT_UNITS = ['mg', 'g', 'kg', 'oz', 'lb'];
   const VOLUME_UNITS = ['ml', 'tsp', 'tbsp', 'fl oz', 'cup', 'pt', 'qt', 'L', 'gal'];
-  const COUNT_UNITS = ['each', 'dozen', 'case'];
+  const COUNT_UNITS = ['each'];
+
+  // Render unit dropdown options with optgroup organization
+  const renderUnitOptions = () => (
+    <>
+      <optgroup label="Weight">
+        {WEIGHT_UNITS.map(unit => (
+          <option key={unit} value={unit}>{unit}</option>
+        ))}
+      </optgroup>
+      <optgroup label="Volume">
+        {VOLUME_UNITS.map(unit => (
+          <option key={unit} value={unit}>{unit}</option>
+        ))}
+      </optgroup>
+      <optgroup label="Count">
+        {COUNT_UNITS.map(unit => (
+          <option key={unit} value={unit}>{unit}</option>
+        ))}
+      </optgroup>
+    </>
+  );
 
   // Get units array for a given unit type
   const getUnitsForType = (unitType: string | null): string[] => {
@@ -1289,6 +1310,37 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       }))
       .filter(i => i.items.length > 0);
 
+    // VALIDATION: Ensure all invoice category_ids exist in categories array
+    // This prevents orphan category references that cause "Unknown Category (deleted)" errors
+    const categoryIds = new Set(categories.map(c => c.id));
+    const orphanCategoryIds: string[] = [];
+
+    validInvoices.forEach((inv, invIdx) => {
+      inv.items.forEach((item, itemIdx) => {
+        // Skip personal items and S+H items that use special IDs
+        if (item.category_id === '__personal__' || item.category_id === 'personal') return;
+        if (item.is_personal || item.item_type === 'personal' || item.item_type === 'shipping') return;
+
+        if (item.category_id && !categoryIds.has(item.category_id)) {
+          orphanCategoryIds.push(item.category_id);
+          console.error(`⚠️ Invoice ${invIdx + 1} item ${itemIdx + 1} references non-existent category: ${item.category_id}`);
+        }
+      });
+    });
+
+    if (orphanCategoryIds.length > 0) {
+      console.error('❌ Found orphan category IDs:', orphanCategoryIds);
+      console.error('📋 Available category IDs:', Array.from(categoryIds));
+      // Filter out items with orphan category IDs to prevent database corruption
+      validInvoices.forEach(inv => {
+        inv.items = inv.items.filter(item => {
+          if (item.category_id === '__personal__' || item.category_id === 'personal') return true;
+          if (item.is_personal || item.item_type === 'personal' || item.item_type === 'shipping') return true;
+          return categoryIds.has(item.category_id);
+        });
+      });
+    }
+
     const worksheetData: WorksheetData = {
       version: '1.0.0',
       created_at: new Date().toISOString(),
@@ -1699,9 +1751,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                     onChange={(e) => updateRecipeItem(prodIndex, itemIndex, 'unit_of_measurement', e.target.value)}
                                     className={styles.select}
                                   >
-                                    {UNITS_OF_MEASUREMENT.map(unit => (
-                                      <option key={unit} value={unit}>{unit}</option>
-                                    ))}
+                                    {renderUnitOptions()}
                                   </select>
                                 </div>
                                 <div className={styles.field}>
@@ -1747,9 +1797,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                   onChange={(e) => updateRecipeItem(prodIndex, itemIndex, 'unit_of_measurement', e.target.value)}
                                   className={styles.select}
                                 >
-                                  {UNITS_OF_MEASUREMENT.map(unit => (
-                                    <option key={unit} value={unit}>{unit}</option>
-                                  ))}
+                                  {renderUnitOptions()}
                                 </select>
                               </div>
                             </div>
@@ -2043,9 +2091,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                       onChange={(e) => updateRecipeItem(actualIndex, itemIndex, 'unit_of_measurement', e.target.value)}
                                       className={styles.tableCellSelectSmall}
                                     >
-                                      {UNITS_OF_MEASUREMENT.map(unit => (
-                                        <option key={unit} value={unit}>{unit}</option>
-                                      ))}
+                                      {renderUnitOptions()}
                                     </select>
                                   </div>
 
@@ -2364,9 +2410,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                 onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'unit_of_measurement', e.target.value)}
                                 className={styles.lineItemSelect}
                               >
-                                {UNITS_OF_MEASUREMENT.map(unit => (
-                                  <option key={unit} value={unit}>{unit}</option>
-                                ))}
+                                {renderUnitOptions()}
                               </select>
                             </div>
 
@@ -2421,6 +2465,22 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                           {item.unitWarning && (() => {
                             const recipeUnit = getRecipeUnit(item.category_id, item.variant);
                             if (!recipeUnit || !item.unit_of_measurement) return null;
+
+                            // Check if custom conversion is possible
+                            // Count units (each) cannot be converted to/from weight or volume
+                            const canConvert = canHaveCustomConversion(item.unit_of_measurement as Unit, recipeUnit as Unit);
+
+                            if (!canConvert) {
+                              // Show informational message for incompatible unit types
+                              return (
+                                <div className={styles.conversionInline}>
+                                  <span className={styles.conversionInlineWarning}>
+                                    Unit types are incompatible. Please use consistent units (both weight, both volume, or both count).
+                                  </span>
+                                </div>
+                              );
+                            }
+
                             const form = getOrCreateConversionForm(item.category_id, item.variant, item.unit_of_measurement, recipeUnit);
                             const conversionKey = `${item.category_id}_${item.variant || 'default'}`;
                             const hasConversion = hasValidConversion(item.category_id, item.variant);

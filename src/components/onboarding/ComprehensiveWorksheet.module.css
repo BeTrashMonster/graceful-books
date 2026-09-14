@@ -2072,6 +2072,12 @@
   margin-left: auto;
 }
 
+.conversionInlineWarning {
+  color: #9a3412;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
 /* Invoice Action Buttons - three buttons in a row */
 .invoiceActionButtons {
   display: flex;

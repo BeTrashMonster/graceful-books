@@ -6,6 +6,25 @@
  * - Indexes for performance optimization
  * - Schema versioning
  * - CRDT support for offline-first architecture
+ *
+ * IMPORTANT: DUAL-DATABASE ARCHITECTURE
+ * ======================================
+ * This codebase has TWO separate IndexedDB databases by design:
+ *
+ * 1. GracefulBooksDB (THIS FILE: src/store/database.ts)
+ *    - Product: Bookkeeping Suite (bookkeeping-suite)
+ *    - Status: Unfinished, no users yet
+ *    - Routes: /accounts, /vendors, etc. (gated by requireProduct="bookkeeping-suite")
+ *    - Backup: NOT YET - must be built when bookkeeping ships
+ *
+ * 2. TreasureChest (src/db/database.ts)
+ *    - Product: CPG Tool (cpu-cpg-calculator)
+ *    - Status: In beta with real users
+ *    - Routes: /cpg/* (gated by requireProduct="cpu-cpg-calculator")
+ *    - Backup: YES - exportAllData() and backupService.ts use that db
+ *
+ * No cross-database reads/writes exist. Routes enforce product separation.
+ * See HANDOFF.md "Architecture Decisions" section 4 for details.
  */
 
 import Dexie, { type Table } from 'dexie'
