@@ -236,15 +236,46 @@ The `.gbbackup` files were created via DataSafetyPanel's "Backup Now" button, wh
 
 ### f) Rotation Pattern Fix ✅ DONE
 
-**Bug found:** `cleanOldBackups()` matched `audacious-backup-*.encrypted` but real files are `graceful-books-backup-*.gbbackup`. Rotation never matched anything — files accumulated forever.
+**Bug found:** `cleanOldBackups()` matched `audacious-backup-*.encrypted` but real files were `graceful-books-backup-*.gbbackup`. Rotation never matched anything — files accumulated forever.
+
+**RENAMED (2026-09-14):** Backup files now use `audacious-backup-*.gbbackup` format.
 
 **Fixed in `SmartAutoBackupService.ts`:**
-- Line 338: `audacious-backup-` → `graceful-books-backup-`
-- Line 425: Regex updated to match `.gbbackup` extension
+- Filename generation: `audacious-backup-${timestamp}.gbbackup`
+- Rotation pattern matches BOTH new (`audacious-backup-`) and legacy (`graceful-books-backup-`)
+- Timestamp extraction regex updated: `(?:audacious|graceful-books)-backup-(.+)\.gbbackup`
 
 **Behavioral test added:** `SmartAutoBackupService.test.ts`
 - `with 11 backups + key file: oldest backup deleted, key file remains`
 - Creates 13 real-named backups + key file, calls cleanup, asserts oldest IS deleted AND key file IS NOT deleted
+- Test was deliberately broken (wrong pattern) to verify it catches bugs — 3/4 failed as expected
+
+### g) Argon2 Hard Requirement for New Backups ✅ DONE
+
+**Problem:** If Argon2 WASM fails to load, code silently fell back to PBKDF2 — reinstating the derivable-key vulnerability we spent this project fixing.
+
+**Fix:** New backups now HARD FAIL without Argon2. Old backups can still be restored with PBKDF2 fallback.
+
+**Implementation:**
+- Added `requireArgon2` option to `deriveMasterKey()` in `keyDerivation.ts`
+- `backupService.ts:createBackup()` passes `requireArgon2: true`
+- `BackupEncryption.ts:generateBackupBundle()` passes `requireArgon2: true`
+- Restore paths use default `requireArgon2: false` for backward compatibility
+
+**Error shown to user if Argon2 unavailable:**
+```
+Backup encryption unavailable: Argon2id key derivation failed.
+This may be caused by browser security settings blocking WebAssembly.
+Please try a different browser or check your Content Security Policy settings.
+```
+
+### h) Backup History Filtering ✅ DONE
+
+**Problem:** History showed corrupted 98-byte `.json` files from old SmartAutoBackupService bugs.
+
+**Fix:** `BackupHistoryService.ts:loadBackupHistory()` now filters:
+- Only `.gbbackup` extension (not `.json`)
+- Minimum size: 1KB (smaller files are corrupt error-JSON)
 
 ---
 

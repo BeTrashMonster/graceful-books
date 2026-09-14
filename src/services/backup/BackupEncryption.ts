@@ -178,11 +178,13 @@ function generateSecureSalt(length: number = SALT_LENGTH): string {
  *
  * @param password - User's password
  * @param saltBase64 - Base64-encoded salt
+ * @param requireArgon2 - If true, fail if Argon2 unavailable (for new backups)
  * @returns Promise resolving to derived key as Uint8Array
  */
 async function deriveKeyFromPassword(
   password: string,
-  saltBase64: string
+  saltBase64: string,
+  requireArgon2: boolean = false
 ): Promise<Uint8Array> {
   try {
     // Decode salt from base64
@@ -203,7 +205,7 @@ async function deriveKeyFromPassword(
         salt: salt,
         keyLength: ARGON2_PARAMS.hashLength,
       },
-      { skipRateLimit: true } // Skip rate limiting for backup operations
+      { skipRateLimit: true, requireArgon2 }
     );
 
     if (!result.success || !result.data) {
@@ -443,9 +445,11 @@ export async function generateBackupBundle(
     const hmacSalt = generateSecureSalt(HMAC_SALT_LENGTH);
 
     // Step 2: Derive encryption key from password
+    // CRITICAL: New backups MUST use Argon2id - no PBKDF2 fallback
     const derivedKeyMaterial = await deriveKeyFromPassword(
       options.password,
-      encryptionSalt
+      encryptionSalt,
+      true // requireArgon2 - fail if Argon2 unavailable
     );
 
     // Create a MasterKey object for encryption functions
@@ -501,7 +505,8 @@ export async function generateBackupBundle(
     const hmacData = JSON.stringify(bundleWithoutHmac);
     const hmacKeyMaterial = await deriveKeyFromPassword(
       options.password,
-      hmacSalt
+      hmacSalt,
+      true // requireArgon2 - fail if Argon2 unavailable
     );
     const hmac = await generateHMAC(hmacData, hmacKeyMaterial);
 

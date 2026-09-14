@@ -70,6 +70,10 @@ export async function saveBackupToHistory(entry: BackupHistoryEntry): Promise<vo
   }
 }
 
+// Minimum file size for a valid backup (1KB)
+// Files below this are corrupted error-JSON from old bugs
+const MIN_VALID_BACKUP_SIZE = 1024;
+
 /**
  * Load backup history entries
  *
@@ -94,11 +98,29 @@ export async function loadBackupHistory(
       allBackups = await db.getAll(STORE_NAME);
     }
 
-    const sorted = allBackups
+    // Filter out invalid entries:
+    // 1. Must have .gbbackup extension (not .json from old bugs)
+    // 2. Must be above minimum size (small files are corrupted error-JSON)
+    const validBackups = allBackups.filter(entry => {
+      const hasValidExtension = entry.filename.endsWith('.gbbackup');
+      const hasValidSize = entry.size >= MIN_VALID_BACKUP_SIZE;
+
+      if (!hasValidExtension || !hasValidSize) {
+        console.log('[BackupHistory] Filtering out invalid entry:', {
+          filename: entry.filename,
+          size: entry.size,
+          reason: !hasValidExtension ? 'wrong extension' : 'too small'
+        });
+      }
+
+      return hasValidExtension && hasValidSize;
+    });
+
+    const sorted = validBackups
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, limit);
 
-    console.log(`[BackupHistory] Loaded ${sorted.length} entries`);
+    console.log(`[BackupHistory] Loaded ${sorted.length} valid entries (filtered ${allBackups.length - validBackups.length} invalid)`);
     return sorted;
   } catch (error) {
     console.error('[BackupHistory] Failed to load history:', error);

@@ -285,11 +285,11 @@ class SmartAutoBackupService {
       const bundle = bundleResult.bundle;
 
       // Generate filename with timestamp
-      // Format: graceful-books-backup-2026-09-09T19-30-00.gbbackup
+      // Format: audacious-backup-2026-09-09T19-30-00.gbbackup
       const timestamp = new Date().toISOString()
         .replace(/:/g, '-')
         .replace(/\..+/, '');
-      const fileName = `graceful-books-backup-${timestamp}.gbbackup`;
+      const fileName = `audacious-backup-${timestamp}.gbbackup`;
 
       // Write to filesystem
       const result = await writeBackupToFile({
@@ -345,9 +345,11 @@ class SmartAutoBackupService {
       }> = [];
 
       // List all backup files
-      // Real filenames: graceful-books-backup-2026-09-09T19-30-00.gbbackup
+      // New format: audacious-backup-2026-09-09T19-30-00.gbbackup
+      // Old format: graceful-books-backup-2026-09-09T19-30-00.gbbackup (also cleaned for migration)
       for await (const entry of dirHandle.values()) {
-        if (entry.kind === 'file' && entry.name.startsWith('graceful-books-backup-')) {
+        if (entry.kind === 'file' &&
+            (entry.name.startsWith('audacious-backup-') || entry.name.startsWith('graceful-books-backup-'))) {
           const time = this.extractTimestamp(entry.name);
           if (time) {
             backupFiles.push({ name: entry.name, time });
@@ -433,9 +435,10 @@ class SmartAutoBackupService {
    * Extract timestamp from backup filename
    */
   private extractTimestamp(fileName: string): Date | null {
-    // Real format: graceful-books-backup-2026-09-09T19-30-00.gbbackup
+    // New format: audacious-backup-2026-09-09T19-30-00.gbbackup
+    // Old format: graceful-books-backup-2026-09-09T19-30-00.gbbackup
     // (ISO timestamp with colons replaced by hyphens)
-    const match = fileName.match(/graceful-books-backup-(.+)\.gbbackup/);
+    const match = fileName.match(/(?:audacious|graceful-books)-backup-(.+)\.gbbackup/);
     if (!match) return null;
 
     try {

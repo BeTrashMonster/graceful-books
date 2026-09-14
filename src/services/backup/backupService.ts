@@ -239,13 +239,14 @@ export class BackupService {
       crypto.getRandomValues(salt);
 
       // Derive master key from passphrase
-      backupLogger.debug('Deriving encryption key from passphrase');
+      // CRITICAL: New backups MUST use Argon2id - no PBKDF2 fallback
+      backupLogger.debug('Deriving encryption key from passphrase (Argon2id required)');
       const keyResult = await deriveMasterKey(passphrase, salt, {
         memoryCost: 65536, // 64 MB
         timeCost: 3,
         parallelism: 4,
         keyLength: 32,
-      });
+      }, { requireArgon2: true });
 
       if (!keyResult.success || !keyResult.data) {
         return {
@@ -306,7 +307,7 @@ export class BackupService {
 
       // Generate filename with timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-      const filename = `graceful-books-backup-${timestamp}.gbbackup`;
+      const filename = `audacious-backup-${timestamp}.gbbackup`;
 
       backupLogger.info('Encrypted backup created successfully', {
         size: blob.size,

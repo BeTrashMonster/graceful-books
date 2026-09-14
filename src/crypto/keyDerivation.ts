@@ -104,7 +104,7 @@ export async function deriveMasterKey(
   passphrase: string,
   salt?: Uint8Array,
   params?: Partial<KeyDerivationParams>,
-  options?: { skipRateLimit?: boolean }
+  options?: { skipRateLimit?: boolean; requireArgon2?: boolean }
 ): Promise<CryptoResult<MasterKey>> {
   try {
     // Check rate limit (unless explicitly skipped for internal operations)
@@ -171,7 +171,11 @@ export async function deriveMasterKey(
     }
 
     // Perform key derivation using argon2-browser
-    const keyMaterial = await deriveKeyWithArgon2(passphrase, derivationParams);
+    const keyMaterial = await deriveKeyWithArgon2(
+      passphrase,
+      derivationParams,
+      options?.requireArgon2 ?? false
+    );
 
     // Generate unique key ID
     const keyId = await generateKeyId(keyMaterial);
@@ -201,25 +205,29 @@ export async function deriveMasterKey(
  * Derive key using Argon2id algorithm
  *
  * Uses argon2-browser library for client-side key derivation.
- * Falls back to Web Crypto API PBKDF2 if Argon2 is unavailable.
+ * Falls back to Web Crypto API PBKDF2 if Argon2 is unavailable (for restore only).
  *
  * @param passphrase - User's passphrase
  * @param params - Derivation parameters
+ * @param requireArgon2 - If true, throw error instead of falling back to PBKDF2
  * @returns Promise resolving to derived key material
  */
 async function deriveKeyWithArgon2(
   passphrase: string,
-  params: KeyDerivationParams
+  params: KeyDerivationParams,
+  requireArgon2: boolean
 ): Promise<Uint8Array> {
   // Load argon2-browser module (lazy-loaded, safe to call multiple times)
   // This is the fix: we must call loadArgon2() before checking window.argon2
+  let argon2LoadError: Error | null = null;
   if (typeof window !== 'undefined') {
     try {
       await loadArgon2();
       console.log('[KDF] Argon2 module loaded successfully');
     } catch (err) {
       console.warn('[KDF] Failed to load Argon2 module:', err);
-      // Fall through to PBKDF2 fallback
+      argon2LoadError = err instanceof Error ? err : new Error(String(err));
+      // Fall through - will check requireArgon2 below
     }
   }
 
@@ -244,14 +252,34 @@ async function deriveKeyWithArgon2(
       // Argon2 hash failed - likely CSP blocking WASM compilation
       // This happens when script loads but WASM can't instantiate
       console.error('[KDF] Argon2 hash failed (CSP may be blocking WASM):', argon2Error);
-      console.warn('[KDF] Falling back to PBKDF2');
+
+      // For new backups, fail hard - do NOT fall back to weaker encryption
+      if (requireArgon2) {
+        throw new Error(
+          'Backup encryption unavailable: Argon2id key derivation failed. ' +
+          'This may be caused by browser security settings blocking WebAssembly. ' +
+          'Please try a different browser or check your Content Security Policy settings.'
+        );
+      }
+
+      console.warn('[KDF] Falling back to PBKDF2 (for restore compatibility)');
       // Fall through to PBKDF2 fallback below
+    }
+  } else {
+    // Argon2 not available at all
+    if (requireArgon2) {
+      const reason = argon2LoadError?.message || 'Argon2 module failed to load';
+      throw new Error(
+        `Backup encryption unavailable: ${reason}. ` +
+        'Please try refreshing the page or use a different browser.'
+      );
     }
   }
 
   // Fallback to Web Crypto API PBKDF2
-  // Note: This is less secure than Argon2id but provides compatibility
-  console.warn('[KDF] Argon2 not available, falling back to PBKDF2 (less secure)');
+  // Note: This is ONLY for restoring old backups that used PBKDF2
+  // New backups with requireArgon2=true will have thrown above
+  console.warn('[KDF] Argon2 not available, falling back to PBKDF2 (restore compatibility mode)');
   return deriveKeyWithPBKDF2(passphrase, params);
 }
 
