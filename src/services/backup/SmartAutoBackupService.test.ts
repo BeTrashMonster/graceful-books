@@ -90,7 +90,7 @@ describe('SmartAutoBackupService - Backup Rotation Safety', () => {
 
   /**
    * Generate backup filenames with timestamps matching REAL format
-   * Real format: graceful-books-backup-2026-09-09T19-30-00.gbbackup
+   * Real format: audacious-backup-2026-09-09T19-30-00.gbbackup
    * @param count Number of backups to generate
    * @param startMinutesAgo Minutes ago for the oldest backup
    */
@@ -105,7 +105,7 @@ describe('SmartAutoBackupService - Backup Rotation Safety', () => {
       const formatted = timestamp.toISOString()
         .replace(/[:.]/g, '-')
         .slice(0, 19);
-      files.push(`graceful-books-backup-${formatted}.gbbackup`);
+      files.push(`audacious-backup-${formatted}.gbbackup`);
     }
 
     return files;
@@ -124,7 +124,7 @@ describe('SmartAutoBackupService - Backup Rotation Safety', () => {
       const formatted = timestamp.toISOString()
         .replace(/[:.]/g, '-')
         .slice(0, 19);
-      backupFiles.push(`graceful-books-backup-${formatted}.gbbackup`);
+      backupFiles.push(`audacious-backup-${formatted}.gbbackup`);
     }
 
     // The OLDEST backup (first in list, furthest in past)
@@ -152,9 +152,9 @@ describe('SmartAutoBackupService - Backup Rotation Safety', () => {
     // MUST NOT delete the key file
     expect(deletedFiles).not.toContain(AUTO_KEY_FILENAME);
 
-    // Verify only backup files were deleted
+    // Verify only backup files were deleted (both old graceful-books- and new audacious- patterns)
     for (const file of deletedFiles) {
-      expect(file).toMatch(/^graceful-books-backup-.*\.gbbackup$/);
+      expect(file).toMatch(/^(?:audacious|graceful-books)-backup-.*\.gbbackup$/);
     }
   });
 
@@ -190,26 +190,27 @@ describe('SmartAutoBackupService - Backup Rotation Safety', () => {
     expect(deletedFiles).not.toContain(AUTO_KEY_FILENAME);
     expect(deletedFiles).not.toContain('.graceful-books-key');
 
-    // All deleted files should be backup files (real format)
+    // All deleted files should be backup files (both new audacious- and legacy graceful-books- formats)
     for (const deletedFile of deletedFiles) {
-      expect(deletedFile).toMatch(/^graceful-books-backup-.*\.gbbackup$/);
+      expect(deletedFile).toMatch(/^(?:audacious|graceful-books)-backup-.*\.gbbackup$/);
     }
   });
 
-  it('cleanOldBackups only considers files matching graceful-books-backup-*.gbbackup pattern', async () => {
+  it('cleanOldBackups only considers files matching audacious-backup-*.gbbackup or graceful-books-backup-*.gbbackup patterns', async () => {
     // Setup: folder with various files - using REAL filename format
+    // Mix of new audacious-backup-* and legacy graceful-books-backup-* files
     const filesInFolder = [
       AUTO_KEY_FILENAME,                           // Key file - must NOT be touched
       '.graceful-books-settings',                  // Other config - must NOT be touched
       'random-file.txt',                           // Random file - must NOT be touched
-      'graceful-books-backup-2026-09-08T10-00-00.gbbackup', // Old backup - may be deleted
-      'graceful-books-backup-2026-09-08T10-05-00.gbbackup',
-      'graceful-books-backup-2026-09-08T10-10-00.gbbackup',
-      'graceful-books-backup-2026-09-08T10-15-00.gbbackup',
-      'graceful-books-backup-2026-09-08T10-20-00.gbbackup',
-      'graceful-books-backup-2026-09-08T10-25-00.gbbackup',
-      'graceful-books-backup-2026-09-08T10-30-00.gbbackup',
-      'graceful-books-backup-2026-09-08T10-35-00.gbbackup',
+      'audacious-backup-2026-09-08T10-00-00.gbbackup', // New format - may be deleted
+      'audacious-backup-2026-09-08T10-05-00.gbbackup',
+      'audacious-backup-2026-09-08T10-10-00.gbbackup',
+      'audacious-backup-2026-09-08T10-15-00.gbbackup',
+      'audacious-backup-2026-09-08T10-20-00.gbbackup',
+      'audacious-backup-2026-09-08T10-25-00.gbbackup',
+      'audacious-backup-2026-09-08T10-30-00.gbbackup',
+      'graceful-books-backup-2026-09-08T10-35-00.gbbackup', // Legacy format - also managed
       'graceful-books-backup-2026-09-08T10-40-00.gbbackup',
       'graceful-books-backup-2026-09-08T10-45-00.gbbackup',
       'graceful-books-backup-2026-09-08T10-50-00.gbbackup',
@@ -233,9 +234,9 @@ describe('SmartAutoBackupService - Backup Rotation Safety', () => {
     expect(deletedFiles).not.toContain('.graceful-books-settings');
     expect(deletedFiles).not.toContain('random-file.txt');
 
-    // Only graceful-books-backup-*.gbbackup files should ever be deleted
+    // Only audacious-backup-*.gbbackup or graceful-books-backup-*.gbbackup files should ever be deleted
     for (const file of deletedFiles) {
-      expect(file.startsWith('graceful-books-backup-')).toBe(true);
+      expect(file.startsWith('audacious-backup-') || file.startsWith('graceful-books-backup-')).toBe(true);
       expect(file.endsWith('.gbbackup')).toBe(true);
     }
   });
@@ -252,7 +253,7 @@ describe('SmartAutoBackupService - Backup Rotation Safety', () => {
       const formatted = timestamp.toISOString()
         .replace(/[:.]/g, '-')
         .slice(0, 19);
-      files.push(`graceful-books-backup-${formatted}.gbbackup`);
+      files.push(`audacious-backup-${formatted}.gbbackup`);
     }
 
     createMockDirectoryHandle(files);

@@ -142,7 +142,7 @@ describe('BackupService', () => {
       expect(result.success).toBe(true);
       expect(result.blob).toBeDefined();
       expect(result.filename).toBeDefined();
-      expect(result.filename).toMatch(/^graceful-books-backup-.*\.gbbackup$/);
+      expect(result.filename).toMatch(/^audacious-backup-.*\.gbbackup$/);
       expect(result.backup).toBeDefined();
 
       // Verify backup structure
