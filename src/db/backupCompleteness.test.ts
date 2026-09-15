@@ -65,7 +65,7 @@ describe('Backup Completeness', () => {
     }
 
     // Run the export
-    const exportData = await db.exportAllData();
+    const exportData = await db.exportAllData(null);
 
     // Verify every non-excluded table appears in the export
     const missingTables: string[] = [];
@@ -137,7 +137,7 @@ describe('Backup Completeness', () => {
       'cpgUnitConversions',
     ];
 
-    const exportData = await db.exportAllData();
+    const exportData = await db.exportAllData(null);
 
     const missingCpgTables: string[] = [];
     for (const tableName of criticalCpgTables) {
@@ -160,7 +160,7 @@ describe('Backup Completeness', () => {
   });
 
   it('should verify export totalRecords matches sum of all tables', async () => {
-    const exportData = await db.exportAllData();
+    const exportData = await db.exportAllData(null);
 
     if (!exportData.tables) {
       throw new Error('Export has no tables property');
@@ -319,7 +319,7 @@ describe('Live Database Export Check', () => {
     }
 
     // Run export
-    const exportData = await db.exportAllData();
+    const exportData = await db.exportAllData(null);
 
     // Compare
     const report: {

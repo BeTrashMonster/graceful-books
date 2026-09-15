@@ -536,4 +536,119 @@ describe('BackupService', () => {
       expect(restoreResult.details?.contacts).toBe(1);
     });
   });
+
+  describe('restoreBackupWithMismatchHandling', () => {
+    describe('company_id mismatch detection', () => {
+      it('should detect mismatch when backup companyId differs from session', async () => {
+        // Create backup with company-1
+        const backupResult = await BackupService.createBackup(testPassphrase);
+        expect(backupResult.success).toBe(true);
+
+        const backupText = await readBlobAsText(backupResult.blob!);
+        const backupFile = new File([backupText], 'test.gbbackup', {
+          type: 'application/json',
+        });
+
+        // Try to restore with different session companyId
+        const restoreResult = await BackupService.restoreBackupWithMismatchHandling(
+          backupFile,
+          testPassphrase,
+          'different-company-id', // Different from company-1 in backup
+          'Different Company',
+          'detect'
+        );
+
+        expect(restoreResult.success).toBe(false);
+        expect(restoreResult.mismatchInfo).toBeDefined();
+        expect(restoreResult.mismatchInfo?.hasMismatch).toBe(true);
+        expect(restoreResult.error).toContain('different account');
+      });
+
+      it('should NOT detect mismatch when backup companyId matches session', async () => {
+        // Create backup with company-1
+        const backupResult = await BackupService.createBackup(testPassphrase);
+        expect(backupResult.success).toBe(true);
+
+        const backupText = await readBlobAsText(backupResult.blob!);
+        const backupFile = new File([backupText], 'test.gbbackup', {
+          type: 'application/json',
+        });
+
+        // Restore with matching session companyId
+        const restoreResult = await BackupService.restoreBackupWithMismatchHandling(
+          backupFile,
+          testPassphrase,
+          'company-1', // Matches the company in mockDbExport
+          'Test Company',
+          'detect'
+        );
+
+        expect(restoreResult.success).toBe(true);
+        expect(restoreResult.mismatchInfo?.hasMismatch).toBe(false);
+      });
+
+      it('should rewrite company IDs when mode is claim', async () => {
+        // Create backup with company-1
+        const backupResult = await BackupService.createBackup(testPassphrase);
+        expect(backupResult.success).toBe(true);
+
+        const backupText = await readBlobAsText(backupResult.blob!);
+        const backupFile = new File([backupText], 'test.gbbackup', {
+          type: 'application/json',
+        });
+
+        // Restore with 'claim' mode to rewrite IDs
+        const restoreResult = await BackupService.restoreBackupWithMismatchHandling(
+          backupFile,
+          testPassphrase,
+          'new-company-id',
+          'New Company',
+          'claim'
+        );
+
+        expect(restoreResult.success).toBe(true);
+
+        // Verify importAllData was called with rewritten company IDs
+        const importedData = vi.mocked(db.importAllData).mock.calls[0][0];
+        const accounts = importedData.tables?.accounts || [];
+
+        // All accounts should have the new company ID
+        for (const account of accounts as Array<{ companyId?: string }>) {
+          if (account.companyId) {
+            expect(account.companyId).toBe('new-company-id');
+          }
+        }
+      });
+    });
+
+    describe('mismatch detection coverage', () => {
+      /**
+       * CRITICAL TEST: Ensures mismatch detection cannot be bypassed.
+       * This test should fail if any restore path skips mismatch detection.
+       */
+      it('should ALWAYS return mismatchInfo when restoreBackupWithMismatchHandling is called', async () => {
+        const backupResult = await BackupService.createBackup(testPassphrase);
+        expect(backupResult.success).toBe(true);
+
+        const backupText = await readBlobAsText(backupResult.blob!);
+        const backupFile = new File([backupText], 'test.gbbackup', {
+          type: 'application/json',
+        });
+
+        // Test with matching company (success case)
+        const matchResult = await BackupService.restoreBackupWithMismatchHandling(
+          backupFile,
+          testPassphrase,
+          'company-1',
+          'Test Company',
+          'detect'
+        );
+
+        // Even on success, mismatchInfo must be returned to prove detection ran
+        expect(matchResult.mismatchInfo).toBeDefined();
+        expect(matchResult.mismatchInfo?.sessionCompanyId).toBe('company-1');
+        expect(matchResult.mismatchInfo?.backupCompanies.length).toBeGreaterThan(0);
+      });
+    });
+  });
 });

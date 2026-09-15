@@ -89,6 +89,10 @@ export function EncryptedBackup({
   const [confirmDataLoss, setConfirmDataLoss] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Ref to store effective decryption key for restore operations
+  // This allows auto-mode to use the auto-key without exposing it in state
+  const effectiveDecryptionKeyRef = useRef<string>('');
+
   // Passphrase mode state
   const [backupPreference, setBackupPreference] = useState<BackupPreference | null>(null);
   const [loadingPreferences, setLoadingPreferences] = useState(true);
@@ -475,11 +479,12 @@ export function EncryptedBackup({
       }
 
       setIsProcessing(true);
-      backupLogger.info('Creating encrypted backup');
+      backupLogger.info('Creating encrypted backup', { companyId: companyId || 'ALL' });
 
       const result: BackupResult = await BackupService.createBackup(
         encryptionKey,
-        true // include audit logs
+        true, // include audit logs
+        companyId // filter to current company
       );
 
       if (!result.success || !result.blob || !result.filename) {
@@ -692,7 +697,7 @@ export function EncryptedBackup({
     try {
       const result = await BackupService.restoreBackupWithMismatchHandling(
         selectedFile,
-        passphrase,
+        effectiveDecryptionKeyRef.current,
         companyId || null,
         undefined, // sessionCompanyName - we don't have it in this context
         restoreMode,
@@ -741,10 +746,41 @@ export function EncryptedBackup({
         return;
       }
 
-      if (!passphrase || passphrase.trim().length === 0) {
-        setError('Please enter the passphrase you used to create this backup.');
-        return;
+      // Determine the decryption key based on passphrase mode
+      let decryptionKey: string;
+
+      if (backupPreference?.passphrase_mode === 'auto') {
+        // Auto mode: retrieve the auto-key without prompting
+        let autoKey = await readAutoKeyFromFolder();
+
+        if (!autoKey) {
+          // Try IndexedDB fallback
+          autoKey = getAutoBackupKey(backupPreference);
+        }
+
+        if (!autoKey) {
+          // Key not found - user needs to copy from original device
+          setError(
+            'Backup key file missing. To restore this backup, copy the entire backup folder ' +
+            'from your original device, including hidden files (.audacious-backup-key).'
+          );
+          return;
+        }
+
+        const fingerprint = await getKeyFingerprint(autoKey);
+        backupLogger.info('Using auto-key for restore', { fingerprint });
+        decryptionKey = autoKey;
+      } else {
+        // Manual mode or no preference: require passphrase entry
+        if (!passphrase || passphrase.trim().length === 0) {
+          setError('Please enter the passphrase you used to create this backup.');
+          return;
+        }
+        decryptionKey = passphrase;
       }
+
+      // Store in ref for use by performRestore and subsequent calls
+      effectiveDecryptionKeyRef.current = decryptionKey;
 
       if (!validationResult?.valid) {
         setError('Please select a valid backup file.');
@@ -785,7 +821,7 @@ export function EncryptedBackup({
       // First, detect if there's a mismatch
       const detectResult = await BackupService.restoreBackupWithMismatchHandling(
         selectedFile,
-        passphrase,
+        effectiveDecryptionKeyRef.current,
         companyId,
         undefined,
         'detect', // Just detect, don't import yet
@@ -1289,57 +1325,120 @@ export function EncryptedBackup({
                     <th>Data Type</th>
                     <th>In Backup</th>
                     <th>Current DB</th>
+                    <th>Diff</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Accounts</td>
-                    <td>{validationResult.backup.statistics.accounts}</td>
-                    <td>{currentDbStats?.tableCounts?.accounts ?? '...'}</td>
-                  </tr>
-                  <tr>
-                    <td>Transactions</td>
-                    <td>{validationResult.backup.statistics.transactions}</td>
-                    <td>{currentDbStats?.tableCounts?.transactions ?? '...'}</td>
-                  </tr>
-                  <tr>
-                    <td>Contacts</td>
-                    <td>{validationResult.backup.statistics.contacts}</td>
-                    <td>{currentDbStats?.tableCounts?.contacts ?? '...'}</td>
-                  </tr>
-                  <tr>
-                    <td>Products</td>
-                    <td>{validationResult.backup.statistics.products}</td>
-                    <td>{currentDbStats?.tableCounts?.products ?? '...'}</td>
-                  </tr>
-                  {/* CPG-specific stats - now showing both sides */}
-                  {(validationResult.backup.statistics.cpgCategories !== undefined ||
-                    validationResult.backup.statistics.cpgVendors !== undefined ||
-                    (currentDbStats?.tableCounts?.cpgCategories ?? 0) > 0 ||
-                    (currentDbStats?.tableCounts?.cpgVendors ?? 0) > 0) && (
-                    <>
-                      <tr>
-                        <td>CPG Categories</td>
-                        <td>{validationResult.backup.statistics.cpgCategories ?? 0}</td>
-                        <td>{currentDbStats?.tableCounts?.cpgCategories ?? '...'}</td>
-                      </tr>
-                      <tr>
-                        <td>CPG Vendors</td>
-                        <td>{validationResult.backup.statistics.cpgVendors ?? 0}</td>
-                        <td>{currentDbStats?.tableCounts?.cpgVendors ?? '...'}</td>
-                      </tr>
-                      <tr>
-                        <td>CPG Products</td>
-                        <td>{validationResult.backup.statistics.cpgFinishedProducts ?? 0}</td>
-                        <td>{currentDbStats?.tableCounts?.cpgFinishedProducts ?? '...'}</td>
-                      </tr>
-                    </>
-                  )}
+                  {/* Render all tables dynamically from backup's tableCounts or fallback to legacy stats */}
+                  {(() => {
+                    const backupStats = validationResult.backup.statistics;
+                    const dbCounts = currentDbStats?.tableCounts ?? {};
+
+                    // Build unified table list from both sources
+                    const allTables = new Set<string>();
+
+                    // Add from backup tableCounts (v3+)
+                    if (backupStats.tableCounts) {
+                      Object.keys(backupStats.tableCounts).forEach(t => allTables.add(t));
+                    } else {
+                      // Legacy backup - use hardcoded known fields
+                      ['accounts', 'transactions', 'contacts', 'products', 'companies'].forEach(t => allTables.add(t));
+                      if (backupStats.cpgCategories !== undefined) allTables.add('cpgCategories');
+                      if (backupStats.cpgVendors !== undefined) allTables.add('cpgVendors');
+                      if (backupStats.cpgFinishedProducts !== undefined) allTables.add('cpgFinishedProducts');
+                      if (backupStats.cpgInvoices !== undefined) allTables.add('cpgInvoices');
+                      if (backupStats.cpgRecipes !== undefined) allTables.add('cpgRecipes');
+                    }
+
+                    // Add from current database
+                    Object.keys(dbCounts).forEach(t => allTables.add(t));
+
+                    // Sort tables: core tables first, then alphabetically
+                    const coreTables = ['accounts', 'transactions', 'contacts', 'products', 'companies'];
+                    const sortedTables = Array.from(allTables).sort((a, b) => {
+                      const aCore = coreTables.indexOf(a);
+                      const bCore = coreTables.indexOf(b);
+                      if (aCore !== -1 && bCore !== -1) return aCore - bCore;
+                      if (aCore !== -1) return -1;
+                      if (bCore !== -1) return 1;
+                      return a.localeCompare(b);
+                    });
+
+                    // Helper to get backup count for a table
+                    const getBackupCount = (table: string): number => {
+                      if (backupStats.tableCounts?.[table] !== undefined) {
+                        return backupStats.tableCounts[table];
+                      }
+                      // Legacy fallback
+                      const legacyMap: Record<string, number | undefined> = {
+                        accounts: backupStats.accounts,
+                        transactions: backupStats.transactions,
+                        contacts: backupStats.contacts,
+                        products: backupStats.products,
+                        companies: backupStats.companies,
+                        cpgCategories: backupStats.cpgCategories,
+                        cpgVendors: backupStats.cpgVendors,
+                        cpgFinishedProducts: backupStats.cpgFinishedProducts,
+                        cpgInvoices: backupStats.cpgInvoices,
+                        cpgRecipes: backupStats.cpgRecipes,
+                      };
+                      return legacyMap[table] ?? 0;
+                    };
+
+                    // Format table name for display
+                    const formatTableName = (name: string): string => {
+                      // Convert camelCase/snake_case to Title Case
+                      return name
+                        .replace(/([a-z])([A-Z])/g, '$1 $2')
+                        .replace(/_/g, ' ')
+                        .replace(/\b\w/g, c => c.toUpperCase());
+                    };
+
+                    return sortedTables
+                      .filter(table => {
+                        // Only show tables that have data in either backup or current DB
+                        const backupCount = getBackupCount(table);
+                        const dbCount = dbCounts[table] ?? 0;
+                        return backupCount > 0 || dbCount > 0;
+                      })
+                      .map(table => {
+                        const backupCount = getBackupCount(table);
+                        const dbCount = dbCounts[table] ?? 0;
+                        const diff = backupCount - dbCount;
+                        const hasMismatch = diff !== 0;
+
+                        return (
+                          <tr key={table} className={hasMismatch ? styles.mismatchRow : undefined}>
+                            <td>{formatTableName(table)}</td>
+                            <td>{backupCount}</td>
+                            <td>{currentDbStats ? dbCount : '...'}</td>
+                            <td className={diff > 0 ? styles.diffPositive : diff < 0 ? styles.diffNegative : ''}>
+                              {diff > 0 ? `+${diff}` : diff < 0 ? diff : '-'}
+                            </td>
+                          </tr>
+                        );
+                      });
+                  })()}
                   {/* Total records row - always show with both values */}
                   <tr className={styles.totalRow}>
                     <td><strong>Total Records</strong></td>
                     <td><strong>{validationResult.backup.statistics.totalRecords ?? '?'}</strong></td>
                     <td><strong>{currentDbStats?.totalRecords ?? '...'}</strong></td>
+                    <td className={(() => {
+                      const backupTotal = validationResult.backup.statistics.totalRecords ?? 0;
+                      const dbTotal = currentDbStats?.totalRecords ?? 0;
+                      const diff = backupTotal - dbTotal;
+                      return diff > 0 ? styles.diffPositive : diff < 0 ? styles.diffNegative : '';
+                    })()}>
+                      <strong>
+                        {(() => {
+                          const backupTotal = validationResult.backup.statistics.totalRecords ?? 0;
+                          const dbTotal = currentDbStats?.totalRecords ?? 0;
+                          const diff = backupTotal - dbTotal;
+                          return diff > 0 ? `+${diff}` : diff < 0 ? diff : '-';
+                        })()}
+                      </strong>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -1367,16 +1466,26 @@ export function EncryptedBackup({
           </div>
         )}
 
-        <Input
-          type="password"
-          label="Backup Passphrase"
-          value={passphrase}
-          onChange={(e) => setPassphrase(e.target.value)}
-          placeholder="Enter your backup passphrase"
-          disabled={isProcessing || !selectedFile}
-          helperText="Enter the passphrase you used when creating this backup."
-          required
-        />
+        {/* Auto mode: No passphrase input needed */}
+        {backupPreference?.passphrase_mode === 'auto' ? (
+          <div className={styles.autoModeRestoreNote}>
+            <p>
+              <strong>Automatic encryption detected.</strong> Your backup will be decrypted
+              using the key file stored in your backup folder. No passphrase needed.
+            </p>
+          </div>
+        ) : (
+          <Input
+            type="password"
+            label="Backup Passphrase"
+            value={passphrase}
+            onChange={(e) => setPassphrase(e.target.value)}
+            placeholder="Enter your backup passphrase"
+            disabled={isProcessing || !selectedFile}
+            helperText="Enter the passphrase you used when creating this backup."
+            required
+          />
+        )}
       </div>
     </div>
     );

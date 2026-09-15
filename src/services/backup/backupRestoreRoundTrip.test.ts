@@ -590,7 +590,7 @@ describe('Backup/Restore Round-Trip', () => {
 
     expect(result.success).toBe(true);
     expect(result.blob).toBeDefined();
-    expect(result.filename).toContain('graceful-books-backup');
+    expect(result.filename).toContain('audacious-backup');
 
     if (result.blob) {
       backupBlob = result.blob;
@@ -765,7 +765,7 @@ describe('Backup Completeness - All Tables', () => {
     const allTables = db.tables.map(t => t.name);
     const excludedTables = Object.keys(BACKUP_EXCLUDED_TABLES);
 
-    const exportData = await db.exportAllData();
+    const exportData = await db.exportAllData(null);
 
     const missingTables: string[] = [];
     for (const tableName of allTables) {

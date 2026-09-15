@@ -211,9 +211,28 @@ class SmartAutoBackupService {
     }
 
     try {
+      // Get company ID from session for filtering
+      // IMPORTANT: Match AuthContext resolution - companyId is derived from userId
+      const sessionData = sessionStorage.getItem('graceful_books_session');
+      if (!sessionData) {
+        backupLogger.warn('No session found - cannot determine companyId for backup');
+        return; // Fail safe: don't backup without knowing which company
+      }
+
+      const session = JSON.parse(sessionData);
+      // Resolve companyId same way AuthContext does (see AuthContext.tsx line 60)
+      const companyId = session.companyId || session.company_id ||
+                        session.userId || session.user?.id;
+
+      if (!companyId) {
+        backupLogger.error('Cannot determine companyId from session - backup aborted to prevent data leakage');
+        throw new Error('No companyId available - cannot create filtered backup');
+      }
+
       // Export data and calculate hash
       // Use TreasureChest (CPG database) for backups - this is where user data lives
-      const allData = await db.exportAllData();
+      // Pass companyId to filter records to current company only
+      const allData = await db.exportAllData(companyId);
       const dataString = JSON.stringify(allData);
       const dataHash = await this.calculateHash(dataString);
 
@@ -240,22 +259,35 @@ class SmartAutoBackupService {
         changesSinceBackup: this.changesSinceBackup
       });
 
+      // Get user session data for backup metadata
+      // IMPORTANT: Match AuthContext resolution - companyId is derived from userId
+      const sessionData = sessionStorage.getItem('graceful_books_session');
+      if (!sessionData) {
+        backupLogger.error('No session found - cannot create backup without session');
+        throw new Error('No session available - cannot create backup');
+      }
+
+      const session = JSON.parse(sessionData);
+      const userId = session.userId || session.user?.id;
+      // Resolve companyId same way AuthContext does (see AuthContext.tsx line 60)
+      const companyId = session.companyId || session.company_id || userId;
+
+      if (!companyId) {
+        backupLogger.error('Cannot determine companyId from session - backup aborted');
+        throw new Error('No companyId available - cannot create filtered backup');
+      }
+
       // Get data if not provided
       // Use TreasureChest (CPG database) for backups
+      // Pass companyId to filter records to current company only
       if (!allData) {
-        allData = await db.exportAllData();
+        allData = await db.exportAllData(companyId);
       }
 
       // Calculate hash if not provided
       if (!dataHash) {
         dataHash = await this.calculateHash(JSON.stringify(allData));
       }
-
-      // Get user session data for backup metadata
-      const sessionData = sessionStorage.getItem('graceful_books_session');
-      const session = sessionData ? JSON.parse(sessionData) : {};
-      const userId = session.userId || session.user?.id || 'unknown';
-      const companyId = session.companyId || userId; // Use userId as companyId for now
 
       // Get encryption password
       const password = await this.getEncryptionPassword();

@@ -2795,13 +2795,20 @@ export class TreasureChestDB extends Dexie {
    *
    * Every table is included by default UNLESS it's in BACKUP_EXCLUDED_TABLES.
    * Adding a new table will automatically include it in backups.
+   *
+   * @param companyId - Company ID to filter records (REQUIRED for production backups).
+   *   - Company-scoped tables (with company_id/companyId field) are filtered to match
+   *   - User-scoped tables (in USER_SCOPED_TABLES) are exported without filtering
+   *   - Pass null explicitly for tests that need to export ALL records
+   *   - This ensures single-company backups without cross-contamination
    */
-  async exportAllData(): Promise<DatabaseExport> {
-    dbLogger.info('Starting dynamic database export');
+  async exportAllData(companyId: string | null): Promise<DatabaseExport> {
+    dbLogger.info('Starting dynamic database export', { companyId: companyId || 'ALL' });
 
     const tables: Record<string, unknown[]> = {};
     const excludedTables: string[] = [];
     let totalRecords = 0;
+    let filteredRecords = 0;
 
     // Get all table names from Dexie
     const allTableNames = this.tables.map((t) => t.name);
@@ -2821,7 +2828,30 @@ export class TreasureChestDB extends Dexie {
       // Get the table and export its data
       try {
         const table = this.table(tableName);
-        const data = await table.toArray();
+        let data = await table.toArray();
+
+        // Apply company_id filtering if companyId is a non-empty string
+        // Skip filtering for user-scoped tables (they apply across all companies)
+        // Pass null explicitly to skip filtering (for tests only)
+        if (companyId && !USER_SCOPED_TABLES[tableName]) {
+          const originalCount = data.length;
+          data = data.filter((record: unknown) => {
+            if (!record || typeof record !== 'object') return false;
+            const rec = record as Record<string, unknown>;
+            // Check both snake_case and camelCase variants
+            return rec.company_id === companyId || rec.companyId === companyId;
+          });
+          filteredRecords += originalCount - data.length;
+
+          if (originalCount !== data.length) {
+            dbLogger.debug(`Filtered table: ${tableName}`, {
+              original: originalCount,
+              filtered: data.length,
+              excluded: originalCount - data.length,
+            });
+          }
+        }
+
         tables[tableName] = data;
         totalRecords += data.length;
 
@@ -2842,6 +2872,8 @@ export class TreasureChestDB extends Dexie {
       excludedTables: excludedTables.length,
       tablesWithData: tablesWithData.length,
       totalRecords,
+      filteredRecords: companyId ? filteredRecords : 0,
+      companyId: companyId || 'ALL',
     });
 
     return {
@@ -3061,6 +3093,26 @@ export class TreasureChestDB extends Dexie {
     };
   }
 }
+
+/**
+ * Tables that are USER-scoped (have user_id but NOT company_id).
+ * These tables are exported WITHOUT company filtering because they
+ * represent per-user settings that apply across all companies.
+ *
+ * Decision rationale: A user's UI preferences (pinned tabs, feature
+ * activations) should travel with their backup regardless of which
+ * company they're restoring. These are not financial data.
+ */
+export const USER_SCOPED_TABLES: Record<string, string> = {
+  // Tab preferences - which tabs user has pinned per page
+  tabPreferences: 'User preference: per-user UI state for tab pinning',
+
+  // Feature preferences - which progressive features user has enabled
+  userFeaturePreferences: 'User preference: per-user feature activation state',
+
+  // Users table itself - user account data
+  users: 'User account: user profile data (email, name, etc.)',
+};
 
 /**
  * Tables explicitly excluded from backup.

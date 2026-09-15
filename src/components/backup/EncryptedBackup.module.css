@@ -234,6 +234,22 @@
   border-bottom: none;
 }
 
+/* Row with mismatched counts */
+.comparisonTable .mismatchRow {
+  background-color: var(--color-amber-50, #fffbeb);
+}
+
+/* Diff column styling */
+.comparisonTable .diffPositive {
+  color: var(--color-green-700, #15803d);
+  font-weight: 500;
+}
+
+.comparisonTable .diffNegative {
+  color: var(--color-red-700, #b91c1c);
+  font-weight: 500;
+}
+
 /* Data loss warning */
 .dataLossWarning {
   margin-top: 1rem;
@@ -686,6 +702,24 @@
   display: flex;
   gap: 0.75rem;
   margin-top: 0.5rem;
+}
+
+.autoModeRestoreNote {
+  background-color: var(--color-green-50, #f0fdf4);
+  border: 1px solid var(--color-green-200, #bbf7d0);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.autoModeRestoreNote p {
+  margin: 0;
+  color: var(--color-green-800, #166534);
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+.autoModeRestoreNote strong {
+  color: var(--color-green-900, #14532d);
 }
 
 /* Reduced motion support */

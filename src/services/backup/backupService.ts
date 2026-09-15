@@ -63,6 +63,8 @@ export interface EncryptedBackup {
     cpgRecipes?: number;
     /** Total records across all tables */
     totalRecords?: number;
+    /** Per-table record counts for complete comparison (added in backup version 3) */
+    tableCounts?: Record<string, number>;
   };
   /** Application version at backup time */
   appVersion: string;
@@ -153,11 +155,12 @@ export class BackupService {
    *
    * @param passphrase - User's passphrase for encryption
    * @param includeAuditLogs - Whether to include audit logs (default: true)
+   * @param companyId - Optional company ID to filter records (for single-company backups)
    * @returns Promise resolving to backup result with blob and filename
    *
    * @example
    * ```typescript
-   * const result = await BackupService.createBackup('user-passphrase');
+   * const result = await BackupService.createBackup('user-passphrase', true, 'company-uuid');
    * if (result.success && result.blob) {
    *   // Trigger download
    *   const url = URL.createObjectURL(result.blob);
@@ -170,10 +173,11 @@ export class BackupService {
    */
   static async createBackup(
     passphrase: string,
-    includeAuditLogs: boolean = true
+    includeAuditLogs: boolean = true,
+    companyId?: string
   ): Promise<BackupResult> {
     try {
-      backupLogger.info('Starting encrypted backup creation');
+      backupLogger.info('Starting encrypted backup creation', { companyId: companyId || 'ALL' });
 
       // Validate passphrase
       if (!passphrase || passphrase.trim().length === 0) {
@@ -184,8 +188,9 @@ export class BackupService {
       }
 
       // Export all data from database
-      backupLogger.debug('Exporting database data');
-      const dbExport = await this.exportAllData(includeAuditLogs);
+      // When companyId is provided, only records for that company are exported
+      backupLogger.debug('Exporting database data', { companyId: companyId || 'ALL' });
+      const dbExport = await this.exportAllData(includeAuditLogs, companyId);
 
       // Get database statistics for comparison
       const stats = await db.getStatistics();
@@ -297,6 +302,15 @@ export class BackupService {
           cpgFinishedProducts: (dbExport.tables?.cpgFinishedProducts as unknown[])?.length || 0,
           cpgRecipes: (dbExport.tables?.cpgRecipes as unknown[])?.length || 0,
           totalRecords: exportRecordCount,
+          // Complete per-table counts for detailed comparison (v3+)
+          tableCounts: dbExport.tables
+            ? Object.fromEntries(
+                Object.entries(dbExport.tables).map(([name, data]) => [
+                  name,
+                  Array.isArray(data) ? data.length : 0,
+                ])
+              )
+            : undefined,
         },
         appVersion: this.getAppVersion(),
       };
@@ -474,20 +488,14 @@ export class BackupService {
   }
 
   /**
-   * Restore from an encrypted backup
+   * Restore from an encrypted backup WITHOUT mismatch detection.
    *
-   * @param file - Backup file to restore from
-   * @param passphrase - Passphrase to decrypt backup
-   * @param clearExisting - Whether to clear existing data (default: true)
-   * @returns Promise resolving to restore result
+   * @deprecated Use restoreBackupWithMismatchHandling() instead.
+   * This method does NOT check for company_id mismatch and may silently
+   * import records from a different account. Production code should always
+   * use restoreBackupWithMismatchHandling() with a sessionCompanyId.
    *
-   * @example
-   * ```typescript
-   * const result = await BackupService.restoreBackup(file, 'user-passphrase');
-   * if (result.success) {
-   *   console.log(`Restored ${result.recordsRestored} records`);
-   * }
-   * ```
+   * Kept for backward compatibility with existing tests.
    */
   static async restoreBackup(
     file: File,
@@ -495,7 +503,9 @@ export class BackupService {
     clearExisting: boolean = true
   ): Promise<RestoreResult> {
     try {
-      backupLogger.info('Starting backup restoration', {
+      // SECURITY WARNING: This method bypasses company_id mismatch detection.
+      // Use restoreBackupWithMismatchHandling() for production restore operations.
+      backupLogger.warn('restoreBackup() called without mismatch detection - use restoreBackupWithMismatchHandling() instead', {
         filename: file.name,
         clearExisting,
       });
@@ -723,19 +733,17 @@ export class BackupService {
    * Enhanced version of db.exportAllData() that includes all tables
    *
    * @param _includeAuditLogs - Whether to include audit logs (currently unused)
+   * @param companyId - Company ID to filter records (REQUIRED for production backups)
    * @returns Promise resolving to database export
    */
   private static async exportAllData(
-    _includeAuditLogs: boolean = true
+    _includeAuditLogs: boolean = true,
+    companyId: string | null = null
   ): Promise<DatabaseExport> {
     // Use the database's built-in export function
-    // This already exports the core tables
-    const baseExport = await db.exportAllData();
-
-    // TODO: If needed, extend to include additional tables like:
-    // - receipts, categories, invoices, etc.
-    // - CPG data (cpgDistributors, cpgInvoices, etc.)
-    // For now, the base export covers the essential data
+    // Pass companyId for filtering (prevents cross-company data contamination)
+    // Pass null explicitly only for tests that need unfiltered exports
+    const baseExport = await db.exportAllData(companyId);
 
     return baseExport;
   }
@@ -1116,12 +1124,119 @@ export class BackupService {
 
       // Handle SecureBackupBundle format
       if (this.isSecureBackupBundle(parsed)) {
-        // For SecureBackupBundle, use the existing restore flow
-        // (mismatch handling is less relevant for this older format)
-        return this.restoreBackup(file, passphrase, clearExisting);
+        const bundle = parsed as SecureBackupBundle;
+        const backupCompanyId = bundle.metadata.companyId;
+
+        // Detect mismatch using plaintext metadata (no decryption needed)
+        const hasMismatch = sessionCompanyId
+          ? backupCompanyId !== sessionCompanyId
+          : false;
+
+        const mismatchInfo: CompanyMismatchInfo = {
+          backupCompanies: [{ id: backupCompanyId, name: undefined, recordCount: 0 }],
+          sessionCompanyId: sessionCompanyId || '',
+          sessionCompanyName,
+          hasMismatch,
+          hasMultipleCompanies: false, // SecureBackupBundle is single-company
+        };
+
+        // If mode is 'detect', return mismatch info without importing
+        if (mode === 'detect' && hasMismatch) {
+          backupLogger.info('Company mismatch detected in SecureBackupBundle', {
+            backupCompanyId,
+            sessionCompanyId,
+          });
+          return {
+            success: false,
+            mismatchInfo,
+            error: 'This backup belongs to a different account.',
+          };
+        }
+
+        // Decrypt the bundle
+        const restoreResult = await restoreBackupBundle(bundle, passphrase);
+
+        if (!restoreResult.success || !restoreResult.data) {
+          return {
+            success: false,
+            error: restoreResult.error || 'Failed to decrypt the backup. Please check your passphrase.',
+          };
+        }
+
+        const data = restoreResult.data;
+
+        // If mode is 'claim', rewrite company IDs in the decrypted data
+        if (mode === 'claim' && sessionCompanyId) {
+          let modifiedCount = 0;
+          const rewriteArray = (arr: unknown[]) => {
+            for (const record of arr) {
+              if (record && typeof record === 'object') {
+                const rec = record as Record<string, unknown>;
+                if (rec.company_id !== undefined) {
+                  rec.company_id = sessionCompanyId;
+                  modifiedCount++;
+                }
+                if (rec.companyId !== undefined) {
+                  rec.companyId = sessionCompanyId;
+                  modifiedCount++;
+                }
+              }
+            }
+          };
+
+          if (Array.isArray(data.transactions)) rewriteArray(data.transactions);
+          if (Array.isArray(data.accounts)) rewriteArray(data.accounts);
+          if (Array.isArray(data.reports)) rewriteArray(data.reports);
+
+          backupLogger.info('Claimed SecureBackupBundle data', { modifiedRecords: modifiedCount });
+        }
+
+        // Clear existing data if requested
+        if (clearExisting) {
+          backupLogger.debug('Clearing existing data');
+          await db.transactions?.clear();
+          await db.accounts?.clear();
+          await db.contacts?.clear();
+          await db.products?.clear();
+        }
+
+        // Import the decrypted data
+        let recordsRestored = 0;
+
+        if (data.transactions && Array.isArray(data.transactions)) {
+          await db.transactions?.bulkAdd(data.transactions as any[]);
+          recordsRestored += data.transactions.length;
+        }
+        if (data.accounts && Array.isArray(data.accounts)) {
+          await db.accounts?.bulkAdd(data.accounts as any[]);
+          recordsRestored += data.accounts.length;
+        }
+        if (data.reports && Array.isArray(data.reports)) {
+          await db.reports?.bulkAdd(data.reports as any[]);
+          recordsRestored += data.reports.length;
+        }
+
+        backupLogger.info('SecureBackupBundle restore completed with mismatch handling', {
+          recordsRestored,
+          mode,
+          hasMismatch,
+        });
+
+        return {
+          success: true,
+          recordsRestored,
+          mismatchInfo,
+          details: {
+            accounts: data.accounts?.length || 0,
+            transactions: data.transactions?.length || 0,
+            contacts: 0,
+            products: 0,
+            companies: 0,
+          },
+        };
       }
 
-      // Legacy EncryptedBackup format
+      // EncryptedBackup format (v2+)
       const backup = parsed as EncryptedBackup;
 
       if (!backup.version || !backup.createdAt || !backup.encryptedData) {
