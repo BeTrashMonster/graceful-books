@@ -156,14 +156,16 @@ export function EncryptedBackup({
   }, [isOpen, mode, loadBackupPreferences]);
 
   // Fetch comprehensive database statistics when in restore mode
+  // IMPORTANT: Uses same companyId filtering as exportAllData() for accurate comparison
   useEffect(() => {
     if (mode === 'restore' && isOpen) {
-      backupLogger.debug('Fetching comprehensive database statistics');
+      backupLogger.debug('Fetching comprehensive database statistics', { companyId: companyId || 'ALL' });
       // Ensure database is open before querying
       db.open()
-        .then(() => db.getComprehensiveStatistics())
+        .then(() => db.getComprehensiveStatistics(companyId || null))
         .then((stats) => {
           backupLogger.info('Got comprehensive stats', {
+            companyId: companyId || 'ALL',
             totalRecords: stats.totalRecords,
             tableCount: stats.tableCount,
             cpgCategories: stats.tableCounts?.cpgCategories,
@@ -177,7 +179,7 @@ export function EncryptedBackup({
           setCurrentDbStats(null);
         });
     }
-  }, [mode, isOpen]);
+  }, [mode, isOpen, companyId]);
 
   // Check if backup has fewer records than current database
   // User must confirm ANY restore where backup has less data to prevent accidental data loss

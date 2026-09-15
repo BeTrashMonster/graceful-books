@@ -3066,23 +3066,58 @@ export class TreasureChestDB extends Dexie {
   }
 
   /**
-   * Get comprehensive statistics for ALL tables in the database.
+   * Get comprehensive statistics for tables in the database.
    * Used for backup comparison to ensure no data is silently lost.
    * Returns per-table counts and total record count.
+   *
+   * IMPORTANT: This method uses IDENTICAL filtering logic to exportAllData().
+   * Both must count the same records to prevent false "data loss" warnings.
+   *
+   * @param companyId - Company ID to filter records.
+   *   - Company-scoped tables (with company_id/companyId field) are filtered to match
+   *   - User-scoped tables (in USER_SCOPED_TABLES) are counted without filtering
+   *   - Tables in BACKUP_EXCLUDED_TABLES are skipped (not in backup = not counted)
+   *   - Pass null explicitly for tests that need to count ALL records
    */
-  async getComprehensiveStatistics(): Promise<ComprehensiveStatistics> {
+  async getComprehensiveStatistics(companyId: string | null): Promise<ComprehensiveStatistics> {
     const tableCounts: Record<string, number> = {};
     let totalRecords = 0;
 
-    // Count all tables dynamically
+    // Count all tables dynamically, with IDENTICAL filtering to exportAllData()
     for (const table of this.tables) {
+      const tableName = table.name;
+
+      // Skip excluded tables - they aren't in backups so don't count them
+      if (BACKUP_EXCLUDED_TABLES[tableName]) {
+        continue;
+      }
+
       try {
-        const count = await table.count();
-        tableCounts[table.name] = count;
+        let count: number;
+
+        // Apply company_id filtering if companyId is a non-empty string
+        // Skip filtering for user-scoped tables (they apply across all companies)
+        // Pass null explicitly to skip filtering (for tests only)
+        if (companyId && !USER_SCOPED_TABLES[tableName]) {
+          // Must filter records to get accurate count
+          const allRecords = await table.toArray();
+          const filtered = allRecords.filter((record: unknown) => {
+            if (!record || typeof record !== 'object') return false;
+            const rec = record as Record<string, unknown>;
+            // Check both snake_case and camelCase variants
+            return rec.company_id === companyId || rec.companyId === companyId;
+          });
+          count = filtered.length;
+        } else {
+          // No filtering - just count all records
+          count = await table.count();
+        }
+
+        tableCounts[tableName] = count;
         totalRecords += count;
       } catch (err) {
-        dbLogger.warn(`Failed to count table: ${table.name}`, { error: err });
-        tableCounts[table.name] = 0;
+        dbLogger.warn(`Failed to count table: ${tableName}`, { error: err });
+        tableCounts[tableName] = 0;
       }
     }
 
