@@ -40,9 +40,9 @@ describe('BackupLocationSetup', () => {
 
       render(<BackupLocationSetup isOnboarding={true} />)
 
-      expect(screen.getByText('Automatic Backups Not Available')).toBeInTheDocument()
+      expect(screen.getByText('Folder Backups Not Available')).toBeInTheDocument()
       expect(
-        screen.getByText(/Your browser doesn't support automatic local backups yet/i)
+        screen.getByText(/Your browser doesn't support saving backups directly to a folder/i)
       ).toBeInTheDocument()
       expect(screen.getByText(/Google Chrome/i)).toBeInTheDocument()
       expect(screen.getByText(/Microsoft Edge/i)).toBeInTheDocument()
@@ -210,7 +210,7 @@ describe('BackupLocationSetup', () => {
 
       expect(screen.getByText(/Are you sure?/i)).toBeInTheDocument()
       expect(
-        screen.getByText(/Without automatic backups, you could lose your financial data/i)
+        screen.getByText(/Without a backup folder configured, you could lose your financial data/i)
       ).toBeInTheDocument()
     })
 

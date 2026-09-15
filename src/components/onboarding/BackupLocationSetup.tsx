@@ -75,7 +75,7 @@ function isFileSystemAccessSupported(): boolean {
  * Backup Location Setup Component
  *
  * Provides a patient, step-by-step interface for choosing where to save
- * automatic backups. Emphasizes user control and data sovereignty.
+ * local backups. Emphasizes user control and data sovereignty.
  *
  * @example
  * ```tsx
@@ -250,10 +250,10 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
               ℹ️
             </div>
 
-            <h2 className={styles.title}>Automatic Backups Not Available</h2>
+            <h2 className={styles.title}>Folder Backups Not Available</h2>
 
             <p className={styles.description}>
-              Your browser doesn't support automatic local backups yet. To get this feature,
+              Your browser doesn't support saving backups directly to a folder. To get this feature,
               we recommend using{' '}
               <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.
             </p>
@@ -292,7 +292,7 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
             <h2 className={styles.title}>Are you sure?</h2>
 
             <p className={styles.description}>
-              Without automatic backups, you could lose your financial data if your browser
+              Without a backup folder configured, you could lose your financial data if your browser
               clears its storage or something unexpected happens.
             </p>
 

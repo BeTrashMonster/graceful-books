@@ -18,20 +18,21 @@
 /**
  * Passphrase mode for encrypted backups
  * - 'none': Not configured yet (first backup)
- * - 'auto': Random 256-bit key stored in backup folder (authoritative) + IndexedDB (fallback)
  * - 'manual': User-provided passphrase verified via encrypted sentinel
+ *
+ * NOTE: 'auto' mode was removed because it created unrecoverable backups.
+ * The auto-key was never reliably written to the backup folder, so backups
+ * encrypted with it could not be restored on other devices.
  */
-export type PassphraseMode = 'none' | 'auto' | 'manual'
+export type PassphraseMode = 'none' | 'manual'
 
 /**
  * Backup preferences entity
  * Stores configuration for local filesystem backups per user
  *
  * SECURITY NOTES:
- * - Manual mode: We NEVER store the passphrase. Instead we store an encrypted sentinel
+ * - We NEVER store the passphrase. Instead we store an encrypted sentinel
  *   that we decrypt to verify the passphrase is correct.
- * - Auto mode: The auto_key in IndexedDB is a FALLBACK. The authoritative copy lives
- *   in the backup folder so the key travels with the files it opens.
  */
 export interface BackupPreference {
   id: string
@@ -53,9 +54,10 @@ export interface BackupPreference {
   sentinel_iv: string | null // Base64-encoded IV used for sentinel encryption
   sentinel_salt: string | null // Base64-encoded salt used for key derivation
 
-  // Auto mode: Random 256-bit key (base64-encoded)
-  // IMPORTANT: This is a FALLBACK copy. The authoritative copy is in the backup folder.
-  auto_key: string | null // Base64-encoded 256-bit random key
+  // VESTIGIAL: auto_key was used for auto-mode which has been removed.
+  // Kept nullable for backwards compatibility with existing records.
+  // Never write to this field - it exists only for old records.
+  auto_key: string | null
 
   passphrase_configured_at: number | null // When passphrase was first configured
 
@@ -137,20 +139,6 @@ export function createDefaultBackupPreference(
     created_at: now,
     updated_at: now,
   }
-}
-
-/**
- * Generate a random backup key for auto mode
- * Creates a 256-bit (32 byte) cryptographically secure random key, base64-encoded.
- *
- * SECURITY: Uses crypto.getRandomValues for true 256-bit entropy.
- * The base64 encoding is just for storage/display - the underlying key is 32 random bytes.
- */
-export function generateAutoBackupKey(): string {
-  const keyBytes = new Uint8Array(32) // 256 bits
-  crypto.getRandomValues(keyBytes)
-  // Convert to base64 for storage (44 chars for 32 bytes)
-  return btoa(String.fromCharCode(...keyBytes))
 }
 
 /**
@@ -297,11 +285,10 @@ export interface PassphraseStatus {
   mode: PassphraseMode // Current mode
   configuredAt: Date | null // When passphrase was configured
   /**
-   * True if backup can proceed without user input.
-   * - Auto mode: true (key is stored locally + in folder)
-   * - Manual mode: ALWAYS false (user must enter passphrase every time)
+   * Always false - user must enter passphrase every time.
+   * Kept for backwards compatibility with existing code.
    */
-  canBackupWithoutPrompt: boolean
+  canBackupWithoutPrompt: false
 }
 
 /**
@@ -334,17 +321,14 @@ export function getPassphraseStatus(preference: BackupPreference | null): Passph
     }
   }
 
-  // Auto mode: can backup without prompt if we have the key (from IndexedDB or folder)
-  // Manual mode: ALWAYS requires passphrase entry (we only store sentinel, not passphrase)
-  const canBackupWithoutPrompt = preference.passphrase_mode === 'auto' && preference.auto_key !== null
-
+  // User must ALWAYS enter passphrase (we only store sentinel, not passphrase)
   return {
     isConfigured: true,
     mode: preference.passphrase_mode,
     configuredAt: preference.passphrase_configured_at
       ? new Date(preference.passphrase_configured_at)
       : null,
-    canBackupWithoutPrompt,
+    canBackupWithoutPrompt: false,
   }
 }
 
@@ -362,17 +346,6 @@ export function hasSentinelConfigured(preference: BackupPreference | null): bool
     preference.sentinel_iv !== null &&
     preference.sentinel_salt !== null
   )
-}
-
-/**
- * Get the auto-key for creating a backup (auto mode only)
- *
- * @param preference - Backup preference object
- * @returns The auto-key to use for encryption, or null if not in auto mode
- */
-export function getAutoBackupKey(preference: BackupPreference | null): string | null {
-  if (!preference || preference.passphrase_mode !== 'auto') return null
-  return preference.auto_key
 }
 
 /**

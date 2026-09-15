@@ -172,13 +172,13 @@ export async function detectBackupCapabilities(): Promise<BackupCapabilityResult
       // Full support - Chrome, Edge
       recommendedMethod = 'file-system-access';
       canAutoBackup = true;
-      message = 'Your browser supports automatic backups. We\'ll save your data safely in a location you choose.';
+      message = 'Your browser supports saving backups directly to a folder. We\'ll save your data safely in a location you choose.';
       shouldSuggestBrowserChange = false;
     } else if (!supportsFileSystemAccess && supportsIndexedDB && supportsWebCrypto) {
       // Partial support - Safari, Firefox
       recommendedMethod = 'manual-download';
       canAutoBackup = false;
-      message = 'Your browser doesn\'t support automatic backups, but you can manually download and save backup files whenever you like.';
+      message = 'Your browser doesn\'t support saving backups directly to a folder, but you can manually download and save backup files whenever you like.';
       shouldSuggestBrowserChange = true;
     } else {
       // Minimal or no support
@@ -476,7 +476,7 @@ export async function restoreFromManualUpload(
 export function getUnsupportedBrowserNotification(): UnsupportedBrowserNotification {
   return {
     title: 'Manual Backups Available',
-    message: 'Your browser doesn\'t support automatic backups, but don\'t worry - you can still protect your data! You can manually download backup files whenever you like and upload them to restore your data. For automatic backups, consider using Chrome or Edge.',
+    message: 'Your browser doesn\'t support saving backups directly to a folder, but don\'t worry - you can still protect your data! You can manually download backup files whenever you like and upload them to restore your data. For folder backups, consider using Chrome or Edge.',
     type: 'info',
     showLearnMore: true,
     learnMoreUrl: 'https://docs.gracefulbooks.com/backup-support',
@@ -492,8 +492,8 @@ export function getUnsupportedBrowserNotification(): UnsupportedBrowserNotificat
         available: true,
       },
       {
-        label: 'Automatic Backups',
-        description: 'Set up automatic backups (requires Chrome or Edge)',
+        label: 'Folder Backups',
+        description: 'Save backups directly to a folder (requires Chrome or Edge)',
         available: false,
       },
     ],
@@ -518,9 +518,9 @@ export function getUnsupportedBrowserNotification(): UnsupportedBrowserNotificat
  */
 export function getBrowserRecommendationMessage(currentBrowser: string): string {
   const messages: Record<string, string> = {
-    Safari: 'For automatic backups, we recommend using Chrome or Edge. Safari works great for manual backups, though! You can download backup files anytime you need them.',
-    Firefox: 'For automatic backups, we recommend using Chrome or Edge. Firefox works great for manual backups, though! You can download backup files anytime you need them.',
-    Unknown: 'For the best backup experience, we recommend using Chrome (version 86 or later) or Microsoft Edge (version 86 or later). These browsers support automatic backups. Your current browser will work fine with manual backup downloads.',
+    Safari: 'For saving backups directly to a folder, we recommend using Chrome or Edge. Safari works great for manual backups, though! You can download backup files anytime you need them.',
+    Firefox: 'For saving backups directly to a folder, we recommend using Chrome or Edge. Firefox works great for manual backups, though! You can download backup files anytime you need them.',
+    Unknown: 'For the best backup experience, we recommend using Chrome (version 86 or later) or Microsoft Edge (version 86 or later). These browsers support saving backups directly to a folder. Your current browser will work fine with manual backup downloads.',
   };
 
   return messages[currentBrowser] || messages.Unknown;

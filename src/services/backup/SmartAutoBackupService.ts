@@ -1,7 +1,35 @@
 /**
  * Smart Auto-Backup Service
  *
- * Automatically backs up user data to their chosen folder with intelligent:
+ * ============================================================================
+ * WARNING: THIS SERVICE IS NOT WIRED UP
+ * ============================================================================
+ *
+ * This service was designed to provide automatic/scheduled backups, but it
+ * CANNOT function without a way to encrypt backups. The auto-mode encryption
+ * (random key stored in folder) was removed because the key file was never
+ * reliably written, making backups unrecoverable.
+ *
+ * To make this service work, you would need ONE of:
+ *
+ * 1. Secure passphrase caching: Store the user's passphrase in memory for the
+ *    session, prompting once at login. Risk: passphrase in memory could be
+ *    extracted by malicious code.
+ *
+ * 2. WebAuthn PRF extension: Use hardware-backed key derivation where the
+ *    authenticator derives a key from a PRF seed. Requires biometric/PIN
+ *    each backup, or trust the device for a session.
+ *
+ * 3. Device-bound encryption: Encrypt the passphrase with a key stored in
+ *    the browser's credential storage (if available). Risk: ties backups
+ *    to the device.
+ *
+ * Until one of these is implemented, users must use manual backup with
+ * passphrase entry each time.
+ *
+ * ============================================================================
+ *
+ * Original design (for reference):
  * - Change detection (only backup when data actually changed)
  * - Smart timing (after X changes or Y minutes)
  * - File rotation (keep recent frequent, old infrequent)
@@ -21,13 +49,10 @@ import {
   writeBackupToFile,
   retrieveDirectoryHandle,
   getBackupDirectoryStatus,
-  readAutoKeyFromFolder,
-  writeAutoKeyToFolder,
 } from './FileSystemBackup';
 import { generateBackupBundle } from './BackupEncryption';
 import type { BackupData } from './BackupEncryption';
 import { db } from '../../db';
-import { generateAutoBackupKey, getKeyFingerprint } from '../../db/schema/backupPreferences.schema';
 import { logger } from '../../utils/logger';
 
 const backupLogger = logger.child('SmartAutoBackup');
@@ -499,105 +524,31 @@ class SmartAutoBackupService {
   }
 
   /**
-   * Get encryption key for auto-backup
+   * Get encryption password for auto-backup.
    *
-   * SECURITY FIX: Uses random 256-bit key instead of derivable key.
-   * The old derivable key (SHA-256 of userId) was a security vulnerability
-   * because our server holds userId and could derive the backup key.
+   * THIS METHOD CANNOT WORK - it always throws an error.
    *
-   * Key storage strategy:
-   * 1. Read from backup folder (AUTHORITATIVE - travels with backups)
-   * 2. Fall back to IndexedDB (backupPreferences.auto_key)
-   * 3. Generate new key on first use and write to both locations
+   * Auto-mode encryption was removed because the auto-key file was never
+   * reliably written to the backup folder, making backups unrecoverable
+   * on other devices.
+   *
+   * To make automatic backups work, you would need to implement one of:
+   * 1. Secure passphrase caching (store passphrase in memory for session)
+   * 2. WebAuthn PRF extension (hardware-backed key derivation)
+   * 3. Device-bound encryption (encrypt passphrase with browser credentials)
+   *
+   * Until then, users must use manual backup with passphrase entry.
    */
   private async getEncryptionPassword(): Promise<string> {
-    try {
-      // 1. Try to read from backup folder (authoritative source)
-      let autoKey = await readAutoKeyFromFolder();
-
-      if (autoKey) {
-        const fingerprint = await getKeyFingerprint(autoKey);
-        console.log(`[SmartAutoBackup] Using auto-key from folder, fingerprint: ${fingerprint}`);
-        backupLogger.debug('Using auto-key from backup folder', { fingerprint });
-        return autoKey;
-      }
-
-      // 2. Try IndexedDB fallback
-      const prefs = await db.backupPreferences.toArray();
-      const pref = prefs[0];
-
-      if (pref?.passphrase_mode === 'auto' && pref.auto_key) {
-        const fingerprint = await getKeyFingerprint(pref.auto_key);
-        console.log(`[SmartAutoBackup] Using auto-key from IndexedDB, fingerprint: ${fingerprint}`);
-        backupLogger.debug('Using auto-key from IndexedDB fallback', { fingerprint });
-        // Also write to folder if missing (recovery scenario)
-        const writeResult = await writeAutoKeyToFolder(pref.auto_key);
-        if (!writeResult.success) {
-          backupLogger.warn('Failed to restore key file to folder', { error: writeResult.error });
-        }
-        return pref.auto_key;
-      }
-
-      // 3. Generate new key on first use
-      autoKey = generateAutoBackupKey();
-      const fingerprint = await getKeyFingerprint(autoKey);
-      console.log(`[SmartAutoBackup] Generated new auto-key, fingerprint: ${fingerprint}`);
-      backupLogger.info('Generating new auto-backup key', { fingerprint });
-
-      // Write to folder FIRST (authoritative)
-      const writeResult = await writeAutoKeyToFolder(autoKey);
-      if (!writeResult.success) {
-        throw new Error(`Failed to write key to backup folder: ${writeResult.error}`);
-      }
-
-      // Write to IndexedDB as fallback
-      console.log(`[SmartAutoBackup] Storing auto-key in IndexedDB, fingerprint: ${fingerprint}`);
-      const now = Date.now();
-      if (pref) {
-        // Update existing preference
-        await db.backupPreferences.update(pref.id, {
-          passphrase_mode: 'auto',
-          auto_key: autoKey,
-          passphrase_configured_at: now,
-          updated_at: now,
-        });
-      } else {
-        // Create new preference record
-        const { nanoid } = await import('nanoid');
-        await db.backupPreferences.add({
-          id: nanoid(),
-          user_id: 'default',
-          company_id: 'default',
-          backup_directory_path: null,
-          backup_directory_handle_key: null,
-          passphrase_mode: 'auto',
-          sentinel_ciphertext: null,
-          sentinel_iv: null,
-          sentinel_salt: null,
-          auto_key: autoKey,
-          passphrase_configured_at: now,
-          auto_backup_enabled: true,
-          backup_on_change: true,
-          backup_on_idle: true,
-          backup_on_close: true,
-          daily_backup_enabled: true,
-          last_backup_at: null,
-          last_backup_size: null,
-          backup_count: 0,
-          last_backup_error: null,
-          show_backup_notifications: true,
-          backup_retention_days: 30,
-          created_at: now,
-          updated_at: now,
-        });
-      }
-
-      backupLogger.info('Auto-backup key generated and stored');
-      return autoKey;
-    } catch (error) {
-      backupLogger.error('Failed to get encryption key', { error });
-      throw new Error('Cannot encrypt backup: failed to get or generate encryption key');
-    }
+    // This service is not wired up (see App.tsx) and cannot function.
+    // Throwing an error here ensures that if someone accidentally wires it up,
+    // they'll get a clear error message instead of silent failures.
+    throw new Error(
+      'SmartAutoBackupService cannot encrypt backups: ' +
+      'auto-mode encryption was removed because it created unrecoverable backups. ' +
+      'This service requires a passphrase caching mechanism that does not exist yet. ' +
+      'See the warning comment at the top of SmartAutoBackupService.ts for details.'
+    );
   }
 
   /**

@@ -64,11 +64,11 @@ describe('DataSafetyPanel', () => {
         expect(screen.queryByText('Loading your backup settings...')).not.toBeInTheDocument()
       })
 
-      const statusBadge = screen.getByText(/Manual Backups Only|Automatic Backups ON/)
+      const statusBadge = screen.getByText(/Manual Backups Only|Backup Folder Configured/)
       expect(statusBadge).toBeInTheDocument()
     })
 
-    it('should show "Manual Backups Only" when automatic backups not configured', async () => {
+    it('should show "Manual Backups Only" when backup folder not configured', async () => {
       render(<DataSafetyPanel />)
 
       await waitFor(() => {
@@ -96,11 +96,11 @@ describe('DataSafetyPanel', () => {
       })
     })
 
-    it('should show "Set Up Automatic Backups" button when not configured', async () => {
+    it('should show "Choose Backup Folder" button when not configured', async () => {
       render(<DataSafetyPanel />)
 
       await waitFor(() => {
-        expect(screen.getByText('Set Up Automatic Backups')).toBeInTheDocument()
+        expect(screen.getByText('Choose Backup Folder')).toBeInTheDocument()
       })
     })
 
@@ -112,11 +112,11 @@ describe('DataSafetyPanel', () => {
       })
     })
 
-    it('should display informational message about automatic backups', async () => {
+    it('should display informational message about folder backups', async () => {
       render(<DataSafetyPanel />)
 
       await waitFor(() => {
-        expect(screen.getByText(/Want automatic backups?/)).toBeInTheDocument()
+        expect(screen.getByText(/Want to save backups to a folder?/)).toBeInTheDocument()
       })
     })
   })
@@ -162,15 +162,15 @@ describe('DataSafetyPanel', () => {
       render(<DataSafetyPanel />)
 
       await waitFor(() => {
-        expect(screen.getByText('Set Up Automatic Backups')).toBeInTheDocument()
+        expect(screen.getByText('Choose Backup Folder')).toBeInTheDocument()
       })
 
-      const button = screen.getByText('Set Up Automatic Backups')
+      const button = screen.getByText('Choose Backup Folder')
       await user.click(button)
 
       await waitFor(() => {
         expect(
-          screen.getByText(/Your browser doesn't support automatic backups/)
+          screen.getByText(/Your browser doesn't support/)
         ).toBeInTheDocument()
       })
     })
@@ -355,7 +355,7 @@ describe('DataSafetyPanel', () => {
         expect(screen.queryByText('Loading your backup settings...')).not.toBeInTheDocument()
       })
 
-      const statusBadge = screen.getByText(/Manual Backups Only|Automatic Backups ON/)
+      const statusBadge = screen.getByText(/Manual Backups Only|Backup Folder Configured/)
       expect(statusBadge).toBeInTheDocument()
     })
 
@@ -394,7 +394,7 @@ describe('DataSafetyPanel', () => {
         expect(screen.queryByText('Loading your backup settings...')).not.toBeInTheDocument()
       })
 
-      const firstButton = await screen.findByText('Set Up Automatic Backups')
+      const firstButton = await screen.findByText('Choose Backup Folder')
       const secondButton = await screen.findByText('Backup Now')
 
       // Both buttons should be in the document and be button elements
@@ -445,7 +445,7 @@ describe('DataSafetyPanel', () => {
 
       // Check for steadiness messaging
       expect(screen.getByText('Peace of mind in one glance')).toBeInTheDocument()
-      expect(screen.getByText(/Want automatic backups?/)).toBeInTheDocument()
+      expect(screen.getByText(/Want to save backups to a folder?/)).toBeInTheDocument()
     })
 
     it('should not blame user in error messages', async () => {

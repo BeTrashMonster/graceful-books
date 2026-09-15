@@ -16,11 +16,7 @@ import { Modal } from '../modals/Modal';
 import { Button } from '../core/Button';
 import { Input } from '../forms/Input';
 import { BackupService } from '../../services/backup/backupService';
-import {
-  retrieveDirectoryHandle,
-  writeAutoKeyToFolder,
-  readAutoKeyFromFolder,
-} from '../../services/backup/FileSystemBackup';
+import { retrieveDirectoryHandle } from '../../services/backup/FileSystemBackup';
 import { saveBackupToHistory } from '../../services/backup/BackupHistoryService';
 import { db, type ComprehensiveStatistics } from '../../db';
 import type {
@@ -32,9 +28,6 @@ import type {
 } from '../../services/backup/backupService';
 import {
   type BackupPreference,
-  type PassphraseMode,
-  generateAutoBackupKey,
-  getAutoBackupKey,
   getKeyFingerprint,
   createPassphraseSentinel,
   verifyPassphraseSentinel,
@@ -89,15 +82,12 @@ export function EncryptedBackup({
   const [confirmDataLoss, setConfirmDataLoss] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Ref to store effective decryption key for restore operations
-  // This allows auto-mode to use the auto-key without exposing it in state
+  // Ref to store decryption key for restore operations
   const effectiveDecryptionKeyRef = useRef<string>('');
 
-  // Passphrase mode state
+  // Backup preference state (for sentinel verification)
   const [backupPreference, setBackupPreference] = useState<BackupPreference | null>(null);
   const [loadingPreferences, setLoadingPreferences] = useState(true);
-  const [selectedPassphraseMode, setSelectedPassphraseMode] = useState<PassphraseMode>('none');
-  const [showModeSelection, setShowModeSelection] = useState(false);
 
   // UI state for passphrase fields
   const [showPassphrase, setShowPassphrase] = useState(false);
@@ -111,9 +101,6 @@ export function EncryptedBackup({
   const [showMismatchDetails, setShowMismatchDetails] = useState(false);
   const [restoreComplete, setRestoreComplete] = useState(false);
   const [restoredRecordCount, setRestoredRecordCount] = useState(0);
-
-  // Auto-key availability (checked when entering restore mode)
-  const [autoKeyAvailable, setAutoKeyAvailable] = useState<boolean | null>(null);
 
   // Check if we're in dev mode (for handling missing companyId)
   const isDev = typeof window !== 'undefined' &&
@@ -131,22 +118,9 @@ export function EncryptedBackup({
       const firstPref = prefs[0];
       if (firstPref !== undefined) {
         setBackupPreference(firstPref);
-        setSelectedPassphraseMode(firstPref.passphrase_mode);
-        // If passphrase is already configured, we can backup without prompt
-        if (firstPref.passphrase_mode !== 'none') {
-          setShowModeSelection(false);
-        } else {
-          setShowModeSelection(true);
-        }
-      } else {
-        // No preferences yet - show mode selection
-        setShowModeSelection(true);
-        setSelectedPassphraseMode('none');
       }
     } catch (err) {
       backupLogger.error('Failed to load backup preferences', { error: err });
-      // On error, default to showing manual passphrase entry
-      setShowModeSelection(true);
     } finally {
       setLoadingPreferences(false);
     }
@@ -183,44 +157,6 @@ export function EncryptedBackup({
         });
     }
   }, [mode, isOpen, companyId]);
-
-  // Check for auto-key availability when entering restore mode
-  // This determines whether to show passphrase input or auto-key message
-  useEffect(() => {
-    if (mode === 'restore' && isOpen) {
-      const checkAutoKey = async () => {
-        backupLogger.debug('Checking auto-key availability for restore');
-
-        // Try folder first (authoritative source)
-        let autoKey = await readAutoKeyFromFolder();
-        if (autoKey) {
-          backupLogger.info('Auto-key found in backup folder');
-          setAutoKeyAvailable(true);
-          return;
-        }
-
-        // Try IndexedDB fallback
-        if (backupPreference?.auto_key) {
-          autoKey = getAutoBackupKey(backupPreference);
-          if (autoKey) {
-            backupLogger.info('Auto-key found in IndexedDB');
-            setAutoKeyAvailable(true);
-            return;
-          }
-        }
-
-        backupLogger.debug('No auto-key found', {
-          localPassphraseMode: backupPreference?.passphrase_mode || 'none',
-        });
-        setAutoKeyAvailable(false);
-      };
-
-      checkAutoKey();
-    } else {
-      // Reset when leaving restore mode
-      setAutoKeyAvailable(null);
-    }
-  }, [mode, isOpen, backupPreference]);
 
   // Check if backup has fewer records than current database
   // User must confirm ANY restore where backup has less data to prevent accidental data loss
@@ -268,93 +204,21 @@ export function EncryptedBackup({
   };
 
   /**
-   * Save auto-mode preference to database and write key to folder
-   * IMPORTANT: Key is written to backup folder as AUTHORITATIVE copy
+   * Save passphrase sentinel for verification (NOT the passphrase itself)
+   * The sentinel allows us to verify the passphrase without storing it.
    */
-  const saveAutoModePreference = async (autoKey: string): Promise<BackupPreference> => {
-    const now = Date.now();
-    const fingerprint = await getKeyFingerprint(autoKey);
-
-    console.log(`[Backup] saveAutoModePreference called, fingerprint: ${fingerprint}`);
-
-    // CRITICAL: Write key to backup folder FIRST
-    // If this fails, we must abort - the folder copy is authoritative
-    console.log('[Backup] Attempting to write key file to folder...');
-    const writeResult = await writeAutoKeyToFolder(autoKey);
-    console.log('[Backup] writeAutoKeyToFolder result:', writeResult);
-
-    if (!writeResult.success) {
-      console.error('[Backup] Key file write FAILED:', writeResult.error);
-      throw new Error(
-        writeResult.error ||
-          'Failed to write encryption key to backup folder. Cannot proceed with automatic backup setup.'
-      );
-    }
-
-    console.log('[Backup] Key file written successfully to folder');
-    console.log(`[Backup] Storing auto-key in IndexedDB, fingerprint: ${fingerprint}`);
-
-    const prefData = {
-      passphrase_mode: 'auto' as PassphraseMode,
-      sentinel_ciphertext: null,
-      sentinel_iv: null,
-      sentinel_salt: null,
-      auto_key: autoKey, // Fallback copy in IndexedDB
-      passphrase_configured_at: now,
-      updated_at: now,
-    };
-
-    if (backupPreference) {
-      const updated: BackupPreference = {
-        ...backupPreference,
-        ...prefData,
-        passphrase_configured_at: backupPreference.passphrase_configured_at ?? now,
-      };
-      await db.backupPreferences.put(updated);
-      setBackupPreference(updated);
-      return updated;
-    } else {
-      const newPref: BackupPreference = {
-        id: nanoid(),
-        user_id: 'default',
-        company_id: 'default',
-        backup_directory_path: null,
-        backup_directory_handle_key: null,
-        ...prefData,
-        auto_backup_enabled: true,
-        backup_on_change: true,
-        backup_on_idle: true,
-        backup_on_close: true,
-        daily_backup_enabled: true,
-        last_backup_at: null,
-        last_backup_size: null,
-        backup_count: 0,
-        last_backup_error: null,
-        show_backup_notifications: true,
-        backup_retention_days: 30,
-        created_at: now,
-      };
-      await db.backupPreferences.add(newPref);
-      setBackupPreference(newPref);
-      return newPref;
-    }
-  };
-
-  /**
-   * Save manual-mode preference with sentinel (NOT the passphrase itself)
-   */
-  const saveManualModePreference = async (passphrase: string): Promise<BackupPreference> => {
+  const savePassphraseSentinel = async (passphraseToSave: string): Promise<BackupPreference> => {
     const now = Date.now();
 
     // Create encrypted sentinel from passphrase
-    const sentinel = await createPassphraseSentinel(passphrase);
+    const sentinel = await createPassphraseSentinel(passphraseToSave);
 
     const prefData = {
-      passphrase_mode: 'manual' as PassphraseMode,
+      passphrase_mode: 'manual' as const,
       sentinel_ciphertext: sentinel.ciphertext,
       sentinel_iv: sentinel.iv,
       sentinel_salt: sentinel.salt,
-      auto_key: null,
+      auto_key: null, // Vestigial field, never written
       passphrase_configured_at: now,
       updated_at: now,
     };
@@ -426,75 +290,31 @@ export function EncryptedBackup({
       let encryptionKey: string;
       let updatedPref: BackupPreference | null = backupPreference;
 
-      // Determine the encryption key based on mode
-      if (backupPreference?.passphrase_mode === 'auto') {
-        // Auto mode - get key from folder (authoritative) or IndexedDB (fallback)
-        let autoKey = await readAutoKeyFromFolder();
-        let keySource = 'folder';
-        if (!autoKey) {
-          // Try IndexedDB fallback
-          autoKey = getAutoBackupKey(backupPreference);
-          keySource = 'IndexedDB';
-        }
-        if (!autoKey) {
-          setError('Auto-key not found. The key file may have been deleted from your backup folder.');
-          return;
-        }
-        const fingerprint = await getKeyFingerprint(autoKey);
-        console.log(`[Backup] Using existing auto-key from ${keySource}, fingerprint: ${fingerprint}`);
-        encryptionKey = autoKey;
-        backupLogger.info('Using auto-key for backup', { fingerprint, source: keySource });
-      } else if (backupPreference?.passphrase_mode === 'manual') {
-        // Manual mode - ALWAYS require passphrase entry
-        // We verify against the sentinel but never store the passphrase
-        if (!passphrase || passphrase.trim().length === 0) {
-          setError('Please enter your passphrase to create this backup.');
-          return;
-        }
+      // Passphrase is ALWAYS required
+      if (!passphrase || passphrase.trim().length === 0) {
+        setPassphraseError('Please enter your passphrase to encrypt your backup.');
+        passphraseInputRef.current?.focus();
+        passphraseInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
 
+      // Check if passphrase is already configured (sentinel exists)
+      if (hasSentinelConfigured(backupPreference)) {
         // Verify passphrase against stored sentinel
-        if (hasSentinelConfigured(backupPreference)) {
-          const isValid = await verifyPassphraseSentinel(
-            passphrase,
-            backupPreference.sentinel_ciphertext!,
-            backupPreference.sentinel_iv!,
-            backupPreference.sentinel_salt!
-          );
-          if (!isValid) {
-            setError('Incorrect passphrase. Please enter the same passphrase you used when setting up manual backups.');
-            return;
-          }
+        const isValid = await verifyPassphraseSentinel(
+          passphrase,
+          backupPreference!.sentinel_ciphertext!,
+          backupPreference!.sentinel_iv!,
+          backupPreference!.sentinel_salt!
+        );
+        if (!isValid) {
+          setError('Incorrect passphrase. Please enter the same passphrase you used before.');
+          return;
         }
-
         encryptionKey = passphrase;
-        backupLogger.info('Using verified passphrase for backup');
-      } else if (selectedPassphraseMode === 'auto') {
-        // First time with auto mode - generate key and write to folder
-        const autoKey = generateAutoBackupKey();
-        const fingerprint = await getKeyFingerprint(autoKey);
-        console.log(`[Backup] Generated new auto-key, fingerprint: ${fingerprint}`);
-        try {
-          updatedPref = await saveAutoModePreference(autoKey);
-          encryptionKey = autoKey;
-          backupLogger.info('Generated and stored new auto-key for backup', { fingerprint });
-        } catch (err) {
-          // Folder write failed - this is CRITICAL, abort
-          setError(
-            err instanceof Error
-              ? err.message
-              : 'Failed to save encryption key to backup folder. Cannot proceed with automatic backups.'
-          );
-          return;
-        }
+        backupLogger.info('Passphrase verified against sentinel');
       } else {
-        // Manual mode first-time setup - validate passphrase and create sentinel
-        if (!passphrase || passphrase.trim().length === 0) {
-          setPassphraseError('Please enter a passphrase to encrypt your backup.');
-          passphraseInputRef.current?.focus();
-          passphraseInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
-
+        // First-time setup - validate passphrase requirements
         if (passphrase.length < 12) {
           setPassphraseError('For your security, please use a passphrase with at least 12 characters.');
           passphraseInputRef.current?.focus();
@@ -509,16 +329,16 @@ export function EncryptedBackup({
           return;
         }
 
-        // Show confirmation step before first manual backup
+        // Show confirmation step before first backup
         if (!showManualConfirmation) {
           setShowManualConfirmation(true);
           return;
         }
 
         // Create sentinel (NOT storing the passphrase itself)
-        updatedPref = await saveManualModePreference(passphrase);
+        updatedPref = await savePassphraseSentinel(passphrase);
         encryptionKey = passphrase;
-        backupLogger.info('Created sentinel for manual passphrase verification');
+        backupLogger.info('Created sentinel for passphrase verification');
       }
 
       setIsProcessing(true);
@@ -583,20 +403,17 @@ export function EncryptedBackup({
         companyId: companyId || updatedPref?.company_id || backupPreference?.company_id || 'default',
       });
 
-      // Show appropriate success message based on mode and save location
-      const effectiveMode = updatedPref?.passphrase_mode || selectedPassphraseMode;
+      // Show success message
       const locationMessage = savedToFolder
         ? 'saved to your backup folder'
         : 'downloaded to your Downloads folder';
 
-      const modeMessage = effectiveMode === 'auto'
-        ? `Your encrypted backup has been ${locationMessage}. Since you're using automatic encryption, the key file in your backup folder will decrypt it.`
-        : `Your encrypted backup has been ${locationMessage}. Remember your passphrase - you'll need it to restore from this backup.`;
-
-      setSuccess(modeMessage);
+      setSuccess(
+        `Your encrypted backup has been ${locationMessage}. ` +
+        `Remember your passphrase - you'll need it to restore from this backup.`
+      );
       setPassphrase('');
       setConfirmPassphrase('');
-      setShowModeSelection(false);
       setIsProcessing(false);
 
       backupLogger.info('Backup created and downloaded successfully');
@@ -789,63 +606,16 @@ export function EncryptedBackup({
         return;
       }
 
-      // Determine the decryption key
-      // CRITICAL: Always try auto-key FIRST, regardless of local preferences.
-      // The auto-key is stored in the backup folder and should work even in a fresh profile.
-      let decryptionKey: string;
-
-      backupLogger.debug('Looking for decryption key', {
-        localPassphraseMode: backupPreference?.passphrase_mode || 'none',
-        hasLocalAutoKey: !!backupPreference?.auto_key,
-        hasPassphraseInput: !!(passphrase && passphrase.trim().length > 0),
-      });
-
-      // Step 1: Try to read auto-key from backup folder (authoritative source)
-      let autoKey = await readAutoKeyFromFolder();
-      let keySource = 'folder';
-
-      if (autoKey) {
-        backupLogger.debug('Found auto-key in backup folder');
-      } else {
-        backupLogger.debug('No auto-key in folder, trying IndexedDB fallback');
-        // Step 2: Try IndexedDB fallback (for same-device restores)
-        if (backupPreference?.auto_key) {
-          autoKey = getAutoBackupKey(backupPreference);
-          keySource = 'indexeddb';
-          if (autoKey) {
-            backupLogger.debug('Found auto-key in IndexedDB');
-          }
-        }
-      }
-
-      if (autoKey) {
-        // Auto-key found - use it (this is an auto-mode backup)
-        const fingerprint = await getKeyFingerprint(autoKey);
-        backupLogger.info('Using auto-key for restore', { fingerprint, source: keySource });
-        decryptionKey = autoKey;
-      } else if (passphrase && passphrase.trim().length > 0) {
-        // No auto-key found, but passphrase provided - this is a manual-mode backup
-        backupLogger.info('No auto-key found, using provided passphrase');
-        decryptionKey = passphrase;
-      } else {
-        // Neither auto-key nor passphrase available
-        backupLogger.warn('No decryption key available', {
-          checkedFolder: true,
-          checkedIndexedDb: !!backupPreference,
-          localPassphraseMode: backupPreference?.passphrase_mode || 'none',
-        });
-
-        // Provide helpful error message
-        setError(
-          'No decryption key found. If this backup was created with automatic encryption, ' +
-          'copy your entire backup folder (including the hidden .audacious-backup-key file) ' +
-          'from your original device. If this was created with a passphrase, enter it below.'
-        );
+      // Passphrase is required for all restores
+      if (!passphrase || passphrase.trim().length === 0) {
+        setError('Please enter the passphrase you used to create this backup.');
         return;
       }
 
+      backupLogger.info('Using provided passphrase for restore');
+
       // Store in ref for use by performRestore and subsequent calls
-      effectiveDecryptionKeyRef.current = decryptionKey;
+      effectiveDecryptionKeyRef.current = passphrase;
 
       if (!validationResult?.valid) {
         setError('Please select a valid backup file.');
@@ -944,75 +714,7 @@ export function EncryptedBackup({
   };
 
   /**
-   * Render passphrase mode selection (first-time backup)
-   */
-  const renderModeSelection = () => (
-    <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>How should we encrypt your backups?</h3>
-      <p className={styles.infoText}>
-        These two options serve different purposes. Choose based on your recovery needs.
-      </p>
-
-      <div className={styles.modeOptions}>
-        <label className={`${styles.modeOption} ${selectedPassphraseMode === 'auto' ? styles.modeOptionSelected : ''}`}>
-          <input
-            type="radio"
-            name="passphraseMode"
-            value="auto"
-            checked={selectedPassphraseMode === 'auto'}
-            onChange={() => setSelectedPassphraseMode('auto')}
-            disabled={isProcessing}
-          />
-          <div className={styles.modeOptionContent}>
-            <strong>Automatic Encryption</strong>
-            <p>
-              A random encryption key is generated and stored in your backup folder.
-              No passphrase needed. Backups can be restored on this device, or anywhere
-              your backup folder is accessible.
-            </p>
-            <ul className={styles.modeProsCons}>
-              <li>No passphrase to remember</li>
-              <li>Key file stays with your backups</li>
-            </ul>
-            <div className={styles.modeWarning}>
-              If you lose both this device AND your backup folder, your backups
-              cannot be decrypted.
-            </div>
-          </div>
-        </label>
-
-        <label className={`${styles.modeOption} ${selectedPassphraseMode === 'manual' ? styles.modeOptionSelected : ''}`}>
-          <input
-            type="radio"
-            name="passphraseMode"
-            value="manual"
-            checked={selectedPassphraseMode === 'manual'}
-            onChange={() => setSelectedPassphraseMode('manual')}
-            disabled={isProcessing}
-          />
-          <div className={styles.modeOptionContent}>
-            <strong>Manual Passphrase</strong>
-            <p>
-              You create a passphrase that encrypts all your backups. The passphrase
-              is never sent to us. You can restore from ANY device by entering
-              your passphrase.
-            </p>
-            <ul className={styles.modeProsCons}>
-              <li>Works on any device, anywhere</li>
-              <li>True disaster recovery</li>
-            </ul>
-            <div className={styles.modeWarning}>
-              We never receive your passphrase and cannot recover it. If you forget
-              it, your backups cannot be decrypted.
-            </div>
-          </div>
-        </label>
-      </div>
-    </div>
-  );
-
-  /**
-   * Render manual passphrase input fields
+   * Render passphrase input fields
    */
   const passphraseInputRef = useRef<HTMLInputElement>(null);
   const confirmInputRef = useRef<HTMLInputElement>(null);
@@ -1100,74 +802,73 @@ export function EncryptedBackup({
       );
     }
 
-    // Check if passphrase is already configured
-    const isConfigured = backupPreference?.passphrase_mode !== 'none' && backupPreference?.passphrase_mode !== undefined;
-    const currentMode = backupPreference?.passphrase_mode;
+    // Check if passphrase is already configured (sentinel exists)
+    const isConfigured = hasSentinelConfigured(backupPreference);
 
     return (
       <div className={styles.content}>
-        {/* Show mode selection for first-time backup */}
-        {showModeSelection && !isConfigured && renderModeSelection()}
-
-        {/* Show passphrase input only for manual mode when not yet configured */}
-        {(showModeSelection && selectedPassphraseMode === 'manual' && !isConfigured) && renderManualPassphraseInput()}
-
-        {/* Confirmation step for manual mode first-time setup */}
-        {showManualConfirmation && !isConfigured && (
-          <div className={styles.confirmationBox}>
-            <strong>Before we create your backup...</strong>
-            <p>
-              Please confirm that you have written down your passphrase somewhere safe.
-              Without it, your backups cannot be restored.
-            </p>
-            <div className={styles.confirmationActions}>
-              <Button
-                variant="secondary"
-                onClick={() => setShowManualConfirmation(false)}
-                disabled={isProcessing}
-              >
-                Go Back
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleCreateBackup}
-                disabled={isProcessing}
-                loading={isProcessing}
-              >
-                Yes, I've Written It Down
-              </Button>
+        {/* First-time setup: show passphrase input with confirmation */}
+        {!isConfigured && (
+          <>
+            <div className={styles.infoSection}>
+              <h3 className={styles.sectionTitle}>Create Your Backup Passphrase</h3>
+              <p className={styles.infoText}>
+                Your passphrase encrypts your backups. We never receive or store it.
+                You can restore on any device by entering this passphrase.
+              </p>
             </div>
-          </div>
+
+            {renderManualPassphraseInput()}
+
+            {/* Confirmation step before first backup */}
+            {showManualConfirmation && (
+              <div className={styles.confirmationBox}>
+                <strong>Before we create your backup...</strong>
+                <p>
+                  Please confirm that you have written down your passphrase somewhere safe.
+                  Without it, your backups cannot be restored.
+                </p>
+                <div className={styles.confirmationActions}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowManualConfirmation(false)}
+                    disabled={isProcessing}
+                  >
+                    Go Back
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={handleCreateBackup}
+                    disabled={isProcessing}
+                    loading={isProcessing}
+                  >
+                    Yes, I've Written It Down
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
-        {/* Show status when already configured */}
+        {/* Already configured: show passphrase input for verification */}
         {isConfigured && (
           <div className={styles.configuredStatus}>
             <div className={styles.statusBox}>
-              <strong>Encryption: </strong>
-              {currentMode === 'auto' ? 'Automatic (key stored with your backups)' : 'Manual passphrase'}
+              <strong>Passphrase configured.</strong> Enter it below to create your backup.
             </div>
-            <p className={styles.statusNote}>
-              {currentMode === 'auto'
-                ? 'Click "Create Encrypted Backup" to download your backup. No passphrase needed.'
-                : 'Enter your passphrase below, then click "Create Encrypted Backup" to download.'}
-            </p>
 
-            {/* Manual mode: ALWAYS require passphrase entry */}
-            {currentMode === 'manual' && (
-              <div className={styles.formSection}>
-                <Input
-                  type="password"
-                  label="Your Passphrase"
-                  value={passphrase}
-                  onChange={(e) => setPassphrase(e.target.value)}
-                  placeholder="Enter your backup passphrase"
-                  disabled={isProcessing}
-                  helperText="Enter the passphrase you created when setting up manual backups."
-                  required
-                />
-              </div>
-            )}
+            <div className={styles.formSection}>
+              <Input
+                type="password"
+                label="Your Passphrase"
+                value={passphrase}
+                onChange={(e) => setPassphrase(e.target.value)}
+                placeholder="Enter your backup passphrase"
+                disabled={isProcessing}
+                helperText="Enter the same passphrase you used before."
+                required
+              />
+            </div>
           </div>
         )}
       </div>
@@ -1576,33 +1277,17 @@ export function EncryptedBackup({
           </div>
         )}
 
-        {/* Show decryption key input based on auto-key availability */}
-        {autoKeyAvailable === true ? (
-          // Auto-key found - no passphrase needed
-          <div className={styles.autoModeRestoreNote}>
-            <p>
-              <strong>Automatic encryption key found.</strong> Your backup will be decrypted
-              using the key file in your backup folder. No passphrase needed.
-            </p>
-          </div>
-        ) : autoKeyAvailable === false ? (
-          // No auto-key - need passphrase
-          <Input
-            type="password"
-            label="Backup Passphrase"
-            value={passphrase}
-            onChange={(e) => setPassphrase(e.target.value)}
-            placeholder="Enter your backup passphrase"
-            disabled={isProcessing || !selectedFile}
-            helperText="Enter the passphrase you used when creating this backup, or copy your backup folder (with the hidden key file) from your original device."
-            required
-          />
-        ) : (
-          // Still checking - show loading state
-          <div className={styles.autoModeRestoreNote}>
-            <p>Checking for encryption key...</p>
-          </div>
-        )}
+        {/* Passphrase input for restore */}
+        <Input
+          type="password"
+          label="Backup Passphrase"
+          value={passphrase}
+          onChange={(e) => setPassphrase(e.target.value)}
+          placeholder="Enter your backup passphrase"
+          disabled={isProcessing || !selectedFile}
+          helperText="Enter the passphrase you used when creating this backup."
+          required
+        />
       </div>
     </div>
     );

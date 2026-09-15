@@ -262,7 +262,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
       // Check browser support for File System Access API
       if (!('showDirectoryPicker' in window)) {
         setError(
-          'Your browser doesn\'t support automatic backups. Please use Chrome or Edge for this feature, or use the "Backup Now" button to download backups manually.'
+          'Your browser doesn\'t support saving backups directly to a folder. Please use Chrome or Edge for this feature, or use the "Backup Now" button to download backups manually.'
         )
         return
       }
@@ -345,14 +345,12 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
 
   /**
    * Handle manual backup creation
-   * Opens the EncryptedBackup modal which handles mode selection,
-   * passphrase/auto-key management, and sentinel verification.
+   * Opens the EncryptedBackup modal which handles passphrase management
+   * and sentinel verification.
    *
    * IMPORTANT: Do NOT bypass this with direct BackupService.createBackup() calls.
    * The modal ensures:
-   * - Mode selection (auto vs manual) with persistent preference
-   * - Passphrase verification via encrypted sentinel (manual mode)
-   * - Auto-key storage in folder and IndexedDB fallback (auto mode)
+   * - Passphrase entry and verification via encrypted sentinel
    * - Consistent encryption across all backups
    */
   const handleBackupNow = () => {
@@ -533,16 +531,6 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
                   : 'Never'}
               </span>
             </div>
-
-            {/* Next Backup (only if automatic backups enabled) */}
-            {backupStatus?.enabled && backupStatus?.nextBackup && (
-              <div className={styles.statusItem}>
-                <span className={styles.statusLabel}>Next Automatic Backup:</span>
-                <span className={styles.statusValue}>
-                  {formatRelativeTime(backupStatus.nextBackup)}
-                </span>
-              </div>
-            )}
           </div>
 
           {/* Backup Actions */}
@@ -580,8 +568,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             <div className={styles.infoBox}>
               <p className={styles.infoText}>
                 <strong>Want to save backups to a folder?</strong> Set up a backup location and use the
-                "Backup Now" button to save encrypted backups to your computer. Automatic scheduling
-                coming soon!
+                "Backup Now" button to save encrypted backups to your computer.
               </p>
             </div>
           )}
@@ -592,10 +579,6 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
                 Your backup folder is configured at <strong>{backupStatus.location}</strong>. Click
                 "Backup Now" to save an encrypted backup. Your backup is protected by a passphrase
                 that only you know.
-              </p>
-              <p className={styles.infoText} style={{ marginTop: '0.5rem', fontSize: '0.9em', opacity: 0.8 }}>
-                📅 <em>Automatic daily backups coming soon! For now, use "Backup Now" to manually save
-                your data.</em>
               </p>
             </div>
           )}

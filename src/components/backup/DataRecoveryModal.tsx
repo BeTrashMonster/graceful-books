@@ -227,7 +227,7 @@ export function DataRecoveryModal({ onRestore, onDismiss }: DataRecoveryModalPro
               <p>
                 Please select the folder where your backups are stored.
                 <br />
-                (This is the folder you chose for automatic backups in Settings)
+                (This is the folder you chose for backups in Settings)
               </p>
               <button className={styles.primaryButton} onClick={handleSelectFolder} style={{ marginTop: '1rem' }}>
                 <svg className={styles.buttonIcon} viewBox="0 0 24 24" fill="none">

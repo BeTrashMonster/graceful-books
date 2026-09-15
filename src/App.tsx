@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { ErrorBoundary } from './components/error/ErrorBoundary'
 import { AppRoutes } from './routes'
@@ -6,7 +5,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { CPGSettingsProvider } from './contexts/CPGSettingsContext'
 import { SubscriptionProvider } from './contexts/SubscriptionContext'
 import { FrozenStateProvider } from './contexts/FrozenStateContext'
-import { smartAutoBackup } from './services/backup/SmartAutoBackupService'
+// NOTE: SmartAutoBackupService is NOT wired up. See SmartAutoBackupService.ts for details.
+// Automatic/scheduled backups require a design for secure passphrase handling that doesn't exist yet.
 import { useDataRecovery } from './hooks/useDataRecovery'
 import { DataRecoveryModal } from './components/backup/DataRecoveryModal'
 import { BackupStatusIndicator } from './components/backup/BackupStatusIndicator'
@@ -18,21 +18,9 @@ function AppContent() {
   // Data recovery hook (only checks when user is authenticated)
   const recovery = useDataRecovery({ isAuthenticated })
 
-  // Start auto-backup only when user is authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Start smart auto-backup with default settings
-      smartAutoBackup.start({
-        enabled: true,
-        frequency: 'normal', // normal = every 10 changes or 5 minutes
-      })
-    }
-
-    // Cleanup on unmount or when auth changes
-    return () => {
-      smartAutoBackup.stop()
-    }
-  }, [isAuthenticated])
+  // NOTE: Automatic/scheduled backups are NOT active.
+  // SmartAutoBackupService requires a way to cache the passphrase securely,
+  // which is not implemented. Manual backup with passphrase is the only path.
 
   return (
     <>

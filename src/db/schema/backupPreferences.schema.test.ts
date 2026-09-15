@@ -1,69 +1,21 @@
 /**
  * Backup Preferences Schema Tests
  *
- * Tests for passphrase sentinel verification and auto-key generation.
+ * Tests for passphrase sentinel verification.
  * Covers the security-critical paths for encrypted backup passphrase handling.
+ *
+ * NOTE: Auto-key generation tests were removed because auto-mode encryption
+ * was removed (see backupPreferences.schema.ts for details).
  */
 
 import { describe, it, expect } from 'vitest';
 import {
-  generateAutoBackupKey,
   createPassphraseSentinel,
   verifyPassphraseSentinel,
   SENTINEL_PLAINTEXT,
 } from './backupPreferences.schema';
 
 describe('backupPreferences.schema', () => {
-  describe('generateAutoBackupKey', () => {
-    it('should generate a base64-encoded key from 32 random bytes', () => {
-      const key = generateAutoBackupKey();
-
-      // Base64 encoding of 32 bytes = 44 characters (with padding)
-      // 32 bytes * 8 bits / 6 bits per base64 char = 42.67, rounded up with padding = 44
-      expect(key.length).toBe(44);
-
-      // Should be valid base64
-      expect(() => atob(key)).not.toThrow();
-
-      // Decoded should be exactly 32 bytes
-      const decoded = atob(key);
-      expect(decoded.length).toBe(32);
-    });
-
-    it('should generate different keys each time (256-bit entropy)', () => {
-      const keys = new Set<string>();
-      const iterations = 100;
-
-      for (let i = 0; i < iterations; i++) {
-        keys.add(generateAutoBackupKey());
-      }
-
-      // All keys should be unique (entropy test)
-      expect(keys.size).toBe(iterations);
-    });
-
-    it('should use crypto.getRandomValues for true randomness', () => {
-      // Verify the key has high entropy by checking byte distribution
-      const samples = 1000;
-      const byteCounts = new Array(256).fill(0);
-
-      for (let i = 0; i < samples; i++) {
-        const key = generateAutoBackupKey();
-        const decoded = atob(key);
-        for (let j = 0; j < decoded.length; j++) {
-          byteCounts[decoded.charCodeAt(j)]++;
-        }
-      }
-
-      // With 32 bytes * 1000 samples = 32000 bytes total
-      // Expected count per byte value: 32000 / 256 = 125
-      // Check that distribution is reasonably uniform (not all zeros or sequential)
-      const nonZeroCounts = byteCounts.filter((c) => c > 0);
-      // Should have coverage across most byte values (at least 200 out of 256)
-      expect(nonZeroCounts.length).toBeGreaterThan(200);
-    });
-  });
-
   describe('createPassphraseSentinel', () => {
     it('should create sentinel with ciphertext, iv, and salt', async () => {
       const passphrase = 'test-passphrase-12345';
@@ -278,17 +230,6 @@ describe('backupPreferences.schema', () => {
       );
 
       expect(canProceed).toBe(false);
-    });
-
-    it('auto mode: generated key has sufficient entropy for encryption', () => {
-      const key = generateAutoBackupKey();
-
-      // Key should be usable as a passphrase for backup encryption
-      // Verify it's long enough and has good character distribution
-      expect(key.length).toBeGreaterThanOrEqual(32);
-
-      // The key is 256 bits = 32 bytes, which when base64 encoded is 44 chars
-      // This provides far more entropy than any user-chosen passphrase
     });
   });
 });

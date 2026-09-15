@@ -1,6 +1,20 @@
 /**
  * Integration Example
  *
+ * ============================================================================
+ * WARNING: DO NOT USE THIS CODE YET
+ * ============================================================================
+ *
+ * This file shows how SmartAutoBackupService WOULD be integrated, but the
+ * service is NOT wired up because it requires passphrase caching that doesn't
+ * exist yet. See SmartAutoBackupService.ts for details on what's needed.
+ *
+ * Until passphrase caching is implemented, use manual backup with passphrase
+ * entry each time (via the DataSafetyPanel Settings page).
+ *
+ * ============================================================================
+ *
+ * Original description:
  * This file shows how to integrate the smart backup system into your app.
  * Copy the relevant parts into your App.tsx or main layout component.
  *
@@ -85,12 +99,12 @@ export function BackupSettingsExample() {
 
   return (
     <div className="backup-settings">
-      <h3>Automatic Backup</h3>
+      <h3>Backup Settings</h3>
 
       {/* Enable/Disable */}
       <label>
         <input type="checkbox" checked={settings.enabled} onChange={handleToggle} />
-        Enable automatic backups
+        Enable background backups
       </label>
 
       {/* Frequency Selection */}
@@ -174,10 +188,10 @@ export function BackupFolderSetupExample() {
       // Store the handle
       await storeDirectoryHandle(result.handle);
 
-      // Start auto-backup now that folder is set
+      // Start backup service now that folder is set
       await smartAutoBackup.start();
 
-      alert('Backup folder configured! Automatic backups enabled.');
+      alert('Backup folder configured!');
     } else {
       alert('Failed to set backup folder: ' + result.error);
     }
@@ -185,8 +199,8 @@ export function BackupFolderSetupExample() {
 
   return (
     <div>
-      <h3>Set Up Automatic Backups</h3>
-      <p>Choose a folder where your data will be automatically backed up.</p>
+      <h3>Set Up Backup Folder</h3>
+      <p>Choose a folder where your data will be backed up.</p>
       <button onClick={handleSetupBackupFolder}>Choose Backup Folder</button>
     </div>
   );

@@ -94,7 +94,7 @@ describe('BackupFallback', () => {
       expect(result.recommendedMethod).toBe('file-system-access');
       expect(result.canAutoBackup).toBe(true);
       expect(result.shouldSuggestBrowserChange).toBe(false);
-      expect(result.message).toContain('automatic backups');
+      expect(result.message).toContain('saving backups directly to a folder');
     });
 
     it('should detect partial support for Safari', async () => {
@@ -641,10 +641,10 @@ describe('BackupFallback', () => {
       );
       expect(uploadAction?.available).toBe(true);
 
-      const autoAction = notification.actions.find(
-        (a) => a.label === 'Automatic Backups'
+      const folderAction = notification.actions.find(
+        (a) => a.label === 'Folder Backups'
       );
-      expect(autoAction?.available).toBe(false);
+      expect(folderAction?.available).toBe(false);
     });
 
     it('should use patient, supportive tone', () => {
