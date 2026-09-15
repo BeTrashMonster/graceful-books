@@ -112,6 +112,9 @@ export function EncryptedBackup({
   const [restoreComplete, setRestoreComplete] = useState(false);
   const [restoredRecordCount, setRestoredRecordCount] = useState(0);
 
+  // Auto-key availability (checked when entering restore mode)
+  const [autoKeyAvailable, setAutoKeyAvailable] = useState<boolean | null>(null);
+
   // Check if we're in dev mode (for handling missing companyId)
   const isDev = typeof window !== 'undefined' &&
     window.location.hostname === 'localhost' &&
@@ -180,6 +183,44 @@ export function EncryptedBackup({
         });
     }
   }, [mode, isOpen, companyId]);
+
+  // Check for auto-key availability when entering restore mode
+  // This determines whether to show passphrase input or auto-key message
+  useEffect(() => {
+    if (mode === 'restore' && isOpen) {
+      const checkAutoKey = async () => {
+        backupLogger.debug('Checking auto-key availability for restore');
+
+        // Try folder first (authoritative source)
+        let autoKey = await readAutoKeyFromFolder();
+        if (autoKey) {
+          backupLogger.info('Auto-key found in backup folder');
+          setAutoKeyAvailable(true);
+          return;
+        }
+
+        // Try IndexedDB fallback
+        if (backupPreference?.auto_key) {
+          autoKey = getAutoBackupKey(backupPreference);
+          if (autoKey) {
+            backupLogger.info('Auto-key found in IndexedDB');
+            setAutoKeyAvailable(true);
+            return;
+          }
+        }
+
+        backupLogger.debug('No auto-key found', {
+          localPassphraseMode: backupPreference?.passphrase_mode || 'none',
+        });
+        setAutoKeyAvailable(false);
+      };
+
+      checkAutoKey();
+    } else {
+      // Reset when leaving restore mode
+      setAutoKeyAvailable(null);
+    }
+  }, [mode, isOpen, backupPreference]);
 
   // Check if backup has fewer records than current database
   // User must confirm ANY restore where backup has less data to prevent accidental data loss
@@ -748,37 +789,59 @@ export function EncryptedBackup({
         return;
       }
 
-      // Determine the decryption key based on passphrase mode
+      // Determine the decryption key
+      // CRITICAL: Always try auto-key FIRST, regardless of local preferences.
+      // The auto-key is stored in the backup folder and should work even in a fresh profile.
       let decryptionKey: string;
 
-      if (backupPreference?.passphrase_mode === 'auto') {
-        // Auto mode: retrieve the auto-key without prompting
-        let autoKey = await readAutoKeyFromFolder();
+      backupLogger.debug('Looking for decryption key', {
+        localPassphraseMode: backupPreference?.passphrase_mode || 'none',
+        hasLocalAutoKey: !!backupPreference?.auto_key,
+        hasPassphraseInput: !!(passphrase && passphrase.trim().length > 0),
+      });
 
-        if (!autoKey) {
-          // Try IndexedDB fallback
-          autoKey = getAutoBackupKey(backupPreference);
-        }
+      // Step 1: Try to read auto-key from backup folder (authoritative source)
+      let autoKey = await readAutoKeyFromFolder();
+      let keySource = 'folder';
 
-        if (!autoKey) {
-          // Key not found - user needs to copy from original device
-          setError(
-            'Backup key file missing. To restore this backup, copy the entire backup folder ' +
-            'from your original device, including hidden files (.audacious-backup-key).'
-          );
-          return;
-        }
-
-        const fingerprint = await getKeyFingerprint(autoKey);
-        backupLogger.info('Using auto-key for restore', { fingerprint });
-        decryptionKey = autoKey;
+      if (autoKey) {
+        backupLogger.debug('Found auto-key in backup folder');
       } else {
-        // Manual mode or no preference: require passphrase entry
-        if (!passphrase || passphrase.trim().length === 0) {
-          setError('Please enter the passphrase you used to create this backup.');
-          return;
+        backupLogger.debug('No auto-key in folder, trying IndexedDB fallback');
+        // Step 2: Try IndexedDB fallback (for same-device restores)
+        if (backupPreference?.auto_key) {
+          autoKey = getAutoBackupKey(backupPreference);
+          keySource = 'indexeddb';
+          if (autoKey) {
+            backupLogger.debug('Found auto-key in IndexedDB');
+          }
         }
+      }
+
+      if (autoKey) {
+        // Auto-key found - use it (this is an auto-mode backup)
+        const fingerprint = await getKeyFingerprint(autoKey);
+        backupLogger.info('Using auto-key for restore', { fingerprint, source: keySource });
+        decryptionKey = autoKey;
+      } else if (passphrase && passphrase.trim().length > 0) {
+        // No auto-key found, but passphrase provided - this is a manual-mode backup
+        backupLogger.info('No auto-key found, using provided passphrase');
         decryptionKey = passphrase;
+      } else {
+        // Neither auto-key nor passphrase available
+        backupLogger.warn('No decryption key available', {
+          checkedFolder: true,
+          checkedIndexedDb: !!backupPreference,
+          localPassphraseMode: backupPreference?.passphrase_mode || 'none',
+        });
+
+        // Provide helpful error message
+        setError(
+          'No decryption key found. If this backup was created with automatic encryption, ' +
+          'copy your entire backup folder (including the hidden .audacious-backup-key file) ' +
+          'from your original device. If this was created with a passphrase, enter it below.'
+        );
+        return;
       }
 
       // Store in ref for use by performRestore and subsequent calls
@@ -1321,6 +1384,51 @@ export function EncryptedBackup({
             {/* Comparison table: Backup vs Current Database */}
             <div className={styles.comparisonSection}>
               <h4>Data Comparison</h4>
+
+              {/* Plain-language summary of what will happen */}
+              {(() => {
+                const backupTotal = validationResult.backup.statistics.totalRecords ?? 0;
+                const dbTotal = currentDbStats?.totalRecords ?? 0;
+                const diff = backupTotal - dbTotal;
+
+                if (currentDbStats === null) {
+                  return <p className={styles.comparisonSummary}>Loading current database statistics...</p>;
+                }
+
+                if (diff > 0) {
+                  return (
+                    <p className={styles.comparisonSummaryPositive}>
+                      <strong>Restoring will add {diff} record{diff !== 1 ? 's' : ''} to this device.</strong>
+                      {' '}The backup contains more data than your current database.
+                    </p>
+                  );
+                } else if (diff < 0) {
+                  const missing = Math.abs(diff);
+                  return (
+                    <div className={styles.comparisonSummaryNegative}>
+                      <p>
+                        <strong>Warning: This backup has {missing} fewer record{missing !== 1 ? 's' : ''} than your current data.</strong>
+                      </p>
+                      <p>
+                        Restoring will replace your current data. You have records that are not in this backup.
+                        <strong> Before proceeding:</strong>
+                      </p>
+                      <ul>
+                        <li>Create a backup of your current data first, or</li>
+                        <li>Select a different backup file that contains all your records</li>
+                      </ul>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <p className={styles.comparisonSummaryEqual}>
+                      <strong>This backup matches your current data.</strong>
+                      {' '}Both contain the same number of records.
+                    </p>
+                  );
+                }
+              })()}
+
               <table className={styles.comparisonTable}>
                 <thead>
                   <tr>
@@ -1468,15 +1576,17 @@ export function EncryptedBackup({
           </div>
         )}
 
-        {/* Auto mode: No passphrase input needed */}
-        {backupPreference?.passphrase_mode === 'auto' ? (
+        {/* Show decryption key input based on auto-key availability */}
+        {autoKeyAvailable === true ? (
+          // Auto-key found - no passphrase needed
           <div className={styles.autoModeRestoreNote}>
             <p>
-              <strong>Automatic encryption detected.</strong> Your backup will be decrypted
-              using the key file stored in your backup folder. No passphrase needed.
+              <strong>Automatic encryption key found.</strong> Your backup will be decrypted
+              using the key file in your backup folder. No passphrase needed.
             </p>
           </div>
-        ) : (
+        ) : autoKeyAvailable === false ? (
+          // No auto-key - need passphrase
           <Input
             type="password"
             label="Backup Passphrase"
@@ -1484,9 +1594,14 @@ export function EncryptedBackup({
             onChange={(e) => setPassphrase(e.target.value)}
             placeholder="Enter your backup passphrase"
             disabled={isProcessing || !selectedFile}
-            helperText="Enter the passphrase you used when creating this backup."
+            helperText="Enter the passphrase you used when creating this backup, or copy your backup folder (with the hidden key file) from your original device."
             required
           />
+        ) : (
+          // Still checking - show loading state
+          <div className={styles.autoModeRestoreNote}>
+            <p>Checking for encryption key...</p>
+          </div>
         )}
       </div>
     </div>

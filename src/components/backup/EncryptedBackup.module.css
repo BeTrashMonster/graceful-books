@@ -203,6 +203,63 @@
   color: var(--color-text-primary, #111827);
 }
 
+/* Plain-language comparison summaries */
+.comparisonSummary {
+  margin: 0.5rem 0 1rem 0;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  background-color: var(--color-gray-50, #f9fafb);
+  color: var(--color-text-secondary, #4b5563);
+}
+
+.comparisonSummaryPositive {
+  margin: 0.5rem 0 1rem 0;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  background-color: var(--color-green-50, #f0fdf4);
+  color: var(--color-green-800, #166534);
+  border: 1px solid var(--color-green-200, #bbf7d0);
+}
+
+.comparisonSummaryEqual {
+  margin: 0.5rem 0 1rem 0;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  background-color: var(--color-blue-50, #eff6ff);
+  color: var(--color-blue-800, #1e40af);
+  border: 1px solid var(--color-blue-200, #bfdbfe);
+}
+
+.comparisonSummaryNegative {
+  margin: 0.5rem 0 1rem 0;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  background-color: var(--color-amber-50, #fffbeb);
+  color: var(--color-amber-800, #92400e);
+  border: 1px solid var(--color-amber-200, #fde68a);
+}
+
+.comparisonSummaryNegative p {
+  margin: 0 0 0.5rem 0;
+}
+
+.comparisonSummaryNegative p:last-child {
+  margin-bottom: 0;
+}
+
+.comparisonSummaryNegative ul {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.25rem;
+}
+
+.comparisonSummaryNegative li {
+  margin: 0.25rem 0;
+}
+
 .comparisonTable {
   width: 100%;
   border-collapse: collapse;
