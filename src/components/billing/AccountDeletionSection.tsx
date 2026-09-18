@@ -93,8 +93,8 @@ export function AccountDeletionSection({ onAccountDeleted }: AccountDeletionSect
               <li>All active subscriptions will be cancelled</li>
               <li>Your local financial data remains on your device (delete manually if needed)</li>
               <li>
-                Some financial records may be retained for 7 years as required by accounting
-                standards and legal compliance
+                A record of this deletion (your email and deletion date) is kept in our audit
+                log for 7 years for legal compliance
               </li>
             </ul>
           </div>
@@ -142,11 +142,11 @@ export function AccountDeletionSection({ onAccountDeleted }: AccountDeletionSect
               <li>Delete your account and profile</li>
               <li>Cancel all subscriptions</li>
               <li>Remove your data from our servers</li>
-              <li>Require creating a new account to use Graceful Books again</li>
+              <li>Require creating a new account to use Audacious Money again</li>
             </ul>
             <p>
-              <strong>Note:</strong> Some financial records may be retained for 7 years as required
-              by law.
+              <strong>Note:</strong> A record of this deletion (your email and deletion date) is
+              kept in our audit log for 7 years for legal compliance.
             </p>
           </div>
 
