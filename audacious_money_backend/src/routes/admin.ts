@@ -22,6 +22,7 @@ import {
 import { hashPassword } from '../utils/password.js';
 import { z } from 'zod';
 import { stripe } from '../services/stripe.service.js';
+import { sendAdminBroadcastEmail, BROADCAST_TEMPLATES, type BroadcastTemplateId } from '../services/email.service.js';
 
 const admin = new Hono<HonoEnv>();
 
@@ -2068,6 +2069,206 @@ admin.post('/migrations/backfill-stripe-customer-ids', requireAdmin, async (c) =
     console.error('[Admin] Migration error:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Migration failed');
   }
+});
+
+// =============================================================================
+// BROADCAST EMAIL ENDPOINT
+// =============================================================================
+
+/**
+ * POST /admin/broadcast-email
+ *
+ * Send a broadcast email to all users (admin only)
+ *
+ * Modes:
+ * - dryRun: true → Returns recipient count without sending
+ * - testEmail: "email@example.com" → Sends only to that address
+ * - Neither → Sends to all users
+ *
+ * Body:
+ * {
+ *   templateId: "backup-security-notice-2026-09",
+ *   dryRun?: boolean,
+ *   testEmail?: string
+ * }
+ */
+const broadcastEmailSchema = z.object({
+  templateId: z.string().min(1, 'Template ID is required'),
+  dryRun: z.boolean().optional().default(false),
+  testEmail: z.string().email().optional(),
+});
+
+admin.post('/broadcast-email', requireAdmin, validate(broadcastEmailSchema), async (c) => {
+  const adminId = c.get('adminId');
+  const adminEmail = c.get('adminEmail');
+  const db = c.get('db');
+  const { templateId, dryRun, testEmail } = c.get('validatedData') as z.infer<typeof broadcastEmailSchema>;
+
+  // Validate template exists
+  const template = BROADCAST_TEMPLATES[templateId as BroadcastTemplateId];
+  if (!template) {
+    const availableTemplates = Object.keys(BROADCAST_TEMPLATES);
+    return badRequest(
+      c,
+      ErrorCodes.VALIDATION_ERROR,
+      `Unknown template: "${templateId}". Available: ${availableTemplates.join(', ')}`
+    );
+  }
+
+  try {
+    // Get all users
+    const usersResult = await db.query(
+      `SELECT id, email, first_name, last_name
+       FROM users
+       ORDER BY created_at ASC`
+    );
+
+    const allUsers = usersResult.rows;
+    const totalUsers = allUsers.length;
+
+    console.log(`[Admin] Broadcast "${templateId}" requested by ${adminEmail}`);
+    console.log(`[Admin] Total users: ${totalUsers}, dryRun: ${dryRun}, testEmail: ${testEmail || 'none'}`);
+
+    // DRY RUN: Just return the count
+    if (dryRun) {
+      console.log(`[Admin] Dry run complete - would send to ${totalUsers} users`);
+      return success(c, {
+        mode: 'dry-run',
+        templateId,
+        subject: template.subject,
+        recipientCount: totalUsers,
+        message: `Dry run: would send "${template.subject}" to ${totalUsers} users`,
+      });
+    }
+
+    // TEST MODE: Send only to the specified test email
+    if (testEmail) {
+      console.log(`[Admin] Test mode - sending to ${testEmail} only`);
+
+      const result = await sendAdminBroadcastEmail(
+        testEmail,
+        template.subject,
+        template.htmlBody,
+        template.textBody
+      );
+
+      // Log to audit
+      await db.query(
+        `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, new_values)
+         VALUES ('broadcast_email_test', 'broadcast', $1, $2, $3, $4)`,
+        [
+          templateId,
+          adminId,
+          c.req.header('x-forwarded-for')?.split(',')[0].trim() || c.req.header('x-real-ip') || '',
+          JSON.stringify({ testEmail, subject: template.subject, success: result.success }),
+        ]
+      );
+
+      if (result.success) {
+        console.log(`[Admin] ✅ Test email sent to ${testEmail}`);
+        return success(c, {
+          mode: 'test',
+          templateId,
+          subject: template.subject,
+          testEmail,
+          success: true,
+          messageId: result.messageId,
+          message: `Test email sent to ${testEmail}`,
+        });
+      } else {
+        console.error(`[Admin] ❌ Test email failed: ${result.error}`);
+        return badRequest(c, ErrorCodes.INTERNAL_ERROR, `Test email failed: ${result.error}`);
+      }
+    }
+
+    // FULL SEND: Send to all users
+    console.log(`[Admin] Starting full broadcast to ${totalUsers} users...`);
+
+    const results: { email: string; success: boolean; error?: string; messageId?: string }[] = [];
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const user of allUsers) {
+      const result = await sendAdminBroadcastEmail(
+        user.email,
+        template.subject,
+        template.htmlBody,
+        template.textBody
+      );
+
+      results.push({
+        email: user.email,
+        success: result.success,
+        error: result.error,
+        messageId: result.messageId,
+      });
+
+      if (result.success) {
+        successCount++;
+        console.log(`[Admin] ✅ Sent to ${user.email}`);
+      } else {
+        failCount++;
+        console.error(`[Admin] ❌ Failed ${user.email}: ${result.error}`);
+      }
+    }
+
+    // Log to audit
+    const ipAddress =
+      c.req.header('x-forwarded-for')?.split(',')[0].trim() ||
+      c.req.header('x-real-ip') ||
+      c.req.header('cf-connecting-ip') ||
+      '';
+
+    await db.query(
+      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, new_values)
+       VALUES ('broadcast_email_sent', 'broadcast', $1, $2, $3, $4)`,
+      [
+        templateId,
+        adminId,
+        ipAddress,
+        JSON.stringify({
+          subject: template.subject,
+          totalUsers,
+          successCount,
+          failCount,
+          sentAt: new Date().toISOString(),
+        }),
+      ]
+    );
+
+    console.log(`[Admin] Broadcast complete: ${successCount} sent, ${failCount} failed`);
+
+    return success(c, {
+      mode: 'send',
+      templateId,
+      subject: template.subject,
+      summary: {
+        total: totalUsers,
+        success: successCount,
+        failed: failCount,
+      },
+      results,
+      message: `Broadcast complete: ${successCount} sent, ${failCount} failed`,
+    });
+
+  } catch (error) {
+    console.error('[Admin] Broadcast error:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Broadcast failed');
+  }
+});
+
+/**
+ * GET /admin/broadcast-templates
+ *
+ * List available broadcast email templates (admin only)
+ */
+admin.get('/broadcast-templates', requireAdmin, async (c) => {
+  const templates = Object.entries(BROADCAST_TEMPLATES).map(([id, template]) => ({
+    id,
+    subject: template.subject,
+  }));
+
+  return success(c, { templates });
 });
 
 export default admin;

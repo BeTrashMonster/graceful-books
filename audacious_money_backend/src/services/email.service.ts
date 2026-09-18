@@ -3010,3 +3010,109 @@ Building financial confidence, one step at a time.`,
     MessageStream: 'outbound'
   });
 }
+
+// =============================================================================
+// ADMIN BROADCAST EMAILS
+// =============================================================================
+
+/**
+ * Send an admin broadcast email to a single recipient
+ * Used by the broadcast endpoint for each user
+ */
+export async function sendAdminBroadcastEmail(
+  to: string,
+  subject: string,
+  htmlBody: string,
+  textBody: string
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  try {
+    const result = await client.sendEmail({
+      From: `${FROM_NAME} <${FROM_EMAIL}>`,
+      To: to,
+      Subject: subject,
+      HtmlBody: htmlBody,
+      TextBody: textBody,
+      MessageStream: 'outbound',
+      TrackOpens: true,
+    });
+
+    return { success: true, messageId: result.MessageID };
+  } catch (error: any) {
+    console.error(`[Email Service] Broadcast send failed for ${to}:`, error.message);
+    return { success: false, error: error.message || 'Failed to send email' };
+  }
+}
+
+// =============================================================================
+// BROADCAST EMAIL TEMPLATES
+// =============================================================================
+
+/**
+ * Backup Security Notice - September 2026
+ * One-time broadcast informing users about backup encryption improvements
+ */
+export const BROADCAST_TEMPLATES = {
+  'backup-security-notice-2026-09': {
+    subject: 'Trust me (but also: make a new backup)',
+    htmlBody: `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1f2937;">
+  <p style="font-size: 16px; line-height: 1.6;">Hello friend!</p>
+
+  <p style="font-size: 16px; line-height: 1.6;">Quick favor, and a heads-up.</p>
+
+  <p style="font-size: 16px; line-height: 1.6;">
+    <strong>The favor:</strong> can you make a fresh backup? It's in <strong>Settings → Data Safety → Backup Now</strong>.
+    Pick something you'll remember for your passphrase and WRITE IT DOWN somewhere safe – please don't reuse your login password.
+    Then try restoring it once so we both know it works.
+  </p>
+
+  <p style="font-size: 16px; line-height: 1.6;">
+    <strong>The heads-up:</strong> I've been doing a security review and found that the Backups weren't capturing everything they should have,
+    and the encryption wasn't as strong as I'd described — the automatic key was generated in a way that meant I could technically have
+    unlocked those files. I never did, and no data ever left your device, but "I promise I won't" isn't the standard I want to hold myself to.
+  </p>
+
+  <p style="font-size: 16px; line-height: 1.6;">
+    All of it is fixed now. But backups made before this update are incomplete, so please make a new one — that's the one to keep.
+  </p>
+
+  <p style="font-size: 16px; line-height: 1.6;">
+    I'd rather tell you this than not. Happy to explain any of it in more detail if you want.
+  </p>
+
+  <p style="font-size: 16px; line-height: 1.6;">
+    Always on your side,<br>
+    Audrey
+  </p>
+
+  <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+    <p style="font-size: 12px; color: #9ca3af;">
+      Audacious Money<br>
+      Building financial confidence, one step at a time.
+    </p>
+  </div>
+</div>
+`,
+    textBody: `Hello friend!
+
+Quick favor, and a heads-up.
+
+THE FAVOR: can you make a fresh backup? It's in Settings → Data Safety → Backup Now. Pick something you'll remember for your passphrase and WRITE IT DOWN somewhere safe – please don't reuse your login password. Then try restoring it once so we both know it works.
+
+THE HEADS-UP: I've been doing a security review and found that the Backups weren't capturing everything they should have, and the encryption wasn't as strong as I'd described — the automatic key was generated in a way that meant I could technically have unlocked those files. I never did, and no data ever left your device, but "I promise I won't" isn't the standard I want to hold myself to.
+
+All of it is fixed now. But backups made before this update are incomplete, so please make a new one — that's the one to keep.
+
+I'd rather tell you this than not. Happy to explain any of it in more detail if you want.
+
+Always on your side,
+Audrey
+
+---
+Audacious Money
+Building financial confidence, one step at a time.
+`,
+  },
+} as const;
+
+export type BroadcastTemplateId = keyof typeof BROADCAST_TEMPLATES;
