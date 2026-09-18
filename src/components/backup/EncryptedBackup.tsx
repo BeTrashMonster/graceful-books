@@ -16,7 +16,7 @@ import { Modal } from '../modals/Modal';
 import { Button } from '../core/Button';
 import { Input } from '../forms/Input';
 import { BackupService } from '../../services/backup/backupService';
-import { retrieveDirectoryHandle } from '../../services/backup/FileSystemBackup';
+import { retrieveDirectoryHandle, cleanOldBackups } from '../../services/backup/FileSystemBackup';
 import { saveBackupToHistory } from '../../services/backup/BackupHistoryService';
 import { db, type ComprehensiveStatistics } from '../../db';
 import type {
@@ -391,6 +391,15 @@ export function EncryptedBackup({
       if (!savedToFolder) {
         BackupService.downloadBackup(result.blob, result.filename);
         backupLogger.info('Backup downloaded to Downloads folder (no folder configured or write failed)');
+      } else {
+        // Clean old backups after successful save to folder
+        const cleanupResult = await cleanOldBackups();
+        if (cleanupResult.deletedCount > 0) {
+          backupLogger.info('Rotated old backups', {
+            deleted: cleanupResult.deletedCount,
+            kept: cleanupResult.keptCount,
+          });
+        }
       }
 
       // Record backup in history
@@ -783,8 +792,9 @@ export function EncryptedBackup({
 
         <div className={styles.warningBox}>
           <strong>Important:</strong> Write down your passphrase and keep it safe!
-          Without it, you won't be able to restore your backup. We can't recover
-          your passphrase if you lose it.
+          This passphrase is the only way to restore your data on any device.
+          We never receive or store your passphrase - if you lose it, your backups
+          cannot be recovered.
         </div>
       </div>
     );
@@ -865,7 +875,7 @@ export function EncryptedBackup({
                 onChange={(e) => setPassphrase(e.target.value)}
                 placeholder="Enter your backup passphrase"
                 disabled={isProcessing}
-                helperText="Enter the same passphrase you used before."
+                helperText="This passphrase is needed to restore on any device. We cannot recover it."
                 required
               />
             </div>

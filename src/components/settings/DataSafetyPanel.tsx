@@ -30,6 +30,8 @@ import {
   getBackupDirectoryStatus,
 } from '../../services/backup/FileSystemBackup'
 import { EncryptedBackup } from '../backup/EncryptedBackup'
+import { hasSentinelConfigured } from '../../db/schema/backupPreferences.schema'
+import { db } from '../../db'
 import styles from './DataSafetyPanel.module.css'
 
 /**
@@ -105,6 +107,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
   const [backupSavedToFolder, setBackupSavedToFolder] = useState(false)
   const [showRestoreModal, setShowRestoreModal] = useState(false)
   const [showBackupModal, setShowBackupModal] = useState(false)
+  const [hasPassphrase, setHasPassphrase] = useState(false)
 
   // Load backup status and history on mount
   useEffect(() => {
@@ -120,6 +123,13 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
     setError(null)
 
     try {
+      // Check if passphrase is configured
+      await db.open()
+      const prefs = await db.backupPreferences.toArray()
+      const hasConfiguredPassphrase = prefs.length > 0 && hasSentinelConfigured(prefs[0])
+      setHasPassphrase(hasConfiguredPassphrase)
+      console.log('🔐 Passphrase configured:', hasConfiguredPassphrase)
+
       // Get stored directory handle and check status
       const dirHandle = await retrieveDirectoryHandle()
       const directoryStatus = await getBackupDirectoryStatus()
@@ -475,15 +485,15 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
               <p className={styles.subtitle}>Peace of mind in one glance</p>
             </div>
             <div className={styles.statusBadge}>
-              {backupStatus?.enabled ? (
+              {backupHistory.length > 0 ? (
                 <span className={styles.statusOn}>
                   <span className={styles.statusDot} aria-hidden="true" />
-                  Backup Folder Configured
+                  {hasPassphrase ? 'Protected' : 'Backups Created'}
                 </span>
               ) : (
                 <span className={styles.statusOff}>
                   <span className={styles.statusDot} aria-hidden="true" />
-                  Manual Backups Only
+                  No Backups Yet
                 </span>
               )}
             </div>
@@ -514,11 +524,11 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
         </CardHeader>
         <CardBody>
           <div className={styles.statusGrid}>
-            {/* Backup Location */}
+            {/* Passphrase Status - Most Important */}
             <div className={styles.statusItem}>
-              <span className={styles.statusLabel}>Backup Location:</span>
+              <span className={styles.statusLabel}>Passphrase:</span>
               <span className={styles.statusValue}>
-                {backupStatus?.location || 'Not configured'}
+                {hasPassphrase ? 'Configured' : 'Not set yet'}
               </span>
             </div>
 
@@ -526,24 +536,52 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             <div className={styles.statusItem}>
               <span className={styles.statusLabel}>Last Backup:</span>
               <span className={styles.statusValue}>
-                {backupStatus?.lastBackup
-                  ? formatRelativeTime(backupStatus.lastBackup)
+                {backupHistory.length > 0
+                  ? formatRelativeTime(new Date(backupHistory[0].timestamp))
                   : 'Never'}
+              </span>
+            </div>
+
+            {/* Backup Location - Optional */}
+            <div className={styles.statusItem}>
+              <span className={styles.statusLabel}>Save Location:</span>
+              <span className={styles.statusValue}>
+                {backupStatus?.location || 'Downloads folder'}
               </span>
             </div>
           </div>
 
+          {/* At-a-glance guidance based on current state */}
+          {backupHistory.length === 0 && (
+            <div className={styles.warningBox}>
+              <p className={styles.warningText}>
+                <strong>You have no backups yet.</strong> Click "Backup Now" to create your first
+                encrypted backup. You'll choose a passphrase that protects your data.
+              </p>
+            </div>
+          )}
+
+          {backupHistory.length > 0 && !hasPassphrase && (
+            <div className={styles.infoBox}>
+              <p className={styles.infoText}>
+                You have backups but no passphrase is recorded. Your next backup will verify your
+                existing passphrase or let you set a new one.
+              </p>
+            </div>
+          )}
+
+          {backupHistory.length > 0 && hasPassphrase && (
+            <div className={styles.infoBox}>
+              <p className={styles.infoText}>
+                Your data is protected. Backups are saved to{' '}
+                <strong>{backupStatus?.location || 'your Downloads folder'}</strong>.
+                Remember your passphrase - you'll need it to restore on any device.
+              </p>
+            </div>
+          )}
+
           {/* Backup Actions */}
           <div className={styles.actions}>
-            <Button
-              variant="secondary"
-              onClick={handleChangeLocation}
-              iconBefore="📁"
-              aria-label="Change backup location"
-            >
-              {backupStatus?.location ? 'Change Folder' : 'Choose Backup Folder'}
-            </Button>
-
             <Button
               variant="primary"
               onClick={handleBackupNow}
@@ -561,27 +599,16 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             >
               Restore from Backup
             </Button>
+
+            <Button
+              variant="secondary"
+              onClick={handleChangeLocation}
+              iconBefore="📁"
+              aria-label="Change backup location"
+            >
+              {backupStatus?.location ? 'Change Folder' : 'Choose Folder (optional)'}
+            </Button>
           </div>
-
-          {/* Informational Message */}
-          {!backupStatus?.enabled && (
-            <div className={styles.infoBox}>
-              <p className={styles.infoText}>
-                <strong>Want to save backups to a folder?</strong> Set up a backup location and use the
-                "Backup Now" button to save encrypted backups to your computer.
-              </p>
-            </div>
-          )}
-
-          {backupStatus?.enabled && (
-            <div className={styles.infoBox}>
-              <p className={styles.infoText}>
-                Your backup folder is configured at <strong>{backupStatus.location}</strong>. Click
-                "Backup Now" to save an encrypted backup. Your backup is protected by a passphrase
-                that only you know.
-              </p>
-            </div>
-          )}
         </CardBody>
       </Card>
 
@@ -642,17 +669,16 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             <h4 className={styles.securityTitle}>How your backups are protected</h4>
             <ul className={styles.securityList}>
               <li>
-                <strong>Passphrase encryption:</strong> Your manual backups are encrypted with a
+                <strong>Passphrase encryption:</strong> Your backups are encrypted with a
                 passphrase that only you know. Without it, no one can read your backup files.
               </li>
               <li>
-                <strong>Multiple safety nets:</strong> Keep backups on your computer, in your
-                email, and synced across devices for maximum protection.
+                <strong>Restore anywhere:</strong> Your passphrase is all you need to restore
+                your data on any device. We never receive or store it.
               </li>
               <li>
-                <strong>Smart retention:</strong> We keep your last 10 backups plus one daily
-                snapshot for 30 days, so you always have a recent copy without cluttering your
-                storage.
+                <strong>Automatic cleanup:</strong> When you have a backup folder configured,
+                we keep your 10 most recent backups and remove older ones automatically.
               </li>
             </ul>
           </div>

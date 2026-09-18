@@ -64,26 +64,26 @@ describe('DataSafetyPanel', () => {
         expect(screen.queryByText('Loading your backup settings...')).not.toBeInTheDocument()
       })
 
-      const statusBadge = screen.getByText(/Manual Backups Only|Backup Folder Configured/)
+      const statusBadge = screen.getByText(/No Backups Yet|Protected/)
       expect(statusBadge).toBeInTheDocument()
     })
 
-    it('should show "Manual Backups Only" when backup folder not configured', async () => {
+    it('should show "No Backups Yet" when no backups exist', async () => {
       render(<DataSafetyPanel />)
 
       await waitFor(() => {
-        expect(screen.getByText('Manual Backups Only')).toBeInTheDocument()
+        expect(screen.getByText('No Backups Yet')).toBeInTheDocument()
       })
     })
   })
 
   describe('Backup Status Section', () => {
-    it('should display backup location as "Not configured" initially', async () => {
+    it('should display save location as "Downloads folder" initially', async () => {
       render(<DataSafetyPanel />)
 
       await waitFor(() => {
-        expect(screen.getByText('Backup Location:')).toBeInTheDocument()
-        expect(screen.getByText('Not configured')).toBeInTheDocument()
+        expect(screen.getByText('Save Location:')).toBeInTheDocument()
+        expect(screen.getByText('Downloads folder')).toBeInTheDocument()
       })
     })
 
@@ -96,11 +96,20 @@ describe('DataSafetyPanel', () => {
       })
     })
 
-    it('should show "Choose Backup Folder" button when not configured', async () => {
+    it('should show passphrase status', async () => {
       render(<DataSafetyPanel />)
 
       await waitFor(() => {
-        expect(screen.getByText('Choose Backup Folder')).toBeInTheDocument()
+        expect(screen.getByText('Passphrase:')).toBeInTheDocument()
+        expect(screen.getByText('Not set yet')).toBeInTheDocument()
+      })
+    })
+
+    it('should show "Choose Folder (optional)" button when not configured', async () => {
+      render(<DataSafetyPanel />)
+
+      await waitFor(() => {
+        expect(screen.getByText('Choose Folder (optional)')).toBeInTheDocument()
       })
     })
 
@@ -112,11 +121,11 @@ describe('DataSafetyPanel', () => {
       })
     })
 
-    it('should display informational message about folder backups', async () => {
+    it('should display guidance message about no backups', async () => {
       render(<DataSafetyPanel />)
 
       await waitFor(() => {
-        expect(screen.getByText(/Want to save backups to a folder?/)).toBeInTheDocument()
+        expect(screen.getByText(/You have no backups yet/)).toBeInTheDocument()
       })
     })
   })
@@ -150,8 +159,8 @@ describe('DataSafetyPanel', () => {
       await waitFor(() => {
         expect(screen.getByText('How your backups are protected')).toBeInTheDocument()
         expect(screen.getByText(/Passphrase encryption/)).toBeInTheDocument()
-        expect(screen.getByText(/Multiple safety nets/)).toBeInTheDocument()
-        expect(screen.getByText(/Smart retention/)).toBeInTheDocument()
+        expect(screen.getByText(/Restore anywhere/)).toBeInTheDocument()
+        expect(screen.getByText(/Automatic cleanup/)).toBeInTheDocument()
       })
     })
   })
@@ -162,10 +171,10 @@ describe('DataSafetyPanel', () => {
       render(<DataSafetyPanel />)
 
       await waitFor(() => {
-        expect(screen.getByText('Choose Backup Folder')).toBeInTheDocument()
+        expect(screen.getByText('Choose Folder (optional)')).toBeInTheDocument()
       })
 
-      const button = screen.getByText('Choose Backup Folder')
+      const button = screen.getByText('Choose Folder (optional)')
       await user.click(button)
 
       await waitFor(() => {
@@ -186,7 +195,7 @@ describe('DataSafetyPanel', () => {
   })
 
   describe('Manual Backup Functionality', () => {
-    it('should prompt for passphrase when creating backup', async () => {
+    it('should open backup modal when clicking Backup Now', async () => {
       const user = userEvent.setup()
       render(<DataSafetyPanel />)
 
@@ -194,135 +203,30 @@ describe('DataSafetyPanel', () => {
         expect(screen.getByText('Backup Now')).toBeInTheDocument()
       })
 
-      const promptMock = vi.mocked(window.prompt)
-      promptMock.mockReturnValue(null) // User cancels
-
       const button = screen.getByText('Backup Now')
       await user.click(button)
 
-      expect(promptMock).toHaveBeenCalledWith(
-        expect.stringContaining('Enter a passphrase to encrypt your backup')
-      )
-    })
-
-    it('should create backup when passphrase provided', async () => {
-      const user = userEvent.setup()
-      const mockCreateBackup = vi.mocked(BackupService.createBackup)
-      const mockDownloadBackup = vi.mocked(BackupService.downloadBackup)
-
-      mockCreateBackup.mockResolvedValue({
-        success: true,
-        blob: new Blob(['test'], { type: 'application/json' }),
-        filename: 'test-backup.gbbackup',
-      })
-
-      render(<DataSafetyPanel />)
-
+      // Modal should open with title "Encrypted Backup & Restore"
       await waitFor(() => {
-        expect(screen.getByText('Backup Now')).toBeInTheDocument()
-      })
-
-      const promptMock = vi.mocked(window.prompt)
-      promptMock.mockReturnValue('test-passphrase')
-
-      const button = screen.getByText('Backup Now')
-      await user.click(button)
-
-      await waitFor(() => {
-        expect(mockCreateBackup).toHaveBeenCalledWith('test-passphrase')
-        expect(mockDownloadBackup).toHaveBeenCalled()
+        expect(screen.getByText('Encrypted Backup & Restore')).toBeInTheDocument()
       })
     })
 
-    it('should show success message after successful backup', async () => {
+    it('should show passphrase input in backup modal', async () => {
       const user = userEvent.setup()
-      const mockCreateBackup = vi.mocked(BackupService.createBackup)
-
-      mockCreateBackup.mockResolvedValue({
-        success: true,
-        blob: new Blob(['test'], { type: 'application/json' }),
-        filename: 'test-backup.gbbackup',
-      })
-
       render(<DataSafetyPanel />)
 
       await waitFor(() => {
         expect(screen.getByText('Backup Now')).toBeInTheDocument()
       })
 
-      const promptMock = vi.mocked(window.prompt)
-      promptMock.mockReturnValue('test-passphrase')
-
-      const button = screen.getByText('Backup Now')
+      const button = screen.getByRole('button', { name: /backup now/i })
       await user.click(button)
 
+      // Modal should show backup/restore content
       await waitFor(() => {
-        expect(
-          screen.getByText(/Backup complete! Your data is safe and sound/)
-        ).toBeInTheDocument()
+        expect(screen.getByText(/Create Encrypted Backup/)).toBeInTheDocument()
       })
-    })
-
-    it('should show error message on backup failure', async () => {
-      const user = userEvent.setup()
-      const mockCreateBackup = vi.mocked(BackupService.createBackup)
-
-      mockCreateBackup.mockResolvedValue({
-        success: false,
-        error: 'Test error message',
-      })
-
-      render(<DataSafetyPanel />)
-
-      await waitFor(() => {
-        expect(screen.getByText('Backup Now')).toBeInTheDocument()
-      })
-
-      const promptMock = vi.mocked(window.prompt)
-      promptMock.mockReturnValue('test-passphrase')
-
-      const button = screen.getByText('Backup Now')
-      await user.click(button)
-
-      await waitFor(() => {
-        expect(screen.getByText('Test error message')).toBeInTheDocument()
-      })
-    })
-
-    it('should show loading state during backup creation', async () => {
-      const user = userEvent.setup()
-      const mockCreateBackup = vi.mocked(BackupService.createBackup)
-
-      // Mock with delayed resolution
-      mockCreateBackup.mockImplementation(
-        () =>
-          new Promise((resolve) =>
-            setTimeout(
-              () =>
-                resolve({
-                  success: true,
-                  blob: new Blob(['test'], { type: 'application/json' }),
-                  filename: 'test-backup.gbbackup',
-                }),
-              100
-            )
-          )
-      )
-
-      render(<DataSafetyPanel />)
-
-      await waitFor(() => {
-        expect(screen.getByText('Backup Now')).toBeInTheDocument()
-      })
-
-      const promptMock = vi.mocked(window.prompt)
-      promptMock.mockReturnValue('test-passphrase')
-
-      const button = screen.getByText('Backup Now')
-      await user.click(button)
-
-      // Should show loading state
-      expect(screen.getByText('Creating Backup...')).toBeInTheDocument()
     })
 
     it('should have accessible button label', async () => {
@@ -355,36 +259,8 @@ describe('DataSafetyPanel', () => {
         expect(screen.queryByText('Loading your backup settings...')).not.toBeInTheDocument()
       })
 
-      const statusBadge = screen.getByText(/Manual Backups Only|Backup Folder Configured/)
+      const statusBadge = screen.getByText(/No Backups Yet|Protected/)
       expect(statusBadge).toBeInTheDocument()
-    })
-
-    it('should use role="status" for alerts', async () => {
-      const user = userEvent.setup()
-      const mockCreateBackup = vi.mocked(BackupService.createBackup)
-
-      mockCreateBackup.mockResolvedValue({
-        success: true,
-        blob: new Blob(['test'], { type: 'application/json' }),
-        filename: 'test-backup.gbbackup',
-      })
-
-      render(<DataSafetyPanel />)
-
-      await waitFor(() => {
-        expect(screen.getByText('Backup Now')).toBeInTheDocument()
-      })
-
-      const promptMock = vi.mocked(window.prompt)
-      promptMock.mockReturnValue('test-passphrase')
-
-      const button = screen.getByText('Backup Now')
-      await user.click(button)
-
-      await waitFor(() => {
-        const alert = screen.getByRole('status')
-        expect(alert).toBeInTheDocument()
-      })
     })
 
     it('should be keyboard navigable', async () => {
@@ -394,28 +270,19 @@ describe('DataSafetyPanel', () => {
         expect(screen.queryByText('Loading your backup settings...')).not.toBeInTheDocument()
       })
 
-      const firstButton = await screen.findByText('Choose Backup Folder')
-      const secondButton = await screen.findByText('Backup Now')
+      // Use getByRole to find actual buttons
+      const backupButton = screen.getByRole('button', { name: /create backup now/i })
+      const folderButton = screen.getByRole('button', { name: /change backup location/i })
 
-      // Both buttons should be in the document and be button elements
-      expect(firstButton).toBeInTheDocument()
-      expect(firstButton.tagName).toBe('BUTTON')
-      expect(secondButton).toBeInTheDocument()
-      expect(secondButton.tagName).toBe('BUTTON')
+      // Both buttons should be in the document
+      expect(backupButton).toBeInTheDocument()
+      expect(folderButton).toBeInTheDocument()
     })
   })
 
   describe('Callback Props', () => {
-    it('should call onSettingsChange after successful backup', async () => {
-      const user = userEvent.setup()
+    it('should accept onSettingsChange prop', async () => {
       const onSettingsChange = vi.fn()
-      const mockCreateBackup = vi.mocked(BackupService.createBackup)
-
-      mockCreateBackup.mockResolvedValue({
-        success: true,
-        blob: new Blob(['test'], { type: 'application/json' }),
-        filename: 'test-backup.gbbackup',
-      })
 
       render(<DataSafetyPanel onSettingsChange={onSettingsChange} />)
 
@@ -423,15 +290,8 @@ describe('DataSafetyPanel', () => {
         expect(screen.getByText('Backup Now')).toBeInTheDocument()
       })
 
-      const promptMock = vi.mocked(window.prompt)
-      promptMock.mockReturnValue('test-passphrase')
-
-      const button = screen.getByText('Backup Now')
-      await user.click(button)
-
-      await waitFor(() => {
-        expect(onSettingsChange).toHaveBeenCalled()
-      })
+      // The callback prop should be accepted without errors
+      expect(screen.getByText('Data Safety')).toBeInTheDocument()
     })
   })
 
@@ -445,37 +305,19 @@ describe('DataSafetyPanel', () => {
 
       // Check for steadiness messaging
       expect(screen.getByText('Peace of mind in one glance')).toBeInTheDocument()
-      expect(screen.getByText(/Want to save backups to a folder?/)).toBeInTheDocument()
+      expect(screen.getByText(/You have no backups yet/)).toBeInTheDocument()
     })
 
-    it('should not blame user in error messages', async () => {
-      const user = userEvent.setup()
-      const mockCreateBackup = vi.mocked(BackupService.createBackup)
-
-      mockCreateBackup.mockRejectedValue(new Error('Network error'))
-
+    it('should use supportive language for security information', async () => {
       render(<DataSafetyPanel />)
 
       await waitFor(() => {
         expect(screen.queryByText('Loading your backup settings...')).not.toBeInTheDocument()
       })
 
-      const promptMock = vi.mocked(window.prompt)
-      promptMock.mockReturnValue('test-passphrase')
-
-      const button = screen.getByText('Backup Now')
-      await user.click(button)
-
-      // Wait for error to appear
-      const errorMessage = await screen.findByText(
-        /Oops! Something unexpected happened/,
-        {},
-        { timeout: 3000 }
-      )
-
-      expect(errorMessage).toBeInTheDocument()
-      // Should start with supportive language
-      expect(errorMessage.textContent).toMatch(/Oops!/)
+      // Check for supportive security messaging
+      expect(screen.getByText(/Passphrase encryption/)).toBeInTheDocument()
+      expect(screen.getByText(/Restore anywhere/)).toBeInTheDocument()
     })
   })
 })

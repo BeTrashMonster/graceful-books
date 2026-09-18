@@ -1099,3 +1099,167 @@ export async function writeBackupToFile(
 // Auto-mode encryption was removed because the key file was never reliably written
 // to the backup folder, making backups unrecoverable on other devices.
 // See HANDOFF.md for details on what would be required for unattended backups.
+
+// ============================================================================
+// Backup Rotation
+// ============================================================================
+
+/**
+ * Result of backup cleanup operation
+ */
+export interface BackupCleanupResult {
+  success: boolean;
+  totalBackups: number;
+  keptCount: number;
+  deletedCount: number;
+  deletedFiles: string[];
+  error?: string;
+}
+
+/**
+ * Clean old backups from the backup folder
+ *
+ * Implements a simple retention policy:
+ * - Keep the last 10 backups (most recent)
+ * - Delete everything older
+ *
+ * This is called automatically after each successful manual backup.
+ *
+ * @returns Promise resolving to cleanup result
+ *
+ * @example
+ * ```typescript
+ * const result = await cleanOldBackups();
+ * console.log(`Kept ${result.keptCount}, deleted ${result.deletedCount}`);
+ * ```
+ */
+export async function cleanOldBackups(): Promise<BackupCleanupResult> {
+  const KEEP_COUNT = 10;
+
+  try {
+    fileSystemLogger.info('Starting backup cleanup');
+
+    const dirHandle = await retrieveDirectoryHandle();
+    if (!dirHandle) {
+      fileSystemLogger.debug('No directory handle for cleanup');
+      return {
+        success: true,
+        totalBackups: 0,
+        keptCount: 0,
+        deletedCount: 0,
+        deletedFiles: [],
+      };
+    }
+
+    // Find all backup files (both new audacious-backup-* and legacy graceful-books-backup-*)
+    const backupFiles: Array<{ name: string; time: Date }> = [];
+
+    for await (const entry of dirHandle.values()) {
+      if (entry.kind === 'file' &&
+          (entry.name.startsWith('audacious-backup-') || entry.name.startsWith('graceful-books-backup-'))) {
+        const time = extractBackupTimestamp(entry.name);
+        if (time) {
+          backupFiles.push({ name: entry.name, time });
+        }
+      }
+    }
+
+    if (backupFiles.length <= KEEP_COUNT) {
+      fileSystemLogger.debug('Not enough backups to rotate', {
+        count: backupFiles.length,
+        keepCount: KEEP_COUNT,
+      });
+      return {
+        success: true,
+        totalBackups: backupFiles.length,
+        keptCount: backupFiles.length,
+        deletedCount: 0,
+        deletedFiles: [],
+      };
+    }
+
+    // Sort newest first
+    backupFiles.sort((a, b) => b.time.getTime() - a.time.getTime());
+
+    // Delete files beyond the keep count
+    const filesToDelete = backupFiles.slice(KEEP_COUNT);
+    const deletedFiles: string[] = [];
+
+    for (const file of filesToDelete) {
+      try {
+        await dirHandle.removeEntry(file.name);
+        deletedFiles.push(file.name);
+        fileSystemLogger.debug('Deleted old backup', { fileName: file.name });
+      } catch (error) {
+        fileSystemLogger.error('Failed to delete backup file', {
+          fileName: file.name,
+          error,
+        });
+      }
+    }
+
+    fileSystemLogger.info('Backup cleanup complete', {
+      total: backupFiles.length,
+      kept: KEEP_COUNT,
+      deleted: deletedFiles.length,
+    });
+
+    return {
+      success: true,
+      totalBackups: backupFiles.length,
+      keptCount: KEEP_COUNT,
+      deletedCount: deletedFiles.length,
+      deletedFiles,
+    };
+  } catch (error) {
+    fileSystemLogger.error('Failed to clean old backups', { error });
+    return {
+      success: false,
+      totalBackups: 0,
+      keptCount: 0,
+      deletedCount: 0,
+      deletedFiles: [],
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Extract timestamp from backup filename
+ *
+ * Handles both new and legacy filename formats:
+ * - audacious-backup-2026-09-09T19-30-00.encrypted (new)
+ * - audacious-backup-2026-09-09-193000.gbbackup (new alternate)
+ * - graceful-books-backup-2026-09-09T19-30-00.gbbackup (legacy)
+ *
+ * @param fileName - Backup filename
+ * @returns Date or null if invalid format
+ */
+function extractBackupTimestamp(fileName: string): Date | null {
+  // Match both new (audacious-backup-) and legacy (graceful-books-backup-) formats
+  const match = fileName.match(/(?:audacious|graceful-books)-backup-(.+)\.(?:encrypted|gbbackup)/);
+  if (!match) return null;
+
+  try {
+    // Replace hyphens in time portion back to colons
+    // Handle both T19-30-00 -> T19:30:00 and -193000 patterns
+    let timestamp = match[1];
+
+    // Pattern 1: *-backup-2026-09-09T19-30-00
+    if (timestamp.includes('T')) {
+      timestamp = timestamp.replace(/T(\d{2})-(\d{2})-(\d{2})/, 'T$1:$2:$3');
+    } else {
+      // Pattern 2: *-backup-2026-09-09-193000
+      const dateTimeParts = timestamp.match(/^(\d{4}-\d{2}-\d{2})-(\d{2})(\d{2})(\d{2})$/);
+      if (dateTimeParts) {
+        timestamp = `${dateTimeParts[1]}T${dateTimeParts[2]}:${dateTimeParts[3]}:${dateTimeParts[4]}`;
+      }
+    }
+
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return null;
+    return date;
+  } catch {
+    return null;
+  }
+}

@@ -16,6 +16,7 @@ import {
   getBackupDirectoryStatus,
   testDirectoryWriteAccess,
   writeBackupToFile,
+  cleanOldBackups,
   type BackupProgressCallback,
 } from './FileSystemBackup';
 import type { SecureBackupBundle } from './BackupEncryption';
@@ -1245,5 +1246,241 @@ describe('FileSystemBackup - Integration: Full Backup Flow with Write', () => {
     expect(writeResult.success).toBe(false);
     // Permission revocation causes retrieveDirectoryHandle to return null
     expect(writeResult.errorCode).toBe('VALIDATION_ERROR');
+  });
+});
+
+// ============================================================================
+// cleanOldBackups Tests
+// ============================================================================
+
+describe('FileSystemBackup - cleanOldBackups', () => {
+  // Track which files were deleted
+  let deletedFiles: string[] = [];
+  // Track files in the mock directory
+  let mockFiles: Array<{ name: string; kind: 'file' | 'directory' }> = [];
+
+  // Create a mock directory handle that can enumerate files and track deletions
+  class MockDirectoryHandleWithFiles {
+    name = 'BackupFolder';
+
+    async queryPermission(): Promise<PermissionState> {
+      return 'granted';
+    }
+
+    async requestPermission(): Promise<PermissionState> {
+      return 'granted';
+    }
+
+    async *values(): AsyncGenerator<{ name: string; kind: 'file' | 'directory' }> {
+      for (const file of mockFiles) {
+        yield file;
+      }
+    }
+
+    async removeEntry(name: string): Promise<void> {
+      deletedFiles.push(name);
+      mockFiles = mockFiles.filter(f => f.name !== name);
+    }
+  }
+
+  beforeEach(() => {
+    deletedFiles = [];
+    mockFiles = [];
+    mockIDBStorage = new Map();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  // Helper to create backup filename with specific date
+  function createBackupFilename(date: Date, legacy = false): string {
+    const prefix = legacy ? 'graceful-books-backup-' : 'audacious-backup-';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${prefix}${year}-${month}-${day}T${hours}-${minutes}-${seconds}.gbbackup`;
+  }
+
+  it('should delete oldest files when more than 10 exist, keeping 10 newest', async () => {
+    // Create 13 backup files with known dates
+    const baseDate = new Date('2026-09-01T12:00:00');
+    for (let i = 0; i < 13; i++) {
+      const date = new Date(baseDate);
+      date.setHours(date.getHours() + i); // Each file 1 hour apart
+      mockFiles.push({ name: createBackupFilename(date), kind: 'file' });
+    }
+
+    // Store mock handle
+    const mockHandle = new MockDirectoryHandleWithFiles();
+    mockIDBStorage.set('backup_directory', mockHandle);
+
+    // Call cleanOldBackups
+    const result = await cleanOldBackups();
+
+    // Should succeed
+    expect(result.success).toBe(true);
+    expect(result.totalBackups).toBe(13);
+    expect(result.keptCount).toBe(10);
+    expect(result.deletedCount).toBe(3);
+
+    // The 3 oldest should be deleted (hours 0, 1, 2)
+    expect(deletedFiles).toHaveLength(3);
+    expect(deletedFiles).toContain(createBackupFilename(new Date('2026-09-01T12:00:00')));
+    expect(deletedFiles).toContain(createBackupFilename(new Date('2026-09-01T13:00:00')));
+    expect(deletedFiles).toContain(createBackupFilename(new Date('2026-09-01T14:00:00')));
+
+    // The 10 newest should remain (hours 3-12)
+    expect(mockFiles).toHaveLength(10);
+    for (let i = 3; i < 13; i++) {
+      const date = new Date('2026-09-01T12:00:00');
+      date.setHours(date.getHours() + i);
+      const expectedName = createBackupFilename(date);
+      expect(mockFiles.some(f => f.name === expectedName)).toBe(true);
+    }
+  });
+
+  it('should never delete files that are not backup files', async () => {
+    // Create 13 backup files plus some non-backup files
+    const baseDate = new Date('2026-09-01T12:00:00');
+    for (let i = 0; i < 13; i++) {
+      const date = new Date(baseDate);
+      date.setHours(date.getHours() + i);
+      mockFiles.push({ name: createBackupFilename(date), kind: 'file' });
+    }
+
+    // Add non-backup files that should NEVER be deleted
+    mockFiles.push({ name: 'my-important-data.json', kind: 'file' });
+    mockFiles.push({ name: 'backup-settings.txt', kind: 'file' });
+    mockFiles.push({ name: 'notes.md', kind: 'file' });
+    mockFiles.push({ name: 'subfolder', kind: 'directory' });
+
+    // Store mock handle
+    const mockHandle = new MockDirectoryHandleWithFiles();
+    mockIDBStorage.set('backup_directory', mockHandle);
+
+    // Call cleanOldBackups
+    const result = await cleanOldBackups();
+
+    // Should only count and delete backup files
+    expect(result.totalBackups).toBe(13);
+    expect(result.deletedCount).toBe(3);
+
+    // Non-backup files should NOT be in the deleted list
+    expect(deletedFiles).not.toContain('my-important-data.json');
+    expect(deletedFiles).not.toContain('backup-settings.txt');
+    expect(deletedFiles).not.toContain('notes.md');
+    expect(deletedFiles).not.toContain('subfolder');
+
+    // Non-backup files should still exist
+    expect(mockFiles.some(f => f.name === 'my-important-data.json')).toBe(true);
+    expect(mockFiles.some(f => f.name === 'backup-settings.txt')).toBe(true);
+    expect(mockFiles.some(f => f.name === 'notes.md')).toBe(true);
+  });
+
+  it('should do nothing when fewer than 10 backup files exist', async () => {
+    // Create only 8 backup files
+    const baseDate = new Date('2026-09-01T12:00:00');
+    for (let i = 0; i < 8; i++) {
+      const date = new Date(baseDate);
+      date.setHours(date.getHours() + i);
+      mockFiles.push({ name: createBackupFilename(date), kind: 'file' });
+    }
+
+    // Store mock handle
+    const mockHandle = new MockDirectoryHandleWithFiles();
+    mockIDBStorage.set('backup_directory', mockHandle);
+
+    // Call cleanOldBackups
+    const result = await cleanOldBackups();
+
+    // Should succeed but delete nothing
+    expect(result.success).toBe(true);
+    expect(result.totalBackups).toBe(8);
+    expect(result.keptCount).toBe(8);
+    expect(result.deletedCount).toBe(0);
+    expect(deletedFiles).toHaveLength(0);
+
+    // All 8 files should remain
+    expect(mockFiles).toHaveLength(8);
+  });
+
+  it('should do nothing when exactly 10 backup files exist', async () => {
+    // Create exactly 10 backup files
+    const baseDate = new Date('2026-09-01T12:00:00');
+    for (let i = 0; i < 10; i++) {
+      const date = new Date(baseDate);
+      date.setHours(date.getHours() + i);
+      mockFiles.push({ name: createBackupFilename(date), kind: 'file' });
+    }
+
+    // Store mock handle
+    const mockHandle = new MockDirectoryHandleWithFiles();
+    mockIDBStorage.set('backup_directory', mockHandle);
+
+    // Call cleanOldBackups
+    const result = await cleanOldBackups();
+
+    // Should succeed but delete nothing
+    expect(result.success).toBe(true);
+    expect(result.totalBackups).toBe(10);
+    expect(result.keptCount).toBe(10);
+    expect(result.deletedCount).toBe(0);
+    expect(deletedFiles).toHaveLength(0);
+  });
+
+  it('should also rotate legacy graceful-books-backup-* files', async () => {
+    // Create a mix of new and legacy backup files (13 total)
+    const baseDate = new Date('2026-09-01T12:00:00');
+
+    // 7 legacy files (oldest)
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(baseDate);
+      date.setHours(date.getHours() + i);
+      mockFiles.push({ name: createBackupFilename(date, true), kind: 'file' }); // legacy = true
+    }
+
+    // 6 new files (newest)
+    for (let i = 7; i < 13; i++) {
+      const date = new Date(baseDate);
+      date.setHours(date.getHours() + i);
+      mockFiles.push({ name: createBackupFilename(date, false), kind: 'file' }); // legacy = false
+    }
+
+    // Store mock handle
+    const mockHandle = new MockDirectoryHandleWithFiles();
+    mockIDBStorage.set('backup_directory', mockHandle);
+
+    // Call cleanOldBackups
+    const result = await cleanOldBackups();
+
+    // Should delete 3 oldest (all legacy files)
+    expect(result.success).toBe(true);
+    expect(result.totalBackups).toBe(13);
+    expect(result.deletedCount).toBe(3);
+
+    // The 3 oldest legacy files should be deleted
+    expect(deletedFiles).toHaveLength(3);
+    expect(deletedFiles[0]).toMatch(/^graceful-books-backup-/);
+    expect(deletedFiles[1]).toMatch(/^graceful-books-backup-/);
+    expect(deletedFiles[2]).toMatch(/^graceful-books-backup-/);
+
+    // 4 legacy + 6 new = 10 should remain
+    expect(mockFiles).toHaveLength(10);
+  });
+
+  it('should return success with zero counts when no directory handle exists', async () => {
+    // Don't set up any mock handle
+    mockIDBStorage.clear();
+
+    const result = await cleanOldBackups();
+
+    expect(result.success).toBe(true);
+    expect(result.totalBackups).toBe(0);
+    expect(result.keptCount).toBe(0);
+    expect(result.deletedCount).toBe(0);
   });
 });

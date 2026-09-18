@@ -289,17 +289,18 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
               ⚠️
             </div>
 
-            <h2 className={styles.title}>Are you sure?</h2>
+            <h2 className={styles.title}>That's totally fine!</h2>
 
             <p className={styles.description}>
-              Without a backup folder configured, you could lose your financial data if your browser
-              clears its storage or something unexpected happens.
+              A backup folder is optional. Without one, your backups will download to your
+              Downloads folder instead - they work exactly the same way.
             </p>
 
-            <div className={styles.warningBox}>
-              <p className={styles.warningText}>
-                <strong>We really recommend setting this up.</strong> It only takes a moment,
-                and it gives you peace of mind knowing your data has a safe place to be stored.
+            <div className={styles.infoBox}>
+              <p className={styles.infoBoxText}>
+                <strong>The most important thing is your passphrase.</strong> You'll create one
+                when you make your first backup. That passphrase encrypts your data and lets you
+                restore on any device.
               </p>
             </div>
           </div>
