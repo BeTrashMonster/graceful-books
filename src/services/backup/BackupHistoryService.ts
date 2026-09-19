@@ -124,7 +124,8 @@ export async function loadBackupHistory(
     return sorted;
   } catch (error) {
     console.error('[BackupHistory] Failed to load history:', error);
-    return [];
+    // Re-throw so caller can display error to user
+    throw new Error('Unable to load backup history. Please try refreshing the page.');
   }
 }
 

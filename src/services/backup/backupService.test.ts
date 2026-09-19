@@ -201,6 +201,34 @@ describe('BackupService', () => {
       expect(parsed.encryptedData).toBeDefined();
     });
 
+    it('should produce valid encrypted bundle, NOT an error object', async () => {
+      // This test catches the bug where generateBackupBundle was called with
+      // wrong arguments and wrote an error object to the file instead of a backup.
+      // The error object looked like: { error: "...", message: "..." }
+      // A valid backup has: encryptedData, keyDerivationParams, statistics, etc.
+      const result = await BackupService.createBackup(testPassphrase);
+
+      expect(result.success).toBe(true);
+      expect(result.blob).toBeDefined();
+
+      const text = await readBlobAsText(result.blob!);
+      const parsed = JSON.parse(text);
+
+      // MUST have backup structure
+      expect(parsed.version).toBeDefined();
+      expect(parsed.encryptedData).toBeDefined();
+      expect(parsed.keyDerivationParams).toBeDefined();
+      expect(parsed.statistics).toBeDefined();
+      expect(parsed.createdAt).toBeDefined();
+
+      // MUST NOT be an error object
+      // (The old bug serialized error objects with these fields)
+      expect(parsed.error).toBeUndefined();
+      expect(parsed.message).toBeUndefined();
+      expect(parsed.stack).toBeUndefined();
+      expect(parsed.code).toBeUndefined();
+    });
+
     it('should handle database export errors gracefully', async () => {
       vi.mocked(db.exportAllData).mockRejectedValue(
         new Error('Database export failed')

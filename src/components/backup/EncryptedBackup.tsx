@@ -18,6 +18,11 @@ import { Input } from '../forms/Input';
 import { BackupService } from '../../services/backup/backupService';
 import { retrieveDirectoryHandle, cleanOldBackups } from '../../services/backup/FileSystemBackup';
 import { saveBackupToHistory } from '../../services/backup/BackupHistoryService';
+import {
+  computeMissingRecords,
+  getTableDisplayName,
+  type MissingRecordsSummary,
+} from '../../services/backup/backupDiff';
 import { db, type ComprehensiveStatistics } from '../../db';
 import type {
   BackupResult,
@@ -25,7 +30,9 @@ import type {
   BackupValidationResult,
   CompanyMismatchInfo,
   RestoreMode,
+  DecryptResult,
 } from '../../services/backup/backupService';
+import type { DatabaseExport } from '../../db';
 import {
   type BackupPreference,
   getKeyFingerprint,
@@ -101,6 +108,12 @@ export function EncryptedBackup({
   const [showMismatchDetails, setShowMismatchDetails] = useState(false);
   const [restoreComplete, setRestoreComplete] = useState(false);
   const [restoredRecordCount, setRestoredRecordCount] = useState(0);
+
+  // Preview state - decrypted data held in memory for restore reuse
+  const [isDecrypting, setIsDecrypting] = useState(false);
+  const [previewComplete, setPreviewComplete] = useState(false);
+  const decryptedDataRef = useRef<DatabaseExport | null>(null);
+  const [missingRecords, setMissingRecords] = useState<MissingRecordsSummary | null>(null);
 
   // Check if we're in dev mode (for handling missing companyId)
   const isDev = typeof window !== 'undefined' &&
@@ -200,6 +213,11 @@ export function EncryptedBackup({
     setShowMismatchDetails(false);
     setRestoreComplete(false);
     setRestoredRecordCount(0);
+    // Preview state - clear decrypted data from memory
+    setIsDecrypting(false);
+    setPreviewComplete(false);
+    decryptedDataRef.current = null;
+    setMissingRecords(null);
     // Don't reset passphrase mode selection - keep it for UX consistency
   };
 
@@ -276,6 +294,51 @@ export function EncryptedBackup({
       setIsProcessing(false); // Ensure processing state is cleared
       resetState();
       onClose();
+    }
+  };
+
+  /**
+   * Handle preview - decrypt backup and compute diff
+   */
+  const handlePreviewBackup = async () => {
+    if (!selectedFile || !passphrase) {
+      setError('Please select a backup file and enter your passphrase.');
+      return;
+    }
+
+    setIsDecrypting(true);
+    setError(null);
+
+    try {
+      backupLogger.info('Starting backup preview/decryption');
+
+      const result = await BackupService.decryptBackupOnly(selectedFile, passphrase);
+
+      if (!result.success || !result.data) {
+        setError(result.error || 'Failed to decrypt the backup. Please check your passphrase.');
+        setIsDecrypting(false);
+        return;
+      }
+
+      // Store decrypted data for reuse during restore
+      decryptedDataRef.current = result.data;
+      effectiveDecryptionKeyRef.current = passphrase;
+
+      // Compute missing records diff (filter by companyId if set)
+      const missing = await computeMissingRecords(result.data, companyId);
+      setMissingRecords(missing);
+
+      setPreviewComplete(true);
+      setIsDecrypting(false);
+
+      backupLogger.info('Preview complete', {
+        totalBackupRecords: result.statistics?.totalRecords,
+        totalMissing: missing.totalMissing,
+      });
+    } catch (err) {
+      backupLogger.error('Preview failed', err);
+      setError(err instanceof Error ? err.message : 'Failed to preview backup.');
+      setIsDecrypting(false);
     }
   };
 
@@ -631,9 +694,10 @@ export function EncryptedBackup({
         return;
       }
 
-      // CRITICAL: Require explicit confirmation if backup has fewer records than current database
-      if (hasFewerRecords() && !confirmDataLoss) {
-        setError('This backup contains fewer records than your current database. Please check the comparison below and confirm you want to proceed.');
+      // CRITICAL: Require preview OR explicit confirmation if backup has fewer records
+      // If preview is complete, user has seen exactly which records would be lost
+      if (hasFewerRecords() && !previewComplete && !confirmDataLoss) {
+        setError('This backup contains fewer records than your current database. Please preview the backup to see which records would be lost.');
         return;
       }
 
@@ -1096,46 +1160,112 @@ export function EncryptedBackup({
             <div className={styles.comparisonSection}>
               <h4>Data Comparison</h4>
 
-              {/* Plain-language summary of what will happen */}
+              {/* Plain-language summary - differs based on preview state */}
               {(() => {
-                const backupTotal = validationResult.backup.statistics.totalRecords ?? 0;
+                const backupStats = validationResult.backup.statistics;
+                const backupTotal = backupStats.totalRecords ?? 0;
                 const dbTotal = currentDbStats?.totalRecords ?? 0;
-                const diff = backupTotal - dbTotal;
+
+                // Check if this is SecureBackupBundle (all stats are zeros)
+                const isSecureBundle = backupStats.appVersion === 'SecureBackupBundle' ||
+                  (backupTotal === 0 && !backupStats.tableCounts);
 
                 if (currentDbStats === null) {
                   return <p className={styles.comparisonSummary}>Loading current database statistics...</p>;
                 }
 
+                // AFTER PREVIEW: Show detailed missing records
+                if (previewComplete && missingRecords) {
+                  if (missingRecords.totalMissing === 0) {
+                    return (
+                      <p className={styles.comparisonSummaryEqual}>
+                        <strong>All your current records are in this backup.</strong>
+                        {' '}Restoring is safe.
+                      </p>
+                    );
+                  }
+
+                  return (
+                    <div className={styles.comparisonSummaryNegative}>
+                      <p>
+                        <strong>
+                          {missingRecords.totalMissing} record{missingRecords.totalMissing !== 1 ? 's' : ''} on this device {missingRecords.totalMissing !== 1 ? 'are' : 'is'} not in this backup:
+                        </strong>
+                      </p>
+
+                      {Object.entries(missingRecords.byTable).map(([tableName, { total, shown }]) => (
+                        <div key={tableName} className={styles.missingRecordsTable}>
+                          <p className={styles.missingTableHeader}>
+                            {total} {getTableDisplayName(tableName)}:
+                          </p>
+                          <ul className={styles.missingRecordsList}>
+                            {shown.map(record => (
+                              <li key={record.id}>{record.displayText}</li>
+                            ))}
+                            {total > 5 && (
+                              <li className={styles.moreRecords}>(and {total - 5} more)</li>
+                            )}
+                          </ul>
+                        </div>
+                      ))}
+
+                      <div className={styles.actionGuidance}>
+                        <p>
+                          <strong>To keep these records:</strong> Cancel and create a new backup first.
+                          Then restore this backup — your current records will be saved in that new backup file.
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // BEFORE PREVIEW: SecureBackupBundle has no metadata
+                if (isSecureBundle) {
+                  return (
+                    <div className={styles.comparisonSummary}>
+                      <p>
+                        This backup is encrypted. Enter your passphrase and click <strong>Preview</strong> to
+                        see what it contains and compare with your current data.
+                      </p>
+                    </div>
+                  );
+                }
+
+                // BEFORE PREVIEW: Legacy format has approximate counts
+                const diff = backupTotal - dbTotal;
+
                 if (diff > 0) {
                   return (
-                    <p className={styles.comparisonSummaryPositive}>
-                      <strong>Restoring will add {diff} record{diff !== 1 ? 's' : ''} to this device.</strong>
-                      {' '}The backup contains more data than your current database.
-                    </p>
+                    <div className={styles.comparisonSummaryPositive}>
+                      <p>
+                        <strong>This backup appears to have {diff} more record{diff !== 1 ? 's' : ''} than your current data.</strong>
+                      </p>
+                      <p className={styles.tableBreakdown}>
+                        Click <strong>Preview</strong> after entering your passphrase to confirm.
+                      </p>
+                    </div>
                   );
                 } else if (diff < 0) {
                   const missing = Math.abs(diff);
                   return (
                     <div className={styles.comparisonSummaryNegative}>
                       <p>
-                        <strong>Warning: This backup has {missing} fewer record{missing !== 1 ? 's' : ''} than your current data.</strong>
+                        <strong>Warning: This backup appears to have {missing} fewer record{missing !== 1 ? 's' : ''} than your current data.</strong>
                       </p>
                       <p>
-                        Restoring will replace your current data. You have records that are not in this backup.
-                        <strong> Before proceeding:</strong>
+                        You must <strong>Preview</strong> this backup to see which records would be lost
+                        before restoring.
                       </p>
-                      <ul>
-                        <li>Create a backup of your current data first, or</li>
-                        <li>Select a different backup file that contains all your records</li>
-                      </ul>
                     </div>
                   );
                 } else {
                   return (
-                    <p className={styles.comparisonSummaryEqual}>
-                      <strong>This backup matches your current data.</strong>
-                      {' '}Both contain the same number of records.
-                    </p>
+                    <div className={styles.comparisonSummaryEqual}>
+                      <p>
+                        <strong>Record counts match.</strong>
+                        {' '}Click <strong>Preview</strong> to confirm all records are the same.
+                      </p>
+                    </div>
                   );
                 }
               })()}
@@ -1265,23 +1395,14 @@ export function EncryptedBackup({
               </table>
             </div>
 
-            {/* Warning if backup has fewer records than current database */}
-            {hasFewerRecords() && (
+            {/* Preview required notice - show when fewer records detected but preview not done */}
+            {hasFewerRecords() && !previewComplete && (
               <div className={styles.dataLossWarning}>
-                <strong>Warning: This backup contains fewer records than your current database!</strong>
+                <strong>Preview required before restore</strong>
                 <p>
-                  Restoring this backup will replace your current data. Please verify this is the
-                  correct backup file before proceeding.
+                  This backup appears to have fewer records than your current database.
+                  You must preview the backup to see which records would be lost.
                 </p>
-                <label className={styles.confirmCheckbox}>
-                  <input
-                    type="checkbox"
-                    checked={confirmDataLoss}
-                    onChange={(e) => setConfirmDataLoss(e.target.checked)}
-                    disabled={isProcessing}
-                  />
-                  <span>I understand that restoring will replace my current data with this backup</span>
-                </label>
               </div>
             )}
           </div>
@@ -1294,10 +1415,35 @@ export function EncryptedBackup({
           value={passphrase}
           onChange={(e) => setPassphrase(e.target.value)}
           placeholder="Enter your backup passphrase"
-          disabled={isProcessing || !selectedFile}
+          disabled={isProcessing || isDecrypting || !selectedFile}
           helperText="Enter the passphrase you used when creating this backup."
           required
         />
+
+        {/* Preview button - decrypt and show detailed comparison */}
+        {selectedFile && validationResult?.valid && passphrase && !previewComplete && (
+          <div className={styles.previewSection}>
+            <Button
+              variant="secondary"
+              onClick={handlePreviewBackup}
+              disabled={isProcessing || isDecrypting || !passphrase.trim()}
+              loading={isDecrypting}
+            >
+              {isDecrypting ? 'Decrypting backup — this takes a few seconds...' : 'Preview this backup'}
+            </Button>
+            <p className={styles.previewHint}>
+              Preview decrypts the backup to show exactly what will be restored.
+            </p>
+          </div>
+        )}
+
+        {/* Preview complete indicator */}
+        {previewComplete && (
+          <div className={styles.previewComplete}>
+            <span className={styles.previewCompleteIcon}>✓</span>
+            <span>Preview complete — ready to restore</span>
+          </div>
+        )}
       </div>
     </div>
     );
@@ -1342,7 +1488,12 @@ export function EncryptedBackup({
             <Button
               variant="primary"
               onClick={mode === 'backup' ? handleCreateBackup : handleRestoreBackup}
-              disabled={isProcessing}
+              disabled={
+                isProcessing ||
+                isDecrypting ||
+                // Require preview when restore mode and backup has fewer records
+                (mode === 'restore' && hasFewerRecords() && !previewComplete)
+              }
               loading={isProcessing}
             >
               {isProcessing
@@ -1351,6 +1502,8 @@ export function EncryptedBackup({
                   : 'Restoring...'
                 : mode === 'backup'
                 ? 'Create Encrypted Backup'
+                : hasFewerRecords() && !previewComplete
+                ? 'Preview Required'
                 : 'Restore from Backup'}
             </Button>
           </div>

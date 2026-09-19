@@ -791,7 +791,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       await db.cpgVendors.add({ id, ...vendor } as CPGVendor);
       console.log('Vendor saved to database:', id);
 
-      // Reload vendors
+      // Reload vendors to confirm write succeeded
       const vendorsList = await db.cpgVendors
         .where('company_id')
         .equals(companyId)
@@ -800,10 +800,18 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       setVendors(vendorsList);
       console.log('Vendors reloaded:', vendorsList.length, vendorsList.map(v => v.name));
 
+      // Only set vendor name AFTER confirming it's in the database
       setVendorName(name);
       console.log('Vendor name set in form:', name);
     } catch (error) {
+      // Surface error to user - do NOT add vendor to form if write failed
       console.error('Error creating vendor:', error);
+      setErrors(prev => ({
+        ...prev,
+        vendor: `Failed to create vendor "${name}". Please try again or select an existing vendor.`
+      }));
+      // Clear the vendor name so user doesn't think it was saved
+      setVendorName('');
     }
   };
 
@@ -872,23 +880,37 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-          <Autocomplete
-            label="Vendor Name"
-            placeholder="ex: ABC Supplies"
-            value={vendorName}
-            onChange={(value) => {
-              console.log('Vendor name changed to:', value);
-              setVendorName(value);
-            }}
-            onCreateNew={handleCreateVendor}
-            options={(() => {
-              const opts = vendors.map(v => ({ value: v.name, label: v.name }));
-              console.log('Vendor options for Autocomplete:', opts);
-              return opts;
-            })()}
-            allowCreate={true}
-            createPrompt="Create new vendor:"
-          />
+          <div>
+            <Autocomplete
+              label="Vendor Name"
+              placeholder="ex: ABC Supplies"
+              value={vendorName}
+              onChange={(value) => {
+                console.log('Vendor name changed to:', value);
+                setVendorName(value);
+                // Clear vendor error when user makes a change
+                if (errors.vendor) {
+                  setErrors(prev => {
+                    const { vendor, ...rest } = prev;
+                    return rest;
+                  });
+                }
+              }}
+              onCreateNew={handleCreateVendor}
+              options={(() => {
+                const opts = vendors.map(v => ({ value: v.name, label: v.name }));
+                console.log('Vendor options for Autocomplete:', opts);
+                return opts;
+              })()}
+              allowCreate={true}
+              createPrompt="Create new vendor:"
+            />
+            {errors.vendor && (
+              <p style={{ color: '#dc2626', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                {errors.vendor}
+              </p>
+            )}
+          </div>
 
           <Input
             label="Invoice Number"

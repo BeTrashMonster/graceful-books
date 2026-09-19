@@ -1658,10 +1658,20 @@ export function AddProductModal({
                                       version_vector: { [deviceId || 'default']: 1 }
                                     };
 
-                                    await db.cpgUnitConversions.add(newConversion);
-                                    setUnitConversions([...unitConversions, newConversion]);
-                                    setShowConversionInput({ ...showConversionInput, [key]: false });
-                                    setConversionValues({ ...conversionValues, [key]: { leftQty: '', leftUnit: '', rightQty: '', rightUnit: '' } });
+                                    try {
+                                      await db.cpgUnitConversions.add(newConversion);
+                                      // Only update UI state AFTER write succeeds
+                                      setUnitConversions([...unitConversions, newConversion]);
+                                      setShowConversionInput({ ...showConversionInput, [key]: false });
+                                      setConversionValues({ ...conversionValues, [key]: { leftQty: '', leftUnit: '', rightQty: '', rightUnit: '' } });
+                                    } catch (error) {
+                                      // Surface error to user - don't add conversion to list if write failed
+                                      console.error('Error saving unit conversion:', error);
+                                      setErrors(prev => ({
+                                        ...prev,
+                                        [`conversion_${key}`]: 'Failed to save conversion. Please try again.'
+                                      }));
+                                    }
                                   }}
                                   style={{
                                     padding: '0.5rem 1rem',

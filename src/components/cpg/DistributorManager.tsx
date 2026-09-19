@@ -47,6 +47,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
     oldFees: CPGDistributor['fee_structure'];
   } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'recent' | 'archived'>('name');
   const [archiveMessage, setArchiveMessage] = useState<string | null>(null);
@@ -998,6 +999,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
   const saveDistributorUpdate = async (distributorId: string, formData: DistributorFormData, feesChanged = false) => {
     if (!deviceId) return;
 
+    setSaveError(null);
     setIsSaving(true);
     try {
       const distributor = await db.cpgDistributors.get(distributorId);
@@ -1026,6 +1028,8 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
       loadDistributors();
     } catch (error) {
       console.error('Error saving distributor:', error);
+      setSaveError('Failed to save distributor. Your changes have not been saved. Please try again.');
+      // Keep modal open so user can retry - don't clear editingDistributor or pendingUpdate
     } finally {
       setIsSaving(false);
     }
@@ -1387,7 +1391,10 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
       {/* Edit Distributor Modal */}
       <Modal
         isOpen={!!editingDistributor}
-        onClose={() => setEditingDistributor(null)}
+        onClose={() => {
+          setEditingDistributor(null);
+          setSaveError(null);
+        }}
         title="Edit Distributor"
         size="xl"
         closeOnBackdropClick={false}
@@ -1397,11 +1404,26 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
           borderBottom: '3px solid #D4AF37',
         }}
       >
+        {saveError && (
+          <div style={{
+            padding: '0.75rem 1rem',
+            marginBottom: '1rem',
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fecaca',
+            borderRadius: '0.375rem',
+            color: '#991b1b',
+          }}>
+            {saveError}
+          </div>
+        )}
         {editingDistributor && (
           <DistributorProfileForm
             distributor={editingDistributor}
             onSubmit={handleEditSubmit}
-            onCancel={() => setEditingDistributor(null)}
+            onCancel={() => {
+              setEditingDistributor(null);
+              setSaveError(null);
+            }}
             loading={isSaving}
           />
         )}

@@ -298,9 +298,9 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
 
             <div className={styles.infoBox}>
               <p className={styles.infoBoxText}>
-                <strong>The most important thing is your passphrase.</strong> You'll create one
-                when you make your first backup. That passphrase encrypts your data and lets you
-                restore on any device.
+                You'll create a backup passphrase when you make your first backup. It encrypts your
+                data and lets you restore on any device — and we can't recover it if you lose it,
+                so keep it somewhere safe.
               </p>
             </div>
           </div>
@@ -330,11 +330,12 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
               ✓
             </div>
 
-            <h2 className={styles.title}>All Set!</h2>
+            <h2 className={styles.title}>Folder Selected</h2>
 
             <p className={styles.description}>
-              Your backup location has been saved. You can create backups from the Settings
-              page whenever you need them.
+              Your backup folder is ready. To protect your data, go to Settings and click
+              "Backup Now" to create your first backup. You'll choose a passphrase that
+              encrypts your data.
             </p>
 
             <div className={styles.successBox}>
@@ -351,7 +352,8 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
 
             <div className={styles.infoBox}>
               <p className={styles.infoBoxText}>
-                You can change this location anytime in Settings.
+                Your passphrase lets you restore on any device — and we can't recover it if
+                you lose it, so keep it somewhere safe.
               </p>
             </div>
           </div>
@@ -386,16 +388,19 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
 
           <div className={styles.features}>
             <div className={styles.feature}>
-              <span className={styles.featureText}>
-                Passphrase-protected encryption (only you know your passphrase)
-              </span>
-            </div>
-            <div className={styles.feature}>
               <span className={styles.featureText}>Your data stays on your computer</span>
             </div>
             <div className={styles.feature}>
               <span className={styles.featureText}>You're always in control</span>
             </div>
+          </div>
+
+          <div className={styles.infoBox}>
+            <p className={styles.infoBoxText}>
+              You'll create a backup passphrase when you make your first backup. It encrypts your
+              data and lets you restore on any device — and we can't recover it if you lose it,
+              so keep it somewhere safe.
+            </p>
           </div>
 
           <div className={styles.tipBox}>

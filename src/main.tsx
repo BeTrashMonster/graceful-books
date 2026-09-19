@@ -8,34 +8,15 @@ import './utils/devReset'
 import './utils/clearCPGData'
 import './utils/cpg/cleanupDistributorsConsole'
 
-// Handle chunk load failures (from deployments while user is active)
-// This catches "Failed to fetch dynamically imported module" errors
-window.addEventListener('error', (event) => {
-  if (event.message?.includes('Failed to fetch dynamically imported module')) {
-    console.warn('⚠️ Detected stale code after deployment. Reloading page...');
-    // Clear cache and reload
-    if ('caches' in window) {
-      caches.keys().then(names => {
-        names.forEach(name => caches.delete(name));
-      });
-    }
-    window.location.reload();
-  }
-});
+// Initialize global error handlers BEFORE React renders
+// This catches unhandled errors, promise rejections, and stale module errors
+import { initGlobalErrorHandlers } from './services/globalErrorHandler'
+initGlobalErrorHandlers();
 
-// Also handle unhandled promise rejections from dynamic imports
-window.addEventListener('unhandledrejection', (event) => {
-  if (event.reason?.message?.includes('Failed to fetch dynamically imported module')) {
-    console.warn('⚠️ Detected stale code after deployment. Reloading page...');
-    event.preventDefault(); // Prevent error from showing in console
-    if ('caches' in window) {
-      caches.keys().then(names => {
-        names.forEach(name => caches.delete(name));
-      });
-    }
-    window.location.reload();
-  }
-});
+// Request durable storage to prevent IndexedDB eviction under storage pressure
+// Called once; result cached in localStorage for DataSafetyPanel to display
+import { initStoragePersistence } from './services/storagePersistence'
+initStoragePersistence();
 
 const rootElement = document.getElementById('root')
 

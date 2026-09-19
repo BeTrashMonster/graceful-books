@@ -83,15 +83,13 @@ sessionStorage.setItem('graceful_books_session', JSON.stringify({
 
 **Fix:** Now dynamic — iterates `db.tables`, 82 exported, 12 excluded with documented reasons. Test asserts every table is either exported or explicitly excluded.
 
-### 2. Auto-Backup Key Was Derivable
+### 2. Derivable Key Vulnerability — FIXED
 Key was `SHA-256("audacious-money-backup:${userId}:stable-v1")` — derivable from a value our server holds.
 
-**Fix:** Now fully replaced with random-key system in ALL backup paths:
-- `EncryptedBackup.tsx` — Modal path, uses backupPreferences (auto-key or sentinel)
-- `SmartAutoBackupService.ts` — Auto-backup path, now reads from folder/IndexedDB, generates on first use
-- `DataSafetyPanel.tsx` — "Backup Now" button now opens EncryptedBackup modal instead of raw prompt()
-
-**AUDIT NOTE (2026-09-13):** SmartAutoBackupService.ts was marked "being replaced" but the old derivable key code (`audacious-money-backup:${userId}:stable-v1`) was still live at line 498. Now fixed.
+**Fix:** Auto-mode removed entirely. All backups now use manual passphrase with sentinel verification:
+- `EncryptedBackup.tsx` — Single backup path, uses passphrase verified against encrypted sentinel
+- `DataSafetyPanel.tsx` — "Backup Now" button opens EncryptedBackup modal (no more raw prompt())
+- `SmartAutoBackupService.ts` — Auto-backup disabled; requires passphrase caching design that doesn't exist
 
 ### 3. Restore UI Was Dead Code
 `EncryptedBackup.tsx` existed but was never imported anywhere.
@@ -109,8 +107,7 @@ No way to see what restore would do.
 **Fix:** Comparison table shows backup vs current DB counts, warns on ANY reduction.
 
 ### 6. Passphrase Model
-**Auto mode:** Uses a random key stored in the backup folder (or IndexedDB fallback).
-**Manual mode:** Uses a user passphrase verified by an encrypted sentinel. The passphrase itself is NOT stored.
+**Manual mode only.** Auto-mode was removed entirely — the random-key-in-folder approach added complexity without clear UX benefit. All backups now use a user passphrase verified by an encrypted sentinel. The passphrase itself is NOT stored.
 
 ### 7. Argon2id Was Never Loading — FIXED (DEV AND PRODUCTION)
 `argon2-browser` was in package.json but never imported — everything silently fell back to PBKDF2.
@@ -188,7 +185,6 @@ The test was rewritten with:
 4. Removed `balance` field from factory → TypeScript compile error (proof of compile-time safety)
 
 ### c) Tests for New Paths ✅ DONE
-All tests exist and pass:
 
 **Sentinel tests** (`backupPreferences.schema.test.ts`): 17/17 passed
 - ✅ Manual mode: correct passphrase decrypts sentinel, backup proceeds
@@ -196,43 +192,20 @@ All tests exist and pass:
 - ✅ Wrong/similar/empty passphrases all correctly rejected
 - ✅ Corrupted ciphertext/IV/salt all correctly rejected
 
-**Folder-key tests** (`FileSystemBackup.test.ts`): 44/67 passed
-- ✅ Auto mode: Key file written to backup folder
-- ✅ Auto mode: folder write failure fails loudly (no silent IndexedDB fallback)
-- ✅ Auto mode: restore from folder key (implementation verified, mock needs work)
-- Note: 23 failures are IndexedDB mock issues (mock doesn't persist across transactions), not implementation bugs
-
 **Confirm:** `stored_passphrase` no longer exists anywhere in the codebase ✅
 
-### d) Confirm Random Key Generation ✅ DONE
-**Location:** `src/db/schema/backupPreferences.schema.ts:149-153`
+*Note: Auto-mode folder-key tests removed — auto-mode was removed entirely.*
 
-```typescript
-export function generateAutoBackupKey(): string {
-  const keyBytes = new Uint8Array(32) // 256 bits
-  crypto.getRandomValues(keyBytes)
-  return btoa(String.fromCharCode(...keyBytes))
-}
-```
+### d) Backup Now Path ✅ DONE
 
-**Answer:** It IS `crypto.getRandomValues(new Uint8Array(32))` — full 256-bit entropy, NOT 32 chars from an alphabet (which would only be ~190 bits).
+**Root cause of original bug:** DataSafetyPanel's "Backup Now" used a raw browser `prompt()` for passphrase, bypassing the preference system entirely.
 
-### e) Auto-Mode Key File Investigation ✅ RESOLVED
+**Fix:** "Backup Now" now opens `EncryptedBackup` modal, which:
+- Creates sentinel on first backup (for passphrase verification)
+- Verifies passphrase against sentinel on subsequent backups
+- Never stores the passphrase itself
 
-**Root cause found (2026-09-13):** `backupPreferences` was EMPTY (scenario c).
-
-The `.gbbackup` files were created via DataSafetyPanel's "Backup Now" button, which used a raw browser `prompt()` for passphrase — completely bypassing the preference system. Each backup could have a different passphrase with no record of which.
-
-**Fixes applied:**
-1. `DataSafetyPanel.tsx` — "Backup Now" now opens `EncryptedBackup` modal instead of `prompt()`
-2. `SmartAutoBackupService.ts` — Replaced derivable key with random-key system that reads from folder/IndexedDB
-3. `EncryptedBackup.tsx` — Added `onBackupComplete` callback prop
-
-**All backup paths now use the unified preference system:**
-- First backup triggers mode selection (auto vs manual)
-- Auto mode: generates random key, writes to folder (authoritative) + IndexedDB (fallback)
-- Manual mode: creates sentinel for passphrase verification, never stores passphrase
-- Subsequent backups verify against stored preference
+**Test:** `BackupHistoryService.test.ts` verifies history filtering; backup creation path tested via round-trip tests.
 
 ### f) Rotation Pattern Fix ✅ DONE
 
@@ -276,6 +249,17 @@ Please try a different browser or check your Content Security Policy settings.
 **Fix:** `BackupHistoryService.ts:loadBackupHistory()` now filters:
 - Only `.gbbackup` extension (not `.json`)
 - Minimum size: 1KB (smaller files are corrupt error-JSON)
+
+**Test:** `BackupHistoryService.test.ts` — verifies .json and sub-1KB files are filtered out.
+
+---
+
+## Known Test Gaps
+
+### Argon2 Failure Path (requireArgon2: true)
+When Argon2 WASM fails to load, new backups should hard-fail (not silently fall back to PBKDF2). The `requireArgon2` option exists and is passed, but the failure path is not tested — simulating WASM unavailability in tests is complex.
+
+**Mitigation:** Production E2E test (`kdf-argon2-production.spec.ts`) proves Argon2 loads and is used. If it ever fails silently, that test catches it.
 
 ---
 

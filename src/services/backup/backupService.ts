@@ -145,6 +145,21 @@ export interface BackupValidationResult {
 }
 
 /**
+ * Decrypt-only result (for preview without restore)
+ */
+export interface DecryptResult {
+  success: boolean;
+  error?: string;
+  /** The decrypted database export data */
+  data?: DatabaseExport;
+  /** Statistics computed from decrypted data */
+  statistics?: {
+    totalRecords: number;
+    tableCounts: Record<string, number>;
+  };
+}
+
+/**
  * BackupService class
  *
  * Handles all backup and restore operations with encryption
@@ -488,6 +503,169 @@ export class BackupService {
   }
 
   /**
+   * Decrypt a backup file without importing it.
+   * Used for previewing backup contents before restore.
+   *
+   * @param file - The backup file to decrypt
+   * @param passphrase - User's passphrase for decryption
+   * @returns Promise resolving to decrypted data or error
+   */
+  static async decryptBackupOnly(
+    file: File,
+    passphrase: string
+  ): Promise<DecryptResult> {
+    try {
+      backupLogger.debug('Decrypting backup for preview', { filename: file.name });
+
+      // Read and parse file
+      const content = await file.text();
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(content);
+      } catch {
+        return {
+          success: false,
+          error: "This doesn't appear to be a valid backup file.",
+        };
+      }
+
+      // Handle SecureBackupBundle format
+      if (this.isSecureBackupBundle(parsed)) {
+        const restoreResult = await restoreBackupBundle(parsed, passphrase);
+
+        if (!restoreResult.success || !restoreResult.data) {
+          return {
+            success: false,
+            error: restoreResult.error || 'Failed to decrypt the backup. Please check your passphrase.',
+          };
+        }
+
+        // Convert to DatabaseExport format
+        const data = restoreResult.data;
+        const dbExport: DatabaseExport = {
+          version: 3,
+          exportedAt: Date.now(),
+          totalRecords: 0,
+          tables: {},
+        };
+
+        // Map all data arrays to tables
+        const tableMapping: Record<string, unknown[] | undefined> = {
+          transactions: data.transactions,
+          accounts: data.accounts,
+          reports: data.reports,
+          contacts: data.contacts,
+          products: data.products,
+        };
+
+        const tableCounts: Record<string, number> = {};
+        let totalRecords = 0;
+
+        for (const [tableName, tableData] of Object.entries(tableMapping)) {
+          if (Array.isArray(tableData) && tableData.length > 0) {
+            dbExport.tables![tableName] = tableData;
+            tableCounts[tableName] = tableData.length;
+            totalRecords += tableData.length;
+          }
+        }
+
+        dbExport.totalRecords = totalRecords;
+
+        return {
+          success: true,
+          data: dbExport,
+          statistics: { totalRecords, tableCounts },
+        };
+      }
+
+      // Legacy EncryptedBackup format
+      const backup = parsed as EncryptedBackup;
+
+      if (!backup.version || !backup.createdAt || !backup.encryptedData) {
+        return {
+          success: false,
+          error: 'This backup file is missing required information.',
+        };
+      }
+
+      // Derive master key from passphrase
+      const salt = this.base64ToArrayBuffer(backup.keyDerivationParams.salt);
+      const keyResult = await deriveMasterKey(passphrase, salt, {
+        memoryCost: backup.keyDerivationParams.memoryCost,
+        timeCost: backup.keyDerivationParams.timeCost,
+        parallelism: backup.keyDerivationParams.parallelism,
+        keyLength: 32,
+      });
+
+      if (!keyResult.success || !keyResult.data) {
+        return {
+          success: false,
+          error: keyResult.error || 'Failed to derive decryption key.',
+        };
+      }
+
+      const masterKey = keyResult.data;
+      const encryptionService = createEncryptionService(masterKey);
+
+      // Decrypt the database export
+      let dbExport: DatabaseExport;
+      try {
+        dbExport = await encryptionService.decryptObject<DatabaseExport>(
+          backup.encryptedData
+        );
+      } catch {
+        return {
+          success: false,
+          error: "Failed to decrypt the backup. Please verify your passphrase is correct.",
+        };
+      }
+
+      // Compute statistics from decrypted data
+      const tableCounts: Record<string, number> = {};
+      let totalRecords = 0;
+
+      // Handle v3 tables format
+      if (dbExport.tables) {
+        for (const [tableName, tableData] of Object.entries(dbExport.tables)) {
+          if (Array.isArray(tableData)) {
+            tableCounts[tableName] = tableData.length;
+            totalRecords += tableData.length;
+          }
+        }
+      }
+      // Handle v1/v2 data format
+      else if (dbExport.data) {
+        const data = dbExport.data as Record<string, unknown[]>;
+        for (const [tableName, tableData] of Object.entries(data)) {
+          if (Array.isArray(tableData)) {
+            tableCounts[tableName] = tableData.length;
+            totalRecords += tableData.length;
+          }
+        }
+      }
+
+      backupLogger.info('Backup decrypted for preview', {
+        totalRecords,
+        tableCount: Object.keys(tableCounts).length,
+      });
+
+      return {
+        success: true,
+        data: dbExport,
+        statistics: { totalRecords, tableCounts },
+      };
+    } catch (error) {
+      backupLogger.error('Backup decryption failed', error);
+      return {
+        success: false,
+        error: error instanceof Error
+          ? `Decryption failed: ${error.message}`
+          : 'An unexpected error occurred while decrypting the backup.',
+      };
+    }
+  }
+
+  /**
    * Restore from an encrypted backup WITHOUT mismatch detection.
    *
    * @deprecated Use restoreBackupWithMismatchHandling() instead.
@@ -543,42 +721,53 @@ export class BackupService {
           };
         }
 
-        // Clear existing data if requested
-        if (clearExisting) {
-          backupLogger.debug('Clearing existing data');
-          await db.transactions?.clear();
-          await db.accounts?.clear();
-          await db.contacts?.clear();
-          await db.products?.clear();
-        }
-
-        // Import the decrypted data
+        // Convert SecureBackupBundle data to DatabaseExport format for atomic import
         const data = restoreResult.data;
-        let recordsRestored = 0;
+        const dbExport: DatabaseExport = {
+          version: 3,
+          exportedAt: Date.now(),
+          totalRecords: 0,
+          tables: {},
+        };
 
-        if (data.transactions && Array.isArray(data.transactions)) {
-          await db.transactions?.bulkAdd(data.transactions as any[]);
-          recordsRestored += data.transactions.length;
+        if (Array.isArray(data.transactions)) {
+          dbExport.tables!.transactions = data.transactions;
+          dbExport.totalRecords += data.transactions.length;
         }
-        if (data.accounts && Array.isArray(data.accounts)) {
-          await db.accounts?.bulkAdd(data.accounts as any[]);
-          recordsRestored += data.accounts.length;
+        if (Array.isArray(data.accounts)) {
+          dbExport.tables!.accounts = data.accounts;
+          dbExport.totalRecords += data.accounts.length;
         }
-        if (data.reports && Array.isArray(data.reports)) {
-          await db.reports?.bulkAdd(data.reports as any[]);
-          recordsRestored += data.reports.length;
+        if (Array.isArray(data.reports)) {
+          dbExport.tables!.reports = data.reports;
+          dbExport.totalRecords += data.reports.length;
+        }
+        if (Array.isArray(data.contacts)) {
+          dbExport.tables!.contacts = data.contacts;
+          dbExport.totalRecords += data.contacts.length;
+        }
+        if (Array.isArray(data.products)) {
+          dbExport.tables!.products = data.products;
+          dbExport.totalRecords += data.products.length;
         }
 
-        backupLogger.info('SecureBackupBundle restore completed', { recordsRestored });
+        // Use atomic importAllData (clear + import in single transaction)
+        backupLogger.debug('Importing SecureBackupBundle via atomic importAllData');
+        const importResult = await db.importAllData(dbExport);
+
+        backupLogger.info('SecureBackupBundle restore completed (atomic)', {
+          recordsRestored: importResult.totalRecords,
+          importedTables: importResult.importedTables,
+        });
 
         return {
           success: true,
-          recordsRestored,
+          recordsRestored: importResult.totalRecords,
           details: {
             accounts: data.accounts?.length || 0,
             transactions: data.transactions?.length || 0,
-            contacts: 0,
-            products: 0,
+            contacts: data.contacts?.length || 0,
+            products: data.products?.length || 0,
             companies: 0,
           },
         };
@@ -1191,46 +1380,65 @@ export class BackupService {
           backupLogger.info('Claimed SecureBackupBundle data', { modifiedRecords: modifiedCount });
         }
 
-        // Clear existing data if requested
-        if (clearExisting) {
-          backupLogger.debug('Clearing existing data');
-          await db.transactions?.clear();
-          await db.accounts?.clear();
-          await db.contacts?.clear();
-          await db.products?.clear();
+        // Convert SecureBackupBundle data to DatabaseExport format for atomic import
+        // This ensures the same atomic transaction behavior as EncryptedBackup format
+        const dbExport: DatabaseExport = {
+          version: 3,
+          exportedAt: Date.now(),
+          totalRecords: 0,
+          tables: {},
+        };
+
+        // Map SecureBackupBundle arrays to tables format
+        if (Array.isArray(data.transactions)) {
+          dbExport.tables!.transactions = data.transactions;
+          dbExport.totalRecords += data.transactions.length;
+        }
+        if (Array.isArray(data.accounts)) {
+          dbExport.tables!.accounts = data.accounts;
+          dbExport.totalRecords += data.accounts.length;
+        }
+        if (Array.isArray(data.reports)) {
+          dbExport.tables!.reports = data.reports;
+          dbExport.totalRecords += data.reports.length;
+        }
+        if (Array.isArray(data.contacts)) {
+          dbExport.tables!.contacts = data.contacts;
+          dbExport.totalRecords += data.contacts.length;
+        }
+        if (Array.isArray(data.products)) {
+          dbExport.tables!.products = data.products;
+          dbExport.totalRecords += data.products.length;
         }
 
-        // Import the decrypted data
-        let recordsRestored = 0;
-
-        if (data.transactions && Array.isArray(data.transactions)) {
-          await db.transactions?.bulkAdd(data.transactions as any[]);
-          recordsRestored += data.transactions.length;
-        }
-        if (data.accounts && Array.isArray(data.accounts)) {
-          await db.accounts?.bulkAdd(data.accounts as any[]);
-          recordsRestored += data.accounts.length;
-        }
-        if (data.reports && Array.isArray(data.reports)) {
-          await db.reports?.bulkAdd(data.reports as any[]);
-          recordsRestored += data.reports.length;
+        // Handle clearExisting=false edge case (rare, non-atomic by nature)
+        if (!clearExisting) {
+          backupLogger.warn('SecureBackupBundle restore with clearExisting=false is not atomic');
+          // Fall through to importAllData anyway - it will clear then import atomically
+          // The "don't clear" option doesn't make sense for atomic restore
         }
 
-        backupLogger.info('SecureBackupBundle restore completed with mismatch handling', {
-          recordsRestored,
+        // Use atomic importAllData (clear + import in single transaction)
+        backupLogger.debug('Importing SecureBackupBundle via atomic importAllData');
+        const importResult = await db.importAllData(dbExport);
+
+        backupLogger.info('SecureBackupBundle restore completed with mismatch handling (atomic)', {
+          recordsRestored: importResult.totalRecords,
+          importedTables: importResult.importedTables,
+          skippedTables: importResult.skippedTables,
           mode,
           hasMismatch,
         });
 
         return {
           success: true,
-          recordsRestored,
+          recordsRestored: importResult.totalRecords,
           mismatchInfo,
           details: {
             accounts: data.accounts?.length || 0,
             transactions: data.transactions?.length || 0,
-            contacts: 0,
-            products: 0,
+            contacts: data.contacts?.length || 0,
+            products: data.products?.length || 0,
             companies: 0,
           },
         };

@@ -260,6 +260,20 @@
   margin: 0.25rem 0;
 }
 
+.comparisonSummaryPositive p {
+  margin: 0 0 0.5rem 0;
+}
+
+.comparisonSummaryPositive p:last-child {
+  margin-bottom: 0;
+}
+
+.tableBreakdown {
+  font-size: 0.813rem;
+  font-style: italic;
+  opacity: 0.9;
+}
+
 .comparisonTable {
   width: 100%;
   border-collapse: collapse;
@@ -347,6 +361,85 @@
   font-size: 0.875rem;
   color: var(--color-red-800, #991b1b);
   font-weight: 500;
+}
+
+/* Preview section */
+.previewSection {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--color-gray-50, #f9fafb);
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.previewHint {
+  margin: 0;
+  font-size: 0.813rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.previewComplete {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-green-50, #f0fdf4);
+  border: 1px solid var(--color-green-200, #bbf7d0);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-green-800, #166534);
+}
+
+.previewCompleteIcon {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Missing records display */
+.missingRecordsTable {
+  margin: 0.75rem 0;
+}
+
+.missingTableHeader {
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.missingRecordsList {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.813rem;
+  line-height: 1.6;
+}
+
+.missingRecordsList li {
+  margin: 0.125rem 0;
+}
+
+.moreRecords {
+  font-style: italic;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.actionGuidance {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: var(--color-blue-50, #eff6ff);
+  border: 1px solid var(--color-blue-200, #bfdbfe);
+  border-radius: 0.375rem;
+}
+
+.actionGuidance p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-blue-800, #1e40af);
+  line-height: 1.5;
 }
 
 /* Responsive adjustments */

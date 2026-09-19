@@ -2933,10 +2933,6 @@ export class TreasureChestDB extends Dexie {
 
     dbLogger.info('Starting database import', { version: backup.version });
 
-    const importedTables: string[] = [];
-    const skippedTables: string[] = [];
-    let totalRecords = 0;
-
     // Build a unified tables map from any version
     const tablesToImport: Record<string, unknown[]> = {};
 
@@ -2964,67 +2960,85 @@ export class TreasureChestDB extends Dexie {
     // Get list of known tables in this database
     const knownTableNames = new Set(this.tables.map((t) => t.name));
 
-    // First pass: Clear all tables that will receive data
-    const tablesToClear: string[] = [];
+    // Determine which tables from backup exist in current DB
+    const validTableNames: string[] = [];
+    const skippedTables: string[] = [];
+
     for (const tableName of Object.keys(tablesToImport)) {
       if (knownTableNames.has(tableName)) {
-        tablesToClear.push(tableName);
-      }
-    }
-
-    dbLogger.debug('Clearing tables for import', { tables: tablesToClear });
-    for (const tableName of tablesToClear) {
-      try {
-        await this.table(tableName).clear();
-      } catch (err) {
-        dbLogger.warn(`Failed to clear table: ${tableName}`, { error: err });
-      }
-    }
-
-    // Second pass: Import data into each table
-    for (const [tableName, data] of Object.entries(tablesToImport)) {
-      if (!Array.isArray(data) || data.length === 0) {
-        continue; // Skip empty arrays
-      }
-
-      // Check if this table exists in current database
-      if (!knownTableNames.has(tableName)) {
+        validTableNames.push(tableName);
+      } else {
         dbLogger.warn(`Skipping unknown table from backup: ${tableName}`, {
-          records: data.length,
+          records: (tablesToImport[tableName] as unknown[])?.length || 0,
         });
         skippedTables.push(tableName);
-        continue;
-      }
-
-      // Import data
-      try {
-        const table = this.table(tableName);
-        await table.bulkAdd(data as any[]);
-        importedTables.push(tableName);
-        totalRecords += data.length;
-        dbLogger.debug(`Imported table: ${tableName}`, { records: data.length });
-      } catch (err) {
-        dbLogger.error(`Failed to import table: ${tableName}`, { error: err });
-        skippedTables.push(tableName);
       }
     }
 
-    // Log summary
-    dbLogger.info('Database import complete', {
-      importedTables: importedTables.length,
-      skippedTables: skippedTables.length,
-      totalRecords,
-    });
+    if (validTableNames.length === 0) {
+      dbLogger.warn('No valid tables to import from backup');
+      return { importedTables: [], skippedTables, totalRecords: 0 };
+    }
 
-    // Warn user if tables were skipped
-    if (skippedTables.length > 0) {
-      dbLogger.warn('Some tables from backup were skipped', {
-        skippedTables,
-        reason: 'Tables not recognized by current database version',
+    dbLogger.debug('Tables to import (atomic transaction)', { tables: validTableNames });
+
+    // ATOMIC RESTORE: Wrap clear + import in a single Dexie transaction
+    // If ANY operation fails, the entire transaction rolls back and
+    // the user's existing data remains untouched.
+    const importedTables: string[] = [];
+    let totalRecords = 0;
+
+    try {
+      // Get Table objects for all tables we'll touch (required by Dexie transaction)
+      const tableObjects = validTableNames.map((name) => this.table(name));
+
+      await this.transaction('rw', tableObjects, async () => {
+        // Phase 1: Clear all tables that will receive data
+        for (const tableName of validTableNames) {
+          await this.table(tableName).clear();
+          dbLogger.debug(`Cleared table: ${tableName}`);
+        }
+
+        // Phase 2: Import data into each table
+        for (const tableName of validTableNames) {
+          const data = tablesToImport[tableName];
+          if (!Array.isArray(data) || data.length === 0) {
+            continue; // Skip empty arrays
+          }
+
+          await this.table(tableName).bulkAdd(data as object[]);
+          importedTables.push(tableName);
+          totalRecords += data.length;
+          dbLogger.debug(`Imported table: ${tableName}`, { records: data.length });
+        }
       });
-    }
 
-    return { importedTables, skippedTables, totalRecords };
+      // Log summary (only reached if transaction committed successfully)
+      dbLogger.info('Database import complete (atomic)', {
+        importedTables: importedTables.length,
+        skippedTables: skippedTables.length,
+        totalRecords,
+      });
+
+      if (skippedTables.length > 0) {
+        dbLogger.warn('Some tables from backup were skipped', {
+          skippedTables,
+          reason: 'Tables not recognized by current database version',
+        });
+      }
+
+      return { importedTables, skippedTables, totalRecords };
+    } catch (err) {
+      // Transaction failed and rolled back - user's data is intact
+      dbLogger.error('Database import failed - transaction rolled back, existing data preserved', {
+        error: err,
+        attemptedTables: validTableNames,
+      });
+      throw new Error(
+        `Restore failed: ${err instanceof Error ? err.message : 'Unknown error'}. ` +
+        `Your existing data has NOT been modified.`
+      );
+    }
   }
 
   /**
@@ -3288,6 +3302,16 @@ export async function initializeDatabase(): Promise<void> {
     // Open the database
     await db.open();
     dbLogger.info('TreasureChest database initialized successfully');
+
+    // Register Dexie event handlers for multi-tab scenarios
+    // Must be done AFTER db.open() succeeds to avoid construction errors
+    try {
+      const { initDexieErrorHandlers } = await import('../services/globalErrorHandler');
+      initDexieErrorHandlers(db);
+    } catch (handlerError) {
+      // Don't crash the app if handler registration fails
+      dbLogger.warn('Failed to register Dexie error handlers', handlerError);
+    }
 
     // Clean up expired sessions on startup
     const cleanedSessions = await db.cleanupExpiredSessions();
