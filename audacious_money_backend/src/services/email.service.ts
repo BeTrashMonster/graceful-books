@@ -590,6 +590,7 @@ export async function sendAccountDeletedEmail(
   await client.sendEmail({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
+    ReplyTo: 'hello@audacious.money',
     Subject: 'Your Audacious Money account has been deleted',
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
@@ -607,9 +608,9 @@ export async function sendAccountDeletedEmail(
         </div>
 
         <h3>Important Notes</h3>
-        <p><strong>Financial Records:</strong> In accordance with legal requirements, certain financial transaction records may be retained for 7 years as required by accounting standards.</p>
+        <p><strong>What We Retain:</strong> A record of this deletion (your email and deletion date) is kept in our audit log for 7 years for legal compliance.</p>
         <p><strong>Local Data:</strong> Any data stored locally on your device has not been affected. You can delete this manually if needed.</p>
-        <p><strong>Creating a New Account:</strong> You're welcome to create a new account anytime using the same email address.</p>
+        <p><strong>Creating a New Account:</strong> You're welcome to create a new account anytime using the same email address. If you have a backup file, you can upload it to restore your data.</p>
 
         <p>We're sorry to see you go. If you have any feedback about your experience, we'd genuinely appreciate hearing from you. Just reply to this email.</p>
 
@@ -637,11 +638,11 @@ What's been deleted:
 
 Important Notes:
 
-Financial Records: In accordance with legal requirements, certain financial transaction records may be retained for 7 years as required by accounting standards.
+What We Retain: A record of this deletion (your email and deletion date) is kept in our audit log for 7 years for legal compliance.
 
 Local Data: Any data stored locally on your device has not been affected. You can delete this manually if needed.
 
-Creating a New Account: You're welcome to create a new account anytime using the same email address.
+Creating a New Account: You're welcome to create a new account anytime using the same email address. If you have a backup file, you can upload it to restore your data.
 
 We're sorry to see you go. If you have any feedback about your experience, we'd genuinely appreciate hearing from you. Just reply to this email.
 
