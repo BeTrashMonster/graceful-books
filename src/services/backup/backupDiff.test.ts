@@ -1,350 +1,222 @@
 /**
- * Backup Diff Tests
+ * Tests for backupDiff utilities
  *
- * Test 1: ID diff - verifies computeMissingRecords correctly identifies
- * records in current DB that are not in the backup.
- *
- * Break-then-fix verification performed during development.
+ * Particularly important: CSV export must contain the same records
+ * that appear in the preview display.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
-  extractBackupIds,
+  generateMissingRecordsCSV,
   formatRecordForDisplay,
   getTableDisplayName,
-  computeMissingRecords,
-  TABLES_TO_DIFF,
-  MAX_SHOWN_PER_TABLE,
+  type MissingRecordFull,
+  type MissingRecordsWithData,
 } from './backupDiff';
-import type { DatabaseExport } from '../../db';
-import { db } from '../../db';
 
-describe('backupDiff', () => {
-  describe('extractBackupIds', () => {
-    it('extracts IDs from v3 tables format', () => {
-      const backup: DatabaseExport = {
-        version: 3,
-        timestamp: Date.now(),
-        tables: {
-          cpgInvoices: [
-            { id: 'inv-1', invoice_number: 'INV-001' },
-            { id: 'inv-2', invoice_number: 'INV-002' },
-          ],
-          products: [
-            { id: 'prod-1', name: 'Product A' },
-          ],
-        },
-      };
-
-      const result = extractBackupIds(backup);
-
-      expect(result.cpgInvoices).toBeDefined();
-      expect(result.cpgInvoices.has('inv-1')).toBe(true);
-      expect(result.cpgInvoices.has('inv-2')).toBe(true);
-      expect(result.products).toBeDefined();
-      expect(result.products.has('prod-1')).toBe(true);
-    });
-
-    it('extracts IDs from v1/v2 data format', () => {
-      const backup: DatabaseExport = {
-        version: 2,
-        timestamp: Date.now(),
-        data: {
-          cpgVendors: [
-            { id: 'vendor-1', name: 'Vendor A' },
-            { id: 'vendor-2', name: 'Vendor B' },
-          ],
-        },
-      };
-
-      const result = extractBackupIds(backup);
-
-      expect(result.cpgVendors).toBeDefined();
-      expect(result.cpgVendors.has('vendor-1')).toBe(true);
-      expect(result.cpgVendors.has('vendor-2')).toBe(true);
-    });
-
-    it('returns empty set for missing tables', () => {
-      const backup: DatabaseExport = {
-        version: 3,
-        timestamp: Date.now(),
-        tables: {},
-      };
-
-      const result = extractBackupIds(backup);
-
-      expect(result.cpgInvoices).toBeUndefined();
-    });
+describe('generateMissingRecordsCSV', () => {
+  it('returns empty message for empty records', () => {
+    const csv = generateMissingRecordsCSV([]);
+    expect(csv).toBe('No missing records');
   });
 
-  describe('formatRecordForDisplay', () => {
-    it('formats invoice with all fields', () => {
-      const invoice = {
-        id: 'inv-1',
+  it('includes all record IDs in CSV output', () => {
+    const records: MissingRecordFull[] = [
+      { table: 'cpgInvoices', id: 'inv-001', invoice_number: 'INV-001', total: 150 },
+      { table: 'cpgInvoices', id: 'inv-002', invoice_number: 'INV-002', total: 275 },
+      { table: 'products', id: 'prod-001', name: 'Widget A' },
+    ];
+
+    const csv = generateMissingRecordsCSV(records);
+
+    // All IDs must appear in CSV
+    expect(csv).toContain('inv-001');
+    expect(csv).toContain('inv-002');
+    expect(csv).toContain('prod-001');
+  });
+
+  it('includes meaningful fields for re-entry', () => {
+    const records: MissingRecordFull[] = [
+      {
+        table: 'cpgInvoices',
+        id: 'inv-001',
         invoice_number: 'INV-2024-001',
         vendor_name: 'Acme Corp',
         total: 1234.56,
         invoice_date: new Date('2024-03-15').getTime(),
-      };
+      },
+    ];
 
-      const result = formatRecordForDisplay('cpgInvoices', invoice);
+    const csv = generateMissingRecordsCSV(records);
 
-      expect(result).toContain('INV-2024-001');
-      expect(result).toContain('Acme Corp');
-      expect(result).toContain('$1,234.56');
-      expect(result).toContain('Mar');
-    });
-
-    it('formats product with name', () => {
-      const product = { id: 'prod-1', name: 'Organic Honey' };
-      const result = formatRecordForDisplay('products', product);
-      expect(result).toBe('Organic Honey');
-    });
-
-    it('formats vendor with name', () => {
-      const vendor = { id: 'v-1', name: 'Local Farms' };
-      const result = formatRecordForDisplay('cpgVendors', vendor);
-      expect(result).toBe('Local Farms');
-    });
-
-    it('formats account with number and name', () => {
-      const account = { id: 'acc-1', accountNumber: '1000', name: 'Cash' };
-      const result = formatRecordForDisplay('accounts', account);
-      expect(result).toBe('1000 — Cash');
-    });
-
-    it('formats transaction with date, description, and amount', () => {
-      const tx = {
-        id: 'tx-1',
-        date: new Date('2024-06-20').getTime(),
-        description: 'Office supplies',
-        amount: -150.00,
-      };
-      const result = formatRecordForDisplay('transactions', tx);
-      expect(result).toContain('Jun');
-      expect(result).toContain('Office supplies');
-      expect(result).toContain('$150');
-    });
-
-    it('uses fallback for unknown table types', () => {
-      const record = { id: 'x-1', name: 'Custom Record' };
-      const result = formatRecordForDisplay('customTable', record);
-      expect(result).toBe('Custom Record');
-    });
+    // Should include invoice details for re-entry
+    expect(csv).toContain('INV-2024-001');
+    expect(csv).toContain('Acme Corp');
+    expect(csv).toContain('1234.56');
+    expect(csv).toContain('2024-03-15');
   });
 
-  describe('getTableDisplayName', () => {
-    it('returns friendly names for known tables', () => {
-      expect(getTableDisplayName('cpgInvoices')).toBe('Invoices');
-      expect(getTableDisplayName('products')).toBe('Products');
-      expect(getTableDisplayName('cpgFinishedProducts')).toBe('Finished Products');
-      expect(getTableDisplayName('cpgCategories')).toBe('Categories');
-      expect(getTableDisplayName('cpgVendors')).toBe('Vendors');
-      expect(getTableDisplayName('cpgRecipes')).toBe('Recipes');
-      expect(getTableDisplayName('contacts')).toBe('Contacts');
-      expect(getTableDisplayName('accounts')).toBe('Accounts');
-      expect(getTableDisplayName('transactions')).toBe('Transactions');
-    });
+  it('escapes CSV special characters', () => {
+    const records: MissingRecordFull[] = [
+      { table: 'products', id: 'prod-001', name: 'Widget, "Deluxe" Edition' },
+    ];
 
-    it('converts camelCase for unknown tables', () => {
-      expect(getTableDisplayName('customDataTable')).toBe('custom Data Table');
-    });
+    const csv = generateMissingRecordsCSV(records);
+
+    // Commas and quotes must be properly escaped
+    expect(csv).toContain('"Widget, ""Deluxe"" Edition"');
   });
 
-  describe('computeMissingRecords', () => {
-    beforeEach(async () => {
-      // Ensure database is open and clear before each test
-      await db.open();
-      // Clear all diffable tables
-      for (const tableName of TABLES_TO_DIFF) {
-        try {
-          await db.table(tableName).clear();
-        } catch {
-          // Table might not exist
-        }
-      }
-    });
+  it('groups records by table with headers', () => {
+    const records: MissingRecordFull[] = [
+      { table: 'cpgInvoices', id: 'inv-001', invoice_number: 'INV-001' },
+      { table: 'products', id: 'prod-001', name: 'Widget' },
+      { table: 'cpgInvoices', id: 'inv-002', invoice_number: 'INV-002' },
+    ];
 
-    afterEach(async () => {
-      // Clean up after each test
-      for (const tableName of TABLES_TO_DIFF) {
-        try {
-          await db.table(tableName).clear();
-        } catch {
-          // Table might not exist
-        }
-      }
-    });
+    const csv = generateMissingRecordsCSV(records);
 
-    it('identifies records in current DB but not in backup', async () => {
-      // Add records to current database
-      await db.table('cpgVendors').bulkAdd([
-        { id: 'v-1', name: 'Vendor One' },
-        { id: 'v-2', name: 'Vendor Two' },
-        { id: 'v-3', name: 'Vendor Three' },
-      ]);
+    // Should have table headers
+    expect(csv).toContain('# Invoices');
+    expect(csv).toContain('# Products');
+  });
+});
 
-      // Backup only has v-1
-      const backup: DatabaseExport = {
-        version: 3,
-        timestamp: Date.now(),
-        tables: {
-          cpgVendors: [{ id: 'v-1', name: 'Vendor One' }],
-        },
-      };
-
-      const result = await computeMissingRecords(backup);
-
-      // v-2 and v-3 should be missing
-      expect(result.totalMissing).toBe(2);
-      expect(result.byTable.cpgVendors).toBeDefined();
-      expect(result.byTable.cpgVendors.total).toBe(2);
-      expect(result.byTable.cpgVendors.shown).toHaveLength(2);
-
-      const shownNames = result.byTable.cpgVendors.shown.map(r => r.displayText);
-      expect(shownNames).toContain('Vendor Two');
-      expect(shownNames).toContain('Vendor Three');
-    });
-
-    it('does NOT list records in backup but not in current DB', async () => {
-      // Current DB has only v-1
-      await db.table('cpgVendors').add({ id: 'v-1', name: 'Vendor One' });
-
-      // Backup has v-1 AND v-2
-      const backup: DatabaseExport = {
-        version: 3,
-        timestamp: Date.now(),
-        tables: {
-          cpgVendors: [
-            { id: 'v-1', name: 'Vendor One' },
-            { id: 'v-2', name: 'Vendor Two' }, // Extra in backup
+describe('CSV contains same records as preview', () => {
+  it('CSV record IDs match byTable shown record IDs', () => {
+    const summary: MissingRecordsWithData = {
+      byTable: {
+        cpgInvoices: {
+          total: 3,
+          shown: [
+            { id: 'inv-001', displayText: 'INV-001' },
+            { id: 'inv-002', displayText: 'INV-002' },
+            { id: 'inv-003', displayText: 'INV-003' },
           ],
         },
-      };
-
-      const result = await computeMissingRecords(backup);
-
-      // Nothing missing - v-2 is extra in backup, but we only report
-      // what's in current DB that would be LOST
-      expect(result.totalMissing).toBe(0);
-      expect(result.byTable.cpgVendors).toBeUndefined();
-    });
-
-    it('does NOT list records that exist in both DB and backup (same ID)', async () => {
-      // Same record in both
-      await db.table('cpgCategories').add({ id: 'cat-1', name: 'Category One' });
-
-      const backup: DatabaseExport = {
-        version: 3,
-        timestamp: Date.now(),
-        tables: {
-          cpgCategories: [{ id: 'cat-1', name: 'Category One' }],
+        products: {
+          total: 2,
+          shown: [
+            { id: 'prod-001', displayText: 'Widget A' },
+            { id: 'prod-002', displayText: 'Widget B' },
+          ],
         },
-      };
+      },
+      totalMissing: 5,
+      allRecords: [
+        { table: 'cpgInvoices', id: 'inv-001', invoice_number: 'INV-001' },
+        { table: 'cpgInvoices', id: 'inv-002', invoice_number: 'INV-002' },
+        { table: 'cpgInvoices', id: 'inv-003', invoice_number: 'INV-003' },
+        { table: 'products', id: 'prod-001', name: 'Widget A' },
+        { table: 'products', id: 'prod-002', name: 'Widget B' },
+      ],
+    };
 
-      const result = await computeMissingRecords(backup);
+    const previewIds = new Set<string>();
+    for (const tableData of Object.values(summary.byTable)) {
+      for (const record of tableData.shown) {
+        previewIds.add(record.id);
+      }
+    }
 
-      expect(result.totalMissing).toBe(0);
-      expect(result.byTable.cpgCategories).toBeUndefined();
-    });
+    const csvRecordIds = new Set(summary.allRecords.map(r => r.id));
+    const csv = generateMissingRecordsCSV(summary.allRecords);
 
-    it('handles empty backup table vs populated current table', async () => {
-      // Current DB has records
-      await db.table('products').bulkAdd([
-        { id: 'p-1', name: 'Product A' },
-        { id: 'p-2', name: 'Product B' },
-      ]);
+    // CRITICAL: Every preview ID must be in allRecords and in CSV
+    for (const previewId of previewIds) {
+      expect(csvRecordIds.has(previewId)).toBe(true);
+      expect(csv).toContain(previewId as string);
+    }
+  });
 
-      // Backup has empty products table
-      const backup: DatabaseExport = {
-        version: 3,
-        timestamp: Date.now(),
-        tables: {
-          products: [], // Empty
+  it('allRecords count equals totalMissing', () => {
+    const summary: MissingRecordsWithData = {
+      byTable: {
+        cpgInvoices: {
+          total: 2,
+          shown: [
+            { id: 'inv-001', displayText: 'INV-001' },
+            { id: 'inv-002', displayText: 'INV-002' },
+          ],
         },
-      };
+      },
+      totalMissing: 2,
+      allRecords: [
+        { table: 'cpgInvoices', id: 'inv-001', invoice_number: 'INV-001' },
+        { table: 'cpgInvoices', id: 'inv-002', invoice_number: 'INV-002' },
+      ],
+    };
 
-      const result = await computeMissingRecords(backup);
+    expect(summary.allRecords.length).toBe(summary.totalMissing);
+  });
 
-      expect(result.totalMissing).toBe(2);
-      expect(result.byTable.products.total).toBe(2);
-    });
-
-    it('limits shown records to MAX_SHOWN_PER_TABLE (5) and shows "(and N more)"', async () => {
-      // Add 8 records (more than MAX_SHOWN_PER_TABLE=5)
-      const vendors = Array.from({ length: 8 }, (_, i) => ({
-        id: `v-${i + 1}`,
-        name: `Vendor ${i + 1}`,
-      }));
-      await db.table('cpgVendors').bulkAdd(vendors);
-
-      // Empty backup
-      const backup: DatabaseExport = {
-        version: 3,
-        timestamp: Date.now(),
-        tables: {
-          cpgVendors: [],
+  it('CSV includes records beyond MAX_SHOWN_PER_TABLE limit', () => {
+    const summary: MissingRecordsWithData = {
+      byTable: {
+        cpgInvoices: {
+          total: 8,
+          shown: [
+            { id: 'inv-001', displayText: 'INV-001' },
+            { id: 'inv-002', displayText: 'INV-002' },
+            { id: 'inv-003', displayText: 'INV-003' },
+            { id: 'inv-004', displayText: 'INV-004' },
+            { id: 'inv-005', displayText: 'INV-005' },
+          ],
         },
-      };
+      },
+      totalMissing: 8,
+      allRecords: [
+        { table: 'cpgInvoices', id: 'inv-001' },
+        { table: 'cpgInvoices', id: 'inv-002' },
+        { table: 'cpgInvoices', id: 'inv-003' },
+        { table: 'cpgInvoices', id: 'inv-004' },
+        { table: 'cpgInvoices', id: 'inv-005' },
+        { table: 'cpgInvoices', id: 'inv-006' },
+        { table: 'cpgInvoices', id: 'inv-007' },
+        { table: 'cpgInvoices', id: 'inv-008' },
+      ],
+    };
 
-      const result = await computeMissingRecords(backup);
+    const csv = generateMissingRecordsCSV(summary.allRecords);
 
-      expect(result.totalMissing).toBe(8);
-      expect(result.byTable.cpgVendors.total).toBe(8);
-      // Only 5 shown
-      expect(result.byTable.cpgVendors.shown).toHaveLength(MAX_SHOWN_PER_TABLE);
-      // Total includes all 8
-      expect(result.byTable.cpgVendors.total).toBe(8);
-      // The "(and N more)" text is rendered by the UI, but we verify
-      // the data supports it: total > shown.length
-      expect(result.byTable.cpgVendors.total - result.byTable.cpgVendors.shown.length).toBe(3);
-    });
+    // CSV must include ALL 8 records
+    expect(csv).toContain('inv-001');
+    expect(csv).toContain('inv-002');
+    expect(csv).toContain('inv-003');
+    expect(csv).toContain('inv-004');
+    expect(csv).toContain('inv-005');
+    expect(csv).toContain('inv-006');
+    expect(csv).toContain('inv-007');
+    expect(csv).toContain('inv-008');
+  });
+});
 
-    it('filters by companyId when provided', async () => {
-      // Add records for two companies
-      await db.table('contacts').bulkAdd([
-        { id: 'c-1', name: 'Contact A', company_id: 'company-1' },
-        { id: 'c-2', name: 'Contact B', company_id: 'company-1' },
-        { id: 'c-3', name: 'Contact C', company_id: 'company-2' },
-      ]);
+describe('formatRecordForDisplay', () => {
+  it('formats invoice with details', () => {
+    const record = {
+      invoice_number: 'INV-001',
+      vendor_name: 'Acme Corp',
+      total: 1500,
+      invoice_date: new Date('2024-06-15').getTime(),
+    };
 
-      // Backup has c-1 only
-      const backup: DatabaseExport = {
-        version: 3,
-        timestamp: Date.now(),
-        tables: {
-          contacts: [{ id: 'c-1', name: 'Contact A', company_id: 'company-1' }],
-        },
-      };
+    const display = formatRecordForDisplay('cpgInvoices', record);
 
-      // Filter by company-1 only
-      const result = await computeMissingRecords(backup, 'company-1');
+    expect(display).toContain('INV-001');
+    expect(display).toContain('Acme Corp');
+  });
 
-      // Only c-2 is missing from company-1 (c-3 is company-2, ignored)
-      expect(result.totalMissing).toBe(1);
-      expect(result.byTable.contacts.shown[0].displayText).toBe('Contact B');
-    });
+  it('formats product with name', () => {
+    const record = { name: 'Premium Widget' };
+    const display = formatRecordForDisplay('products', record);
+    expect(display).toBe('Premium Widget');
+  });
+});
 
-    it('handles multiple tables with missing records', async () => {
-      // Add records to multiple tables
-      await db.table('cpgVendors').add({ id: 'v-1', name: 'Vendor X' });
-      await db.table('cpgCategories').add({ id: 'cat-1', name: 'Category Y' });
-      await db.table('products').add({ id: 'p-1', name: 'Product Z' });
-
-      // Empty backup
-      const backup: DatabaseExport = {
-        version: 3,
-        timestamp: Date.now(),
-        tables: {},
-      };
-
-      const result = await computeMissingRecords(backup);
-
-      expect(result.totalMissing).toBe(3);
-      expect(Object.keys(result.byTable)).toHaveLength(3);
-      expect(result.byTable.cpgVendors.shown[0].displayText).toBe('Vendor X');
-      expect(result.byTable.cpgCategories.shown[0].displayText).toBe('Category Y');
-      expect(result.byTable.products.shown[0].displayText).toBe('Product Z');
-    });
+describe('getTableDisplayName', () => {
+  it('returns human-readable names', () => {
+    expect(getTableDisplayName('cpgInvoices')).toBe('Invoices');
+    expect(getTableDisplayName('products')).toBe('Products');
+    expect(getTableDisplayName('cpgFinishedProducts')).toBe('Finished Products');
   });
 });

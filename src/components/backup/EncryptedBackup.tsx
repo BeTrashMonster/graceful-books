@@ -21,7 +21,8 @@ import { saveBackupToHistory } from '../../services/backup/BackupHistoryService'
 import {
   computeMissingRecords,
   getTableDisplayName,
-  type MissingRecordsSummary,
+  downloadMissingRecordsCSV,
+  type MissingRecordsWithData,
 } from '../../services/backup/backupDiff';
 import { db, type ComprehensiveStatistics } from '../../db';
 import type {
@@ -113,7 +114,7 @@ export function EncryptedBackup({
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [previewComplete, setPreviewComplete] = useState(false);
   const decryptedDataRef = useRef<DatabaseExport | null>(null);
-  const [missingRecords, setMissingRecords] = useState<MissingRecordsSummary | null>(null);
+  const [missingRecords, setMissingRecords] = useState<MissingRecordsWithData | null>(null);
 
   // Check if we're in dev mode (for handling missing companyId)
   const isDev = typeof window !== 'undefined' &&
@@ -1215,6 +1216,35 @@ export function EncryptedBackup({
                           Then restore this backup — your current records will be saved in that new backup file.
                         </p>
                       </div>
+
+                      <div className={styles.csvExportSection}>
+                        {(() => {
+                          const totalShown = Object.values(missingRecords.byTable)
+                            .reduce((sum, { shown }) => sum + shown.length, 0);
+                          const totalAll = missingRecords.totalMissing;
+                          const hasMore = totalAll > totalShown;
+
+                          return (
+                            <>
+                              {hasMore && (
+                                <p className={styles.csvCountNote}>
+                                  Showing {totalShown} of {totalAll}. The CSV includes all {totalAll}.
+                                </p>
+                              )}
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => downloadMissingRecordsCSV(missingRecords.allRecords)}
+                              >
+                                Download list as CSV
+                              </Button>
+                              <p className={styles.csvNote}>
+                                For manual re-entry if you proceed with restore. This is not an import file.
+                              </p>
+                            </>
+                          );
+                        })()}
+                      </div>
                     </div>
                   );
                 }
@@ -1250,11 +1280,15 @@ export function EncryptedBackup({
                   return (
                     <div className={styles.comparisonSummaryNegative}>
                       <p>
-                        <strong>Warning: This backup appears to have {missing} fewer record{missing !== 1 ? 's' : ''} than your current data.</strong>
+                        <strong>This backup is older than what's on your device.</strong>
+                        {' '}Restoring will replace your current data, and {missing} record{missing !== 1 ? 's' : ''} you've added since won't be there.
+                      </p>
+                      <p className={styles.actionGuidance}>
+                        <strong>Recommended:</strong> Cancel and create a new backup first — that saves your current records.
+                        Then restore this backup if needed.
                       </p>
                       <p>
-                        You must <strong>Preview</strong> this backup to see which records would be lost
-                        before restoring.
+                        Or click <strong>Preview</strong> to see exactly which records would be lost.
                       </p>
                     </div>
                   );
