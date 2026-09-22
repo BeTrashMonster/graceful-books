@@ -1429,13 +1429,13 @@ export function EncryptedBackup({
               </table>
             </div>
 
-            {/* Preview required notice - show when fewer records detected but preview not done */}
+            {/* Fewer records warning - show when backup has fewer records but preview not done */}
             {hasFewerRecords() && !previewComplete && (
               <div className={styles.dataLossWarning}>
-                <strong>Preview required before restore</strong>
+                <strong>This backup is older than your current data</strong>
                 <p>
-                  This backup appears to have fewer records than your current database.
-                  You must preview the backup to see which records would be lost.
+                  Restoring will replace your current records. Preview first to see exactly
+                  which records would be lost, and download a list for manual re-entry if needed.
                 </p>
               </div>
             )}
@@ -1455,10 +1455,10 @@ export function EncryptedBackup({
         />
 
         {/* Preview button - decrypt and show detailed comparison */}
-        {selectedFile && validationResult?.valid && passphrase && !previewComplete && (
+        {selectedFile && validationResult?.valid && !previewComplete && (
           <div className={styles.previewSection}>
             <Button
-              variant="secondary"
+              variant="primary"
               onClick={handlePreviewBackup}
               disabled={isProcessing || isDecrypting || !passphrase.trim()}
               loading={isDecrypting}
@@ -1466,7 +1466,9 @@ export function EncryptedBackup({
               {isDecrypting ? 'Decrypting backup — this takes a few seconds...' : 'Preview this backup'}
             </Button>
             <p className={styles.previewHint}>
-              Preview decrypts the backup to show exactly what will be restored.
+              {!passphrase.trim()
+                ? 'Enter your passphrase above to preview.'
+                : 'Preview decrypts the backup to show exactly what will be restored.'}
             </p>
           </div>
         )}
@@ -1520,24 +1522,26 @@ export function EncryptedBackup({
               Cancel
             </Button>
             <Button
-              variant="primary"
+              variant={mode === 'restore' && !previewComplete ? 'secondary' : 'primary'}
               onClick={mode === 'backup' ? handleCreateBackup : handleRestoreBackup}
               disabled={
                 isProcessing ||
                 isDecrypting ||
                 // Require preview when restore mode and backup has fewer records
-                (mode === 'restore' && hasFewerRecords() && !previewComplete)
+                (mode === 'restore' && hasFewerRecords() && !previewComplete) ||
+                // Also disable if restore mode but no passphrase or file
+                (mode === 'restore' && (!passphrase.trim() || !selectedFile))
               }
               loading={isProcessing}
             >
               {isProcessing
                 ? mode === 'backup'
                   ? 'Creating Backup...'
-                  : 'Restoring...'
+                  : 'Replacing data...'
                 : mode === 'backup'
                 ? 'Create Encrypted Backup'
-                : hasFewerRecords() && !previewComplete
-                ? 'Preview Required'
+                : previewComplete
+                ? 'Replace my data with this backup'
                 : 'Restore from Backup'}
             </Button>
           </div>

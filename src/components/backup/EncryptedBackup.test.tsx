@@ -170,9 +170,9 @@ describe('EncryptedBackup', () => {
       const passphraseInput = screen.getByLabelText(/backup passphrase/i);
       fireEvent.change(passphraseInput, { target: { value: 'test-passphrase-123' } });
 
-      // Restore button should show "Preview Required" and be disabled
+      // Restore button should be disabled (preview required but button doesn't say that)
       await waitFor(() => {
-        const restoreButton = screen.getByRole('button', { name: /preview required|restore from backup/i });
+        const restoreButton = screen.getByRole('button', { name: /restore from backup/i });
         expect(restoreButton).toBeDisabled();
       });
     });
@@ -219,8 +219,8 @@ describe('EncryptedBackup', () => {
         expect(previewComplete).toBeInTheDocument();
       });
 
-      // Now restore button should be enabled
-      const restoreButton = screen.getByRole('button', { name: /restore from backup/i });
+      // Now restore button should be enabled (with consequence-focused label)
+      const restoreButton = screen.getByRole('button', { name: /replace my data/i });
       expect(restoreButton).not.toBeDisabled();
     });
   });
@@ -261,8 +261,8 @@ describe('EncryptedBackup', () => {
       // Verify decryptBackupOnly was called exactly once (during preview)
       expect(BackupService.decryptBackupOnly).toHaveBeenCalledTimes(1);
 
-      // Now click restore
-      const restoreButton = screen.getByRole('button', { name: /restore from backup/i });
+      // Now click restore (button label changes after preview)
+      const restoreButton = screen.getByRole('button', { name: /replace my data/i });
       fireEvent.click(restoreButton);
 
       // Wait for restore to be called
@@ -397,6 +397,77 @@ describe('EncryptedBackup', () => {
 
       // Preview complete indicator should not be visible (state cleared)
       expect(screen.queryByText(/preview complete/i)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Test 5: Full preview flow is accessible', () => {
+    /**
+     * Critical test: User must be able to reach preview from start to finish.
+     * This tests the complete path a user takes when restoring a backup with fewer records.
+     */
+    it('complete flow: select file → see Preview button → enter passphrase → click Preview → restore enabled', async () => {
+      // Mock successful decryption
+      const mockDecryptResult: DecryptResult = {
+        success: true,
+        data: { version: 3, timestamp: Date.now(), tables: { accounts: [{ id: 'a-1' }] } },
+        statistics: { totalRecords: 21, tableCounts: { accounts: 1 } },
+      };
+      vi.mocked(BackupService.decryptBackupOnly).mockResolvedValue(mockDecryptResult);
+
+      await setupRestoreWithFile(mockValidationWithFewerRecords);
+
+      // STEP 1: Preview button should be visible (even without passphrase)
+      const previewButton = screen.getByRole('button', { name: /preview this backup/i });
+      expect(previewButton).toBeInTheDocument();
+
+      // STEP 2: Preview button should be disabled without passphrase
+      expect(previewButton).toBeDisabled();
+
+      // STEP 3: Hint should tell user to enter passphrase
+      expect(screen.getByText(/enter your passphrase/i)).toBeInTheDocument();
+
+      // STEP 4: Enter passphrase
+      const passphraseInput = screen.getByLabelText(/backup passphrase/i);
+      fireEvent.change(passphraseInput, { target: { value: 'test-passphrase-123' } });
+
+      // STEP 5: Preview button should now be enabled
+      await waitFor(() => {
+        expect(previewButton).not.toBeDisabled();
+      });
+
+      // STEP 6: Click Preview
+      fireEvent.click(previewButton);
+
+      // STEP 7: Wait for preview to complete
+      await waitFor(() => {
+        expect(screen.getByText(/preview complete/i)).toBeInTheDocument();
+      });
+
+      // STEP 8: Restore button should now be enabled with consequence-focused label
+      const restoreButton = screen.getByRole('button', { name: /replace my data/i });
+      expect(restoreButton).not.toBeDisabled();
+    });
+
+    it('Preview button is always visible after file selection, even with empty passphrase', async () => {
+      await setupRestoreWithFile(mockValidationWithFewerRecords);
+
+      // Preview button should exist immediately after file selection
+      const previewButton = screen.getByRole('button', { name: /preview this backup/i });
+      expect(previewButton).toBeInTheDocument();
+
+      // But it should be disabled
+      expect(previewButton).toBeDisabled();
+
+      // Passphrase input should be empty
+      const passphraseInput = screen.getByLabelText(/backup passphrase/i) as HTMLInputElement;
+      expect(passphraseInput.value).toBe('');
+    });
+
+    it('shows passphrase hint when Preview button is disabled', async () => {
+      await setupRestoreWithFile(mockValidationWithFewerRecords);
+
+      // Should show hint to enter passphrase
+      expect(screen.getByText(/enter your passphrase/i)).toBeInTheDocument();
     });
   });
 });
