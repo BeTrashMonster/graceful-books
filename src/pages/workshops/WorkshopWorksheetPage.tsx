@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getMyWorkshopEnrollment, completeWorksheet, type WorkshopEnrollment } from '../../services/workshops.api';
-import { ComprehensiveWorksheet } from '../../components/onboarding/ComprehensiveWorksheet';
+import { getMyWorkshopEnrollment, completeWorksheet, logWorksheetError, type WorkshopEnrollment } from '../../services/workshops.api';
+import { ComprehensiveWorksheet, type ImportResultCallback } from '../../components/onboarding/ComprehensiveWorksheet';
 import { importWorksheetData, type ImportResult } from '../../services/cpg/worksheetImporter.service';
 import { ImportWarningsModal } from '../../components/cpg/modals/ImportWarningsModal';
 import { LoadingOverlay } from '../../components/feedback/Loading';
@@ -9,6 +9,47 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getDeviceId } from '../../utils/device';
 import styles from './WorkshopWorksheetPage.module.css';
 import signupStyles from '../auth/Signup.module.css';
+
+// Compute detailed diagnostics for worksheet data to help debug failures
+function getPayloadDiagnostics(worksheetData: any) {
+  const categories = worksheetData.categories || [];
+  const products = worksheetData.finished_products || [];
+  const recipes = worksheetData.recipes || [];
+  const invoices = worksheetData.invoices || [];
+
+  return {
+    categoriesCount: categories.length,
+    productsCount: products.length,
+    recipesCount: recipes.length,
+    invoicesCount: invoices.length,
+    // Blank required field counts for products
+    productsWithBlankName: products.filter((p: any) => !p.name || p.name.trim() === '').length,
+    productsWithBlankMsrp: products.filter((p: any) => !p.msrp || p.msrp.trim() === '').length,
+    productsWithBlankCategory: products.filter((p: any) => !p.categoryId).length,
+    // Blank required field counts for recipes
+    recipesWithBlankName: recipes.filter((r: any) => !r.name || r.name.trim() === '').length,
+    recipesWithNoItems: recipes.filter((r: any) => !r.recipeItems || r.recipeItems.length === 0).length,
+    // Blank required field counts for categories
+    categoriesWithBlankName: categories.filter((c: any) => !c.name || c.name.trim() === '').length,
+    // Blank required field counts for invoices
+    invoicesWithBlankVendor: invoices.filter((i: any) => !i.vendorName || i.vendorName.trim() === '').length,
+    invoicesWithBlankDate: invoices.filter((i: any) => !i.date).length,
+    invoicesWithNoItems: invoices.filter((i: any) => !i.items || i.items.length === 0).length,
+  };
+}
+
+// Log import errors to server for diagnostics (non-blocking)
+function logImportError(data: {
+  enrollmentId?: string;
+  errors?: string[];
+  exception?: { name?: string; message?: string; stack?: string };
+  payloadShape: ReturnType<typeof getPayloadDiagnostics>;
+}) {
+  // Fire and forget - don't block the UI
+  logWorksheetError(data).catch((err) => {
+    console.error('[Worksheet] Failed to log error to server:', err);
+  });
+}
 
 export default function WorkshopWorksheetPage() {
   console.log('[Worksheet] Component mounted');
@@ -57,7 +98,7 @@ export default function WorkshopWorksheetPage() {
     }
   };
 
-  const handleWorksheetComplete = async (worksheetData: any) => {
+  const handleWorksheetComplete = async (worksheetData: any): Promise<ImportResultCallback> => {
     console.log('[Worksheet] handleWorksheetComplete called');
     console.log('[Worksheet] Auth companyId:', authCompanyId);
     console.log('[Worksheet] Worksheet data received:', worksheetData);
@@ -78,7 +119,7 @@ export default function WorkshopWorksheetPage() {
     if (!companyId) {
       console.error('[Worksheet] No company_id found anywhere');
       setError('User session not found. Please refresh the page and try again.');
-      return;
+      return { success: false, errors: ['User session not found. Please refresh the page and try again.'] };
     }
 
     console.log('[Worksheet] Using company_id:', companyId);
@@ -102,8 +143,14 @@ export default function WorkshopWorksheetPage() {
 
       if (!result.success) {
         console.error('[Worksheet] Import failed:', result.errors);
+        // Log to server for diagnostics (Tier 1c)
+        logImportError({
+          enrollmentId: enrollment?.id,
+          errors: result.errors,
+          payloadShape: getPayloadDiagnostics(worksheetData),
+        });
         setError(`Failed to import data: ${result.errors.join(', ')}`);
-        return;
+        return { success: false, errors: result.errors };
       }
 
       // Store import results so they can be shown on the countdown page
@@ -127,9 +174,19 @@ export default function WorkshopWorksheetPage() {
           )
         ]);
         console.log('[Worksheet] Worksheet marked as completed');
-      } catch (apiError) {
+      } catch (apiError: any) {
         // Log but don't block - the import succeeded, that's what matters
         console.warn('[Worksheet] Failed to mark worksheet complete (non-blocking):', apiError);
+        // Log to server for diagnostics (Tier 1c)
+        logImportError({
+          enrollmentId: enrollment?.id,
+          exception: {
+            name: apiError?.name || 'completeWorksheet API error',
+            message: apiError?.message || 'Unknown error',
+            stack: apiError?.stack?.substring(0, 500),
+          },
+          payloadShape: getPayloadDiagnostics(worksheetData),
+        });
       }
 
       // Check if there are warnings to show
@@ -138,15 +195,28 @@ export default function WorkshopWorksheetPage() {
         setImportResult(result);
         setShowWarningsModal(true);
         // Don't navigate yet - let user review warnings first
-        return;
+        return { success: true, warnings: result.warnings };
       }
 
       // No warnings - navigate directly to countdown page
       console.log('[Worksheet] Navigating to countdown page');
       navigate('/workshops/countdown');
-    } catch (error) {
+      return { success: true };
+    } catch (error: any) {
       console.error('[Worksheet] Exception in handleWorksheetComplete:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save worksheet data');
+      // Log to server for diagnostics (Tier 1c)
+      logImportError({
+        enrollmentId: enrollment?.id,
+        exception: {
+          name: error?.name,
+          message: error?.message,
+          stack: error?.stack?.substring(0, 500), // Truncate stack
+        },
+        payloadShape: getPayloadDiagnostics(worksheetData),
+      });
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save worksheet data';
+      setError(errorMessage);
+      return { success: false, errors: [errorMessage] };
     } finally {
       setIsSubmitting(false);
     }

@@ -350,6 +350,39 @@ export async function completeWorksheet(): Promise<{ success: boolean }> {
   return api.post('/api/workshops/my-enrollment/worksheet/complete', {});
 }
 
+/**
+ * Log worksheet import errors to server for diagnostics (requires auth)
+ * This is fire-and-forget - errors are logged but don't block the UI
+ */
+export async function logWorksheetError(errorData: {
+  enrollmentId?: string;
+  errors?: string[];
+  exception?: { name?: string; message?: string; stack?: string };
+  payloadShape: {
+    categoriesCount: number;
+    productsCount: number;
+    recipesCount: number;
+    invoicesCount: number;
+    // Detailed blank-field diagnostics
+    productsWithBlankName?: number;
+    productsWithBlankMsrp?: number;
+    productsWithBlankCategory?: number;
+    recipesWithBlankName?: number;
+    recipesWithNoItems?: number;
+    categoriesWithBlankName?: number;
+    invoicesWithBlankVendor?: number;
+    invoicesWithBlankDate?: number;
+    invoicesWithNoItems?: number;
+  };
+}): Promise<void> {
+  try {
+    await api.post('/api/workshops/my-enrollment/worksheet/log-error', errorData);
+  } catch (err) {
+    // Silently fail - this is diagnostic logging, not critical path
+    console.error('[WorkshopsAPI] Failed to log worksheet error:', err);
+  }
+}
+
 // =============================================================================
 // ADMIN EMAIL SENDING
 // =============================================================================

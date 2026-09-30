@@ -952,6 +952,38 @@ workshops.post('/my-enrollment/worksheet/complete', requireAuth, async (c) => {
 });
 
 /**
+ * POST /api/workshops/my-enrollment/worksheet/log-error
+ *
+ * Log worksheet import errors for diagnostics (fire-and-forget from client)
+ * This helps us understand why users are getting stuck
+ */
+workshops.post('/my-enrollment/worksheet/log-error', requireAuth, async (c) => {
+  const userId = c.get('userId');
+
+  try {
+    const body = await c.req.json();
+    const { enrollmentId, errors, exception, payloadShape } = body;
+
+    // Log with structured data for easy querying
+    console.error('[Workshops] WORKSHEET_IMPORT_ERROR:', JSON.stringify({
+      userId,
+      enrollmentId,
+      timestamp: new Date().toISOString(),
+      errors: errors || [],
+      exception: exception || null,
+      payloadShape: payloadShape || {},
+    }));
+
+    // Could store in a worksheet_errors table for analytics, but console logging is sufficient for now
+    return success(c, { logged: true });
+  } catch (error) {
+    // Don't fail the request even if logging fails
+    console.error('[Workshops] Error logging worksheet error:', error);
+    return success(c, { logged: false });
+  }
+});
+
+/**
  * POST /api/workshops/:id/enroll
  *
  * Enroll in a workshop (authenticated users)

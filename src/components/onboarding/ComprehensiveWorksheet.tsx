@@ -113,8 +113,14 @@ interface WorksheetData {
   unit_conversions: UnitConversion[];
 }
 
+export interface ImportResultCallback {
+  success: boolean;
+  errors?: string[];
+  warnings?: Array<{ title: string; message: string }>;
+}
+
 interface ComprehensiveWorksheetProps {
-  onComplete: (data: WorksheetData) => void;
+  onComplete: (data: WorksheetData) => Promise<ImportResultCallback>;
   onSkip: () => void;
 }
 
@@ -194,6 +200,7 @@ const evaluateMathExpression = (expression: string): string => {
 export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWorksheetProps) {
   const [currentStep, setCurrentStep] = useState<Step>('products');
   const [importing, setImporting] = useState(false);
+  const [importErrors, setImportErrors] = useState<string[]>([]);
 
   // Track categories as they're created (include default Shipping & Handling)
   const [categories, setCategories] = useState<Category[]>([
@@ -1249,7 +1256,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log('📝 Worksheet handleSubmit called');
     // Extract valid products
     const validProducts = products
@@ -1354,11 +1361,30 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
 
     console.log('📤 Calling onComplete with data:', worksheetData);
 
-    // Clear autosave data before submitting (data is about to be saved to DB)
-    clearAutosaveData();
-
     setImporting(true);
-    onComplete(worksheetData);
+    setImportErrors([]);
+
+    try {
+      const result = await onComplete(worksheetData);
+
+      if (!result.success) {
+        // Show the actual validation errors to the user
+        setImportErrors(result.errors || ['Import failed. Please check your data and try again.']);
+        console.error('📛 Import failed with errors:', result.errors);
+        return;
+      }
+
+      // Success - clear autosave data only after confirmed success
+      clearAutosaveData();
+      console.log('✅ Import successful, autosave cleared');
+    } catch (error) {
+      console.error('📛 Exception during import:', error);
+      setImportErrors([
+        error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.'
+      ]);
+    } finally {
+      setImporting(false);
+    }
   };
 
   return (
@@ -3321,6 +3347,71 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
           to add or edit this information.
         </p>
       </div>
+
+      {/* Import Error Display */}
+      {importErrors.length > 0 && !importing && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1001
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '2rem',
+            maxWidth: '560px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflow: 'auto',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '24px', color: '#dc2626' }}>⚠</span>
+              <h2 style={{ margin: 0, color: '#1f2937', fontSize: '1.25rem' }}>
+                Unable to Save Worksheet
+              </h2>
+            </div>
+            <p style={{ color: '#6b7280', marginBottom: '1rem' }}>
+              We found some issues with your data that need to be fixed before saving:
+            </p>
+            <ul style={{
+              margin: '0 0 1.5rem 0',
+              padding: '0 0 0 1.5rem',
+              color: '#374151'
+            }}>
+              {importErrors.map((error, idx) => (
+                <li key={idx} style={{ marginBottom: '0.5rem' }}>{error}</li>
+              ))}
+            </ul>
+            <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              Your data has been preserved. Please fix the issues above and try again.
+            </p>
+            <button
+              onClick={() => setImportErrors([])}
+              style={{
+                width: '100%',
+                padding: '12px 24px',
+                backgroundColor: '#1e3a5f',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                fontWeight: 500,
+                cursor: 'pointer'
+              }}
+            >
+              Go Back and Fix Issues
+            </button>
+          </div>
+        </div>
+      )}
 
       <LoadingOverlay
         isVisible={importing}
