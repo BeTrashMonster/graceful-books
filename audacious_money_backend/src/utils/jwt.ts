@@ -42,7 +42,6 @@ function getJwtSecret(): string {
     console.error('[JWT] FATAL: JWT_SECRET is not set in environment');
     throw new Error('JWT_SECRET environment variable is not set');
   }
-  console.log(`[JWT] Using JWT_SECRET: ${secret.substring(0, 8)}...${secret.substring(secret.length - 8)}`);
   return secret;
 }
 
@@ -131,13 +130,20 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
 
   try {
     const payload = await verify(token, secret, 'HS256');
-    console.log('[JWT] Token verified successfully:', { userId: (payload as any).userId });
+    const userId = (payload as any).userId;
+    console.log('[JWT] Token verified successfully:', { userId });
+
+    // Diagnostic: Log payload keys when userId is undefined (helps identify claim mismatch)
+    if (userId === undefined) {
+      console.error('[JWT] WARNING: userId is undefined after successful verification');
+      console.error('[JWT] Payload keys present:', Object.keys(payload as object));
+    }
+
     return payload as TokenPayload;
   } catch (error) {
     console.error('[JWT] Token verification failed');
     console.error('[JWT] Error details:', error);
     console.error('[JWT] Token that failed:', token.substring(0, 50));
-    console.error('[JWT] Secret used (first 8):', secret.substring(0, 8));
     throw new Error('Invalid or expired token');
   }
 }

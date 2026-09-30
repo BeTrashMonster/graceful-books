@@ -67,7 +67,7 @@ async function startServer() {
     console.error('   Set JWT_SECRET in DigitalOcean environment variables or .env file');
     process.exit(1);
   }
-  console.log(`[Startup] JWT_SECRET loaded: ${process.env.JWT_SECRET.substring(0, 8)}...`);
+  console.log('[Startup] JWT_SECRET loaded (not logging value)');
 
   // 1. Initialize database connection
   console.log('[Startup] Initializing database connection...');
