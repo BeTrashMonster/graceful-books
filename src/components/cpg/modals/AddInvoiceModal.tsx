@@ -14,7 +14,7 @@ import { FrozenGuardButton } from '../../frozen/FrozenGuardButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import { db } from '../../../db/database';
-import { createDefaultCPGInvoice, validateCPGInvoice, createDefaultCPGVendor } from '../../../db/schema/cpg.schema';
+import { createDefaultCPGInvoice, validateCPGInvoice, createDefaultCPGVendor, createDefaultCPGCategory } from '../../../db/schema/cpg.schema';
 import type { CPGCategory, CPGVendor } from '../../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../../services/cpg/cpuCalculator.service';
 import { CPGCategoryService } from '../../../services/cpg/cpgCategory.service';
@@ -83,7 +83,20 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
   const [confirmNavigation, setConfirmNavigation] = useState<{ productId: string; productName: string; categoryId: string; variant: string | null } | null>(null);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [preSelectedCategoryId, setPreSelectedCategoryId] = useState<string | undefined>(undefined);
+
+  // Inline category creation state
+  const [showNewCategoryForm, setShowNewCategoryForm] = useState<string | null>(null); // item.id or null
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryError, setNewCategoryError] = useState('');
+
+  // Inline variant creation state
+  const [showNewVariantForm, setShowNewVariantForm] = useState<string | null>(null); // item.id or null
+  const [newVariantName, setNewVariantName] = useState('');
+  const [newVariantError, setNewVariantError] = useState('');
+
   const errorAlertRef = useRef<HTMLDivElement>(null);
+  const newCategoryInputRef = useRef<HTMLInputElement>(null);
+  const newVariantInputRef = useRef<HTMLInputElement>(null);
 
   const isEditMode = mode === 'edit';
   const isDuplicateMode = mode === 'duplicate';
@@ -815,6 +828,113 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     }
   };
 
+  const handleCreateCategory = async (itemId: string) => {
+    const trimmedName = newCategoryName.trim();
+
+    if (!trimmedName) {
+      setNewCategoryError('Category name is required');
+      return;
+    }
+
+    // Check for duplicate (case-insensitive)
+    const duplicate = categories.find(
+      c => c.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (duplicate) {
+      setNewCategoryError('A category with this name already exists');
+      return;
+    }
+
+    if (!companyId) {
+      setNewCategoryError('Not authenticated');
+      return;
+    }
+
+    try {
+      // Create the new category
+      const newCategory = {
+        ...createDefaultCPGCategory(companyId, trimmedName, deviceId),
+        id: uuidv4(),
+      } as CPGCategory;
+
+      await db.cpgCategories.add(newCategory);
+
+      // Reload categories
+      const cats = await db.cpgCategories
+        .where('company_id')
+        .equals(companyId)
+        .filter(c => c.active && !c.deleted_at)
+        .sortBy('name');
+      setCategories(cats);
+
+      // Auto-select the new category for this line item
+      updateCostItem(itemId, 'category_id', newCategory.id);
+      updateCostItem(itemId, 'variant', null);
+      updateCostItem(itemId, 'is_personal', false);
+
+      // Clear the form
+      setShowNewCategoryForm(null);
+      setNewCategoryName('');
+      setNewCategoryError('');
+    } catch (error) {
+      console.error('Error creating category:', error);
+      setNewCategoryError('Failed to create category. Please try again.');
+    }
+  };
+
+  const handleCreateVariant = async (itemId: string, categoryId: string) => {
+    const trimmedName = newVariantName.trim();
+
+    if (!trimmedName) {
+      setNewVariantError('Variant name is required');
+      return;
+    }
+
+    const category = categories.find(c => c.id === categoryId);
+    if (!category) {
+      setNewVariantError('Category not found');
+      return;
+    }
+
+    // Check for duplicate variant (case-insensitive)
+    const existingVariants = category.variants || [];
+    const duplicate = existingVariants.find(
+      v => v.toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (duplicate) {
+      setNewVariantError('This variant already exists');
+      return;
+    }
+
+    try {
+      // Update the category with the new variant
+      const updatedVariants = [...existingVariants, trimmedName];
+      await db.cpgCategories.update(categoryId, {
+        variants: updatedVariants,
+        updated_at: Date.now(),
+      });
+
+      // Reload categories
+      const cats = await db.cpgCategories
+        .where('company_id')
+        .equals(companyId)
+        .filter(c => c.active && !c.deleted_at)
+        .sortBy('name');
+      setCategories(cats);
+
+      // Auto-select the new variant for this line item
+      updateCostItem(itemId, 'variant', trimmedName);
+
+      // Clear the form
+      setShowNewVariantForm(null);
+      setNewVariantName('');
+      setNewVariantError('');
+    } catch (error) {
+      console.error('Error creating variant:', error);
+      setNewVariantError('Failed to create variant. Please try again.');
+    }
+  };
+
   return (
     <>
     <Modal
@@ -1008,6 +1128,9 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
             const isDistributionCategory = category?.is_distribution_category === true;
 
             // Determine grid layout based on category type
+            // Show variant column if: has variants OR (has category AND not distribution AND not personal)
+            const showVariantColumn = hasVariants || (category && !isDistributionCategory && !item.is_personal);
+
             let gridColumns = '1.5fr 0.6fr 0.6fr 0.6fr 0.7fr 1.2fr'; // Default: Category, Units, Unit, Price, Line Total, Description
             if (item.is_personal) {
               gridColumns = '1.5fr 1fr 1.2fr'; // Category, Amount, Description
@@ -1015,7 +1138,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
               gridColumns = '1.5fr 1fr 1fr 1fr 1.2fr'; // Category, Variant, Distribution, Total Cost, Description
             } else if (isDistributionCategory) {
               gridColumns = '1.5fr 1fr 1fr 1.2fr'; // Category, Distribution, Total Cost, Description
-            } else if (hasVariants) {
+            } else if (showVariantColumn) {
               gridColumns = '1.5fr 1fr 0.6fr 0.6fr 0.6fr 0.7fr 1.2fr'; // Category, Variant, Units, Unit, Price, Line Total, Description
             }
 
@@ -1058,6 +1181,16 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                       value={item.category_id}
                       onChange={(e) => {
                         const selectedValue = e.target.value;
+
+                        // Handle "Add New Category" selection
+                        if (selectedValue === '__new__') {
+                          setShowNewCategoryForm(item.id);
+                          setNewCategoryName('');
+                          setNewCategoryError('');
+                          setTimeout(() => newCategoryInputRef.current?.focus(), 50);
+                          return;
+                        }
+
                         const isPersonal = selectedValue === '__personal__';
                         const selectedCategory = isPersonal ? null : getCategory(selectedValue);
 
@@ -1096,6 +1229,9 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                       required
                     >
                       <option value="">Select...</option>
+                      <option value="__new__" style={{ fontWeight: 600, color: '#4b006e' }}>
+                        + Add New Category
+                      </option>
                       <option value="__personal__" style={{ fontStyle: 'italic', color: '#6b7280' }}>
                         👤 Personal Item
                       </option>
@@ -1108,6 +1244,92 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                         </option>
                       ))}
                     </select>
+
+                    {/* Inline New Category Form */}
+                    {showNewCategoryForm === item.id && (
+                      <div style={{
+                        marginTop: '0.5rem',
+                        padding: '0.75rem',
+                        backgroundColor: '#f3e8ff',
+                        border: '2px solid #4b006e',
+                        borderRadius: '0.375rem',
+                      }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                          <input
+                            ref={newCategoryInputRef}
+                            type="text"
+                            placeholder="Category name..."
+                            value={newCategoryName}
+                            onChange={(e) => {
+                              setNewCategoryName(e.target.value);
+                              setNewCategoryError('');
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleCreateCategory(item.id);
+                              } else if (e.key === 'Escape') {
+                                setShowNewCategoryForm(null);
+                                setNewCategoryName('');
+                                setNewCategoryError('');
+                              }
+                            }}
+                            style={{
+                              flex: 1,
+                              minHeight: '36px',
+                              padding: '0.5rem 0.75rem',
+                              border: newCategoryError ? '2px solid #dc2626' : '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.875rem',
+                              backgroundColor: '#ffffff',
+                              outline: 'none',
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleCreateCategory(item.id)}
+                            style={{
+                              padding: '0.5rem 0.75rem',
+                              backgroundColor: '#4b006e',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowNewCategoryForm(null);
+                              setNewCategoryName('');
+                              setNewCategoryError('');
+                            }}
+                            style={{
+                              padding: '0.5rem 0.75rem',
+                              backgroundColor: '#f3f4f6',
+                              color: '#374151',
+                              border: '1px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.75rem',
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                        {newCategoryError && (
+                          <p style={{ margin: '0.375rem 0 0', fontSize: '0.75rem', color: '#dc2626' }}>
+                            {newCategoryError}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Variant (if needed) - hide for personal items */}
@@ -1118,7 +1340,20 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                       </label>
                       <select
                         value={item.variant || ''}
-                        onChange={(e) => updateCostItem(item.id, 'variant', e.target.value || null)}
+                        onChange={(e) => {
+                          const selectedValue = e.target.value;
+
+                          // Handle "Add New Variant" selection
+                          if (selectedValue === '__new__') {
+                            setShowNewVariantForm(item.id);
+                            setNewVariantName('');
+                            setNewVariantError('');
+                            setTimeout(() => newVariantInputRef.current?.focus(), 50);
+                            return;
+                          }
+
+                          updateCostItem(item.id, 'variant', selectedValue || null);
+                        }}
                         style={{
                           width: '100%',
                           minHeight: '38px',
@@ -1133,16 +1368,230 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                         required
                       >
                         <option value="">Select...</option>
+                        <option value="__new__" style={{ fontWeight: 600, color: '#4b006e' }}>
+                          + Add New Variant
+                        </option>
                         {category?.variants?.map(variant => (
                           <option key={variant} value={variant}>
                             {variant}
                           </option>
                         ))}
                       </select>
+
+                      {/* Inline New Variant Form */}
+                      {showNewVariantForm === item.id && (
+                        <div style={{
+                          marginTop: '0.5rem',
+                          padding: '0.75rem',
+                          backgroundColor: '#f3e8ff',
+                          border: '2px solid #4b006e',
+                          borderRadius: '0.375rem',
+                        }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                            <input
+                              ref={newVariantInputRef}
+                              type="text"
+                              placeholder="Variant name..."
+                              value={newVariantName}
+                              onChange={(e) => {
+                                setNewVariantName(e.target.value);
+                                setNewVariantError('');
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleCreateVariant(item.id, item.category_id);
+                                } else if (e.key === 'Escape') {
+                                  setShowNewVariantForm(null);
+                                  setNewVariantName('');
+                                  setNewVariantError('');
+                                }
+                              }}
+                              style={{
+                                flex: 1,
+                                minHeight: '36px',
+                                padding: '0.5rem 0.75rem',
+                                border: newVariantError ? '2px solid #dc2626' : '2px solid #d1d5db',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.875rem',
+                                backgroundColor: '#ffffff',
+                                outline: 'none',
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleCreateVariant(item.id, item.category_id)}
+                              style={{
+                                padding: '0.5rem 0.75rem',
+                                backgroundColor: '#4b006e',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowNewVariantForm(null);
+                                setNewVariantName('');
+                                setNewVariantError('');
+                              }}
+                              style={{
+                                padding: '0.5rem 0.75rem',
+                                backgroundColor: '#f3f4f6',
+                                color: '#374151',
+                                border: '1px solid #d1d5db',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.75rem',
+                                fontWeight: 500,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                          {newVariantError && (
+                            <p style={{ margin: '0.375rem 0 0', fontSize: '0.75rem', color: '#dc2626' }}>
+                              {newVariantError}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
                       {errors[`item_${index}_variant`] && (
                         <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#dc2626' }}>
                           {errors[`item_${index}_variant`]}
                         </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Add Variant option for categories without variants */}
+                  {category && !hasVariants && !isDistributionCategory && !item.is_personal && (
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#6b7280' }}>
+                        Variant
+                      </label>
+                      {showNewVariantForm === item.id ? (
+                        <div style={{
+                          padding: '0.75rem',
+                          backgroundColor: '#f3e8ff',
+                          border: '2px solid #4b006e',
+                          borderRadius: '0.375rem',
+                        }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                            <input
+                              ref={newVariantInputRef}
+                              type="text"
+                              placeholder="Variant name..."
+                              value={newVariantName}
+                              onChange={(e) => {
+                                setNewVariantName(e.target.value);
+                                setNewVariantError('');
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleCreateVariant(item.id, item.category_id);
+                                } else if (e.key === 'Escape') {
+                                  setShowNewVariantForm(null);
+                                  setNewVariantName('');
+                                  setNewVariantError('');
+                                }
+                              }}
+                              style={{
+                                flex: 1,
+                                minHeight: '36px',
+                                padding: '0.5rem 0.75rem',
+                                border: newVariantError ? '2px solid #dc2626' : '2px solid #d1d5db',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.875rem',
+                                backgroundColor: '#ffffff',
+                                outline: 'none',
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleCreateVariant(item.id, item.category_id)}
+                              style={{
+                                padding: '0.5rem 0.75rem',
+                                backgroundColor: '#4b006e',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowNewVariantForm(null);
+                                setNewVariantName('');
+                                setNewVariantError('');
+                              }}
+                              style={{
+                                padding: '0.5rem 0.75rem',
+                                backgroundColor: '#f3f4f6',
+                                color: '#374151',
+                                border: '1px solid #d1d5db',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.75rem',
+                                fontWeight: 500,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                          {newVariantError && (
+                            <p style={{ margin: '0.375rem 0 0', fontSize: '0.75rem', color: '#dc2626' }}>
+                              {newVariantError}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowNewVariantForm(item.id);
+                            setNewVariantName('');
+                            setNewVariantError('');
+                            setTimeout(() => newVariantInputRef.current?.focus(), 50);
+                          }}
+                          style={{
+                            width: '100%',
+                            minHeight: '38px',
+                            padding: '0.5rem 0.75rem',
+                            border: '2px dashed #d1d5db',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.875rem',
+                            backgroundColor: '#f9fafb',
+                            color: '#6b7280',
+                            cursor: 'pointer',
+                            transition: 'all 150ms ease-out',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = '#4b006e';
+                            e.currentTarget.style.color = '#4b006e';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = '#d1d5db';
+                            e.currentTarget.style.color = '#6b7280';
+                          }}
+                        >
+                          + Add Variant (optional)
+                        </button>
                       )}
                     </div>
                   )}
