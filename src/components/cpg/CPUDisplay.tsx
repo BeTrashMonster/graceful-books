@@ -25,6 +25,8 @@ import { CPUBreakdownModal } from './modals/CPUBreakdownModal';
 import { ProductBreakdownModal } from './modals/ProductBreakdownModal';
 import { InvoiceDetailsModal } from './modals/InvoiceDetailsModal';
 import { AddInvoiceModal } from './modals/AddInvoiceModal';
+import { RecipeBuilderModal } from './modals/RecipeBuilderModal';
+import { LaborAssignmentModal } from './modals/LaborAssignmentModal';
 import { useCPGSettings } from '../../hooks/useCPGSettings';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -103,6 +105,11 @@ export function CPUDisplay({
   // Product breakdown modal (for entire product)
   const [showProductBreakdown, setShowProductBreakdown] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<FinishedProductCPUBreakdown | null>(null);
+
+  // Recipe and Labor edit modals (opened from ProductBreakdownModal)
+  const [showRecipeModal, setShowRecipeModal] = useState(false);
+  const [showLaborModal, setShowLaborModal] = useState(false);
+  const [editingProductForModal, setEditingProductForModal] = useState<{ id: string; name: string } | null>(null);
 
   const [showInvoiceDetails, setShowInvoiceDetails] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
@@ -214,6 +221,16 @@ export function CPUDisplay({
     window.addEventListener('cpg-data-updated', handleDataUpdate);
     return () => window.removeEventListener('cpg-data-updated', handleDataUpdate);
   }, [companyId]);
+
+  // Keep selectedProduct in sync when products array is refreshed
+  useEffect(() => {
+    if (selectedProduct && products.length > 0) {
+      const updatedProduct = products.find(p => p.productId === selectedProduct.productId);
+      if (updatedProduct && updatedProduct !== selectedProduct) {
+        setSelectedProduct(updatedProduct);
+      }
+    }
+  }, [products]);
 
   const loadFinishedProductCPUs = async () => {
     try {
@@ -600,34 +617,30 @@ export function CPUDisplay({
     URL.revokeObjectURL(url);
   };
 
-  if (isLoading || loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loadingGrid}>
-          {[1, 2, 3].map((i) => (
-            <div key={i} className={styles.skeletonCard} aria-label="Loading">
-              <div className={styles.skeletonHeader} />
-              <div className={styles.skeletonValue} />
-              <div className={styles.skeletonLabel} />
-            </div>
-          ))}
+  // Render loading skeleton inline instead of early return to keep modals visible
+  const renderLoadingSkeleton = () => (
+    <div className={styles.loadingGrid}>
+      {[1, 2, 3].map((i) => (
+        <div key={i} className={styles.skeletonCard} aria-label="Loading">
+          <div className={styles.skeletonHeader} />
+          <div className={styles.skeletonValue} />
+          <div className={styles.skeletonLabel} />
         </div>
-      </div>
-    );
-  }
+      ))}
+    </div>
+  );
 
-  if (products.length === 0) {
-    return (
-      <div className={styles.emptyState}>
-        <div className={styles.emptyIcon} aria-hidden="true">
-          📦
-        </div>
-        <p className={styles.emptyText}>
-          No products defined yet. Add your first product to see manufacturing costs.
-        </p>
+  // Render empty state inline instead of early return to keep modals visible
+  const renderEmptyState = () => (
+    <div className={styles.emptyState}>
+      <div className={styles.emptyIcon} aria-hidden="true">
+        📦
       </div>
-    );
-  }
+      <p className={styles.emptyText}>
+        No products defined yet. Add your first product to see manufacturing costs.
+      </p>
+    </div>
+  );
 
   // Apply filters and sorting
   let filteredProducts = products.filter((product) => {
@@ -766,8 +779,9 @@ export function CPUDisplay({
     }
   };
 
-  return (
-    <div className={styles.container}>
+  // Render main content (only when not loading and has products)
+  const renderMainContent = () => (
+    <>
       {/* Filters and Summary Stats - Side by Side Section Boxes */}
       <div style={{
         display: 'flex',
@@ -2037,6 +2051,20 @@ export function CPUDisplay({
         })()}
         </>
       )}
+    </>
+  );
+
+  // Main return - always renders modals regardless of loading/empty state
+  return (
+    <div className={styles.container}>
+      {/* Conditionally render loading, empty, or main content */}
+      {isLoading || loading ? (
+        renderLoadingSkeleton()
+      ) : products.length === 0 ? (
+        renderEmptyState()
+      ) : (
+        renderMainContent()
+      )}
 
       {/* CPU Breakdown Modal */}
       {showBreakdownModal && selectedComponent && (
@@ -2107,7 +2135,50 @@ export function CPUDisplay({
               })
             );
           }}
+          onEditRecipe={(productId, productName) => {
+            setEditingProductForModal({ id: productId, name: productName });
+            setShowRecipeModal(true);
+          }}
+          onEditLabor={(productId, productName) => {
+            setEditingProductForModal({ id: productId, name: productName });
+            setShowLaborModal(true);
+          }}
           bundleStructure={selectedProduct.bundleStructure}
+        />
+      )}
+
+      {/* Recipe Builder Modal (opened from ProductBreakdownModal) */}
+      {showRecipeModal && editingProductForModal && (
+        <RecipeBuilderModal
+          isOpen={showRecipeModal}
+          onClose={() => {
+            setShowRecipeModal(false);
+            setEditingProductForModal(null);
+            // Note: cpg-data-updated event from RecipeBuilder triggers refresh automatically
+          }}
+          finishedProductId={editingProductForModal.id}
+          productName={editingProductForModal.name}
+        />
+      )}
+
+      {/* Labor Assignment Modal (opened from ProductBreakdownModal) */}
+      {showLaborModal && editingProductForModal && (
+        <LaborAssignmentModal
+          isOpen={showLaborModal}
+          onClose={() => {
+            setShowLaborModal(false);
+            setEditingProductForModal(null);
+            // Refresh product data
+            loadFinishedProductCPUs();
+          }}
+          productId={editingProductForModal.id}
+          productName={editingProductForModal.name}
+          onSuccess={() => {
+            setShowLaborModal(false);
+            setEditingProductForModal(null);
+            // Refresh product data
+            loadFinishedProductCPUs();
+          }}
         />
       )}
     </div>

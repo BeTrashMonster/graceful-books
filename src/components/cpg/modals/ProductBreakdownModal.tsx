@@ -48,6 +48,8 @@ export interface ProductBreakdownModalProps {
   companyId: string;
   onNavigateToVendorIntel?: (vendorName: string) => void;
   onNavigateToRecipe?: (productId: string, productName: string) => void;
+  onEditRecipe?: (productId: string, productName: string) => void;
+  onEditLabor?: (productId: string, productName: string) => void;
   bundleStructure?: {
     products: Array<{
       productId: string;
@@ -94,6 +96,8 @@ export function ProductBreakdownModal({
   companyId,
   onNavigateToVendorIntel,
   onNavigateToRecipe,
+  onEditRecipe,
+  onEditLabor,
   bundleStructure,
 }: ProductBreakdownModalProps) {
   const [selectedComponent, setSelectedComponent] = useState<ProductBreakdownComponent | null>(null);
@@ -921,6 +925,74 @@ export function ProductBreakdownModal({
                 );
               })()}
             </div>
+
+            {/* Edit Buttons */}
+            {productId && (onEditRecipe || onEditLabor) && (
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                {onEditRecipe && (
+                  <button
+                    onClick={() => onEditRecipe(productId, productName)}
+                    style={{
+                      flex: 1,
+                      padding: '0.5rem 0.75rem',
+                      backgroundColor: 'transparent',
+                      color: '#4b006e',
+                      border: '2px solid #4b006e',
+                      borderRadius: '6px',
+                      fontSize: '0.8125rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 150ms ease-out',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.375rem',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#4b006e';
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#4b006e';
+                    }}
+                  >
+                    Edit Recipe
+                  </button>
+                )}
+                {onEditLabor && (
+                  <button
+                    onClick={() => onEditLabor(productId, productName)}
+                    style={{
+                      flex: 1,
+                      padding: '0.5rem 0.75rem',
+                      backgroundColor: 'transparent',
+                      color: '#D4AF37',
+                      border: '2px solid #D4AF37',
+                      borderRadius: '6px',
+                      fontSize: '0.8125rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 150ms ease-out',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.375rem',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#D4AF37';
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#D4AF37';
+                    }}
+                  >
+                    Edit Labor
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Export Button */}
             <div style={{ marginBottom: '1rem' }}>
