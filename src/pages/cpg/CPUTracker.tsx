@@ -655,6 +655,7 @@ export default function CPUTracker() {
           invoiceId={selectedInvoiceId}
           onEdit={(invoiceId) => {
             setEditingInvoiceId(invoiceId);
+            setInvoiceFormMode('edit');
             setShowInvoiceForm(true);
           }}
         />
