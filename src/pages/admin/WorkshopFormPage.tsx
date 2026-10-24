@@ -142,8 +142,8 @@ export default function WorkshopFormPage() {
         }
       });
 
-      // Parse email schedule or use defaults
-      const emailSchedule: EmailSchedule = workshop.customEmailSchedule || {
+      // Parse email schedule - merge with defaults to ensure trialEnding exists for existing workshops
+      const defaultSchedule: EmailSchedule = {
         welcome: { enabled: true, when: 'immediate' },
         reminder: { enabled: true, when: { hours_before: 24 } },
         week1: { enabled: true, when: { days_after_workshop: 7 } },
@@ -152,6 +152,11 @@ export default function WorkshopFormPage() {
         week4: { enabled: true, when: { days_after_workshop: 28 } },
         wrapUp: { enabled: true, when: { days_after_workshop: 30 } },
         trialEnding: { enabled: true, when: { days_before_trial_expires: 3 } },
+      };
+      // Merge existing config with defaults (ensures trialEnding exists for older workshops)
+      const emailSchedule: EmailSchedule = {
+        ...defaultSchedule,
+        ...(workshop.customEmailSchedule || {}),
       };
 
       // Convert API response to form data

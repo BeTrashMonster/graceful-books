@@ -63,9 +63,17 @@ const emailTypesForTabs = [
   { key: 'trialEnding' as EmailType, label: 'Trial Ending' },
 ];
 
+// Default schedule config for trialEnding (for existing workshops that don't have it)
+const DEFAULT_TRIAL_ENDING_SCHEDULE: EmailScheduleConfig = {
+  enabled: true,
+  when: { days_before_trial_expires: 3 },
+};
+
 export default function EmailTemplateSection(props: EmailTemplateSectionProps) {
   const isCustomized = props.customizedEmails.includes(props.selectedEmailType);
-  const currentSchedule = props.emailSchedule[props.selectedEmailType];
+  // Fallback to default for trialEnding if not present in existing workshop config
+  const currentSchedule = props.emailSchedule[props.selectedEmailType]
+    || (props.selectedEmailType === 'trialEnding' ? DEFAULT_TRIAL_ENDING_SCHEDULE : undefined);
 
   const handleRadioChange = (customize: boolean) => {
     // Only toggle if changing state
