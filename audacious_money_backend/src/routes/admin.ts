@@ -23,6 +23,14 @@ import { hashPassword } from '../utils/password.js';
 import { z } from 'zod';
 import { stripe } from '../services/stripe.service.js';
 import { sendAdminBroadcastEmail, BROADCAST_TEMPLATES, type BroadcastTemplateId } from '../services/email.service.js';
+import {
+  getUserDetails,
+  getUserEmailHistory,
+  addUserSuppression,
+  removeUserSuppression,
+  cancelScheduledEmail,
+  computeStatusBadge,
+} from '../services/adminDiagnostics.service.js';
 
 const admin = new Hono<HonoEnv>();
 
@@ -100,11 +108,86 @@ admin.post('/login', validate(loginSchema), async (c) => {
  * GET /admin/users
  *
  * List all users (admin only)
+ * Supports filtering by: search, product, workshop, status, isBeta, needsAttention, emailSuppressed
  */
 admin.get('/users', requireAdmin, async (c) => {
   const db = c.get('db');
 
+  // Parse query parameters
+  const search = c.req.query('search')?.toLowerCase();
+  const product = c.req.query('product');
+  const workshop = c.req.query('workshop');
+  const status = c.req.query('status');
+  const isBeta = c.req.query('isBeta');
+  const needsAttention = c.req.query('needsAttention');
+  const emailSuppressed = c.req.query('emailSuppressed');
+  const page = parseInt(c.req.query('page') || '1');
+  const pageSize = Math.min(parseInt(c.req.query('pageSize') || '50'), 100);
+  const offset = (page - 1) * pageSize;
+
   try {
+    // Build dynamic WHERE clause
+    const conditions: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
+
+    // Search filter (email, name, support key)
+    if (search) {
+      conditions.push(`(
+        LOWER(u.email) LIKE $${paramIndex}
+        OR LOWER(u.first_name || ' ' || u.last_name) LIKE $${paramIndex}
+        OR LOWER(u.support_key) LIKE $${paramIndex}
+      )`);
+      params.push(`%${search}%`);
+      paramIndex++;
+    }
+
+    // Product filter
+    if (product) {
+      conditions.push(`EXISTS (
+        SELECT 1 FROM user_products up
+        JOIN products p ON up.product_id = p.id
+        WHERE up.user_id = u.id AND p.slug = $${paramIndex}
+      )`);
+      params.push(product);
+      paramIndex++;
+    }
+
+    // Workshop filter
+    if (workshop === 'any') {
+      conditions.push(`u.current_workshop_enrollment_id IS NOT NULL`);
+    } else if (workshop) {
+      conditions.push(`EXISTS (
+        SELECT 1 FROM workshop_enrollments we
+        WHERE we.user_id = u.id AND we.workshop_id = $${paramIndex}
+      )`);
+      params.push(workshop);
+      paramIndex++;
+    }
+
+    // Beta filter
+    if (isBeta === 'true') {
+      conditions.push(`u.is_beta = true`);
+    }
+
+    // Email suppressed filter
+    if (emailSuppressed === 'true') {
+      conditions.push(`EXISTS (
+        SELECT 1 FROM email_suppressions es
+        WHERE es.user_id = u.id AND es.reactivated_at IS NULL
+      )`);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    // Get total count
+    const countResult = await db.query(
+      `SELECT COUNT(*) FROM users u ${whereClause}`,
+      params
+    );
+    const total = parseInt(countResult.rows[0].count);
+
+    // Main query with all needed data for badge computation
     const result = await db.query(
       `SELECT
         u.id,
@@ -117,37 +200,108 @@ admin.get('/users', requireAdmin, async (c) => {
         u.email_verified,
         u.created_at,
         u.last_login_at,
-        -- Subscription status: show 'trialing' if any product is trialing, else show first product status
-        (
-          SELECT CASE
-            WHEN COUNT(*) FILTER (WHERE status = 'trialing') > 0 THEN 'trialing'
-            WHEN COUNT(*) > 0 THEN MIN(status)
-            ELSE NULL
-          END
-          FROM user_products
-          WHERE user_id = u.id
-        ) as subscription_status,
-        -- Count of products
-        (SELECT COUNT(*) FROM user_products WHERE user_id = u.id) as product_count
+        u.is_beta,
+        u.current_workshop_enrollment_id,
+        -- Get all product statuses as JSON array for badge computation
+        COALESCE(
+          (SELECT json_agg(json_build_object(
+            'status', up.status,
+            'trialEndsAt', up.trial_ends_at,
+            'gracePeriodEndsAt', up.grace_period_ends_at,
+            'pausedAt', up.paused_at
+          ))
+          FROM user_products up WHERE up.user_id = u.id),
+          '[]'::json
+        ) as products_json,
+        -- Workshop info
+        we.trial_expires_at as workshop_trial_expires_at,
+        we.converted_to_paid_at as workshop_converted_to_paid_at,
+        w.cohort_name as workshop_cohort_name,
+        -- Email suppression check
+        (SELECT COUNT(*) > 0 FROM email_suppressions es WHERE es.user_id = u.id AND es.reactivated_at IS NULL) as is_email_suppressed
        FROM users u
-       ORDER BY u.created_at DESC`
+       LEFT JOIN workshop_enrollments we ON we.id = u.current_workshop_enrollment_id
+       LEFT JOIN workshops w ON w.id = we.workshop_id
+       ${whereClause}
+       ORDER BY u.created_at DESC
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+      [...params, pageSize, offset]
     );
 
-    return success(c, {
-      users: result.rows.map((row) => ({
+    // Process results and compute badges
+    const users = result.rows.map((row) => {
+      // Parse products JSON
+      const products = Array.isArray(row.products_json) ? row.products_json : [];
+
+      // Compute status badge
+      const statusBadge = computeStatusBadge({
+        isBeta: row.is_beta || false,
+        accountStatus: row.account_status,
+        products: products.map((p: any) => ({
+          status: p.status,
+          trialEndsAt: p.trialEndsAt,
+          gracePeriodEndsAt: p.gracePeriodEndsAt,
+          pausedAt: p.pausedAt,
+        })),
+        workshopTrialExpiresAt: row.workshop_trial_expires_at,
+        workshopConvertedToPaidAt: row.workshop_converted_to_paid_at,
+      });
+
+      // Determine if needs attention
+      const needsAttentionFlag = statusBadge.variant === 'error' || statusBadge.variant === 'warning';
+
+      // Build workshop badge if applicable
+      let workshopBadge = null;
+      if (row.workshop_cohort_name) {
+        const cohortName = row.workshop_cohort_name;
+        const monthMatch = cohortName.match(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})/i);
+        workshopBadge = {
+          cohortName,
+          shortName: monthMatch ? `${monthMatch[1].substring(0, 3)} ${monthMatch[2]}` : cohortName.substring(0, 10),
+        };
+      }
+
+      return {
         id: row.id,
         email: row.email,
         firstName: row.first_name,
         lastName: row.last_name,
         companyName: row.company_name,
         supportKey: row.support_key,
+        statusBadge,
+        workshopBadge,
+        isBeta: row.is_beta || false,
+        needsAttention: needsAttentionFlag,
+        isEmailSuppressed: row.is_email_suppressed || false,
+        // Keep legacy fields for backwards compatibility
         accountStatus: row.account_status,
         emailVerified: row.email_verified,
         createdAt: row.created_at,
         lastLoginAt: row.last_login_at,
-        subscriptionStatus: row.subscription_status,
-        productCount: parseInt(row.product_count),
-      })),
+      };
+    });
+
+    // Apply needsAttention filter after badge computation
+    let filteredUsers = users;
+    if (needsAttention === 'true') {
+      filteredUsers = users.filter(u => u.needsAttention);
+    }
+
+    // Apply status filter after badge computation
+    if (status) {
+      filteredUsers = filteredUsers.filter(u =>
+        u.statusBadge.label.toLowerCase().includes(status.toLowerCase())
+      );
+    }
+
+    return success(c, {
+      users: filteredUsers,
+      pagination: {
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      },
     });
   } catch (error) {
     console.error('[Admin] Error fetching users:', error);
@@ -2269,6 +2423,260 @@ admin.get('/broadcast-templates', requireAdmin, async (c) => {
   }));
 
   return success(c, { templates });
+});
+
+// =============================================================================
+// USER DIAGNOSTICS ENDPOINTS (Phase 2)
+// =============================================================================
+
+/**
+ * GET /admin/users/:userId/details
+ *
+ * Get comprehensive user details for diagnostics panel
+ * Returns tiered data: summary, cards (account, subscription, workshop, health, emailHealth)
+ */
+admin.get('/users/:userId/details', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+
+  try {
+    const details = await getUserDetails(db, userId);
+
+    if (!details) {
+      return notFound(c, ErrorCodes.USER_NOT_FOUND, 'User not found');
+    }
+
+    return success(c, details);
+  } catch (error) {
+    console.error('[Admin] Error getting user details:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get user details');
+  }
+});
+
+/**
+ * GET /admin/users/:userId/emails
+ *
+ * Get user's email history with rendered content for preview
+ * Includes sent emails, scheduled emails, and suppression status
+ */
+admin.get('/users/:userId/emails', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+
+  // Parse query parameters
+  const page = parseInt(c.req.query('page') || '1');
+  const pageSize = Math.min(parseInt(c.req.query('pageSize') || '50'), 100);
+  const emailType = c.req.query('emailType');
+  const status = c.req.query('status');
+
+  try {
+    const emailHistory = await getUserEmailHistory(db, userId, {
+      page,
+      pageSize,
+      emailType: emailType || undefined,
+      status: status || undefined,
+    });
+
+    return success(c, emailHistory);
+  } catch (error) {
+    console.error('[Admin] Error getting email history:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get email history');
+  }
+});
+
+/**
+ * POST /admin/users/:userId/emails/:emailId/resend
+ *
+ * Resend a previously sent email to the user
+ */
+admin.post('/users/:userId/emails/:emailId/resend', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const emailId = c.req.param('emailId');
+  const db = c.get('db');
+  const adminUser = c.get('adminUser');
+
+  try {
+    // Get the original email
+    const emailResult = await db.query(`
+      SELECT id, user_id, recipient_email, email_type, subject, html_content, text_content,
+             workshop_id, workshop_enrollment_id
+      FROM sent_emails
+      WHERE id = $1 AND user_id = $2
+    `, [emailId, userId]);
+
+    if (emailResult.rows.length === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Email not found');
+    }
+
+    const originalEmail = emailResult.rows[0];
+
+    // Import Postmark client and send
+    const postmark = await import('postmark');
+    const client = new postmark.ServerClient(process.env.POSTMARK_SERVER_TOKEN || '');
+
+    const result = await client.sendEmail({
+      From: process.env.POSTMARK_FROM_EMAIL || 'noreply@audacious.money',
+      To: originalEmail.recipient_email,
+      Subject: originalEmail.subject,
+      HtmlBody: originalEmail.html_content,
+      TextBody: originalEmail.text_content || undefined,
+      Tag: `resend|${originalEmail.email_type}`,
+      Metadata: {
+        userId: originalEmail.user_id,
+        originalEmailId: originalEmail.id,
+        resentBy: adminUser.id,
+      },
+    });
+
+    // Store the resent email
+    const { storeSentEmail } = await import('../services/emailStorage.service.js');
+    const newEmailId = await storeSentEmail({
+      userId: originalEmail.user_id,
+      recipientEmail: originalEmail.recipient_email,
+      emailType: originalEmail.email_type,
+      subject: originalEmail.subject,
+      htmlContent: originalEmail.html_content,
+      textContent: originalEmail.text_content,
+      workshopId: originalEmail.workshop_id,
+      workshopEnrollmentId: originalEmail.workshop_enrollment_id,
+      triggeredBy: 'admin',
+      triggeredByAdminId: adminUser.id,
+      deliveryStatus: 'sent',
+      deliveryProvider: 'postmark',
+      providerMessageId: result.MessageID,
+    });
+
+    return success(c, {
+      success: true,
+      newEmailId,
+      message: `Email resent successfully to ${originalEmail.recipient_email}`,
+    });
+  } catch (error) {
+    console.error('[Admin] Error resending email:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to resend email');
+  }
+});
+
+/**
+ * DELETE /admin/users/:userId/scheduled-emails/:scheduledEmailId
+ *
+ * Cancel a scheduled email
+ */
+admin.delete('/users/:userId/scheduled-emails/:scheduledEmailId', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const scheduledEmailId = c.req.param('scheduledEmailId');
+  const db = c.get('db');
+  const adminUser = c.get('adminUser');
+
+  try {
+    // Verify the scheduled email belongs to this user
+    const checkResult = await db.query(
+      'SELECT id FROM scheduled_emails WHERE id = $1 AND user_id = $2',
+      [scheduledEmailId, userId]
+    );
+
+    if (checkResult.rows.length === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Scheduled email not found');
+    }
+
+    // Parse request body for optional reason
+    let reason: string | undefined;
+    try {
+      const body = await c.req.json();
+      reason = body.reason;
+    } catch {
+      // No body provided, that's fine
+    }
+
+    const cancelled = await cancelScheduledEmail(db, scheduledEmailId, adminUser.id, reason);
+
+    if (!cancelled) {
+      return badRequest(c, ErrorCodes.INVALID_REQUEST, 'Email could not be cancelled (may already be sent or cancelled)');
+    }
+
+    return success(c, {
+      success: true,
+      message: 'Scheduled email cancelled',
+    });
+  } catch (error) {
+    console.error('[Admin] Error cancelling scheduled email:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to cancel scheduled email');
+  }
+});
+
+/**
+ * POST /admin/users/:userId/email-suppression
+ *
+ * Add user to email suppression list
+ */
+admin.post('/users/:userId/email-suppression', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+  const adminUser = c.get('adminUser');
+
+  try {
+    const body = await c.req.json();
+    const { reason, emailTypes } = body;
+
+    if (!reason || typeof reason !== 'string') {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Reason is required');
+    }
+
+    // Get user's email
+    const userResult = await db.query('SELECT email FROM users WHERE id = $1', [userId]);
+    if (userResult.rows.length === 0) {
+      return notFound(c, ErrorCodes.USER_NOT_FOUND, 'User not found');
+    }
+
+    await addUserSuppression(
+      db,
+      userId,
+      userResult.rows[0].email,
+      adminUser.id,
+      reason,
+      emailTypes
+    );
+
+    return success(c, {
+      success: true,
+      message: 'User added to suppression list',
+    });
+  } catch (error) {
+    console.error('[Admin] Error adding suppression:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to add suppression');
+  }
+});
+
+/**
+ * DELETE /admin/users/:userId/email-suppression
+ *
+ * Remove user from email suppression list (reactivate)
+ */
+admin.delete('/users/:userId/email-suppression', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+  const adminUser = c.get('adminUser');
+
+  try {
+    // Parse request body for optional reason
+    let reason: string | undefined;
+    try {
+      const body = await c.req.json();
+      reason = body.reason;
+    } catch {
+      // No body provided, that's fine
+    }
+
+    await removeUserSuppression(db, userId, adminUser.id, reason);
+
+    return success(c, {
+      success: true,
+      message: 'User removed from suppression list',
+    });
+  } catch (error) {
+    console.error('[Admin] Error removing suppression:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to remove suppression');
+  }
 });
 
 export default admin;
