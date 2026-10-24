@@ -979,3 +979,175 @@ export async function prepareUserDeletion(
     userSnapshot,
   };
 }
+
+// =============================================================================
+// USER NOTES
+// =============================================================================
+
+export interface UserNote {
+  id: string;
+  userId: string;
+  note: string;
+  noteType: 'general' | 'support' | 'billing' | 'technical';
+  createdByAdminId: string;
+  createdByAdminName: string;
+  updatedByAdminId: string | null;
+  updatedByAdminName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getUserNotes(db: Pool, userId: string): Promise<UserNote[]> {
+  const result = await db.query(`
+    SELECT
+      n.id, n.user_id, n.note, n.note_type,
+      n.created_by_admin_id, n.updated_by_admin_id,
+      n.created_at, n.updated_at,
+      ca.first_name || ' ' || ca.last_name as created_by_admin_name,
+      ua.first_name || ' ' || ua.last_name as updated_by_admin_name
+    FROM user_notes n
+    LEFT JOIN admin_users ca ON n.created_by_admin_id = ca.id
+    LEFT JOIN admin_users ua ON n.updated_by_admin_id = ua.id
+    WHERE n.user_id = $1
+    ORDER BY n.created_at DESC
+  `, [userId]);
+
+  return result.rows.map(r => ({
+    id: r.id,
+    userId: r.user_id,
+    note: r.note,
+    noteType: r.note_type,
+    createdByAdminId: r.created_by_admin_id,
+    createdByAdminName: r.created_by_admin_name || 'Unknown',
+    updatedByAdminId: r.updated_by_admin_id,
+    updatedByAdminName: r.updated_by_admin_name,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  }));
+}
+
+export async function createUserNote(
+  db: Pool,
+  userId: string,
+  adminId: string,
+  note: string,
+  noteType: 'general' | 'support' | 'billing' | 'technical' = 'general'
+): Promise<string> {
+  const result = await db.query(`
+    INSERT INTO user_notes (user_id, note, note_type, created_by_admin_id)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id
+  `, [userId, note, noteType, adminId]);
+
+  return result.rows[0].id;
+}
+
+export async function updateUserNote(
+  db: Pool,
+  noteId: string,
+  adminId: string,
+  note: string,
+  noteType?: 'general' | 'support' | 'billing' | 'technical'
+): Promise<boolean> {
+  const result = await db.query(`
+    UPDATE user_notes
+    SET note = $2,
+        note_type = COALESCE($3, note_type),
+        updated_by_admin_id = $4,
+        updated_at = NOW()
+    WHERE id = $1
+    RETURNING id
+  `, [noteId, note, noteType || null, adminId]);
+
+  return result.rowCount > 0;
+}
+
+export async function deleteUserNote(db: Pool, noteId: string): Promise<boolean> {
+  const result = await db.query(`
+    DELETE FROM user_notes WHERE id = $1 RETURNING id
+  `, [noteId]);
+
+  return result.rowCount > 0;
+}
+
+// =============================================================================
+// USER TAGS
+// =============================================================================
+
+export interface UserTag {
+  id: string;
+  userId: string;
+  tag: string;
+  createdByAdminId: string;
+  createdByAdminName: string;
+  createdAt: string;
+}
+
+export async function getUserTags(db: Pool, userId: string): Promise<UserTag[]> {
+  const result = await db.query(`
+    SELECT
+      t.id, t.user_id, t.tag, t.created_by_admin_id, t.created_at,
+      a.first_name || ' ' || a.last_name as created_by_admin_name
+    FROM user_tags t
+    LEFT JOIN admin_users a ON t.created_by_admin_id = a.id
+    WHERE t.user_id = $1
+    ORDER BY t.tag ASC
+  `, [userId]);
+
+  return result.rows.map(r => ({
+    id: r.id,
+    userId: r.user_id,
+    tag: r.tag,
+    createdByAdminId: r.created_by_admin_id,
+    createdByAdminName: r.created_by_admin_name || 'Unknown',
+    createdAt: r.created_at,
+  }));
+}
+
+export async function addUserTag(
+  db: Pool,
+  userId: string,
+  adminId: string,
+  tag: string
+): Promise<string | null> {
+  // Normalize tag: lowercase, trim, replace spaces with hyphens
+  const normalizedTag = tag.toLowerCase().trim().replace(/\s+/g, '-');
+
+  try {
+    const result = await db.query(`
+      INSERT INTO user_tags (user_id, tag, created_by_admin_id)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (user_id, tag) DO NOTHING
+      RETURNING id
+    `, [userId, normalizedTag, adminId]);
+
+    return result.rows[0]?.id || null;
+  } catch (error) {
+    console.error('[AdminDiagnostics] Error adding tag:', error);
+    return null;
+  }
+}
+
+export async function removeUserTag(db: Pool, userId: string, tag: string): Promise<boolean> {
+  const normalizedTag = tag.toLowerCase().trim().replace(/\s+/g, '-');
+
+  const result = await db.query(`
+    DELETE FROM user_tags WHERE user_id = $1 AND tag = $2 RETURNING id
+  `, [userId, normalizedTag]);
+
+  return result.rowCount > 0;
+}
+
+export async function getAllTags(db: Pool): Promise<Array<{ tag: string; userCount: number }>> {
+  const result = await db.query(`
+    SELECT tag, COUNT(*) as user_count
+    FROM user_tags
+    GROUP BY tag
+    ORDER BY user_count DESC, tag ASC
+  `);
+
+  return result.rows.map(r => ({
+    tag: r.tag,
+    userCount: parseInt(r.user_count),
+  }));
+}

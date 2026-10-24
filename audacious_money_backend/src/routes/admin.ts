@@ -33,6 +33,14 @@ import {
   exportUserData,
   getDeletionPreview,
   prepareUserDeletion,
+  getUserNotes,
+  createUserNote,
+  updateUserNote,
+  deleteUserNote,
+  getUserTags,
+  addUserTag,
+  removeUserTag,
+  getAllTags,
 } from '../services/adminDiagnostics.service.js';
 
 const admin = new Hono<HonoEnv>();
@@ -124,6 +132,7 @@ admin.get('/users', requireAdmin, async (c) => {
   const isBeta = c.req.query('isBeta');
   const needsAttention = c.req.query('needsAttention');
   const emailSuppressed = c.req.query('emailSuppressed');
+  const tag = c.req.query('tag');
   const page = parseInt(c.req.query('page') || '1');
   const pageSize = Math.min(parseInt(c.req.query('pageSize') || '50'), 100);
   const offset = (page - 1) * pageSize;
@@ -181,6 +190,17 @@ admin.get('/users', requireAdmin, async (c) => {
       )`);
     }
 
+    // Tag filter
+    if (tag) {
+      const normalizedTag = tag.toLowerCase().trim().replace(/\s+/g, '-');
+      conditions.push(`EXISTS (
+        SELECT 1 FROM user_tags ut
+        WHERE ut.user_id = u.id AND ut.tag = $${paramIndex}
+      )`);
+      params.push(normalizedTag);
+      paramIndex++;
+    }
+
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     // Get total count
@@ -221,7 +241,12 @@ admin.get('/users', requireAdmin, async (c) => {
         we.converted_to_paid_at as workshop_converted_to_paid_at,
         w.cohort_name as workshop_cohort_name,
         -- Email suppression check
-        (SELECT COUNT(*) > 0 FROM email_suppressions es WHERE es.user_id = u.id AND es.reactivated_at IS NULL) as is_email_suppressed
+        (SELECT COUNT(*) > 0 FROM email_suppressions es WHERE es.user_id = u.id AND es.reactivated_at IS NULL) as is_email_suppressed,
+        -- User tags
+        COALESCE(
+          (SELECT array_agg(ut.tag ORDER BY ut.tag) FROM user_tags ut WHERE ut.user_id = u.id),
+          '{}'::text[]
+        ) as tags
        FROM users u
        LEFT JOIN workshop_enrollments we ON we.id = u.current_workshop_enrollment_id
        LEFT JOIN workshops w ON w.id = we.workshop_id
@@ -276,6 +301,7 @@ admin.get('/users', requireAdmin, async (c) => {
         isBeta: row.is_beta || false,
         needsAttention: needsAttentionFlag,
         isEmailSuppressed: row.is_email_suppressed || false,
+        tags: row.tags || [],
         // Keep legacy fields for backwards compatibility
         accountStatus: row.account_status,
         emailVerified: row.email_verified,
@@ -2775,6 +2801,238 @@ admin.delete('/users/:userId/email-suppression', requireAdmin, async (c) => {
   } catch (error) {
     console.error('[Admin] Error removing suppression:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to remove suppression');
+  }
+});
+
+// =============================================================================
+// USER NOTES ENDPOINTS (Phase 4)
+// =============================================================================
+
+/**
+ * GET /admin/users/:userId/notes
+ *
+ * Get all notes for a user
+ */
+admin.get('/users/:userId/notes', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+
+  try {
+    const notes = await getUserNotes(db, userId);
+    return success(c, { notes });
+  } catch (error) {
+    console.error('[Admin] Error getting user notes:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get notes');
+  }
+});
+
+/**
+ * POST /admin/users/:userId/notes
+ *
+ * Create a new note for a user
+ */
+admin.post('/users/:userId/notes', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+  const adminUser = c.get('adminUser');
+
+  try {
+    const body = await c.req.json();
+    const { note, noteType } = body;
+
+    if (!note || typeof note !== 'string' || note.trim().length === 0) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Note content is required');
+    }
+
+    const validTypes = ['general', 'support', 'billing', 'technical'];
+    if (noteType && !validTypes.includes(noteType)) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, `Note type must be one of: ${validTypes.join(', ')}`);
+    }
+
+    const noteId = await createUserNote(db, userId, adminUser.id, note.trim(), noteType || 'general');
+
+    return success(c, {
+      success: true,
+      noteId,
+      message: 'Note created successfully',
+    });
+  } catch (error) {
+    console.error('[Admin] Error creating note:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to create note');
+  }
+});
+
+/**
+ * PATCH /admin/users/:userId/notes/:noteId
+ *
+ * Update an existing note
+ */
+admin.patch('/users/:userId/notes/:noteId', requireAdmin, async (c) => {
+  const noteId = c.req.param('noteId');
+  const db = c.get('db');
+  const adminUser = c.get('adminUser');
+
+  try {
+    const body = await c.req.json();
+    const { note, noteType } = body;
+
+    if (!note || typeof note !== 'string' || note.trim().length === 0) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Note content is required');
+    }
+
+    const validTypes = ['general', 'support', 'billing', 'technical'];
+    if (noteType && !validTypes.includes(noteType)) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, `Note type must be one of: ${validTypes.join(', ')}`);
+    }
+
+    const updated = await updateUserNote(db, noteId, adminUser.id, note.trim(), noteType);
+
+    if (!updated) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Note not found');
+    }
+
+    return success(c, {
+      success: true,
+      message: 'Note updated successfully',
+    });
+  } catch (error) {
+    console.error('[Admin] Error updating note:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to update note');
+  }
+});
+
+/**
+ * DELETE /admin/users/:userId/notes/:noteId
+ *
+ * Delete a note
+ */
+admin.delete('/users/:userId/notes/:noteId', requireAdmin, async (c) => {
+  const noteId = c.req.param('noteId');
+  const db = c.get('db');
+
+  try {
+    const deleted = await deleteUserNote(db, noteId);
+
+    if (!deleted) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Note not found');
+    }
+
+    return success(c, {
+      success: true,
+      message: 'Note deleted successfully',
+    });
+  } catch (error) {
+    console.error('[Admin] Error deleting note:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to delete note');
+  }
+});
+
+// =============================================================================
+// USER TAGS ENDPOINTS (Phase 4)
+// =============================================================================
+
+/**
+ * GET /admin/tags
+ *
+ * Get all tags with usage counts (for autocomplete/management)
+ */
+admin.get('/tags', requireAdmin, async (c) => {
+  const db = c.get('db');
+
+  try {
+    const tags = await getAllTags(db);
+    return success(c, { tags });
+  } catch (error) {
+    console.error('[Admin] Error getting tags:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get tags');
+  }
+});
+
+/**
+ * GET /admin/users/:userId/tags
+ *
+ * Get all tags for a user
+ */
+admin.get('/users/:userId/tags', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+
+  try {
+    const tags = await getUserTags(db, userId);
+    return success(c, { tags });
+  } catch (error) {
+    console.error('[Admin] Error getting user tags:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get tags');
+  }
+});
+
+/**
+ * POST /admin/users/:userId/tags
+ *
+ * Add a tag to a user
+ */
+admin.post('/users/:userId/tags', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+  const adminUser = c.get('adminUser');
+
+  try {
+    const body = await c.req.json();
+    const { tag } = body;
+
+    if (!tag || typeof tag !== 'string' || tag.trim().length === 0) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Tag is required');
+    }
+
+    if (tag.length > 50) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Tag must be 50 characters or less');
+    }
+
+    const tagId = await addUserTag(db, userId, adminUser.id, tag);
+
+    if (!tagId) {
+      return success(c, {
+        success: true,
+        message: 'Tag already exists on this user',
+        alreadyExists: true,
+      });
+    }
+
+    return success(c, {
+      success: true,
+      tagId,
+      message: 'Tag added successfully',
+    });
+  } catch (error) {
+    console.error('[Admin] Error adding tag:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to add tag');
+  }
+});
+
+/**
+ * DELETE /admin/users/:userId/tags/:tag
+ *
+ * Remove a tag from a user
+ */
+admin.delete('/users/:userId/tags/:tag', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const tag = c.req.param('tag');
+  const db = c.get('db');
+
+  try {
+    const removed = await removeUserTag(db, userId, tag);
+
+    if (!removed) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Tag not found on this user');
+    }
+
+    return success(c, {
+      success: true,
+      message: 'Tag removed successfully',
+    });
+  } catch (error) {
+    console.error('[Admin] Error removing tag:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to remove tag');
   }
 });
 
