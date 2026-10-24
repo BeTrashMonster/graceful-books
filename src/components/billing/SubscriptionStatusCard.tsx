@@ -78,6 +78,7 @@ export function SubscriptionStatusCard({
     );
   }
 
+  const isActive = subscription.status === 'active' || subscription.status === 'trial';
   const isPaused = subscription.status === 'paused';
   const isInGracePeriod = subscription.gracePeriodEndsAt !== null;
   const isBeta = subscription.isBeta;
@@ -193,12 +194,12 @@ export function SubscriptionStatusCard({
 
           {/* Actions */}
           <div className={styles.actions}>
-            {/* Only show Pause for active paying customers with Stripe subscription */}
-            {subscription.status === 'active' && subscription.stripeSubscriptionId && (
+            {/* TODO: Re-enable pause functionality post-launch after implementing full enforcement */}
+            {/* {isActive && (
               <Button variant="secondary" onClick={() => setShowPauseModal(true)}>
                 Pause Subscription
               </Button>
-            )}
+            )} */}
             {isPaused && (
               <Button variant="primary" onClick={() => setShowResumeModal(true)}>
                 Resume Subscription
