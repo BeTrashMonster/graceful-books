@@ -44,6 +44,8 @@ const AdminCharities = lazy(() => import('../pages/admin/AdminCharities'))
 const AdminCharityDashboard = lazy(() => import('../pages/admin/AdminCharityDashboard'))
 const AdminLogin = lazy(() => import('../pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))
+const AdminUsersPage = lazy(() => import('../pages/admin/AdminUsersPage'))
+const UserDetailsPage = lazy(() => import('../pages/admin/UserDetailsPage'))
 const WorkshopsPage = lazy(() => import('../pages/admin/WorkshopsPage'))
 const WorkshopEnrollmentsPage = lazy(() => import('../pages/admin/WorkshopEnrollmentsPage'))
 const WorkshopFormPage = lazy(() => import('../pages/admin/WorkshopFormPage'))
@@ -107,7 +109,10 @@ export function AppRoutes() {
 
         {/* Admin routes (no layout) */}
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
+        <Route path="/admin/users/:userId" element={<UserDetailsPage />} />
         <Route path="/admin/charities" element={<AdminCharityDashboard />} />
         <Route path="/admin/workshops" element={<WorkshopsPage />} />
         <Route path="/admin/workshops/new" element={<WorkshopFormPage />} />
