@@ -30,6 +30,9 @@ import {
   removeUserSuppression,
   cancelScheduledEmail,
   computeStatusBadge,
+  exportUserData,
+  getDeletionPreview,
+  prepareUserDeletion,
 } from '../services/adminDiagnostics.service.js';
 
 const admin = new Hono<HonoEnv>();
@@ -370,15 +373,57 @@ admin.patch('/me/password', requireAdmin, validate(changePasswordSchema), async 
 });
 
 /**
- * DELETE /admin/users/:userId
+ * GET /admin/users/:userId/deletion-preview
  *
- * Delete a user (admin only)
+ * Get preview of what will be deleted (for confirmation modal)
  */
-admin.delete('/users/:userId', requireAdmin, async (c) => {
+admin.get('/users/:userId/deletion-preview', requireAdmin, async (c) => {
   const { userId } = c.req.param();
   const db = c.get('db');
 
   try {
+    const preview = await getDeletionPreview(db, userId);
+
+    if (!preview) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'User not found');
+    }
+
+    return success(c, preview);
+  } catch (error) {
+    console.error('[Admin] Error getting deletion preview:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get deletion preview');
+  }
+});
+
+/**
+ * DELETE /admin/users/:userId
+ *
+ * Delete a user (admin only)
+ * Requires confirmation (type user's email) and reason for audit trail
+ */
+admin.delete('/users/:userId', requireAdmin, async (c) => {
+  const { userId } = c.req.param();
+  const db = c.get('db');
+  const adminId = c.get('adminId');
+
+  try {
+    // Parse request body for confirmation and reason
+    let confirmEmail: string | undefined;
+    let reason: string | undefined;
+
+    try {
+      const body = await c.req.json();
+      confirmEmail = body.confirmEmail;
+      reason = body.reason;
+    } catch {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Request body required with confirmEmail and reason');
+    }
+
+    // Validate reason
+    if (!reason || typeof reason !== 'string' || reason.trim().length < 5) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Reason is required (minimum 5 characters)');
+    }
+
     // Check if user exists
     const userResult = await db.query('SELECT id, email FROM users WHERE id = $1', [userId]);
 
@@ -387,6 +432,18 @@ admin.delete('/users/:userId', requireAdmin, async (c) => {
     }
 
     const user = userResult.rows[0];
+
+    // Validate email confirmation
+    if (!confirmEmail || confirmEmail.toLowerCase() !== user.email.toLowerCase()) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Email confirmation does not match. Please type the user\'s email exactly.');
+    }
+
+    console.log(`[Admin] Starting user deletion for ${user.email} by admin ${adminId}`);
+    console.log(`[Admin] Reason: ${reason}`);
+
+    // Prepare deletion: cancel scheduled emails, remove suppressions, create snapshot
+    const preparation = await prepareUserDeletion(db, userId, adminId, reason);
+    console.log(`[Admin] Preparation complete: ${preparation.scheduledEmailsCancelled} scheduled emails cancelled, ${preparation.suppressionsRemoved} suppressions removed`);
 
     // CRITICAL: Cancel all active Stripe subscriptions before deleting user
     console.log(`[Admin] Checking for Stripe subscriptions for user ${userId}`);
@@ -431,8 +488,7 @@ admin.delete('/users/:userId', requireAdmin, async (c) => {
     // Delete user (cascade will handle related records)
     await db.query('DELETE FROM users WHERE id = $1', [userId]);
 
-    // Log the action
-    const adminId = c.get('adminId');
+    // Log the action with complete user snapshot
     const ipAddress =
       c.req.header('x-forwarded-for')?.split(',')[0].trim() ||
       c.req.header('x-real-ip') ||
@@ -440,36 +496,79 @@ admin.delete('/users/:userId', requireAdmin, async (c) => {
       '';
 
     await db.query(
-      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, old_values)
-       VALUES ('user_deleted', 'user', $1, $2, $3, $4)`,
+      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, old_values, new_values)
+       VALUES ('user_deleted', 'user', $1, $2, $3, $4, $5)`,
       [
         userId,
         adminId,
         ipAddress,
+        JSON.stringify(preparation.userSnapshot),
         JSON.stringify({
-          email: user.email,
+          reason,
           cancelledSubscriptions,
           failedCancellations,
+          scheduledEmailsCancelled: preparation.scheduledEmailsCancelled,
+          suppressionsRemoved: preparation.suppressionsRemoved,
         }),
       ]
     );
 
+    console.log(`[Admin] ✅ User ${user.email} deleted successfully`);
+
     return success(c, {
+      success: true,
       message: 'User deleted successfully',
-      cancelledSubscriptions: cancelledSubscriptions.length,
-      failedCancellations: failedCancellations.length,
-      details:
-        failedCancellations.length > 0
-          ? {
-              warning:
-                'Some Stripe subscriptions could not be cancelled. They may need manual cancellation in Stripe Dashboard.',
-              failed: failedCancellations,
-            }
-          : undefined,
+      deletedData: {
+        userId,
+        email: user.email,
+        subscriptionsCancelled: cancelledSubscriptions.length,
+        scheduledEmailsCancelled: preparation.scheduledEmailsCancelled,
+        suppressionsRemoved: preparation.suppressionsRemoved,
+      },
+      warnings: failedCancellations.length > 0
+        ? [`${failedCancellations.length} Stripe subscription(s) could not be cancelled. Check Stripe Dashboard.`]
+        : undefined,
     });
   } catch (error) {
     console.error('[Admin] Error deleting user:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to delete user');
+  }
+});
+
+/**
+ * GET /admin/users/:userId/export
+ *
+ * Export all user data (GDPR "right to access")
+ */
+admin.get('/users/:userId/export', requireAdmin, async (c) => {
+  const { userId } = c.req.param();
+  const db = c.get('db');
+  const adminId = c.get('adminId');
+
+  try {
+    const exportData = await exportUserData(db, userId, adminId);
+
+    if (!exportData) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'User not found');
+    }
+
+    // Log the export action
+    const ipAddress =
+      c.req.header('x-forwarded-for')?.split(',')[0].trim() ||
+      c.req.header('x-real-ip') ||
+      c.req.header('cf-connecting-ip') ||
+      '';
+
+    await db.query(
+      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address)
+       VALUES ('user_data_exported', 'user', $1, $2, $3)`,
+      [userId, adminId, ipAddress]
+    );
+
+    return success(c, exportData);
+  } catch (error) {
+    console.error('[Admin] Error exporting user data:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to export user data');
   }
 });
 

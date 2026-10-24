@@ -666,3 +666,316 @@ export async function cancelScheduledEmail(
 
   return result.rowCount > 0;
 }
+
+// =============================================================================
+// USER DATA EXPORT (GDPR)
+// =============================================================================
+
+export interface UserDataExport {
+  exportedAt: string;
+  exportedBy: string;
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    companyName: string | null;
+    supportKey: string;
+    accountStatus: string;
+    emailVerified: boolean;
+    isBeta: boolean;
+    createdAt: string;
+    lastLoginAt: string | null;
+  };
+  subscriptions: Array<{
+    productName: string;
+    productSlug: string;
+    status: string;
+    activatedAt: string;
+    trialEndsAt: string | null;
+    trialConverted: boolean;
+    cancelledAt: string | null;
+    stripeSubscriptionId: string | null;
+  }>;
+  payments: Array<{
+    id: string;
+    productName: string;
+    amount: number;
+    status: string;
+    paidAt: string | null;
+    createdAt: string;
+  }>;
+  workshopEnrollments: Array<{
+    workshopName: string;
+    cohortName: string;
+    enrolledAt: string;
+    status: string;
+    worksheetCompletedAt: string | null;
+    trialExpiresAt: string | null;
+    convertedToPaidAt: string | null;
+  }>;
+  emailHistory: Array<{
+    emailType: string;
+    subject: string;
+    sentAt: string;
+    deliveryStatus: string;
+    openedAt: string | null;
+    clickedAt: string | null;
+  }>;
+  charitySelections: Array<{
+    charityName: string;
+    selectedAt: string;
+    effectiveFrom: string;
+    effectiveUntil: string | null;
+  }>;
+}
+
+export async function exportUserData(
+  db: Pool,
+  userId: string,
+  adminId: string
+): Promise<UserDataExport | null> {
+  // Get user basic info
+  const userResult = await db.query(`
+    SELECT
+      id, email, first_name, last_name, company_name, support_key,
+      account_status, email_verified, is_beta, created_at, last_login_at
+    FROM users
+    WHERE id = $1
+  `, [userId]);
+
+  if (userResult.rows.length === 0) {
+    return null;
+  }
+
+  const user = userResult.rows[0];
+
+  // Get subscriptions
+  const subscriptionsResult = await db.query(`
+    SELECT
+      p.name as product_name, p.slug as product_slug,
+      up.status, up.activated_at, up.trial_ends_at, up.trial_converted,
+      up.cancelled_at, up.stripe_subscription_id
+    FROM user_products up
+    JOIN products p ON up.product_id = p.id
+    WHERE up.user_id = $1
+    ORDER BY up.activated_at DESC
+  `, [userId]);
+
+  // Get payments
+  const paymentsResult = await db.query(`
+    SELECT
+      pay.id, p.name as product_name, pay.total_amount as amount,
+      pay.status, pay.paid_at, pay.created_at
+    FROM payments pay
+    JOIN products p ON pay.product_id = p.id
+    WHERE pay.user_id = $1
+    ORDER BY pay.created_at DESC
+  `, [userId]);
+
+  // Get workshop enrollments
+  const workshopsResult = await db.query(`
+    SELECT
+      w.workshop_name, w.cohort_name,
+      we.enrolled_at, we.status, we.worksheet_completed_at,
+      we.trial_expires_at, we.converted_to_paid_at
+    FROM workshop_enrollments we
+    JOIN workshops w ON we.workshop_id = w.id
+    WHERE we.user_id = $1
+    ORDER BY we.enrolled_at DESC
+  `, [userId]);
+
+  // Get email history (without content for size)
+  const emailsResult = await db.query(`
+    SELECT
+      email_type, subject, sent_at, delivery_status, opened_at, clicked_at
+    FROM sent_emails
+    WHERE user_id = $1
+    ORDER BY sent_at DESC
+  `, [userId]);
+
+  // Get charity selections
+  const charitiesResult = await db.query(`
+    SELECT
+      c.name as charity_name, ucs.selected_at, ucs.effective_from, ucs.effective_until
+    FROM user_charity_selections ucs
+    JOIN charities c ON ucs.charity_id = c.id
+    WHERE ucs.user_id = $1
+    ORDER BY ucs.selected_at DESC
+  `, [userId]);
+
+  return {
+    exportedAt: new Date().toISOString(),
+    exportedBy: adminId,
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      companyName: user.company_name,
+      supportKey: user.support_key,
+      accountStatus: user.account_status,
+      emailVerified: user.email_verified,
+      isBeta: user.is_beta || false,
+      createdAt: user.created_at,
+      lastLoginAt: user.last_login_at,
+    },
+    subscriptions: subscriptionsResult.rows.map(s => ({
+      productName: s.product_name,
+      productSlug: s.product_slug,
+      status: s.status,
+      activatedAt: s.activated_at,
+      trialEndsAt: s.trial_ends_at,
+      trialConverted: s.trial_converted || false,
+      cancelledAt: s.cancelled_at,
+      stripeSubscriptionId: s.stripe_subscription_id,
+    })),
+    payments: paymentsResult.rows.map(p => ({
+      id: p.id,
+      productName: p.product_name,
+      amount: parseFloat(p.amount),
+      status: p.status,
+      paidAt: p.paid_at,
+      createdAt: p.created_at,
+    })),
+    workshopEnrollments: workshopsResult.rows.map(w => ({
+      workshopName: w.workshop_name || w.cohort_name,
+      cohortName: w.cohort_name,
+      enrolledAt: w.enrolled_at,
+      status: w.status || 'active',
+      worksheetCompletedAt: w.worksheet_completed_at,
+      trialExpiresAt: w.trial_expires_at,
+      convertedToPaidAt: w.converted_to_paid_at,
+    })),
+    emailHistory: emailsResult.rows.map(e => ({
+      emailType: e.email_type,
+      subject: e.subject,
+      sentAt: e.sent_at,
+      deliveryStatus: e.delivery_status,
+      openedAt: e.opened_at,
+      clickedAt: e.clicked_at,
+    })),
+    charitySelections: charitiesResult.rows.map(c => ({
+      charityName: c.charity_name,
+      selectedAt: c.selected_at,
+      effectiveFrom: c.effective_from,
+      effectiveUntil: c.effective_until,
+    })),
+  };
+}
+
+// =============================================================================
+// USER DELETION PREPARATION
+// =============================================================================
+
+export interface DeletionPreview {
+  userId: string;
+  email: string;
+  name: string;
+  subscriptionCount: number;
+  stripeSubscriptions: string[];
+  scheduledEmailsCount: number;
+  sentEmailsCount: number;
+  workshopEnrollmentsCount: number;
+  paymentsCount: number;
+  warnings: string[];
+}
+
+export async function getDeletionPreview(
+  db: Pool,
+  userId: string
+): Promise<DeletionPreview | null> {
+  // Get user basic info
+  const userResult = await db.query(`
+    SELECT id, email, first_name, last_name
+    FROM users WHERE id = $1
+  `, [userId]);
+
+  if (userResult.rows.length === 0) {
+    return null;
+  }
+
+  const user = userResult.rows[0];
+
+  // Get counts
+  const [subscriptions, scheduledEmails, sentEmails, workshopEnrollments, payments] = await Promise.all([
+    db.query(`
+      SELECT stripe_subscription_id
+      FROM user_products
+      WHERE user_id = $1 AND stripe_subscription_id IS NOT NULL
+    `, [userId]),
+    db.query(`SELECT COUNT(*) FROM scheduled_emails WHERE user_id = $1`, [userId]),
+    db.query(`SELECT COUNT(*) FROM sent_emails WHERE user_id = $1`, [userId]),
+    db.query(`SELECT COUNT(*) FROM workshop_enrollments WHERE user_id = $1`, [userId]),
+    db.query(`SELECT COUNT(*) FROM payments WHERE user_id = $1`, [userId]),
+  ]);
+
+  const warnings: string[] = [];
+
+  // Check for active subscriptions
+  if (subscriptions.rows.length > 0) {
+    warnings.push(`${subscriptions.rows.length} Stripe subscription(s) will be cancelled`);
+  }
+
+  // Check for pending scheduled emails
+  const pendingEmailsResult = await db.query(`
+    SELECT COUNT(*) FROM scheduled_emails
+    WHERE user_id = $1 AND status IN ('pending', 'processing')
+  `, [userId]);
+  const pendingCount = parseInt(pendingEmailsResult.rows[0].count);
+  if (pendingCount > 0) {
+    warnings.push(`${pendingCount} pending email(s) will be cancelled`);
+  }
+
+  return {
+    userId: user.id,
+    email: user.email,
+    name: `${user.first_name} ${user.last_name}`.trim(),
+    subscriptionCount: subscriptions.rows.length,
+    stripeSubscriptions: subscriptions.rows.map(r => r.stripe_subscription_id),
+    scheduledEmailsCount: parseInt(scheduledEmails.rows[0].count),
+    sentEmailsCount: parseInt(sentEmails.rows[0].count),
+    workshopEnrollmentsCount: parseInt(workshopEnrollments.rows[0].count),
+    paymentsCount: parseInt(payments.rows[0].count),
+    warnings,
+  };
+}
+
+export async function prepareUserDeletion(
+  db: Pool,
+  userId: string,
+  adminId: string,
+  reason: string
+): Promise<{
+  scheduledEmailsCancelled: number;
+  suppressionsRemoved: number;
+  userSnapshot: any;
+}> {
+  // 1. Cancel all pending scheduled emails
+  const cancelResult = await db.query(`
+    UPDATE scheduled_emails
+    SET status = 'cancelled',
+        cancelled_at = NOW(),
+        cancelled_by = $2,
+        last_error = $3
+    WHERE user_id = $1 AND status IN ('pending', 'processing')
+  `, [userId, adminId, `User deleted: ${reason}`]);
+
+  // 2. Remove from suppression list
+  const suppressionResult = await db.query(`
+    UPDATE email_suppressions
+    SET reactivated_at = NOW(),
+        reactivated_by_admin_id = $2,
+        reactivation_reason = $3
+    WHERE user_id = $1 AND reactivated_at IS NULL
+  `, [userId, adminId, `User deleted: ${reason}`]);
+
+  // 3. Create complete user snapshot for audit
+  const userSnapshot = await exportUserData(db, userId, adminId);
+
+  return {
+    scheduledEmailsCancelled: cancelResult.rowCount || 0,
+    suppressionsRemoved: suppressionResult.rowCount || 0,
+    userSnapshot,
+  };
+}
