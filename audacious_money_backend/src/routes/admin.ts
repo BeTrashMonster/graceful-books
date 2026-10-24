@@ -45,6 +45,13 @@ import {
   unfreezeUserAccount,
   setNeedsAttention,
   getFilterOptions,
+  pauseSubscription,
+  resumeSubscription,
+  cancelSubscription,
+  extendTrial,
+  grantProductAccess,
+  revokeProductAccess,
+  getUserSubscriptions,
 } from '../services/adminDiagnostics.service.js';
 
 const admin = new Hono<HonoEnv>();
@@ -3151,6 +3158,203 @@ admin.get('/filter-options', requireAdmin, async (c) => {
   } catch (error) {
     console.error('[Admin] Error fetching filter options:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch filter options');
+  }
+});
+
+// =============================================================================
+// SUBSCRIPTION MANAGEMENT
+// =============================================================================
+
+/**
+ * GET /admin/users/:userId/subscriptions
+ *
+ * Get all subscriptions for a user
+ */
+admin.get('/users/:userId/subscriptions', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+
+  try {
+    const subscriptions = await getUserSubscriptions(db, userId);
+    return success(c, { subscriptions });
+  } catch (error) {
+    console.error('[Admin] Error fetching subscriptions:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch subscriptions');
+  }
+});
+
+/**
+ * POST /admin/users/:userId/subscriptions/:subscriptionId/pause
+ *
+ * Pause a user's subscription
+ */
+admin.post('/users/:userId/subscriptions/:subscriptionId/pause', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const subscriptionId = c.req.param('subscriptionId');
+  const adminId = c.get('adminId');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const pauseUntil = body.pauseUntil || undefined;
+
+    const result = await pauseSubscription(db, userId, subscriptionId, adminId, pauseUntil);
+
+    if (!result.success) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, result.message);
+    }
+
+    return success(c, result);
+  } catch (error) {
+    console.error('[Admin] Error pausing subscription:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to pause subscription');
+  }
+});
+
+/**
+ * POST /admin/users/:userId/subscriptions/:subscriptionId/resume
+ *
+ * Resume a paused subscription
+ */
+admin.post('/users/:userId/subscriptions/:subscriptionId/resume', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const subscriptionId = c.req.param('subscriptionId');
+  const adminId = c.get('adminId');
+  const db = c.get('db');
+
+  try {
+    const result = await resumeSubscription(db, userId, subscriptionId, adminId);
+
+    if (!result.success) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, result.message);
+    }
+
+    return success(c, result);
+  } catch (error) {
+    console.error('[Admin] Error resuming subscription:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to resume subscription');
+  }
+});
+
+/**
+ * POST /admin/users/:userId/subscriptions/:subscriptionId/cancel
+ *
+ * Cancel a subscription
+ */
+admin.post('/users/:userId/subscriptions/:subscriptionId/cancel', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const subscriptionId = c.req.param('subscriptionId');
+  const adminId = c.get('adminId');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const reason = body.reason || 'No reason provided';
+    const immediate = body.immediate === true;
+
+    const result = await cancelSubscription(db, userId, subscriptionId, adminId, reason, immediate);
+
+    if (!result.success) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, result.message);
+    }
+
+    return success(c, result);
+  } catch (error) {
+    console.error('[Admin] Error cancelling subscription:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to cancel subscription');
+  }
+});
+
+/**
+ * POST /admin/users/:userId/subscriptions/:subscriptionId/extend-trial
+ *
+ * Extend a user's trial period
+ */
+admin.post('/users/:userId/subscriptions/:subscriptionId/extend-trial', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const subscriptionId = c.req.param('subscriptionId');
+  const adminId = c.get('adminId');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const extendDays = parseInt(body.days) || 7;
+
+    if (extendDays < 1 || extendDays > 365) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Days must be between 1 and 365');
+    }
+
+    const result = await extendTrial(db, userId, subscriptionId, adminId, extendDays);
+
+    if (!result.success) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, result.message);
+    }
+
+    return success(c, result);
+  } catch (error) {
+    console.error('[Admin] Error extending trial:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to extend trial');
+  }
+});
+
+/**
+ * POST /admin/users/:userId/grant-access
+ *
+ * Grant complimentary product access to a user
+ */
+admin.post('/users/:userId/grant-access', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const adminId = c.get('adminId');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const productSlug = body.productSlug;
+    const reason = body.reason || 'Admin granted access';
+    const expiresAt = body.expiresAt || undefined;
+
+    if (!productSlug) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Product slug is required');
+    }
+
+    const result = await grantProductAccess(db, userId, productSlug, adminId, reason, expiresAt);
+
+    if (!result.success) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, result.message);
+    }
+
+    return success(c, result);
+  } catch (error) {
+    console.error('[Admin] Error granting access:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to grant access');
+  }
+});
+
+/**
+ * POST /admin/users/:userId/subscriptions/:subscriptionId/revoke
+ *
+ * Revoke a user's product access
+ */
+admin.post('/users/:userId/subscriptions/:subscriptionId/revoke', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const subscriptionId = c.req.param('subscriptionId');
+  const adminId = c.get('adminId');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const reason = body.reason || 'Access revoked by admin';
+
+    const result = await revokeProductAccess(db, userId, subscriptionId, adminId, reason);
+
+    if (!result.success) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, result.message);
+    }
+
+    return success(c, result);
+  } catch (error) {
+    console.error('[Admin] Error revoking access:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to revoke access');
   }
 });
 

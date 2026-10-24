@@ -31,3 +31,7 @@ export type {
   NotePreview,
   UserExpandedData,
 } from './UserExpandedPanel';
+
+// Subscription management
+export { SubscriptionManagement } from './SubscriptionManagement';
+export type { SubscriptionManagementProps, SubscriptionData } from './SubscriptionManagement';

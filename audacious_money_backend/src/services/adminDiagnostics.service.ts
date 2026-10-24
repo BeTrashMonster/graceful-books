@@ -1326,3 +1326,398 @@ export async function getFilterOptions(db: Pool): Promise<FilterOptions> {
     tags: tagsResult.rows.map(r => ({ tag: r.tag, userCount: parseInt(r.user_count) })),
   };
 }
+
+// =============================================================================
+// SUBSCRIPTION MANAGEMENT
+// =============================================================================
+
+export interface SubscriptionActionResult {
+  success: boolean;
+  message: string;
+  data?: Record<string, unknown>;
+}
+
+/**
+ * Pause a user's subscription
+ * Sets status to 'paused' and records pause date
+ */
+export async function pauseSubscription(
+  db: Pool,
+  userId: string,
+  userProductId: string,
+  adminId: string,
+  pauseUntil?: string
+): Promise<SubscriptionActionResult> {
+  try {
+    const result = await db.query(`
+      UPDATE user_products
+      SET status = 'paused',
+          paused_at = NOW(),
+          resumed_at = NULL
+      WHERE id = $1 AND user_id = $2
+        AND status IN ('active', 'trialing')
+      RETURNING id, status
+    `, [userProductId, userId]);
+
+    if (result.rowCount === 0) {
+      return {
+        success: false,
+        message: 'Product not found or not in pausable state',
+      };
+    }
+
+    // Add admin note
+    const pauseNote = pauseUntil
+      ? `Subscription paused by admin until ${pauseUntil}.`
+      : 'Subscription paused by admin (indefinite).';
+
+    await db.query(`
+      INSERT INTO user_notes (user_id, note, note_type, created_by_admin_id)
+      VALUES ($1, $2, 'billing', $3)
+    `, [userId, pauseNote, adminId]);
+
+    return {
+      success: true,
+      message: 'Subscription paused successfully',
+      data: { pausedAt: new Date().toISOString() },
+    };
+  } catch (error) {
+    console.error('[AdminDiagnostics] Error pausing subscription:', error);
+    return {
+      success: false,
+      message: 'Failed to pause subscription',
+    };
+  }
+}
+
+/**
+ * Resume a paused subscription
+ */
+export async function resumeSubscription(
+  db: Pool,
+  userId: string,
+  userProductId: string,
+  adminId: string
+): Promise<SubscriptionActionResult> {
+  try {
+    const result = await db.query(`
+      UPDATE user_products
+      SET status = 'active',
+          resumed_at = NOW(),
+          paused_at = NULL
+      WHERE id = $1 AND user_id = $2
+        AND status = 'paused'
+      RETURNING id, status
+    `, [userProductId, userId]);
+
+    if (result.rowCount === 0) {
+      return {
+        success: false,
+        message: 'Product not found or not paused',
+      };
+    }
+
+    // Add admin note
+    await db.query(`
+      INSERT INTO user_notes (user_id, note, note_type, created_by_admin_id)
+      VALUES ($1, 'Subscription resumed by admin.', 'billing', $2)
+    `, [userId, adminId]);
+
+    return {
+      success: true,
+      message: 'Subscription resumed successfully',
+      data: { resumedAt: new Date().toISOString() },
+    };
+  } catch (error) {
+    console.error('[AdminDiagnostics] Error resuming subscription:', error);
+    return {
+      success: false,
+      message: 'Failed to resume subscription',
+    };
+  }
+}
+
+/**
+ * Cancel a user's subscription
+ */
+export async function cancelSubscription(
+  db: Pool,
+  userId: string,
+  userProductId: string,
+  adminId: string,
+  reason: string,
+  immediate: boolean = false
+): Promise<SubscriptionActionResult> {
+  try {
+    // If immediate, cancel now. Otherwise, set to cancel at period end.
+    const updateQuery = immediate
+      ? `
+        UPDATE user_products
+        SET status = 'cancelled',
+            cancelled_at = NOW()
+        WHERE id = $1 AND user_id = $2
+          AND status NOT IN ('cancelled', 'canceled', 'expired')
+        RETURNING id
+      `
+      : `
+        UPDATE user_products
+        SET cancel_at_period_end = TRUE
+        WHERE id = $1 AND user_id = $2
+          AND status NOT IN ('cancelled', 'canceled', 'expired')
+        RETURNING id
+      `;
+
+    const result = await db.query(updateQuery, [userProductId, userId]);
+
+    if (result.rowCount === 0) {
+      return {
+        success: false,
+        message: 'Product not found or already cancelled',
+      };
+    }
+
+    // Add admin note
+    const cancelNote = immediate
+      ? `Subscription cancelled immediately by admin. Reason: ${reason}`
+      : `Subscription set to cancel at period end by admin. Reason: ${reason}`;
+
+    await db.query(`
+      INSERT INTO user_notes (user_id, note, note_type, created_by_admin_id)
+      VALUES ($1, $2, 'billing', $3)
+    `, [userId, cancelNote, adminId]);
+
+    return {
+      success: true,
+      message: immediate ? 'Subscription cancelled' : 'Subscription will cancel at period end',
+    };
+  } catch (error) {
+    console.error('[AdminDiagnostics] Error cancelling subscription:', error);
+    return {
+      success: false,
+      message: 'Failed to cancel subscription',
+    };
+  }
+}
+
+/**
+ * Extend a user's trial period
+ */
+export async function extendTrial(
+  db: Pool,
+  userId: string,
+  userProductId: string,
+  adminId: string,
+  extendDays: number
+): Promise<SubscriptionActionResult> {
+  try {
+    const result = await db.query(`
+      UPDATE user_products
+      SET current_period_end = COALESCE(current_period_end, NOW()) + INTERVAL '1 day' * $3
+      WHERE id = $1 AND user_id = $2
+        AND status = 'trialing'
+      RETURNING id, current_period_end
+    `, [userProductId, userId, extendDays]);
+
+    if (result.rowCount === 0) {
+      return {
+        success: false,
+        message: 'Product not found or not in trial',
+      };
+    }
+
+    // Add admin note
+    await db.query(`
+      INSERT INTO user_notes (user_id, note, note_type, created_by_admin_id)
+      VALUES ($1, $2, 'billing', $3)
+    `, [userId, `Trial extended by ${extendDays} days by admin.`, adminId]);
+
+    return {
+      success: true,
+      message: `Trial extended by ${extendDays} days`,
+      data: { newEndDate: result.rows[0].current_period_end },
+    };
+  } catch (error) {
+    console.error('[AdminDiagnostics] Error extending trial:', error);
+    return {
+      success: false,
+      message: 'Failed to extend trial',
+    };
+  }
+}
+
+/**
+ * Grant a product to a user (complimentary access)
+ */
+export async function grantProductAccess(
+  db: Pool,
+  userId: string,
+  productSlug: string,
+  adminId: string,
+  reason: string,
+  expiresAt?: string
+): Promise<SubscriptionActionResult> {
+  try {
+    // Get product ID
+    const productResult = await db.query(`
+      SELECT id, name FROM products WHERE slug = $1 AND active = TRUE
+    `, [productSlug]);
+
+    if (productResult.rowCount === 0) {
+      return {
+        success: false,
+        message: 'Product not found',
+      };
+    }
+
+    const product = productResult.rows[0];
+
+    // Check if user already has this product
+    const existingResult = await db.query(`
+      SELECT id FROM user_products
+      WHERE user_id = $1 AND product_id = $2
+        AND status NOT IN ('cancelled', 'canceled', 'expired')
+    `, [userId, product.id]);
+
+    if (existingResult.rowCount > 0) {
+      return {
+        success: false,
+        message: 'User already has access to this product',
+      };
+    }
+
+    // Grant access
+    const insertResult = await db.query(`
+      INSERT INTO user_products (
+        user_id, product_id, status, activated_at,
+        current_period_end, is_complimentary
+      )
+      VALUES ($1, $2, 'active', NOW(), $3, TRUE)
+      RETURNING id
+    `, [userId, product.id, expiresAt || null]);
+
+    // Add admin note
+    const accessNote = expiresAt
+      ? `Granted complimentary access to ${product.name} until ${expiresAt}. Reason: ${reason}`
+      : `Granted complimentary access to ${product.name} (no expiration). Reason: ${reason}`;
+
+    await db.query(`
+      INSERT INTO user_notes (user_id, note, note_type, created_by_admin_id)
+      VALUES ($1, $2, 'billing', $3)
+    `, [userId, accessNote, adminId]);
+
+    return {
+      success: true,
+      message: `Access granted to ${product.name}`,
+      data: { userProductId: insertResult.rows[0].id },
+    };
+  } catch (error) {
+    console.error('[AdminDiagnostics] Error granting access:', error);
+    return {
+      success: false,
+      message: 'Failed to grant access',
+    };
+  }
+}
+
+/**
+ * Revoke a user's product access
+ */
+export async function revokeProductAccess(
+  db: Pool,
+  userId: string,
+  userProductId: string,
+  adminId: string,
+  reason: string
+): Promise<SubscriptionActionResult> {
+  try {
+    const result = await db.query(`
+      UPDATE user_products
+      SET status = 'cancelled',
+          cancelled_at = NOW()
+      WHERE id = $1 AND user_id = $2
+        AND status NOT IN ('cancelled', 'canceled', 'expired')
+      RETURNING id, product_id
+    `, [userProductId, userId]);
+
+    if (result.rowCount === 0) {
+      return {
+        success: false,
+        message: 'Product access not found or already revoked',
+      };
+    }
+
+    // Get product name for note
+    const productResult = await db.query(`
+      SELECT name FROM products WHERE id = $1
+    `, [result.rows[0].product_id]);
+
+    const productName = productResult.rows[0]?.name || 'Unknown product';
+
+    // Add admin note
+    await db.query(`
+      INSERT INTO user_notes (user_id, note, note_type, created_by_admin_id)
+      VALUES ($1, $2, 'billing', $3)
+    `, [userId, `Access to ${productName} revoked by admin. Reason: ${reason}`, adminId]);
+
+    return {
+      success: true,
+      message: 'Access revoked successfully',
+    };
+  } catch (error) {
+    console.error('[AdminDiagnostics] Error revoking access:', error);
+    return {
+      success: false,
+      message: 'Failed to revoke access',
+    };
+  }
+}
+
+/**
+ * Get user's subscription details for admin panel
+ */
+export async function getUserSubscriptions(
+  db: Pool,
+  userId: string
+): Promise<Array<{
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  status: string;
+  activatedAt: string;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  pausedAt: string | null;
+  cancelledAt: string | null;
+  stripeSubscriptionId: string | null;
+  stripeCustomerId: string | null;
+  isComplimentary: boolean;
+}>> {
+  const result = await db.query(`
+    SELECT
+      up.id, up.product_id, p.name as product_name, p.slug as product_slug,
+      up.status, up.activated_at, up.current_period_start, up.current_period_end,
+      up.paused_at, up.cancelled_at, up.stripe_subscription_id, up.stripe_customer_id,
+      COALESCE(up.is_complimentary, FALSE) as is_complimentary
+    FROM user_products up
+    JOIN products p ON up.product_id = p.id
+    WHERE up.user_id = $1
+    ORDER BY up.activated_at DESC
+  `, [userId]);
+
+  return result.rows.map(r => ({
+    id: r.id,
+    productId: r.product_id,
+    productName: r.product_name,
+    productSlug: r.product_slug,
+    status: r.status,
+    activatedAt: r.activated_at,
+    currentPeriodStart: r.current_period_start,
+    currentPeriodEnd: r.current_period_end,
+    pausedAt: r.paused_at,
+    cancelledAt: r.cancelled_at,
+    stripeSubscriptionId: r.stripe_subscription_id,
+    stripeCustomerId: r.stripe_customer_id,
+    isComplimentary: r.is_complimentary,
+  }));
+}

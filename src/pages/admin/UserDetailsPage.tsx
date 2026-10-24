@@ -8,7 +8,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API_URL } from '../../config/api';
-import { StatusBadge, TagBadge } from '../../components/admin/users';
+import { StatusBadge, TagBadge, SubscriptionManagement } from '../../components/admin/users';
+import type { SubscriptionData } from '../../components/admin/users';
 import { InfoCard, InfoGrid, InfoSection } from '../../components/admin/users/InfoCard';
 import styles from './UserDetailsPage.module.css';
 
@@ -85,6 +86,7 @@ export default function UserDetailsPage() {
   const [user, setUser] = useState<UserDetails | null>(null);
   const [emails, setEmails] = useState<EmailRecord[]>([]);
   const [notes, setNotes] = useState<NoteRecord[]>([]);
+  const [subscriptions, setSubscriptions] = useState<SubscriptionData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -182,12 +184,34 @@ export default function UserDetailsPage() {
     }
   }, [userId, getSession]);
 
+  // Fetch subscriptions
+  const fetchSubscriptions = useCallback(async () => {
+    const session = getSession();
+    if (!session || !userId) return;
+
+    try {
+      const response = await fetch(`${API_URL}/admin/users/${userId}/subscriptions`, {
+        headers: {
+          'Authorization': `Bearer ${session.token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSubscriptions(data.subscriptions || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch subscriptions:', err);
+    }
+  }, [userId, getSession]);
+
   // Initial load
   useEffect(() => {
     fetchUser();
     fetchEmails();
     fetchNotes();
-  }, [fetchUser, fetchEmails, fetchNotes]);
+    fetchSubscriptions();
+  }, [fetchUser, fetchEmails, fetchNotes, fetchSubscriptions]);
 
   // Add note
   const handleAddNote = async () => {
@@ -634,6 +658,16 @@ export default function UserDetailsPage() {
                   <h4>Subscription Cancelled</h4>
                   <p>Cancelled on: {formatDate(user.cancelledAt, true)}</p>
                 </div>
+              )}
+              {userId && (
+                <SubscriptionManagement
+                  userId={userId}
+                  subscriptions={subscriptions}
+                  onRefresh={() => {
+                    fetchSubscriptions();
+                    fetchUser();
+                  }}
+                />
               )}
             </InfoSection>
 
