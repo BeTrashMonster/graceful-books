@@ -22,6 +22,7 @@ import {
   sendWorkshopTrialEndingEmail,
   type CustomEmailTemplates,
 } from './email.service.js';
+import { checkSuppression } from './emailStorage.service.js';
 
 // =============================================================================
 // TYPES
@@ -292,6 +293,22 @@ export async function processScheduledEmails(db: Pool): Promise<{
   for (const row of result.rows) {
     processed++;
     const emailId = row.id;
+
+    // Check suppression list before sending
+    const suppression = await checkSuppression(row.recipient_email, row.email_type);
+    if (suppression.isSuppressed) {
+      // Mark as cancelled due to suppression
+      await db.query(
+        `UPDATE scheduled_emails
+         SET status = 'cancelled',
+             cancelled_at = NOW(),
+             last_error = $2
+         WHERE id = $1`,
+        [emailId, `Suppressed: ${suppression.suppressionType} - ${suppression.reason || 'no reason'}`]
+      );
+      console.log(`[EmailScheduler] Skipping ${row.email_type} to ${row.recipient_email} - suppressed (${suppression.suppressionType})`);
+      continue;
+    }
 
     // Mark as processing
     await db.query(

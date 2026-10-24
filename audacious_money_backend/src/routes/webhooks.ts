@@ -8,6 +8,10 @@
 
 import { Hono } from 'hono';
 import { getDatabase } from '../db/connection.js';
+import {
+  updateDeliveryStatus,
+  addToSuppressionList,
+} from '../services/emailStorage.service.js';
 
 const webhooks = new Hono();
 
@@ -1170,6 +1174,39 @@ webhooks.post('/postmark', async (c) => {
     );
 
     console.log(`[Postmark Webhook] Recorded ${eventType} event for ${MessageID}`);
+
+    // Update sent_emails table with delivery status
+    // This enables admins to see email delivery status in user diagnostics
+    await updateDeliveryStatus(
+      MessageID,
+      eventType,
+      RecordType === 'Bounce' ? (Type === 'HardBounce' ? 'hard' : 'soft') : undefined,
+      RecordType === 'Bounce' ? Description : undefined
+    );
+
+    // Add to suppression list for hard bounces and spam complaints
+    // This prevents future sends to problematic addresses
+    if (RecordType === 'Bounce' && Type === 'HardBounce') {
+      await addToSuppressionList(
+        Recipient,
+        'hard_bounce',
+        Description,
+        undefined, // sourceEmailId - we could look this up but not critical
+        'postmark',
+        BounceID
+      );
+      console.log(`[Postmark Webhook] Added ${Recipient} to suppression list: hard bounce`);
+    } else if (RecordType === 'SpamComplaint') {
+      await addToSuppressionList(
+        Recipient,
+        'spam_complaint',
+        'User marked email as spam',
+        undefined,
+        'postmark',
+        MessageID
+      );
+      console.log(`[Postmark Webhook] Added ${Recipient} to suppression list: spam complaint`);
+    }
 
     return c.json({ received: true }, 200);
   } catch (error) {
