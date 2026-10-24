@@ -1151,3 +1151,178 @@ export async function getAllTags(db: Pool): Promise<Array<{ tag: string; userCou
     userCount: parseInt(r.user_count),
   }));
 }
+
+// =============================================================================
+// ACCOUNT FREEZE/UNFREEZE
+// =============================================================================
+
+export interface FreezeResult {
+  success: boolean;
+  message: string;
+  frozenAt?: string;
+}
+
+export async function freezeUserAccount(
+  db: Pool,
+  userId: string,
+  adminId: string,
+  reason: string
+): Promise<FreezeResult> {
+  try {
+    // Update all user's products to frozen status
+    const result = await db.query(`
+      UPDATE user_products
+      SET status = 'frozen',
+          frozen_at = NOW(),
+          frozen_reason = $2,
+          frozen_by_admin_id = $3
+      WHERE user_id = $1
+        AND status NOT IN ('cancelled', 'canceled', 'expired')
+      RETURNING id, frozen_at
+    `, [userId, reason, adminId]);
+
+    if (result.rowCount === 0) {
+      return {
+        success: false,
+        message: 'No active products found to freeze',
+      };
+    }
+
+    // Also mark user as needing attention
+    await db.query(`
+      UPDATE users
+      SET needs_attention = TRUE,
+          needs_attention_reason = $2
+      WHERE id = $1
+    `, [userId, `Account frozen: ${reason}`]);
+
+    // Add admin note about the freeze
+    await db.query(`
+      INSERT INTO user_notes (user_id, note, note_type, created_by_admin_id)
+      VALUES ($1, $2, 'support', $3)
+    `, [userId, `Account frozen. Reason: ${reason}`, adminId]);
+
+    return {
+      success: true,
+      message: 'Account frozen successfully',
+      frozenAt: result.rows[0].frozen_at,
+    };
+  } catch (error) {
+    console.error('[AdminDiagnostics] Error freezing account:', error);
+    return {
+      success: false,
+      message: 'Failed to freeze account',
+    };
+  }
+}
+
+export async function unfreezeUserAccount(
+  db: Pool,
+  userId: string,
+  adminId: string
+): Promise<FreezeResult> {
+  try {
+    // Get the previous status before freeze (default to active)
+    const result = await db.query(`
+      UPDATE user_products
+      SET status = 'active',
+          frozen_at = NULL,
+          frozen_reason = NULL,
+          frozen_by_admin_id = NULL
+      WHERE user_id = $1
+        AND status = 'frozen'
+      RETURNING id
+    `, [userId]);
+
+    if (result.rowCount === 0) {
+      return {
+        success: false,
+        message: 'No frozen products found',
+      };
+    }
+
+    // Clear needs attention flag
+    await db.query(`
+      UPDATE users
+      SET needs_attention = FALSE,
+          needs_attention_reason = NULL
+      WHERE id = $1
+        AND needs_attention_reason LIKE 'Account frozen:%'
+    `, [userId]);
+
+    // Add admin note about the unfreeze
+    await db.query(`
+      INSERT INTO user_notes (user_id, note, note_type, created_by_admin_id)
+      VALUES ($1, 'Account unfrozen.', 'support', $2)
+    `, [userId, adminId]);
+
+    return {
+      success: true,
+      message: 'Account unfrozen successfully',
+    };
+  } catch (error) {
+    console.error('[AdminDiagnostics] Error unfreezing account:', error);
+    return {
+      success: false,
+      message: 'Failed to unfreeze account',
+    };
+  }
+}
+
+export async function setNeedsAttention(
+  db: Pool,
+  userId: string,
+  needsAttention: boolean,
+  reason?: string
+): Promise<boolean> {
+  try {
+    await db.query(`
+      UPDATE users
+      SET needs_attention = $2,
+          needs_attention_reason = $3
+      WHERE id = $1
+    `, [userId, needsAttention, reason || null]);
+
+    return true;
+  } catch (error) {
+    console.error('[AdminDiagnostics] Error updating needs attention:', error);
+    return false;
+  }
+}
+
+// =============================================================================
+// FILTER OPTIONS
+// =============================================================================
+
+export interface FilterOptions {
+  products: Array<{ slug: string; name: string }>;
+  workshops: Array<{ id: string; name: string }>;
+  tags: Array<{ tag: string; userCount: number }>;
+}
+
+export async function getFilterOptions(db: Pool): Promise<FilterOptions> {
+  // Get products
+  const productsResult = await db.query(`
+    SELECT slug, name FROM products WHERE active = TRUE ORDER BY name ASC
+  `);
+
+  // Get workshops
+  const workshopsResult = await db.query(`
+    SELECT id, name FROM educational_workshops WHERE is_active = TRUE ORDER BY name ASC
+  `);
+
+  // Get tags
+  const tagsResult = await db.query(`
+    SELECT tag, COUNT(*) as user_count
+    FROM user_tags
+    GROUP BY tag
+    ORDER BY user_count DESC, tag ASC
+    LIMIT 50
+  `);
+
+  return {
+    products: productsResult.rows.map(r => ({ slug: r.slug, name: r.name })),
+    workshops: workshopsResult.rows.map(r => ({ id: r.id, name: r.name })),
+    tags: tagsResult.rows.map(r => ({ tag: r.tag, userCount: parseInt(r.user_count) })),
+  };
+}

@@ -41,6 +41,10 @@ import {
   addUserTag,
   removeUserTag,
   getAllTags,
+  freezeUserAccount,
+  unfreezeUserAccount,
+  setNeedsAttention,
+  getFilterOptions,
 } from '../services/adminDiagnostics.service.js';
 
 const admin = new Hono<HonoEnv>();
@@ -3033,6 +3037,120 @@ admin.delete('/users/:userId/tags/:tag', requireAdmin, async (c) => {
   } catch (error) {
     console.error('[Admin] Error removing tag:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to remove tag');
+  }
+});
+
+// =============================================================================
+// ACCOUNT FREEZE/UNFREEZE
+// =============================================================================
+
+/**
+ * POST /admin/users/:userId/freeze
+ *
+ * Freeze a user's account, preventing access
+ */
+admin.post('/users/:userId/freeze', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const adminId = c.get('adminId');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const reason = body.reason || 'No reason provided';
+
+    const result = await freezeUserAccount(db, userId, adminId, reason);
+
+    if (!result.success) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, result.message);
+    }
+
+    return success(c, {
+      success: true,
+      message: result.message,
+      frozenAt: result.frozenAt,
+    });
+  } catch (error) {
+    console.error('[Admin] Error freezing account:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to freeze account');
+  }
+});
+
+/**
+ * POST /admin/users/:userId/unfreeze
+ *
+ * Unfreeze a user's account, restoring access
+ */
+admin.post('/users/:userId/unfreeze', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const adminId = c.get('adminId');
+  const db = c.get('db');
+
+  try {
+    const result = await unfreezeUserAccount(db, userId, adminId);
+
+    if (!result.success) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, result.message);
+    }
+
+    return success(c, {
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    console.error('[Admin] Error unfreezing account:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to unfreeze account');
+  }
+});
+
+/**
+ * PATCH /admin/users/:userId/needs-attention
+ *
+ * Set or clear the needs attention flag on a user
+ */
+admin.patch('/users/:userId/needs-attention', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const needsAttention = body.needsAttention === true;
+    const reason = body.reason || null;
+
+    const success_result = await setNeedsAttention(db, userId, needsAttention, reason);
+
+    if (!success_result) {
+      return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to update needs attention flag');
+    }
+
+    return success(c, {
+      success: true,
+      needsAttention,
+      reason,
+    });
+  } catch (error) {
+    console.error('[Admin] Error updating needs attention:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to update needs attention flag');
+  }
+});
+
+// =============================================================================
+// FILTER OPTIONS
+// =============================================================================
+
+/**
+ * GET /admin/filter-options
+ *
+ * Get filter options for the user list (products, workshops, tags)
+ */
+admin.get('/filter-options', requireAdmin, async (c) => {
+  const db = c.get('db');
+
+  try {
+    const options = await getFilterOptions(db);
+    return success(c, options);
+  } catch (error) {
+    console.error('[Admin] Error fetching filter options:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch filter options');
   }
 });
 

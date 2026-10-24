@@ -84,6 +84,8 @@ const WorkshopThankYouPage = lazy(() => import('../pages/workshops/WorkshopThank
 const WorkshopWorksheetPage = lazy(() => import('../pages/workshops/WorkshopWorksheetPage'))
 const WorkshopCountdownPage = lazy(() => import('../pages/workshops/WorkshopCountdownPage'))
 const WorkshopUnsubscribePage = lazy(() => import('../pages/workshops/WorkshopUnsubscribePage'))
+const TrialExpiredPage = lazy(() => import('../pages/workshops/TrialExpiredPage'))
+const UpgradePage = lazy(() => import('../pages/workshops/UpgradePage'))
 
 export function AppRoutes() {
   return (
@@ -106,6 +108,8 @@ export function AppRoutes() {
         {/* Workshop routes - Temporarily public for debugging */}
         <Route path="/workshops/worksheet" element={<WorkshopWorksheetPage />} />
         <Route path="/workshops/countdown" element={<WorkshopCountdownPage />} />
+        <Route path="/workshops/trial-expired" element={<TrialExpiredPage />} />
+        <Route path="/workshops/upgrade" element={<UpgradePage />} />
 
         {/* Admin routes (no layout) */}
         <Route path="/admin/login" element={<AdminLogin />} />

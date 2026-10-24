@@ -124,6 +124,27 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
     [filters, pageSize]
   );
 
+  // Fetch filter options (once on mount)
+  const fetchFilterOptions = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/admin/filter-options`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.data) {
+          setFilterOptions(data.data);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch filter options:', err);
+    }
+  }, []);
+
   // Fetch users
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
@@ -143,13 +164,12 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
       }
 
       const data = await response.json();
-      setUsers(data.users.map(transformUser));
-      setTotalCount(data.total);
+      // Handle both wrapped and unwrapped response formats
+      const usersData = data.data?.users || data.users || [];
+      const total = data.data?.total || data.total || 0;
 
-      // Update filter options if provided
-      if (data.filterOptions) {
-        setFilterOptions(data.filterOptions);
-      }
+      setUsers(usersData.map(transformUser));
+      setTotalCount(total);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch users');
       setUsers([]);
@@ -158,6 +178,11 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
       setIsLoading(false);
     }
   }, [buildQueryString, currentPage]);
+
+  // Fetch filter options on mount
+  useEffect(() => {
+    fetchFilterOptions();
+  }, [fetchFilterOptions]);
 
   // Fetch on mount and when filters/page change
   useEffect(() => {
