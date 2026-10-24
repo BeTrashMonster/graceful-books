@@ -33,6 +33,7 @@ const FROZEN_STATUSES = [
   'cancelled',
   'expired',
   'past_due',
+  'paused', // User-initiated pause (view-only access)
   'payment_failed',
   'trialing_expired', // Trial ended without payment
 ];
