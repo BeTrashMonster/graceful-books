@@ -39,6 +39,7 @@ export interface CustomEmailTemplates {
   week3?: CustomEmailTemplate;
   week4?: CustomEmailTemplate;
   wrapUp?: CustomEmailTemplate;
+  trialEnding?: CustomEmailTemplate;
 }
 
 /**
@@ -300,7 +301,7 @@ Have questions? Just reply to this email.
 }
 
 /**
- * Send trial ending soon reminder (7 days before)
+ * Send trial ending soon reminder (3 days before for website signups)
  */
 export async function sendTrialEndingSoonEmail(
   to: string,
@@ -310,20 +311,25 @@ export async function sendTrialEndingSoonEmail(
   await client.sendEmail({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
-    Subject: `Your ${productName} trial ends in 7 days`,
+    Subject: `Your ${productName} trial ends in 3 days`,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #4b006e;">Your Trial Ends Soon</h1>
-        <p>Just a friendly heads up: your 30-day trial of <strong>${productName}</strong> ends in 7 days.</p>
+        <p>A friendly heads up: your 7-day trial of <strong>${productName}</strong> is coming up.</p>
 
         <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
           <p style="margin: 0;"><strong>Trial ends:</strong> ${trialEndDate}</p>
           <p style="margin: 10px 0 0 0; font-size: 14px; color: #92400e;">Your subscription will start automatically unless you cancel.</p>
         </div>
 
+        <p style="margin: 20px 0;">
+          <a href="https://app.audacious.money/login" style="background: #4b006e; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block;">Log In To Your Account</a>
+        </p>
+
         <h3>Your Options</h3>
         <p><strong>Want to continue?</strong> You don't need to do anything. Your subscription will start automatically on ${trialEndDate}.</p>
-        <p><strong>Want to cancel?</strong> No problem! Just go to Settings → Subscriptions and click "Cancel Trial".</p>
+        <p><strong>Want to cancel?</strong> No problem! Log in, on the bottom left click your company name, go to Billing → Delete Account and click "Delete Account Permanently".</p>
+        <p>You are also welcome to Pause your subscription to come back to it when you are ready.</p>
         <p><strong>Have questions?</strong> Reply to this email and we'll help you decide what's best for you.</p>
 
         <p>No pressure. We're here to support whatever decision works for you.</p>
@@ -333,14 +339,17 @@ export async function sendTrialEndingSoonEmail(
     `,
     TextBody: `Your Trial Ends Soon
 
-Just a friendly heads up: your 30-day trial of ${productName} ends in 7 days.
+A friendly heads up: your 7-day trial of ${productName} is coming up.
 
 Trial ends: ${trialEndDate}
 Your subscription will start automatically unless you cancel.
 
+Log in to your account: https://app.audacious.money/login
+
 Your Options:
 - Want to continue? You don't need to do anything. Your subscription will start automatically on ${trialEndDate}.
-- Want to cancel? No problem! Just go to Settings → Subscriptions and click "Cancel Trial".
+- Want to cancel? No problem! Log in, on the bottom left click your company name, go to Billing → Delete Account and click "Delete Account Permanently".
+- You are also welcome to Pause your subscription to come back to it when you are ready.
 - Have questions? Reply to this email and we'll help you decide what's best for you.
 
 No pressure. We're here to support whatever decision works for you.
@@ -1808,66 +1817,165 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
 }
 
 /**
- * Send trial reminder email (7 days before trial ends for workshop participants)
+ * Send trial ending email for workshop participants
+ * Workshop users did NOT provide payment info at signup - they need to add it to continue
+ * Accepts optional customTemplate to use admin-configured email content
  */
 export async function sendWorkshopTrialEndingEmail(
   to: string,
   firstName: string,
   workshopName: string,
-  trialEndDate: string
+  trialEndDate: string,
+  userId: string,
+  workshopId: string,
+  enrollmentId: string, // For unsubscribe link
+  sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
+  customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
-  await client.sendEmail({
-    From: `${FROM_NAME} <${FROM_EMAIL}>`,
-    To: to,
-    Subject: `Your ${workshopName} trial ends in 7 days`,
-    HtmlBody: `
+  const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
+
+  // Template replacement values
+  const templateValues = {
+    firstName,
+    workshopName,
+    trialEndDate,
+  };
+
+  // Use custom template if provided, otherwise use default
+  const subject = customTemplate?.subject
+    ? replaceTemplateTags(customTemplate.subject, templateValues)
+    : `Your ${workshopName} trial is ending soon`;
+
+  const fromName = customTemplate?.fromName || 'Audrey';
+
+  // Default HTML body - Workshop-specific content (no automatic charge)
+  const defaultHtmlBody = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #4b006e;">Your Trial Ends Soon</h1>
 
         <p>Hey ${firstName},</p>
 
-        <p>Just a friendly heads up: your free trial from the <strong>${workshopName}</strong> workshop ends in 7 days.</p>
+        <p>A friendly heads up: your free trial of the <strong>Product Costing Tool</strong> from the <strong>${workshopName}</strong> workshop is ending soon.</p>
 
         <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
           <p style="margin: 0;"><strong>Trial ends:</strong> ${trialEndDate}</p>
-          <p style="margin: 10px 0 0 0; font-size: 14px; color: #92400e;">Your subscription will start automatically unless you cancel.</p>
+          <p style="margin: 10px 0 0 0; font-size: 14px; color: #92400e;">To keep using the Product Costing Tool after your trial, you'll need to set up your subscription.</p>
         </div>
 
-        <h3>Your Options</h3>
-        <p><strong>Want to continue?</strong> You don't need to do anything. Your subscription will start automatically on ${trialEndDate}.</p>
-        <p><strong>Want to cancel?</strong> No problem! Just go to Settings → Subscriptions and click "Cancel Trial".</p>
-        <p><strong>Have questions?</strong> Reply to this email and we'll help you decide what's best for you.</p>
+        <h3>Want to Continue?</h3>
+        <p>To keep access after ${trialEndDate}, just sign in to your account and:</p>
+        <ol style="line-height: 1.8;">
+          <li>Go to <strong>Billing → Payment Method</strong></li>
+          <li>Add your payment information</li>
+          <li>Go to <strong>Settings → Charity Selection</strong></li>
+          <li>Choose a charity for us to contribute $5/month to on your behalf</li>
+        </ol>
+        <p>Then to keep your data safe, scroll up to Data Safety and set a location for your data to live on your computer.</p>
 
-        <p>No pressure. We're here to support whatever decision works for you.</p>
+        <p style="margin: 20px 0;">
+          <a href="https://app.audacious.money/login" style="background: #4b006e; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block;">Log In To Your Account</a>
+        </p>
 
-        <p>— The Audacious Money Team</p>
+        <h3>Not Ready to Continue?</h3>
+        <p>No worries at all! Your trial will simply end on ${trialEndDate} and your account will remain available if you decide to subscribe later. No action needed from you - there's no automatic charge.</p>
+
+        <p><strong>Have questions?</strong> Reply to this email and we'll help you figure out what's best for you.</p>
+
+        <p>— Audrey & The Audacious Money Team</p>
 
         <hr style="border: none; border-top: 2px solid #D4AF37; margin: 30px 0;">
         <p style="font-size: 12px; color: #9ca3af;">
           Audacious Money<br>
           Building financial confidence, one step at a time.
         </p>
+        <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
+          Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Unsubscribe</a>
+        </p>
       </div>
-    `,
-    TextBody: `Your Trial Ends Soon
+    `;
+
+  // Default plain text body
+  const defaultTextBody = `Your Trial Ends Soon
 
 Hey ${firstName},
 
-Just a friendly heads up: your free trial from the ${workshopName} workshop ends in 7 days.
+A friendly heads up: your free trial of the Product Costing Tool from the ${workshopName} workshop is ending soon.
 
 Trial ends: ${trialEndDate}
-Your subscription will start automatically unless you cancel.
+To keep using the Product Costing Tool after your trial, you'll need to set up your subscription.
 
-Your Options:
-- Want to continue? You don't need to do anything.
-- Want to cancel? Go to Settings → Subscriptions and click "Cancel Trial".
-- Have questions? Reply to this email.
+WANT TO CONTINUE?
 
-No pressure. We're here to support whatever decision works for you.
+To keep access after ${trialEndDate}, just sign in to your account and:
+1. Go to Billing → Payment Method
+2. Add your payment information
+3. Go to Settings → Charity Selection
+4. Choose a charity for us to contribute $5/month to on your behalf
 
-— The Audacious Money Team`,
-    MessageStream: 'outbound'
-  });
+Then to keep your data safe, scroll up to Data Safety and set a location for your data to live on your computer.
+
+Log in to your account: https://app.audacious.money/login
+
+NOT READY TO CONTINUE?
+
+No worries at all! Your trial will simply end on ${trialEndDate} and your account will remain available if you decide to subscribe later. No action needed from you - there's no automatic charge.
+
+Have questions? Reply to this email and we'll help you figure out what's best for you.
+
+— Audrey & The Audacious Money Team
+
+---
+Audacious Money
+Building financial confidence, one step at a time.
+
+Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
+
+  // Use custom template body if provided, otherwise use default
+  const htmlBody = customTemplate?.htmlBody
+    ? replaceTemplateTags(customTemplate.htmlBody, templateValues)
+    : defaultHtmlBody;
+
+  const textBody = customTemplate?.plainTextBody
+    ? replaceTemplateTags(customTemplate.plainTextBody, templateValues)
+    : defaultTextBody;
+
+  const emailOptions: any = {
+    From: `${fromName} <${FROM_EMAIL}>`,
+    To: to,
+    Subject: subject,
+    HtmlBody: htmlBody,
+    TextBody: textBody,
+    MessageStream: 'outbound',
+
+    // Enable email tracking
+    TrackOpens: true,
+    TrackLinks: 'HtmlAndText',
+    Tag: generateEmailTag('workshop', 'trialEnding', userId, workshopId),
+    Metadata: {
+      category: 'workshop',
+      type: 'trialEnding',
+      userId: userId,
+      workshopId: workshopId,
+    },
+  };
+
+  // Add scheduled delivery time if provided
+  if (sendAt) {
+    emailOptions.SendAt = sendAt;
+  }
+
+  const result = await client.sendEmail(emailOptions);
+
+  // Log email event
+  await logEmailSent(
+    to,
+    subject,
+    'workshop',
+    'trialEnding',
+    userId,
+    workshopId,
+    sendAt
+  );
 }
 
 /**

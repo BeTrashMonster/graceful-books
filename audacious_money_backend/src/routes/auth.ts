@@ -1305,6 +1305,7 @@ auth.post('/workshop-login-enroll', async (c) => {
             id: enrollmentId,
             workshopId: workshop.id,
             userId: user.id,
+            trialExpiresAt: trialExpiresAt.toISOString(),
           },
           {
             id: workshop.id,

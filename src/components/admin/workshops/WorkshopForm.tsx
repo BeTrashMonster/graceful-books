@@ -36,6 +36,7 @@ interface EmailTemplates {
   week3?: EmailTemplate;
   week4?: EmailTemplate;
   wrapUp?: EmailTemplate;
+  trialEnding?: EmailTemplate;
 }
 
 interface WorkshopResource {

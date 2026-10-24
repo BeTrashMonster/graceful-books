@@ -857,6 +857,7 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
           id: enrollment.id,
           workshopId: workshop.id,
           userId: user.id,
+          trialExpiresAt: trialExpiresAt.toISOString(),
         },
         {
           id: workshop.id,
@@ -2150,6 +2151,7 @@ workshops.post('/enrollments/:id/schedule-emails', requireAdmin, async (c) => {
         id: enrollmentId,
         workshopId: row.workshop_id,
         userId: row.user_id,
+        trialExpiresAt: row.trial_expires_at ? new Date(row.trial_expires_at).toISOString() : undefined,
       },
       {
         id: row.workshop_id,

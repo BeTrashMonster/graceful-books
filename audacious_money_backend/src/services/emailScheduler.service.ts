@@ -19,6 +19,7 @@ import {
   sendWorkshopChallengeWeek3Email,
   sendWorkshopChallengeWeek4Email,
   sendWorkshopWrapUpEmail,
+  sendWorkshopTrialEndingEmail,
   type CustomEmailTemplates,
 } from './email.service.js';
 
@@ -26,7 +27,7 @@ import {
 // TYPES
 // =============================================================================
 
-export type EmailType = 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'custom';
+export type EmailType = 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'trialEnding' | 'custom';
 
 export type EmailStatus = 'pending' | 'processing' | 'sent' | 'failed' | 'cancelled';
 
@@ -63,6 +64,7 @@ export interface EmailScheduleConfig {
   week3?: { enabled: boolean; when: { days_after_workshop: number } };
   week4?: { enabled: boolean; when: { days_after_workshop: number } };
   wrapUp?: { enabled: boolean; when: { days_after_workshop: number } };
+  trialEnding?: { enabled: boolean; when: { days_before_trial_expires: number } };
 }
 
 interface Workshop {
@@ -86,6 +88,7 @@ interface Enrollment {
   id: string;
   workshopId: string;
   userId: string;
+  trialExpiresAt?: string; // ISO date string for trial expiration
 }
 
 // Default email schedule if workshop doesn't specify custom schedule
@@ -97,6 +100,7 @@ const DEFAULT_EMAIL_SCHEDULE: EmailScheduleConfig = {
   week3: { enabled: true, when: { days_after_workshop: 21 } },
   week4: { enabled: true, when: { days_after_workshop: 28 } },
   wrapUp: { enabled: true, when: { days_after_workshop: 30 } },
+  trialEnding: { enabled: true, when: { days_before_trial_expires: 3 } },
 };
 
 // =============================================================================
@@ -178,6 +182,28 @@ export async function scheduleWorkshopEmails(
     }
   }
 
+  // Trial Ending - X days before trial expires
+  if (schedule.trialEnding?.enabled !== false && enrollment.trialExpiresAt) {
+    const daysBefore = schedule.trialEnding?.when?.days_before_trial_expires || 3;
+    const trialExpiresAt = new Date(enrollment.trialExpiresAt);
+    const trialEndingSendTime = new Date(trialExpiresAt);
+    trialEndingSendTime.setDate(trialEndingSendTime.getDate() - daysBefore);
+
+    if (trialEndingSendTime > now) {
+      emailsToSchedule.push({
+        emailType: 'trialEnding',
+        scheduledFor: trialEndingSendTime,
+      });
+      console.log(`[EmailScheduler] Scheduling trialEnding email for ${trialEndingSendTime.toISOString()} (${daysBefore} days before trial expires on ${trialExpiresAt.toISOString()})`);
+    } else {
+      skipped++;
+      console.log(`[EmailScheduler] Skipping trialEnding - time already passed (trial expires ${trialExpiresAt.toISOString()})`);
+    }
+  } else if (schedule.trialEnding?.enabled !== false && !enrollment.trialExpiresAt) {
+    console.log(`[EmailScheduler] Skipping trialEnding - no trial expiration date provided`);
+    skipped++;
+  }
+
   // Insert all scheduled emails
   for (const email of emailsToSchedule) {
     try {
@@ -247,7 +273,8 @@ export async function processScheduledEmails(db: Pool): Promise<{
   const result = await db.query(`
     SELECT se.*,
            w.cohort_name, w.workshop_name, w.workshop_start_datetime,
-           w.workshop_end_datetime, w.location, w.custom_email_templates
+           w.workshop_end_datetime, w.location, w.custom_email_templates,
+           we.trial_expires_at
     FROM scheduled_emails se
     JOIN workshops w ON se.workshop_id = w.id
     LEFT JOIN workshop_enrollments we ON se.enrollment_id = we.id
@@ -423,6 +450,31 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
         row.enrollment_id, // For unsubscribe link
         undefined, // No sendAt
         customTemplates.wrapUp
+      );
+      break;
+
+    case 'trialEnding':
+      // Format trial expiration date for the email
+      const trialExpiresAt = row.trial_expires_at ? new Date(row.trial_expires_at) : null;
+      const trialEndDateFormatted = trialExpiresAt
+        ? trialExpiresAt.toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          })
+        : 'soon';
+
+      await sendWorkshopTrialEndingEmail(
+        row.recipient_email,
+        row.recipient_name || 'there',
+        workshopName,
+        trialEndDateFormatted,
+        row.user_id,
+        row.workshop_id,
+        row.enrollment_id, // For unsubscribe link
+        undefined, // No sendAt
+        customTemplates.trialEnding
       );
       break;
 

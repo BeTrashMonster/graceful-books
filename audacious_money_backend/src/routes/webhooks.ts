@@ -857,24 +857,24 @@ async function handleSubscriptionTrialWillEnd(subscription: any) {
         [user_id]
       );
 
-      if (workshopResult.rows.length > 0) {
-        // Workshop-specific trial ending email
-        const workshop = workshopResult.rows[0];
-        const { sendWorkshopTrialEndingEmail } = await import('../services/email.service.js');
+      // Format trial end date for the email
+      const trialEndDate = new Date(subscription.trial_end * 1000).toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
 
-        await sendWorkshopTrialEndingEmail(
-          email,
-          first_name,
-          workshop.cohort_name,
-          workshop.workshop_start_datetime,
-          workshop.workshop_type === 'in_person' ? workshop.location : 'Online'
-        );
-        console.log(`[Webhook] Workshop trial ending email sent to ${email} for workshop: ${workshop.cohort_name}`);
+      if (workshopResult.rows.length > 0) {
+        // Workshop users should get their trial email via scheduled_emails, not Stripe webhook
+        // This branch shouldn't normally be hit since workshop users don't have Stripe subscriptions
+        // But if it is, log it for debugging
+        console.log(`[Webhook] Warning: Workshop user ${email} received Stripe trial_will_end webhook. Workshop trial emails should be scheduled, not triggered by Stripe.`);
       } else {
-        // Regular product trial ending email
+        // Regular product trial ending email (website signups with Stripe subscription)
         const { sendTrialEndingSoonEmail } = await import('../services/email.service.js');
-        await sendTrialEndingSoonEmail(email, first_name, product_name);
-        console.log(`[Webhook] Trial ending soon for ${email} - ${product_name}`);
+        await sendTrialEndingSoonEmail(email, product_name, trialEndDate);
+        console.log(`[Webhook] Trial ending soon for ${email} - ${product_name} - ends ${trialEndDate}`);
       }
     }
 

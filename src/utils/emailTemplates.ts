@@ -25,9 +25,10 @@ export interface EmailTemplates {
   week3?: EmailTemplate;
   week4?: EmailTemplate;
   wrapUp?: EmailTemplate;
+  trialEnding?: EmailTemplate;
 }
 
-export type EmailType = 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp';
+export type EmailType = 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'trialEnding';
 
 // =============================================================================
 // DEFAULT EMAIL TEMPLATES
@@ -313,6 +314,49 @@ export const DEFAULT_EMAIL_TEMPLATES: Record<EmailType, EmailTemplate> = {
   </p>
 </div>`,
   },
+  trialEnding: {
+    subject: '[AM] Your trial is ending soon',
+    preheader: 'Action needed to continue using the Product Costing Tool',
+    htmlBody: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+  <h1 style="color: #4b006e;">Your Trial Ends Soon</h1>
+
+  <p>Hey {{firstName}},</p>
+
+  <p>A friendly heads up: your free trial of the <strong>Product Costing Tool</strong> from the <strong>{{workshopName}}</strong> workshop is ending soon.</p>
+
+  <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+    <p style="margin: 0;"><strong>Trial ends:</strong> {{trialEndDate}}</p>
+    <p style="margin: 10px 0 0 0; font-size: 14px; color: #92400e;">To keep using the Product Costing Tool after your trial, you'll need to set up your subscription.</p>
+  </div>
+
+  <h3 style="color: #4b006e;">Want to Continue?</h3>
+  <p>To keep access after {{trialEndDate}}, just sign in to your account and:</p>
+  <ol style="line-height: 1.8;">
+    <li>Go to <strong>Billing → Payment Method</strong></li>
+    <li>Add your payment information</li>
+    <li>Go to <strong>Settings → Charity Selection</strong></li>
+    <li>Choose a charity for us to contribute $5/month to on your behalf</li>
+  </ol>
+  <p>Then to keep your data safe, scroll up to Data Safety and set a location for your data to live on your computer.</p>
+
+  <p style="margin: 20px 0;">
+    <a href="https://app.audacious.money/login" style="background: #4b006e; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block;">Log In To Your Account</a>
+  </p>
+
+  <h3 style="color: #4b006e;">Not Ready to Continue?</h3>
+  <p>No worries at all! Your trial will simply end on {{trialEndDate}} and your account will remain available if you decide to subscribe later. No action needed from you - there's no automatic charge.</p>
+
+  <p><strong>Have questions?</strong> Reply to this email and we'll help you figure out what's best for you.</p>
+
+  <p>— Audrey & The Audacious Money Team</p>
+
+  <hr style="border: none; border-top: 2px solid #D4AF37; margin: 30px 0;">
+  <p style="font-size: 12px; color: #9ca3af;">
+    Audacious Money<br>
+    Building financial confidence, one step at a time.
+  </p>
+</div>`,
+  },
 };
 
 // =============================================================================
@@ -327,6 +371,7 @@ export const EMAIL_TYPE_LABELS: Record<EmailType, string> = {
   week3: 'Week 3 Email',
   week4: 'Week 4 Email',
   wrapUp: 'Wrap-Up Email',
+  trialEnding: 'Trial Ending Reminder',
 };
 
 // =============================================================================
@@ -361,4 +406,5 @@ export const ALL_EMAIL_TYPES: EmailType[] = [
   'week3',
   'week4',
   'wrapUp',
+  'trialEnding',
 ];
