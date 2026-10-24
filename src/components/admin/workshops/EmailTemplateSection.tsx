@@ -25,7 +25,7 @@ import styles from './EmailTemplateSection.module.css';
 
 export interface EmailScheduleConfig {
   enabled: boolean;
-  when: 'immediate' | { hours_before: number } | { days_after_workshop: number };
+  when: 'immediate' | { hours_before: number } | { days_after_workshop: number } | { days_before_trial_expires: number };
 }
 
 export interface EmailSchedule {
@@ -36,6 +36,7 @@ export interface EmailSchedule {
   week3: EmailScheduleConfig;
   week4: EmailScheduleConfig;
   wrapUp: EmailScheduleConfig;
+  trialEnding: EmailScheduleConfig;
 }
 
 interface EmailTemplateSectionProps {
@@ -59,6 +60,7 @@ const emailTypesForTabs = [
   { key: 'week3' as EmailType, label: 'Week 3' },
   { key: 'week4' as EmailType, label: 'Week 4' },
   { key: 'wrapUp' as EmailType, label: 'Wrap-Up' },
+  { key: 'trialEnding' as EmailType, label: 'Trial Ending' },
 ];
 
 export default function EmailTemplateSection(props: EmailTemplateSectionProps) {
@@ -94,6 +96,9 @@ export default function EmailTemplateSection(props: EmailTemplateSectionProps) {
     }
     if (typeof when === 'object' && 'days_after_workshop' in when) {
       return `Sent ${when.days_after_workshop} days after workshop`;
+    }
+    if (typeof when === 'object' && 'days_before_trial_expires' in when) {
+      return `Sent ${when.days_before_trial_expires} days before trial expires`;
     }
     return 'Custom timing';
   };
@@ -180,6 +185,20 @@ export default function EmailTemplateSection(props: EmailTemplateSectionProps) {
                     className={styles.numberInput}
                   />
                   <span className={styles.timingUnit}>days after workshop ends</span>
+                </div>
+              )}
+
+              {props.selectedEmailType === 'trialEnding' && (
+                <div className={styles.timingInput}>
+                  <input
+                    type="number"
+                    min="1"
+                    max="14"
+                    value={typeof currentSchedule.when === 'object' && 'days_before_trial_expires' in currentSchedule.when ? currentSchedule.when.days_before_trial_expires : 3}
+                    onChange={(e) => handleUpdateTiming({ days_before_trial_expires: parseInt(e.target.value) || 3 })}
+                    className={styles.numberInput}
+                  />
+                  <span className={styles.timingUnit}>days before trial expires</span>
                 </div>
               )}
             </div>

@@ -80,6 +80,7 @@ export default function WorkshopFormPage() {
       week3: { enabled: true, when: { days_after_workshop: 21 } },
       week4: { enabled: true, when: { days_after_workshop: 28 } },
       wrapUp: { enabled: true, when: { days_after_workshop: 30 } },
+      trialEnding: { enabled: true, when: { days_before_trial_expires: 3 } },
     },
   });
 
@@ -150,6 +151,7 @@ export default function WorkshopFormPage() {
         week3: { enabled: true, when: { days_after_workshop: 21 } },
         week4: { enabled: true, when: { days_after_workshop: 28 } },
         wrapUp: { enabled: true, when: { days_after_workshop: 30 } },
+        trialEnding: { enabled: true, when: { days_before_trial_expires: 3 } },
       };
 
       // Convert API response to form data
