@@ -67,6 +67,7 @@ interface EmailRecord {
   deliveredAt: string | null;
   openedAt: string | null;
   clickedAt: string | null;
+  htmlContent?: string;
 }
 
 interface NoteRecord {
@@ -174,6 +175,11 @@ export default function UserDetailsPage() {
   const [freezeReason, setFreezeReason] = useState('');
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
   const [deleteReason, setDeleteReason] = useState('');
+
+  // Email pagination & preview
+  const [emailPage, setEmailPage] = useState(1);
+  const [previewEmail, setPreviewEmail] = useState<EmailRecord | null>(null);
+  const emailsPerPage = 6;
 
   // Get admin session
   const getSession = useCallback(() => {
@@ -777,42 +783,82 @@ export default function UserDetailsPage() {
                 {emails.length === 0 ? (
                   <p className={styles.emptyState}>No emails sent yet</p>
                 ) : (
-                  <table className={styles.emailTable}>
-                    <thead>
-                      <tr>
-                        <th>Type</th>
-                        <th>Subject</th>
-                        <th>Status</th>
-                        <th>Sent</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {emails.map((email) => (
-                        <tr key={email.id}>
-                          <td>{email.emailType}</td>
-                          <td>{email.subject || '-'}</td>
-                          <td>
-                            <span className={`${styles.emailStatus} ${styles[email.status]}`}>
-                              {email.status}
-                            </span>
-                          </td>
-                          <td>{formatDate(email.sentAt || email.scheduledFor, true)}</td>
-                          <td>
-                            {(email.status === 'sent' || email.status === 'delivered') && (
+                  <>
+                    <table className={styles.emailTable}>
+                      <thead>
+                        <tr>
+                          <th>Type</th>
+                          <th>Subject</th>
+                          <th>Status</th>
+                          <th>Sent</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {emails
+                          .slice((emailPage - 1) * emailsPerPage, emailPage * emailsPerPage)
+                          .map((email) => (
+                          <tr key={email.id}>
+                            <td>{email.emailType}</td>
+                            <td>{email.subject || '-'}</td>
+                            <td>
+                              <span className={`${styles.emailStatus} ${styles[email.status]}`}>
+                                {email.status}
+                              </span>
+                            </td>
+                            <td>{formatDate(email.sentAt || email.scheduledFor, true)}</td>
+                            <td className={styles.emailActions}>
                               <button
                                 type="button"
                                 className={styles.smallButton}
-                                onClick={() => handleResendEmail(email.id)}
+                                onClick={() => setPreviewEmail(email)}
+                                title="Preview email"
                               >
-                                Resend
+                                View
                               </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                              {(email.status === 'sent' || email.status === 'delivered') && (
+                                <button
+                                  type="button"
+                                  className={styles.smallButton}
+                                  onClick={() => handleResendEmail(email.id)}
+                                >
+                                  Resend
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {/* Pagination */}
+                    {emails.length > emailsPerPage && (
+                      <div className={styles.emailPagination}>
+                        <button
+                          type="button"
+                          onClick={() => setEmailPage(p => Math.max(1, p - 1))}
+                          disabled={emailPage === 1}
+                          className={styles.paginationButton}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="15 18 9 12 15 6" />
+                          </svg>
+                        </button>
+                        <span className={styles.paginationInfo}>
+                          {emailPage} of {Math.ceil(emails.length / emailsPerPage)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setEmailPage(p => Math.min(Math.ceil(emails.length / emailsPerPage), p + 1))}
+                          disabled={emailPage >= Math.ceil(emails.length / emailsPerPage)}
+                          className={styles.paginationButton}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </InfoSection>
@@ -1063,6 +1109,49 @@ export default function UserDetailsPage() {
                 >
                   Delete User Permanently
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Email Preview Modal */}
+        {previewEmail && (
+          <div className={styles.modal} onClick={() => setPreviewEmail(null)}>
+            <div className={`${styles.modalContent} ${styles.emailPreviewModal}`} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.emailPreviewHeader}>
+                <h3>Email Preview</h3>
+                <button
+                  type="button"
+                  className={styles.closeButton}
+                  onClick={() => setPreviewEmail(null)}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+              <div className={styles.emailPreviewMeta}>
+                <div><strong>Type:</strong> {previewEmail.emailType}</div>
+                <div><strong>Subject:</strong> {previewEmail.subject || '-'}</div>
+                <div><strong>Sent:</strong> {formatDate(previewEmail.sentAt || previewEmail.scheduledFor, true)}</div>
+                <div><strong>Status:</strong> {previewEmail.status}</div>
+              </div>
+              <div className={styles.emailPreviewContent}>
+                {previewEmail.htmlContent ? (
+                  <iframe
+                    srcDoc={previewEmail.htmlContent}
+                    title="Email Preview"
+                    className={styles.emailPreviewFrame}
+                    sandbox="allow-same-origin"
+                  />
+                ) : (
+                  <p className={styles.noPreview}>
+                    Email content not available for preview.
+                    <br />
+                    <small>Template emails are rendered at send time and content is not stored.</small>
+                  </p>
+                )}
               </div>
             </div>
           </div>
