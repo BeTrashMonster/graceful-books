@@ -2640,7 +2640,7 @@ admin.post('/users/:userId/emails/:emailId/resend', requireAdmin, async (c) => {
   const userId = c.req.param('userId');
   const emailId = c.req.param('emailId');
   const db = c.get('db');
-  const adminUser = c.get('adminUser');
+  const adminId = c.get('adminId');
 
   try {
     // Get the original email
@@ -2671,7 +2671,7 @@ admin.post('/users/:userId/emails/:emailId/resend', requireAdmin, async (c) => {
       Metadata: {
         userId: originalEmail.user_id,
         originalEmailId: originalEmail.id,
-        resentBy: adminUser.id,
+        resentBy: adminId,
       },
     });
 
@@ -2687,7 +2687,7 @@ admin.post('/users/:userId/emails/:emailId/resend', requireAdmin, async (c) => {
       workshopId: originalEmail.workshop_id,
       workshopEnrollmentId: originalEmail.workshop_enrollment_id,
       triggeredBy: 'admin',
-      triggeredByAdminId: adminUser.id,
+      triggeredByAdminId: adminId,
       deliveryStatus: 'sent',
       deliveryProvider: 'postmark',
       providerMessageId: result.MessageID,
@@ -2713,7 +2713,7 @@ admin.delete('/users/:userId/scheduled-emails/:scheduledEmailId', requireAdmin, 
   const userId = c.req.param('userId');
   const scheduledEmailId = c.req.param('scheduledEmailId');
   const db = c.get('db');
-  const adminUser = c.get('adminUser');
+  const adminId = c.get('adminId');
 
   try {
     // Verify the scheduled email belongs to this user
@@ -2735,7 +2735,7 @@ admin.delete('/users/:userId/scheduled-emails/:scheduledEmailId', requireAdmin, 
       // No body provided, that's fine
     }
 
-    const cancelled = await cancelScheduledEmail(db, scheduledEmailId, adminUser.id, reason);
+    const cancelled = await cancelScheduledEmail(db, scheduledEmailId, adminId, reason);
 
     if (!cancelled) {
       return badRequest(c, ErrorCodes.INVALID_REQUEST, 'Email could not be cancelled (may already be sent or cancelled)');
@@ -2759,7 +2759,7 @@ admin.delete('/users/:userId/scheduled-emails/:scheduledEmailId', requireAdmin, 
 admin.post('/users/:userId/email-suppression', requireAdmin, async (c) => {
   const userId = c.req.param('userId');
   const db = c.get('db');
-  const adminUser = c.get('adminUser');
+  const adminId = c.get('adminId');
 
   try {
     const body = await c.req.json();
@@ -2779,7 +2779,7 @@ admin.post('/users/:userId/email-suppression', requireAdmin, async (c) => {
       db,
       userId,
       userResult.rows[0].email,
-      adminUser.id,
+      adminId,
       reason,
       emailTypes
     );
@@ -2802,7 +2802,7 @@ admin.post('/users/:userId/email-suppression', requireAdmin, async (c) => {
 admin.delete('/users/:userId/email-suppression', requireAdmin, async (c) => {
   const userId = c.req.param('userId');
   const db = c.get('db');
-  const adminUser = c.get('adminUser');
+  const adminId = c.get('adminId');
 
   try {
     // Parse request body for optional reason
@@ -2814,7 +2814,7 @@ admin.delete('/users/:userId/email-suppression', requireAdmin, async (c) => {
       // No body provided, that's fine
     }
 
-    await removeUserSuppression(db, userId, adminUser.id, reason);
+    await removeUserSuppression(db, userId, adminId, reason);
 
     return success(c, {
       success: true,
@@ -2856,7 +2856,7 @@ admin.get('/users/:userId/notes', requireAdmin, async (c) => {
 admin.post('/users/:userId/notes', requireAdmin, async (c) => {
   const userId = c.req.param('userId');
   const db = c.get('db');
-  const adminUser = c.get('adminUser');
+  const adminId = c.get('adminId');
 
   try {
     const body = await c.req.json();
@@ -2871,7 +2871,7 @@ admin.post('/users/:userId/notes', requireAdmin, async (c) => {
       return badRequest(c, ErrorCodes.VALIDATION_ERROR, `Note type must be one of: ${validTypes.join(', ')}`);
     }
 
-    const noteId = await createUserNote(db, userId, adminUser.id, note.trim(), noteType || 'general');
+    const noteId = await createUserNote(db, userId, adminId, note.trim(), noteType || 'general');
 
     return success(c, {
       success: true,
@@ -2892,7 +2892,7 @@ admin.post('/users/:userId/notes', requireAdmin, async (c) => {
 admin.patch('/users/:userId/notes/:noteId', requireAdmin, async (c) => {
   const noteId = c.req.param('noteId');
   const db = c.get('db');
-  const adminUser = c.get('adminUser');
+  const adminId = c.get('adminId');
 
   try {
     const body = await c.req.json();
@@ -2907,7 +2907,7 @@ admin.patch('/users/:userId/notes/:noteId', requireAdmin, async (c) => {
       return badRequest(c, ErrorCodes.VALIDATION_ERROR, `Note type must be one of: ${validTypes.join(', ')}`);
     }
 
-    const updated = await updateUserNote(db, noteId, adminUser.id, note.trim(), noteType);
+    const updated = await updateUserNote(db, noteId, adminId, note.trim(), noteType);
 
     if (!updated) {
       return notFound(c, ErrorCodes.NOT_FOUND, 'Note not found');
@@ -2996,7 +2996,7 @@ admin.get('/users/:userId/tags', requireAdmin, async (c) => {
 admin.post('/users/:userId/tags', requireAdmin, async (c) => {
   const userId = c.req.param('userId');
   const db = c.get('db');
-  const adminUser = c.get('adminUser');
+  const adminId = c.get('adminId');
 
   try {
     const body = await c.req.json();
@@ -3010,7 +3010,7 @@ admin.post('/users/:userId/tags', requireAdmin, async (c) => {
       return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Tag must be 50 characters or less');
     }
 
-    const tagId = await addUserTag(db, userId, adminUser.id, tag);
+    const tagId = await addUserTag(db, userId, adminId, tag);
 
     if (!tagId) {
       return success(c, {
