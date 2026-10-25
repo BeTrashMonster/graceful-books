@@ -249,58 +249,220 @@ export async function getUserActivityHistory(
   const pageSize = options.pageSize || 50;
   const offset = (page - 1) * pageSize;
 
-  // Build WHERE clause
-  let whereClause = 'WHERE user_id = $1';
-  const params: unknown[] = [userId];
-  let paramIndex = 2;
+  // Collect all activities from multiple sources
+  const allActivities: ActivityLogEntry[] = [];
 
-  if (options.activityType) {
-    whereClause += ` AND activity_type = $${paramIndex}`;
-    params.push(options.activityType);
-    paramIndex++;
-  }
+  // 1. Try to get activities from user_activity_log table (may not exist or be empty)
+  try {
+    // Build WHERE clause
+    let whereClause = 'WHERE user_id = $1';
+    const params: unknown[] = [userId];
+    let paramIndex = 2;
 
-  if (options.startDate) {
-    whereClause += ` AND created_at >= $${paramIndex}`;
-    params.push(options.startDate);
-    paramIndex++;
-  }
+    if (options.activityType && options.activityType !== 'system' && options.activityType !== 'email') {
+      whereClause += ` AND activity_type = $${paramIndex}`;
+      params.push(options.activityType);
+      paramIndex++;
+    }
 
-  if (options.endDate) {
-    whereClause += ` AND created_at <= $${paramIndex}`;
-    params.push(options.endDate);
-    paramIndex++;
-  }
+    if (options.startDate) {
+      whereClause += ` AND created_at >= $${paramIndex}`;
+      params.push(options.startDate);
+      paramIndex++;
+    }
 
-  // Get total count
-  const countResult = await db.query(
-    `SELECT COUNT(*) FROM user_activity_log ${whereClause}`,
-    params
-  );
-  const total = parseInt(countResult.rows[0].count);
+    if (options.endDate) {
+      whereClause += ` AND created_at <= $${paramIndex}`;
+      params.push(options.endDate);
+      paramIndex++;
+    }
 
-  // Get activities with pagination
-  const activitiesResult = await db.query(`
-    SELECT
-      id, user_id, activity_type, activity_name,
-      metadata, ip_address, user_agent, created_at
-    FROM user_activity_log
-    ${whereClause}
-    ORDER BY created_at DESC
-    LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-  `, [...params, pageSize, offset]);
+    const activitiesResult = await db.query(`
+      SELECT
+        id, user_id, activity_type, activity_name,
+        metadata, ip_address, user_agent, created_at
+      FROM user_activity_log
+      ${whereClause}
+      ORDER BY created_at DESC
+    `, params);
 
-  return {
-    activities: activitiesResult.rows.map(row => ({
+    allActivities.push(...activitiesResult.rows.map(row => ({
       id: row.id,
       userId: row.user_id,
-      activityType: row.activity_type,
+      activityType: row.activity_type as ActivityType,
       activityName: row.activity_name,
       metadata: row.metadata || {},
       ipAddress: row.ip_address,
       userAgent: row.user_agent,
       createdAt: row.created_at,
-    })),
+    })));
+  } catch (err) {
+    // Table might not exist - continue with other sources
+    console.warn('[ActivityLog] user_activity_log query failed, continuing with other sources:', err);
+  }
+
+  // 2. Get user signup and last login from users table (system events)
+  if (!options.activityType || options.activityType === 'system' || options.activityType === 'login') {
+    try {
+      const userResult = await db.query(`
+        SELECT id, created_at, last_login_at
+        FROM users
+        WHERE id = $1
+      `, [userId]);
+
+      if (userResult.rows.length > 0) {
+        const user = userResult.rows[0];
+
+        // Add signup event (system type)
+        if (!options.activityType || options.activityType === 'system') {
+          allActivities.push({
+            id: `signup-${user.id}`,
+            userId: user.id,
+            activityType: 'system',
+            activityName: 'Account created',
+            metadata: {},
+            ipAddress: null,
+            userAgent: null,
+            createdAt: user.created_at,
+          });
+        }
+
+        // Add last login event (if exists and different from signup)
+        if (user.last_login_at && (!options.activityType || options.activityType === 'login')) {
+          const loginTime = new Date(user.last_login_at).getTime();
+          const signupTime = new Date(user.created_at).getTime();
+          if (loginTime !== signupTime) {
+            allActivities.push({
+              id: `login-${user.id}-${loginTime}`,
+              userId: user.id,
+              activityType: 'login',
+              activityName: 'Last login',
+              metadata: { note: 'Most recent login on record' },
+              ipAddress: null,
+              userAgent: null,
+              createdAt: user.last_login_at,
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[ActivityLog] users query failed:', err);
+    }
+  }
+
+  // 3. Get email events from sent_emails and scheduled_emails
+  if (!options.activityType || options.activityType === 'email') {
+    try {
+      const emailResult = await db.query(`
+        SELECT
+          id, email_type, subject, sent_at, delivery_status
+        FROM sent_emails
+        WHERE user_id = $1 AND sent_at IS NOT NULL
+        ORDER BY sent_at DESC
+        LIMIT 20
+      `, [userId]);
+
+      allActivities.push(...emailResult.rows.map(row => ({
+        id: `email-${row.id}`,
+        userId: userId,
+        activityType: 'email' as ActivityType,
+        activityName: `Email sent: ${row.subject || row.email_type}`,
+        metadata: {
+          emailType: row.email_type,
+          deliveryStatus: row.delivery_status,
+        },
+        ipAddress: null,
+        userAgent: null,
+        createdAt: row.sent_at,
+      })));
+
+      // Also get scheduled emails that were sent
+      const scheduledResult = await db.query(`
+        SELECT
+          id, email_type, custom_subject, sent_at
+        FROM scheduled_emails
+        WHERE user_id = $1 AND status = 'sent' AND sent_at IS NOT NULL
+        ORDER BY sent_at DESC
+        LIMIT 20
+      `, [userId]);
+
+      allActivities.push(...scheduledResult.rows.map(row => ({
+        id: `scheduled-email-${row.id}`,
+        userId: userId,
+        activityType: 'email' as ActivityType,
+        activityName: `Workshop email: ${row.custom_subject || row.email_type}`,
+        metadata: { emailType: row.email_type },
+        ipAddress: null,
+        userAgent: null,
+        createdAt: row.sent_at,
+      })));
+    } catch (err) {
+      console.warn('[ActivityLog] email query failed:', err);
+    }
+  }
+
+  // 4. Get payment events from payments/subscriptions (if not filtered to other types)
+  if (!options.activityType || options.activityType === 'payment') {
+    try {
+      const paymentResult = await db.query(`
+        SELECT
+          up.id, up.product_slug, up.status, up.activated_at, up.trial_ends_at,
+          p.name as product_name
+        FROM user_products up
+        LEFT JOIN products p ON up.product_slug = p.slug
+        WHERE up.user_id = $1 AND up.activated_at IS NOT NULL
+        ORDER BY up.activated_at DESC
+      `, [userId]);
+
+      allActivities.push(...paymentResult.rows.map(row => ({
+        id: `subscription-${row.id}`,
+        userId: userId,
+        activityType: 'payment' as ActivityType,
+        activityName: `Subscription activated: ${row.product_name || row.product_slug}`,
+        metadata: {
+          status: row.status,
+          trialEndsAt: row.trial_ends_at,
+        },
+        ipAddress: null,
+        userAgent: null,
+        createdAt: row.activated_at,
+      })));
+    } catch (err) {
+      console.warn('[ActivityLog] payment query failed:', err);
+    }
+  }
+
+  // Deduplicate by id and sort by date (newest first)
+  const seenIds = new Set<string>();
+  const uniqueActivities = allActivities.filter(a => {
+    if (seenIds.has(a.id)) return false;
+    seenIds.add(a.id);
+    return true;
+  }).sort((a, b) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  // Apply date filters if specified
+  let filteredActivities = uniqueActivities;
+  if (options.startDate) {
+    const startTime = new Date(options.startDate).getTime();
+    filteredActivities = filteredActivities.filter(a =>
+      new Date(a.createdAt).getTime() >= startTime
+    );
+  }
+  if (options.endDate) {
+    const endTime = new Date(options.endDate).getTime();
+    filteredActivities = filteredActivities.filter(a =>
+      new Date(a.createdAt).getTime() <= endTime
+    );
+  }
+
+  // Apply pagination
+  const total = filteredActivities.length;
+  const paginatedActivities = filteredActivities.slice(offset, offset + pageSize);
+
+  return {
+    activities: paginatedActivities,
     pagination: {
       total,
       page,
@@ -353,35 +515,111 @@ export async function getActivityStats(
   lastLoginAt: string | null;
   activityByType: Record<string, number>;
 }> {
-  const [totalResult, lastActivityResult, loginResult, byTypeResult] = await Promise.all([
-    db.query(`SELECT COUNT(*) FROM user_activity_log WHERE user_id = $1`, [userId]),
-    db.query(`
-      SELECT created_at FROM user_activity_log
-      WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1
-    `, [userId]),
-    db.query(`
-      SELECT COUNT(*) as count, MAX(created_at) as last_login
-      FROM user_activity_log
-      WHERE user_id = $1 AND activity_type = 'login' AND activity_name = 'Logged in'
-    `, [userId]),
-    db.query(`
-      SELECT activity_type, COUNT(*) as count
-      FROM user_activity_log
-      WHERE user_id = $1
-      GROUP BY activity_type
-    `, [userId]),
-  ]);
+  const activityByType: Record<string, number> = {
+    login: 0,
+    system: 0,
+    email: 0,
+    payment: 0,
+    action: 0,
+  };
+  let totalActivities = 0;
+  let lastActivityAt: string | null = null;
+  let loginCount = 0;
+  let lastLoginAt: string | null = null;
 
-  const activityByType: Record<string, number> = {};
-  byTypeResult.rows.forEach(row => {
-    activityByType[row.activity_type] = parseInt(row.count);
-  });
+  // Try to get stats from user_activity_log (may not exist)
+  try {
+    const [totalResult, lastActivityResult, loginResult, byTypeResult] = await Promise.all([
+      db.query(`SELECT COUNT(*) FROM user_activity_log WHERE user_id = $1`, [userId]),
+      db.query(`
+        SELECT created_at FROM user_activity_log
+        WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1
+      `, [userId]),
+      db.query(`
+        SELECT COUNT(*) as count, MAX(created_at) as last_login
+        FROM user_activity_log
+        WHERE user_id = $1 AND activity_type = 'login'
+      `, [userId]),
+      db.query(`
+        SELECT activity_type, COUNT(*) as count
+        FROM user_activity_log
+        WHERE user_id = $1
+        GROUP BY activity_type
+      `, [userId]),
+    ]);
+
+    totalActivities = parseInt(totalResult.rows[0]?.count || '0');
+    lastActivityAt = lastActivityResult.rows[0]?.created_at || null;
+    loginCount = parseInt(loginResult.rows[0]?.count || '0');
+    lastLoginAt = loginResult.rows[0]?.last_login || null;
+
+    byTypeResult.rows.forEach(row => {
+      activityByType[row.activity_type] = parseInt(row.count);
+    });
+  } catch (err) {
+    console.warn('[ActivityLog] user_activity_log stats query failed, using fallback:', err);
+  }
+
+  // Always get additional stats from other tables
+  try {
+    // Get user signup and last login from users table
+    const userResult = await db.query(`
+      SELECT created_at, last_login_at FROM users WHERE id = $1
+    `, [userId]);
+
+    if (userResult.rows.length > 0) {
+      const user = userResult.rows[0];
+
+      // Add 1 for the account creation (system event)
+      activityByType.system = (activityByType.system || 0) + 1;
+      totalActivities += 1;
+
+      // Update last activity if user created_at is more recent
+      if (!lastActivityAt || new Date(user.created_at) > new Date(lastActivityAt)) {
+        lastActivityAt = user.created_at;
+      }
+
+      // If we have a last_login_at that's not tracked in activity log
+      if (user.last_login_at && loginCount === 0) {
+        loginCount = 1;
+        lastLoginAt = user.last_login_at;
+        activityByType.login = 1;
+        totalActivities += 1;
+
+        // Update last activity if login is more recent
+        if (new Date(user.last_login_at) > new Date(lastActivityAt)) {
+          lastActivityAt = user.last_login_at;
+        }
+      }
+    }
+
+    // Get email count
+    const emailCountResult = await db.query(`
+      SELECT
+        (SELECT COUNT(*) FROM sent_emails WHERE user_id = $1 AND sent_at IS NOT NULL) +
+        (SELECT COUNT(*) FROM scheduled_emails WHERE user_id = $1 AND status = 'sent') as total
+    `, [userId]);
+    const emailCount = parseInt(emailCountResult.rows[0]?.total || '0');
+    activityByType.email = (activityByType.email || 0) + emailCount;
+    totalActivities += emailCount;
+
+    // Get subscription count
+    const subCountResult = await db.query(`
+      SELECT COUNT(*) FROM user_products
+      WHERE user_id = $1 AND activated_at IS NOT NULL
+    `, [userId]);
+    const subCount = parseInt(subCountResult.rows[0]?.count || '0');
+    activityByType.payment = (activityByType.payment || 0) + subCount;
+    totalActivities += subCount;
+  } catch (err) {
+    console.warn('[ActivityLog] fallback stats query failed:', err);
+  }
 
   return {
-    totalActivities: parseInt(totalResult.rows[0].count),
-    lastActivityAt: lastActivityResult.rows[0]?.created_at || null,
-    loginCount: parseInt(loginResult.rows[0]?.count || '0'),
-    lastLoginAt: loginResult.rows[0]?.last_login || null,
+    totalActivities,
+    lastActivityAt,
+    loginCount,
+    lastLoginAt,
     activityByType,
   };
 }
