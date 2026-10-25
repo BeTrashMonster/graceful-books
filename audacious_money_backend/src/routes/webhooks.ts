@@ -529,12 +529,30 @@ async function handleCheckoutSessionCompleted(session: any) {
           );
 
           if (productResult.rows.length > 0) {
+            const productName = productResult.rows[0].name;
             await sendProductWelcomeEmail(
               user.email,
               user.first_name,
-              productResult.rows[0].name
+              productName
             );
             console.log('[Webhook] Welcome email sent to:', user.email);
+
+            // Store the sent email for tracking (non-blocking)
+            try {
+              const { storeSentEmail } = await import('../services/emailStorage.service.js');
+              await storeSentEmail({
+                userId,
+                recipientEmail: user.email,
+                emailType: 'product_welcome',
+                subject: `Welcome to ${productName}!`,
+                htmlContent: `<div style="font-family: sans-serif;"><h1>Welcome!</h1><p>Hey ${user.first_name},</p><p>Welcome to <strong>${productName}</strong>! We're excited to have you.</p></div>`,
+                textContent: `Welcome!\n\nHey ${user.first_name},\n\nWelcome to ${productName}! We're excited to have you.`,
+                triggeredBy: 'webhook',
+                deliveryStatus: 'sent',
+              });
+            } catch (storageError) {
+              console.warn('[Webhook] Failed to store welcome email (non-critical):', storageError instanceof Error ? storageError.message : storageError);
+            }
           }
         }
       }
@@ -697,7 +715,7 @@ async function handleSubscriptionDeleted(subscription: any) {
     // Get user details for cancellation email (optional - don't fail if email fails)
     try {
       const result = await db.query(
-        `SELECT u.email, u.first_name, p.name as product_name
+        `SELECT up.user_id, u.email, u.first_name, p.name as product_name
          FROM user_products up
          JOIN users u ON u.id = up.user_id
          JOIN products p ON p.id = up.product_id
@@ -706,10 +724,27 @@ async function handleSubscriptionDeleted(subscription: any) {
       );
 
       if (result.rows.length > 0) {
-        const { email, first_name, product_name } = result.rows[0];
+        const { user_id, email, first_name, product_name } = result.rows[0];
         const { sendSubscriptionCancelledEmail } = await import('../services/email.service.js');
         await sendSubscriptionCancelledEmail(email, first_name, product_name);
         console.log('[Webhook] Cancellation email sent');
+
+        // Store the sent email for tracking (non-blocking)
+        try {
+          const { storeSentEmail } = await import('../services/emailStorage.service.js');
+          await storeSentEmail({
+            userId: user_id,
+            recipientEmail: email,
+            emailType: 'subscription_cancelled',
+            subject: `Your ${product_name} subscription has been cancelled`,
+            htmlContent: `<div style="font-family: sans-serif;"><h1>Subscription Cancelled</h1><p>Hey ${first_name},</p><p>Your subscription to <strong>${product_name}</strong> has been cancelled.</p></div>`,
+            textContent: `Subscription Cancelled\n\nHey ${first_name},\n\nYour subscription to ${product_name} has been cancelled.`,
+            triggeredBy: 'webhook',
+            deliveryStatus: 'sent',
+          });
+        } catch (storageError) {
+          console.warn('[Webhook] Failed to store cancellation email (non-critical):', storageError instanceof Error ? storageError.message : storageError);
+        }
       }
     } catch (emailError) {
       console.warn('[Webhook] Failed to send cancellation email (non-critical):', emailError instanceof Error ? emailError.message : emailError);
@@ -879,6 +914,23 @@ async function handleSubscriptionTrialWillEnd(subscription: any) {
         const { sendTrialEndingSoonEmail } = await import('../services/email.service.js');
         await sendTrialEndingSoonEmail(email, product_name, trialEndDate);
         console.log(`[Webhook] Trial ending soon for ${email} - ${product_name} - ends ${trialEndDate}`);
+
+        // Store the sent email for tracking (non-blocking)
+        try {
+          const { storeSentEmail } = await import('../services/emailStorage.service.js');
+          await storeSentEmail({
+            userId: user_id,
+            recipientEmail: email,
+            emailType: 'trial_ending_soon',
+            subject: `Your ${product_name} trial is ending soon`,
+            htmlContent: `<div style="font-family: sans-serif;"><h1>Trial Ending Soon</h1><p>Hey ${first_name},</p><p>Your trial for <strong>${product_name}</strong> ends on ${trialEndDate}.</p></div>`,
+            textContent: `Trial Ending Soon\n\nHey ${first_name},\n\nYour trial for ${product_name} ends on ${trialEndDate}.`,
+            triggeredBy: 'webhook',
+            deliveryStatus: 'sent',
+          });
+        } catch (storageError) {
+          console.warn('[Webhook] Failed to store trial ending email (non-critical):', storageError instanceof Error ? storageError.message : storageError);
+        }
       }
     }
 
@@ -917,14 +969,35 @@ async function handleInvoicePaymentSucceeded(invoice: any) {
         // Send receipt email (optional - don't fail if email fails)
         try {
           const { sendPaymentReceiptEmail } = await import('../services/email.service.js');
+          const amount = invoice.amount_paid / 100;
+          const currency = invoice.currency.toUpperCase();
+
           await sendPaymentReceiptEmail(
             email,
             first_name,
             product_name,
-            invoice.amount_paid / 100,
-            invoice.currency.toUpperCase()
+            amount,
+            currency
           );
           console.log('[Webhook] Payment receipt sent');
+
+          // Store the sent email for tracking (non-blocking)
+          try {
+            const { storeSentEmail } = await import('../services/emailStorage.service.js');
+            await storeSentEmail({
+              userId: user_id,
+              recipientEmail: email,
+              emailType: 'payment_receipt',
+              subject: `Payment received - ${product_name}`,
+              htmlContent: `<div style="font-family: sans-serif;"><h1>Payment Received</h1><p>Hey ${first_name},</p><p>Thank you! We've received your payment for <strong>${product_name}</strong>.</p><p><strong>Amount paid:</strong> ${currency} ${amount.toFixed(2)}</p></div>`,
+              textContent: `Payment Received\n\nHey ${first_name},\n\nThank you! We've received your payment for ${product_name}.\n\nAmount paid: ${currency} ${amount.toFixed(2)}`,
+              triggeredBy: 'webhook',
+              deliveryStatus: 'sent',
+            });
+          } catch (storageError) {
+            // Non-blocking - just log if storage fails
+            console.warn('[Webhook] Failed to store payment receipt email (non-critical):', storageError instanceof Error ? storageError.message : storageError);
+          }
         } catch (emailError) {
           console.warn('[Webhook] Failed to send payment receipt (non-critical):', emailError instanceof Error ? emailError.message : emailError);
         }
@@ -958,7 +1031,7 @@ async function handleInvoicePaymentFailed(invoice: any) {
       // Get user details for payment failure notification (optional - don't fail if email fails)
       try {
         const result = await db.query(
-          `SELECT u.email, u.first_name, p.name as product_name
+          `SELECT up.user_id, u.email, u.first_name, p.name as product_name
            FROM user_products up
            JOIN users u ON u.id = up.user_id
            JOIN products p ON p.id = up.product_id
@@ -967,16 +1040,36 @@ async function handleInvoicePaymentFailed(invoice: any) {
         );
 
         if (result.rows.length > 0) {
-          const { email, first_name, product_name } = result.rows[0];
+          const { user_id, email, first_name, product_name } = result.rows[0];
           const { sendPaymentFailedEmail } = await import('../services/email.service.js');
+          const amount = invoice.amount_due / 100;
+          const currency = invoice.currency.toUpperCase();
+
           await sendPaymentFailedEmail(
             email,
             first_name,
             product_name,
-            invoice.amount_due / 100,
-            invoice.currency.toUpperCase()
+            amount,
+            currency
           );
           console.log('[Webhook] Payment failure notification sent');
+
+          // Store the sent email for tracking (non-blocking)
+          try {
+            const { storeSentEmail } = await import('../services/emailStorage.service.js');
+            await storeSentEmail({
+              userId: user_id,
+              recipientEmail: email,
+              emailType: 'payment_failed',
+              subject: `Action needed - Payment issue for ${product_name}`,
+              htmlContent: `<div style="font-family: sans-serif;"><h1>Payment Issue</h1><p>Hey ${first_name},</p><p>We had trouble processing your payment for <strong>${product_name}</strong>.</p><p><strong>Amount:</strong> ${currency} ${amount.toFixed(2)}</p></div>`,
+              textContent: `Payment Issue\n\nHey ${first_name},\n\nWe had trouble processing your payment for ${product_name}.\n\nAmount: ${currency} ${amount.toFixed(2)}`,
+              triggeredBy: 'webhook',
+              deliveryStatus: 'sent',
+            });
+          } catch (storageError) {
+            console.warn('[Webhook] Failed to store payment failed email (non-critical):', storageError instanceof Error ? storageError.message : storageError);
+          }
         }
       } catch (emailError) {
         console.warn('[Webhook] Failed to send payment failure email (non-critical):', emailError instanceof Error ? emailError.message : emailError);

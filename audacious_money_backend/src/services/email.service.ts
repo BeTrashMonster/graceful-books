@@ -43,6 +43,16 @@ export interface CustomEmailTemplates {
 }
 
 /**
+ * Result from sending a workshop email - includes rendered content for storage
+ */
+export interface WorkshopEmailResult {
+  messageId: string;
+  subject: string;
+  htmlContent: string;
+  textContent: string;
+}
+
+/**
  * Replace template tags with actual values
  * Supports: {{firstName}}, {{fullName}}, {{workshopName}}, {{workshopDate}}, {{workshopTime}}, {{workshopLocation}}
  */
@@ -1509,7 +1519,7 @@ export async function sendWorkshopWelcomeEmail(
   enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
-): Promise<void> {
+): Promise<WorkshopEmailResult> {
   const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
   // Template replacement values
   const templateValues = {
@@ -1664,6 +1674,13 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     workshopId,
     sendAt
   );
+
+  return {
+    messageId: result.MessageID,
+    subject,
+    htmlContent: htmlBody,
+    textContent: textBody,
+  };
 }
 
 /**
@@ -1680,7 +1697,7 @@ export async function sendWorkshopReminderEmail(
   enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
-): Promise<void> {
+): Promise<WorkshopEmailResult> {
   const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
   // Template replacement values
   const templateValues = {
@@ -1814,6 +1831,13 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     workshopId,
     sendAt
   );
+
+  return {
+    messageId: result.MessageID,
+    subject,
+    htmlContent: htmlBody,
+    textContent: textBody,
+  };
 }
 
 /**
@@ -1831,7 +1855,7 @@ export async function sendWorkshopTrialEndingEmail(
   enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
-): Promise<void> {
+): Promise<WorkshopEmailResult> {
   const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
 
   // Template replacement values
@@ -1968,6 +1992,7 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
 
   // Log email event
   await logEmailSent(
+    result.MessageID,
     to,
     subject,
     'workshop',
@@ -1976,6 +2001,13 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     workshopId,
     sendAt
   );
+
+  return {
+    messageId: result.MessageID,
+    subject,
+    htmlContent: htmlBody,
+    textContent: textBody,
+  };
 }
 
 /**
@@ -1992,7 +2024,7 @@ export async function sendWorkshopChallengeWeek1Email(
   enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
-): Promise<void> {
+): Promise<WorkshopEmailResult> {
   const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
 
   // Template replacement values
@@ -2129,6 +2161,13 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     workshopId,
     sendAt
   );
+
+  return {
+    messageId: result.MessageID,
+    subject,
+    htmlContent: htmlBody,
+    textContent: textBody,
+  };
 }
 
 /**
@@ -2145,7 +2184,7 @@ export async function sendWorkshopChallengeWeek2Email(
   enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
-): Promise<void> {
+): Promise<WorkshopEmailResult> {
   const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
 
   // Template replacement values
@@ -2276,6 +2315,13 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     workshopId,
     sendAt
   );
+
+  return {
+    messageId: result.MessageID,
+    subject,
+    htmlContent: htmlBody,
+    textContent: textBody,
+  };
 }
 
 /**
@@ -2292,7 +2338,7 @@ export async function sendWorkshopChallengeWeek3Email(
   enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
-): Promise<void> {
+): Promise<WorkshopEmailResult> {
   const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
 
   // Template replacement values
@@ -2421,6 +2467,13 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     workshopId,
     sendAt
   );
+
+  return {
+    messageId: result.MessageID,
+    subject,
+    htmlContent: htmlBody,
+    textContent: textBody,
+  };
 }
 
 /**
@@ -2437,7 +2490,7 @@ export async function sendWorkshopChallengeWeek4Email(
   enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
-): Promise<void> {
+): Promise<WorkshopEmailResult> {
   const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
 
   // Template replacement values
@@ -2573,6 +2626,13 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     workshopId,
     sendAt
   );
+
+  return {
+    messageId: result.MessageID,
+    subject,
+    htmlContent: htmlBody,
+    textContent: textBody,
+  };
 }
 
 /**
@@ -2589,7 +2649,7 @@ export async function sendWorkshopWrapUpEmail(
   enrollmentId: string, // For unsubscribe link
   sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
   customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
-): Promise<void> {
+): Promise<WorkshopEmailResult> {
   const unsubscribeUrl = `https://app.audacious.money/workshop-unsubscribe?id=${enrollmentId}`;
 
   // Template replacement values
@@ -2734,6 +2794,13 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     workshopId,
     sendAt
   );
+
+  return {
+    messageId: result.MessageID,
+    subject,
+    htmlContent: htmlBody,
+    textContent: textBody,
+  };
 }
 
 /**
@@ -2755,7 +2822,8 @@ export async function sendCustomWorkshopEmail(
     plainTextBody?: string;
     fromName?: string;
   },
-  customTemplate?: CustomEmailTemplate // For resending predefined types with custom templates
+  customTemplate?: CustomEmailTemplate, // For resending predefined types with custom templates
+  enrollmentId?: string // For unsubscribe link (optional for admin-triggered emails)
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     // Template replacement values for both predefined and custom emails
@@ -2766,29 +2834,32 @@ export async function sendCustomWorkshopEmail(
       workshopLocation,
     };
 
+    // Use a placeholder enrollmentId if not provided (admin-triggered emails may not have one)
+    const effectiveEnrollmentId = enrollmentId || 'admin-triggered';
+
     // If it's a predefined email type (not 'custom'), delegate to the appropriate function
     if (emailType !== 'custom') {
       switch (emailType) {
         case 'welcome':
-          await sendWorkshopWelcomeEmail(to, firstName, workshopName, workshopDate, workshopLocation, userId, workshopId, undefined, customTemplate);
+          await sendWorkshopWelcomeEmail(to, firstName, workshopName, workshopDate, workshopLocation, userId, workshopId, effectiveEnrollmentId, undefined, customTemplate);
           break;
         case 'reminder':
-          await sendWorkshopReminderEmail(to, firstName, workshopDate, workshopLocation, userId, workshopId, undefined, customTemplate);
+          await sendWorkshopReminderEmail(to, firstName, workshopDate, workshopLocation, userId, workshopId, effectiveEnrollmentId, undefined, customTemplate);
           break;
         case 'week1':
-          await sendWorkshopChallengeWeek1Email(to, firstName, workshopName, userId, workshopId, undefined, customTemplate);
+          await sendWorkshopChallengeWeek1Email(to, firstName, workshopName, userId, workshopId, effectiveEnrollmentId, undefined, customTemplate);
           break;
         case 'week2':
-          await sendWorkshopChallengeWeek2Email(to, firstName, workshopName, userId, workshopId, undefined, customTemplate);
+          await sendWorkshopChallengeWeek2Email(to, firstName, workshopName, userId, workshopId, effectiveEnrollmentId, undefined, customTemplate);
           break;
         case 'week3':
-          await sendWorkshopChallengeWeek3Email(to, firstName, workshopName, userId, workshopId, undefined, customTemplate);
+          await sendWorkshopChallengeWeek3Email(to, firstName, workshopName, userId, workshopId, effectiveEnrollmentId, undefined, customTemplate);
           break;
         case 'week4':
-          await sendWorkshopChallengeWeek4Email(to, firstName, workshopName, userId, workshopId, undefined, customTemplate);
+          await sendWorkshopChallengeWeek4Email(to, firstName, workshopName, userId, workshopId, effectiveEnrollmentId, undefined, customTemplate);
           break;
         case 'wrapUp':
-          await sendWorkshopWrapUpEmail(to, firstName, workshopName, userId, workshopId, undefined, customTemplate);
+          await sendWorkshopWrapUpEmail(to, firstName, workshopName, userId, workshopId, effectiveEnrollmentId, undefined, customTemplate);
           break;
       }
       return { success: true };

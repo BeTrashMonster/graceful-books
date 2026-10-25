@@ -21,8 +21,9 @@ import {
   sendWorkshopWrapUpEmail,
   sendWorkshopTrialEndingEmail,
   type CustomEmailTemplates,
+  type WorkshopEmailResult,
 } from './email.service.js';
-import { checkSuppression } from './emailStorage.service.js';
+import { checkSuppression, storeSentEmail, linkScheduledToSent } from './emailStorage.service.js';
 
 // =============================================================================
 // TYPES
@@ -361,6 +362,7 @@ export async function processScheduledEmails(db: Pool): Promise<{
 
 /**
  * Send email based on type, using current templates from workshop config
+ * Returns the message ID and stores the email content for admin diagnostics
  */
 async function sendEmailByType(row: any): Promise<string | undefined> {
   const customTemplates: CustomEmailTemplates = row.custom_email_templates || {};
@@ -374,10 +376,12 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
   });
   const workshopLocation = row.location || 'Online';
 
+  let emailResult: WorkshopEmailResult | null = null;
+
   // All email functions now send immediately (no sendAt parameter)
   switch (row.email_type) {
     case 'welcome':
-      await sendWorkshopWelcomeEmail(
+      emailResult = await sendWorkshopWelcomeEmail(
         row.recipient_email,
         row.recipient_name || 'there',
         workshopName,
@@ -392,7 +396,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
       break;
 
     case 'reminder':
-      await sendWorkshopReminderEmail(
+      emailResult = await sendWorkshopReminderEmail(
         row.recipient_email,
         row.recipient_name || 'there',
         row.workshop_start_datetime,
@@ -406,7 +410,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
       break;
 
     case 'week1':
-      await sendWorkshopChallengeWeek1Email(
+      emailResult = await sendWorkshopChallengeWeek1Email(
         row.recipient_email,
         row.recipient_name || 'there',
         workshopName,
@@ -419,7 +423,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
       break;
 
     case 'week2':
-      await sendWorkshopChallengeWeek2Email(
+      emailResult = await sendWorkshopChallengeWeek2Email(
         row.recipient_email,
         row.recipient_name || 'there',
         workshopName,
@@ -432,7 +436,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
       break;
 
     case 'week3':
-      await sendWorkshopChallengeWeek3Email(
+      emailResult = await sendWorkshopChallengeWeek3Email(
         row.recipient_email,
         row.recipient_name || 'there',
         workshopName,
@@ -445,7 +449,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
       break;
 
     case 'week4':
-      await sendWorkshopChallengeWeek4Email(
+      emailResult = await sendWorkshopChallengeWeek4Email(
         row.recipient_email,
         row.recipient_name || 'there',
         workshopName,
@@ -458,7 +462,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
       break;
 
     case 'wrapUp':
-      await sendWorkshopWrapUpEmail(
+      emailResult = await sendWorkshopWrapUpEmail(
         row.recipient_email,
         row.recipient_name || 'there',
         workshopName,
@@ -482,7 +486,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
           })
         : 'soon';
 
-      await sendWorkshopTrialEndingEmail(
+      emailResult = await sendWorkshopTrialEndingEmail(
         row.recipient_email,
         row.recipient_name || 'there',
         workshopName,
@@ -502,7 +506,7 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
       }
       // Use the sendCustomWorkshopEmail function or similar
       const { sendCustomWorkshopEmail } = await import('./email.service.js');
-      await sendCustomWorkshopEmail(
+      const customResult = await sendCustomWorkshopEmail(
         row.recipient_email,
         row.recipient_name || 'there',
         workshopName,
@@ -517,13 +521,52 @@ async function sendEmailByType(row: any): Promise<string | undefined> {
           plainTextBody: row.custom_text_body,
         }
       );
+      // Custom email returns different shape
+      if (customResult.success && customResult.messageId) {
+        emailResult = {
+          messageId: customResult.messageId,
+          subject: row.custom_subject,
+          htmlContent: row.custom_html_body,
+          textContent: row.custom_text_body || '',
+        };
+      }
       break;
 
     default:
       throw new Error(`Unknown email type: ${row.email_type}`);
   }
 
-  return undefined; // TODO: Return actual message ID from Postmark
+  // Store the sent email content for admin diagnostics (non-blocking)
+  if (emailResult) {
+    try {
+      const sentEmailId = await storeSentEmail({
+        userId: row.user_id,
+        recipientEmail: row.recipient_email,
+        emailType: `workshop_${row.email_type}`,
+        subject: emailResult.subject,
+        htmlContent: emailResult.htmlContent,
+        textContent: emailResult.textContent,
+        workshopId: row.workshop_id,
+        workshopEnrollmentId: row.enrollment_id,
+        triggeredBy: 'cron',
+        deliveryStatus: 'sent',
+        deliveryProvider: 'postmark',
+        providerMessageId: emailResult.messageId,
+      });
+
+      // Link scheduled_email to sent_email for tracking
+      if (sentEmailId && row.id) {
+        await linkScheduledToSent(row.id, sentEmailId);
+      }
+    } catch (storageError) {
+      // Non-blocking - log and continue
+      console.warn(`[EmailScheduler] Failed to store sent email (non-critical):`, storageError instanceof Error ? storageError.message : storageError);
+    }
+
+    return emailResult.messageId;
+  }
+
+  return undefined;
 }
 
 // =============================================================================
