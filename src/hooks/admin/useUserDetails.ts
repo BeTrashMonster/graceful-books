@@ -144,7 +144,9 @@ export function useUserDetails(): UseUserDetailsReturn {
       }
 
       const responseData = await response.json();
-      setData(transformDetails(responseData));
+      // Unwrap the API response - backend wraps data in { data: ... }
+      const detailsData = responseData.data || responseData;
+      setData(transformDetails(detailsData));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch user details');
       setData(null);
