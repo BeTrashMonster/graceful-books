@@ -79,6 +79,77 @@ interface NoteRecord {
   updatedByName: string | null;
 }
 
+/**
+ * Transform backend nested response to flat UserDetails structure
+ */
+function transformUserDetails(data: Record<string, unknown>): UserDetails {
+  const summary = (data.summary || {}) as Record<string, unknown>;
+  const cards = (data.cards || {}) as Record<string, unknown>;
+  const account = (cards.account || {}) as Record<string, unknown>;
+  const subscription = (cards.subscription || {}) as Record<string, unknown>;
+  const health = (cards.health || {}) as Record<string, unknown>;
+  const workshop = cards.workshop as Record<string, unknown> | null;
+  const products = (subscription.products || []) as Array<Record<string, unknown>>;
+  const firstProduct = products[0] || {};
+  const statusBadge = (summary.statusBadge || { label: 'UNKNOWN', variant: 'info' }) as UserDetails['statusBadge'];
+
+  // Build workshops array
+  const workshops: UserDetails['workshops'] = [];
+  if (workshop) {
+    workshops.push({
+      id: String(workshop.workshopId || ''),
+      name: String(workshop.cohortName || 'Workshop'),
+      cohortName: String(workshop.cohortName || ''),
+      status: String(workshop.status || 'active'),
+      enrolledAt: String(workshop.enrolledAt || ''),
+    });
+  }
+
+  // Build suppressions array
+  const suppressionsData = Array.isArray(data.suppressions) ? data.suppressions : [];
+  const suppressions: UserDetails['suppressions'] = suppressionsData.map((s: Record<string, unknown>) => ({
+    type: String(s.type || ''),
+    reason: (s.reason || null) as string | null,
+    createdAt: String(s.createdAt || ''),
+  }));
+
+  // Extract name parts from summary.name
+  const fullName = String(summary.name || '');
+  const nameParts = fullName.split(' ');
+  const firstName = nameParts[0] || null;
+  const lastName = nameParts.slice(1).join(' ') || null;
+
+  return {
+    id: String(summary.id || data.id || ''),
+    email: String(summary.email || ''),
+    firstName,
+    lastName,
+    companyName: (summary.companyName || null) as string | null,
+    supportKey: String(summary.supportKey || ''),
+    productSlug: String(firstProduct.slug || ''),
+    productName: String(firstProduct.name || firstProduct.slug || 'No Product'),
+    createdAt: String(account.createdAt || ''),
+    lastLoginAt: (account.lastLoginAt || null) as string | null,
+    emailVerified: Boolean(account.emailVerified),
+    isBeta: Boolean(summary.isBeta || account.isBeta),
+    needsAttention: Boolean(health.isFrozen || health.hasPaymentIssue),
+    stripeCustomerId: (firstProduct.stripeCustomerId || null) as string | null,
+    subscriptionId: (firstProduct.stripeSubscriptionId || null) as string | null,
+    subscriptionStatus: (firstProduct.status || null) as string | null,
+    currentPeriodStart: (firstProduct.currentPeriodStart || null) as string | null,
+    currentPeriodEnd: (firstProduct.currentPeriodEnd || null) as string | null,
+    frozenAt: health.isFrozen ? 'frozen' : null,
+    frozenReason: (health.frozenReason || null) as string | null,
+    pausedAt: (firstProduct.pausedAt || null) as string | null,
+    pausedUntil: null,
+    cancelledAt: (firstProduct.cancelledAt || null) as string | null,
+    statusBadge,
+    workshops,
+    tags: Array.isArray(data.tags) ? (data.tags as string[]) : [],
+    suppressions,
+  };
+}
+
 export default function UserDetailsPage() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
@@ -133,8 +204,10 @@ export default function UserDetailsPage() {
         throw new Error('Failed to fetch user details');
       }
 
-      const data = await response.json();
-      setUser(data);
+      const responseData = await response.json();
+      // Unwrap the API response - backend wraps data in { data: ... }
+      const detailsData = responseData.data || responseData;
+      setUser(transformUserDetails(detailsData));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load user');
     } finally {
@@ -155,8 +228,9 @@ export default function UserDetailsPage() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setEmails(data.emails || []);
+        const responseData = await response.json();
+        const emailData = responseData.data || responseData;
+        setEmails(emailData.emails || []);
       }
     } catch (err) {
       console.error('Failed to fetch emails:', err);
@@ -176,8 +250,9 @@ export default function UserDetailsPage() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setNotes(data.notes || []);
+        const responseData = await response.json();
+        const notesData = responseData.data || responseData;
+        setNotes(notesData.notes || []);
       }
     } catch (err) {
       console.error('Failed to fetch notes:', err);
@@ -197,8 +272,9 @@ export default function UserDetailsPage() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setSubscriptions(data.subscriptions || []);
+        const responseData = await response.json();
+        const subscriptionsData = responseData.data || responseData;
+        setSubscriptions(subscriptionsData.subscriptions || []);
       }
     } catch (err) {
       console.error('Failed to fetch subscriptions:', err);
