@@ -47,37 +47,47 @@ export interface UseUserDetailsReturn {
 
 /**
  * Transform backend data to UserDetailsData format
+ * Backend returns nested structure: { summary, cards, recentEmails, recentNotes, tags, suppressions }
  */
 function transformDetails(data: Record<string, unknown>): UserDetailsData {
+  // Handle nested response structure from backend
+  const summary = (data.summary || {}) as Record<string, unknown>;
+  const cards = (data.cards || {}) as Record<string, unknown>;
+  const account = (cards.account || {}) as Record<string, unknown>;
+  const subscription = (cards.subscription || {}) as Record<string, unknown>;
+  const health = (cards.health || {}) as Record<string, unknown>;
+  const products = (subscription.products || []) as Array<Record<string, unknown>>;
+  const firstProduct = products[0] || {};
+
   return {
-    userId: String(data.userId || data.id),
-    email: String(data.email),
-    firstName: data.firstName as string | null,
-    lastName: data.lastName as string | null,
-    companyName: data.companyName as string | null,
-    supportKey: String(data.supportKey),
-    productSlug: String(data.productSlug),
-    productName: String(data.productName || data.productSlug),
-    createdAt: String(data.createdAt),
-    lastLoginAt: data.lastLoginAt as string | null,
-    stripeCustomerId: data.stripeCustomerId as string | null,
-    subscriptionId: data.subscriptionId as string | null,
-    subscriptionStatus: data.subscriptionStatus as string | null,
-    isBeta: Boolean(data.isBeta),
-    needsAttention: Boolean(data.needsAttention),
-    frozenAt: data.frozenAt as string | null,
-    frozenReason: data.frozenReason as string | null,
-    pausedAt: data.pausedAt as string | null,
-    pausedUntil: data.pausedUntil as string | null,
-    cancelledAt: data.cancelledAt as string | null,
+    userId: String(summary.id || data.id || ''),
+    email: String(summary.email || data.email || ''),
+    firstName: (summary.name as string)?.split(' ')[0] || null,
+    lastName: (summary.name as string)?.split(' ').slice(1).join(' ') || null,
+    companyName: (summary.companyName || null) as string | null,
+    supportKey: String(summary.supportKey || account.supportKey || ''),
+    productSlug: String(firstProduct.slug || ''),
+    productName: String(firstProduct.name || firstProduct.slug || ''),
+    createdAt: String(account.createdAt || ''),
+    lastLoginAt: (account.lastLoginAt || null) as string | null,
+    stripeCustomerId: (firstProduct.stripeCustomerId || null) as string | null,
+    subscriptionId: (firstProduct.stripeSubscriptionId || null) as string | null,
+    subscriptionStatus: (firstProduct.status || null) as string | null,
+    isBeta: Boolean(summary.isBeta || account.isBeta),
+    needsAttention: Boolean(health.isFrozen || health.hasPaymentIssue),
+    frozenAt: health.isFrozen ? 'frozen' : null,
+    frozenReason: (health.frozenReason || null) as string | null,
+    pausedAt: (firstProduct.pausedAt || null) as string | null,
+    pausedUntil: null,
+    cancelledAt: (firstProduct.cancelledAt || null) as string | null,
     recentEmails: Array.isArray(data.recentEmails)
       ? (data.recentEmails as Array<Record<string, unknown>>).map((e) => ({
           id: String(e.id),
           emailType: String(e.emailType),
           subject: String(e.subject || ''),
-          status: e.status as EmailHistoryItem['status'],
-          sentAt: e.sentAt as string | null,
-          scheduledFor: e.scheduledFor as string | null,
+          status: (e.status || 'sent') as EmailHistoryItem['status'],
+          sentAt: (e.sentAt || null) as string | null,
+          scheduledFor: (e.scheduledFor || null) as string | null,
         }))
       : [],
     recentNotes: Array.isArray(data.recentNotes)

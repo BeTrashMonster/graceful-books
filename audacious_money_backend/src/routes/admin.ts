@@ -242,6 +242,9 @@ admin.get('/users', requireAdmin, async (c) => {
         u.last_login_at,
         u.is_beta,
         u.current_workshop_enrollment_id,
+        -- Get primary product info
+        (SELECT p.slug FROM user_products up JOIN products p ON up.product_id = p.id WHERE up.user_id = u.id ORDER BY up.activated_at DESC LIMIT 1) as product_slug,
+        (SELECT p.name FROM user_products up JOIN products p ON up.product_id = p.id WHERE up.user_id = u.id ORDER BY up.activated_at DESC LIMIT 1) as product_name,
         -- Get all product statuses as JSON array for badge computation
         COALESCE(
           (SELECT json_agg(json_build_object(
@@ -313,6 +316,8 @@ admin.get('/users', requireAdmin, async (c) => {
         lastName: row.last_name,
         companyName: row.company_name,
         supportKey: row.support_key,
+        productSlug: row.product_slug || '',
+        productName: row.product_name || '',
         statusBadge,
         workshopBadge,
         isBeta: row.is_beta || false,

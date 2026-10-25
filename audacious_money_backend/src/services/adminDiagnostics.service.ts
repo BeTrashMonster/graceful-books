@@ -377,6 +377,31 @@ export async function getUserDetails(db: Pool, userId: string): Promise<UserDeta
     LIMIT 1
   `, [userId]);
 
+  // Get recent emails (last 5)
+  const recentEmailsResult = await db.query(`
+    SELECT id, email_type, subject, delivery_status, sent_at
+    FROM sent_emails
+    WHERE user_id = $1
+    ORDER BY sent_at DESC
+    LIMIT 5
+  `, [userId]);
+
+  // Get recent notes (last 3)
+  const recentNotesResult = await db.query(`
+    SELECT un.id, un.note, un.note_type, un.created_at,
+           COALESCE(au.first_name || ' ' || au.last_name, 'Admin') as created_by_name
+    FROM user_notes un
+    LEFT JOIN admin_users au ON un.created_by_admin_id = au.id
+    WHERE un.user_id = $1
+    ORDER BY un.created_at DESC
+    LIMIT 3
+  `, [userId]);
+
+  // Get user tags
+  const tagsResult = await db.query(`
+    SELECT tag FROM user_tags WHERE user_id = $1 ORDER BY created_at DESC
+  `, [userId]);
+
   const emailStats = emailStatsResult.rows[0];
   const suppression = suppressionResult.rows[0];
 
@@ -478,6 +503,27 @@ export async function getUserDetails(db: Pool, userId: string): Promise<UserDeta
         bounceCount: parseInt(emailStats.bounce_count) || 0,
       },
     },
+    // Recent data for expanded panel
+    recentEmails: recentEmailsResult.rows.map(e => ({
+      id: e.id,
+      emailType: e.email_type,
+      subject: e.subject || '',
+      status: e.delivery_status || 'sent',
+      sentAt: e.sent_at,
+      scheduledFor: null,
+    })),
+    recentNotes: recentNotesResult.rows.map(n => ({
+      id: n.id,
+      note: n.note,
+      noteType: n.note_type,
+      createdAt: n.created_at,
+      createdByName: n.created_by_name,
+    })),
+    tags: tagsResult.rows.map(t => t.tag),
+    suppressions: suppression ? [{
+      type: suppression.suppression_type,
+      createdAt: suppression.suppressed_at,
+    }] : [],
   };
 }
 

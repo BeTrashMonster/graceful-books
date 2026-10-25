@@ -51,6 +51,17 @@ const DEFAULT_FILTERS: UserFilters = {
  */
 function transformUser(user: Record<string, unknown>): UserRowData {
   const statusBadge = user.statusBadge as UserStatusBadge | undefined;
+  const workshopBadge = user.workshopBadge as { cohortName: string; shortName: string } | null;
+
+  // Convert workshopBadge to workshops array for frontend compatibility
+  const workshops: Array<{ id: string; shortName: string; cohortName: string }> = [];
+  if (workshopBadge) {
+    workshops.push({
+      id: 'workshop',
+      shortName: workshopBadge.shortName,
+      cohortName: workshopBadge.cohortName,
+    });
+  }
 
   return {
     id: String(user.id),
@@ -58,9 +69,9 @@ function transformUser(user: Record<string, unknown>): UserRowData {
     firstName: user.firstName as string | null,
     lastName: user.lastName as string | null,
     companyName: user.companyName as string | null,
-    supportKey: String(user.supportKey),
-    productSlug: String(user.productSlug),
-    productName: String(user.productName || user.productSlug),
+    supportKey: String(user.supportKey || ''),
+    productSlug: String(user.productSlug || ''),
+    productName: String(user.productName || user.productSlug || ''),
     createdAt: String(user.createdAt),
     lastLoginAt: user.lastLoginAt as string | null,
     isBeta: Boolean(user.isBeta),
@@ -69,13 +80,7 @@ function transformUser(user: Record<string, unknown>): UserRowData {
       label: 'ACTIVE',
       variant: 'success',
     },
-    workshops: Array.isArray(user.workshops)
-      ? (user.workshops as Array<Record<string, unknown>>).map((w) => ({
-          id: String(w.id),
-          shortName: String(w.shortName),
-          cohortName: String(w.cohortName),
-        }))
-      : [],
+    workshops,
     tags: Array.isArray(user.tags) ? (user.tags as string[]) : [],
   };
 }
