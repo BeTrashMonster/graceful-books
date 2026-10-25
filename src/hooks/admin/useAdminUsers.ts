@@ -98,6 +98,12 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
     ...initialFilters,
   });
 
+  // Get admin session from sessionStorage
+  const getSession = useCallback(() => {
+    const sessionData = sessionStorage.getItem('graceful_books_admin_session');
+    return sessionData ? JSON.parse(sessionData) : null;
+  }, []);
+
   const totalPages = useMemo(
     () => Math.ceil(totalCount / pageSize),
     [totalCount, pageSize]
@@ -126,11 +132,14 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
 
   // Fetch filter options (once on mount)
   const fetchFilterOptions = useCallback(async () => {
+    const session = getSession();
+    if (!session?.token) return;
+
     try {
       const response = await fetch(`${API_URL}/admin/filter-options`, {
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.token}`,
         },
       });
 
@@ -143,19 +152,26 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
     } catch (err) {
       console.error('Failed to fetch filter options:', err);
     }
-  }, []);
+  }, [getSession]);
 
   // Fetch users
   const fetchUsers = useCallback(async () => {
+    const session = getSession();
+    if (!session?.token) {
+      setError('Not authenticated');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
       const queryString = buildQueryString(currentPage);
       const response = await fetch(`${API_URL}/admin/users?${queryString}`, {
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.token}`,
         },
       });
 
@@ -177,7 +193,7 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
     } finally {
       setIsLoading(false);
     }
-  }, [buildQueryString, currentPage]);
+  }, [buildQueryString, currentPage, getSession]);
 
   // Fetch filter options on mount
   useEffect(() => {
