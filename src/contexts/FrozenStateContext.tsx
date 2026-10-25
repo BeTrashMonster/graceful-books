@@ -161,9 +161,12 @@ export function FrozenStateProvider({ children }: FrozenStateProviderProps) {
   // Get subscription state from existing context
   const { subscription, isReadOnly: subscriptionReadOnly } = useSubscription();
 
+  // Check if we're on an admin route - skip all user API calls if so
+  const isAdminRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+
   // Local state
   const [workshopEnrollment, setWorkshopEnrollment] = useState<WorkshopEnrollment | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!isAdminRoute); // Don't show loading on admin routes
   const [isReactivationFlowOpen, setIsReactivationFlowOpen] = useState(false);
   const [isFrozenModalDismissed, setIsFrozenModalDismissed] = useState(false);
 
@@ -176,8 +179,15 @@ export function FrozenStateProvider({ children }: FrozenStateProviderProps) {
 
   /**
    * Load workshop enrollment status from API
+   * Skips API call on admin routes to avoid token type conflicts
    */
   const loadWorkshopEnrollment = useCallback(async () => {
+    // Skip on admin routes - admin uses different auth token type
+    if (isAdminRoute) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const enrollment = await getMyWorkshopEnrollment();
       setWorkshopEnrollment(enrollment);
@@ -188,7 +198,7 @@ export function FrozenStateProvider({ children }: FrozenStateProviderProps) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isAdminRoute]);
 
   /**
    * Refresh frozen state (call after payment, subscription change, etc.)
@@ -254,8 +264,10 @@ export function FrozenStateProvider({ children }: FrozenStateProviderProps) {
 
   /**
    * Check if workshop trial has expired
+   * NOTE: No useMemo - date comparison must run fresh on every render
+   * to detect expiry without requiring a page reload.
    */
-  const isWorkshopTrialExpired = useMemo(() => {
+  const isWorkshopTrialExpired = (() => {
     if (!workshopEnrollment) return false;
     if (workshopEnrollment.convertedToPaidAt) return false;
     if (!workshopEnrollment.trialExpiresAt) return false;
@@ -263,12 +275,13 @@ export function FrozenStateProvider({ children }: FrozenStateProviderProps) {
     const now = new Date();
     const expiresAt = new Date(workshopEnrollment.trialExpiresAt);
     return now > expiresAt;
-  }, [workshopEnrollment]);
+  })();
 
   /**
    * Check if regular subscription trial has expired
+   * NOTE: No useMemo - date comparison must run fresh on every render.
    */
-  const isSubscriptionTrialExpired = useMemo(() => {
+  const isSubscriptionTrialExpired = (() => {
     if (!subscription) return false;
     if (workshopEnrollment) return false; // Workshop users handled separately
     if (subscription.trialConverted) return false;
@@ -277,7 +290,7 @@ export function FrozenStateProvider({ children }: FrozenStateProviderProps) {
     const now = new Date();
     const trialEndsAt = new Date(subscription.trialEndsAt);
     return now > trialEndsAt;
-  }, [subscription, workshopEnrollment]);
+  })();
 
   /**
    * Determine frozen state and reason
@@ -349,8 +362,8 @@ export function FrozenStateProvider({ children }: FrozenStateProviderProps) {
     }
 
     // Check subscription context's isReadOnly for other cases (paused, etc.)
-    // But only for non-workshop users with actual subscription records
-    if (subscriptionReadOnly && !isInWorkshopTrial && !workshopEnrollment && subscription) {
+    // Workshop users with expired trials are handled above; this catches paused/other states
+    if (subscriptionReadOnly && !isInWorkshopTrial && subscription) {
       return {
         isFrozen: true,
         frozenReason: 'subscription_expired' as FrozenReason,

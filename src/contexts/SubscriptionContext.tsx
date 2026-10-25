@@ -25,13 +25,23 @@ interface SubscriptionProviderProps {
 }
 
 export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
+  // Check if we're on an admin route - skip user API calls if so
+  const isAdminRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+
   const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!isAdminRoute);
 
   /**
    * Load subscription status
+   * Skips API call on admin routes to avoid token type conflicts
    */
   const loadSubscription = async () => {
+    // Skip on admin routes - admin uses different auth token type
+    if (isAdminRoute) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const data = await getSubscription();
       setSubscription(data);
