@@ -8,7 +8,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API_URL } from '../../config/api';
-import { StatusBadge, TagBadge, SubscriptionManagement } from '../../components/admin/users';
+import { StatusBadge, TagBadge, SubscriptionManagement, ActivityTab } from '../../components/admin/users';
 import type { SubscriptionData } from '../../components/admin/users';
 import { InfoCard, InfoGrid, InfoSection } from '../../components/admin/users/InfoCard';
 import styles from './UserDetailsPage.module.css';
@@ -738,6 +738,13 @@ export default function UserDetailsPage() {
                 )}
               </div>
             </InfoSection>
+
+            {/* Activity */}
+            {userId && (
+              <InfoSection title="Activity History">
+                <ActivityTab userId={userId} />
+              </InfoSection>
+            )}
           </div>
 
           {/* Right column */}

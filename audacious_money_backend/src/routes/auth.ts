@@ -30,6 +30,7 @@ import {
 import { sendVerificationEmail, sendPasswordResetEmail, sendAccountReactivatedEmail, sendCPGLaunchSignupEmail, sendHomeEmailSignupEmail, sendBookkeepingSignupEmail } from '../services/email.service.js';
 import { trackAffiliateSignup } from '../services/affiliate.js';
 import { trackFailedLogin, clearFailedLogins } from '../services/security.js';
+import { logLogin } from '../services/activityLog.service.js';
 
 const auth = new Hono<HonoEnv>();
 
@@ -360,6 +361,10 @@ auth.post('/login', validate(loginSchema), async (c) => {
        VALUES ('user_login', 'user', $1, $2)`,
       [user.id, ipAddress]
     );
+
+    // Log activity for admin diagnostics
+    const userAgent = c.req.header('user-agent') || '';
+    await logLogin(db, user.id, ipAddress, userAgent, 'password');
 
     return success(c, {
       token,

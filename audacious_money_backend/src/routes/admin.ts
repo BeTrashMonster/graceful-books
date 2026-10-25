@@ -53,6 +53,12 @@ import {
   revokeProductAccess,
   getUserSubscriptions,
 } from '../services/adminDiagnostics.service.js';
+import {
+  getUserActivityHistory,
+  getRecentActivitySummary,
+  getActivityStats,
+  type ActivityType,
+} from '../services/activityLog.service.js';
 
 const admin = new Hono<HonoEnv>();
 
@@ -3355,6 +3361,79 @@ admin.post('/users/:userId/subscriptions/:subscriptionId/revoke', requireAdmin, 
   } catch (error) {
     console.error('[Admin] Error revoking access:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to revoke access');
+  }
+});
+
+// =============================================================================
+// ACTIVITY TRACKING
+// =============================================================================
+
+/**
+ * GET /admin/users/:userId/activity
+ *
+ * Get activity history for a user
+ */
+admin.get('/users/:userId/activity', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+
+  // Parse query parameters
+  const page = parseInt(c.req.query('page') || '1');
+  const pageSize = parseInt(c.req.query('pageSize') || '50');
+  const activityType = c.req.query('activityType') as ActivityType | undefined;
+  const startDate = c.req.query('startDate');
+  const endDate = c.req.query('endDate');
+
+  try {
+    const result = await getUserActivityHistory(db, userId, {
+      page,
+      pageSize,
+      activityType,
+      startDate,
+      endDate,
+    });
+
+    return success(c, result);
+  } catch (error) {
+    console.error('[Admin] Error fetching activity history:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch activity history');
+  }
+});
+
+/**
+ * GET /admin/users/:userId/activity/recent
+ *
+ * Get recent activity summary for a user (for overview display)
+ */
+admin.get('/users/:userId/activity/recent', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+  const limit = parseInt(c.req.query('limit') || '10');
+
+  try {
+    const activities = await getRecentActivitySummary(db, userId, limit);
+    return success(c, { activities });
+  } catch (error) {
+    console.error('[Admin] Error fetching recent activity:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch recent activity');
+  }
+});
+
+/**
+ * GET /admin/users/:userId/activity/stats
+ *
+ * Get activity statistics for a user
+ */
+admin.get('/users/:userId/activity/stats', requireAdmin, async (c) => {
+  const userId = c.req.param('userId');
+  const db = c.get('db');
+
+  try {
+    const stats = await getActivityStats(db, userId);
+    return success(c, stats);
+  } catch (error) {
+    console.error('[Admin] Error fetching activity stats:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch activity stats');
   }
 });
 

@@ -32,6 +32,7 @@ import {
   calculateTrialExpiration,
 } from '../utils/workshopAccess.js';
 import type { WorkshopRow, WorkshopEnrollmentRow } from '../types/workshop.types.js';
+import { logUserAction, logSystemEvent } from '../services/activityLog.service.js';
 
 const workshops = new Hono<HonoEnv>();
 
@@ -888,6 +889,13 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
       // Don't fail the signup - emails are not critical for enrollment success
     }
 
+    // Log activity for admin diagnostics
+    await logSystemEvent(db, user.id, 'Workshop signup', {
+      workshopId,
+      cohortName: workshop.cohortName,
+      trialExpiresAt: trialExpiresAt?.toISOString(),
+    });
+
     return success(c, {
       success: true,
       enrollment,
@@ -944,6 +952,9 @@ workshops.post('/my-enrollment/worksheet/complete', requireAuth, async (c) => {
     );
 
     console.log('[Workshops] Marked worksheet complete for user:', userId);
+
+    // Log activity for admin diagnostics
+    await logUserAction(db, userId, 'Completed worksheet', { enrollmentId });
 
     return success(c, { success: true });
   } catch (error) {

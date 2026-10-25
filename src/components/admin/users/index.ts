@@ -35,3 +35,6 @@ export type {
 // Subscription management
 export { SubscriptionManagement } from './SubscriptionManagement';
 export type { SubscriptionManagementProps, SubscriptionData } from './SubscriptionManagement';
+
+// Activity tab
+export { ActivityTab } from './ActivityTab';
