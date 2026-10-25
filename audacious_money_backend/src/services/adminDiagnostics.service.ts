@@ -545,32 +545,35 @@ export async function getUserEmailHistory(
   const pageSize = options.pageSize || 50;
   const offset = (page - 1) * pageSize;
 
-  // Build WHERE clause for filters
-  let whereClause = 'WHERE se.user_id = $1';
-  const params: any[] = [userId];
-  let paramIndex = 2;
+  // Query sent emails from scheduled_emails table (where status='sent')
+  // This is where workshop emails are tracked after being sent
+  const scheduledSentResult = await db.query(`
+    SELECT
+      se.id,
+      se.email_type,
+      COALESCE(se.custom_subject, INITCAP(REPLACE(se.email_type, '_', ' ')) || ' Email') as subject,
+      se.sent_at,
+      'sent' as delivery_status,
+      se.sent_at as delivery_status_updated_at,
+      NULL as bounce_type,
+      NULL as bounce_reason,
+      NULL as opened_at,
+      0 as open_count,
+      NULL as clicked_at,
+      0 as click_count,
+      'system' as triggered_by,
+      NULL as triggered_by_admin_name,
+      se.custom_html_body as html_content,
+      se.custom_text_body as text_content,
+      w.cohort_name as workshop_name
+    FROM scheduled_emails se
+    LEFT JOIN workshops w ON se.workshop_id = w.id
+    WHERE se.user_id = $1 AND se.status = 'sent'
+    ORDER BY se.sent_at DESC
+  `, [userId]);
 
-  if (options.emailType) {
-    whereClause += ` AND se.email_type = $${paramIndex}`;
-    params.push(options.emailType);
-    paramIndex++;
-  }
-
-  if (options.status) {
-    whereClause += ` AND se.delivery_status = $${paramIndex}`;
-    params.push(options.status);
-    paramIndex++;
-  }
-
-  // Get total count
-  const countResult = await db.query(
-    `SELECT COUNT(*) FROM sent_emails se ${whereClause}`,
-    params
-  );
-  const total = parseInt(countResult.rows[0].count);
-
-  // Get emails with pagination
-  const emailsResult = await db.query(`
+  // Also query sent_emails table for manually sent/resent emails
+  const manualSentResult = await db.query(`
     SELECT
       se.id, se.email_type, se.subject, se.sent_at,
       se.delivery_status, se.delivery_status_updated_at,
@@ -582,10 +585,17 @@ export async function getUserEmailHistory(
     FROM sent_emails se
     LEFT JOIN admin_users a ON se.triggered_by_admin_id = a.id
     LEFT JOIN workshops w ON se.workshop_id = w.id
-    ${whereClause}
+    WHERE se.user_id = $1
     ORDER BY se.sent_at DESC
-    LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-  `, [...params, pageSize, offset]);
+  `, [userId]);
+
+  // Combine and sort results
+  const allEmails = [...scheduledSentResult.rows, ...manualSentResult.rows]
+    .sort((a, b) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime());
+
+  // Apply pagination
+  const paginatedEmails = allEmails.slice(offset, offset + pageSize);
+  const total = allEmails.length;
 
   // Get scheduled emails
   const scheduledResult = await db.query(`
@@ -610,7 +620,7 @@ export async function getUserEmailHistory(
   const suppression = suppressionResult.rows[0];
 
   return {
-    emails: emailsResult.rows.map(e => ({
+    emails: paginatedEmails.map(e => ({
       id: e.id,
       emailType: e.email_type,
       subject: e.subject,
