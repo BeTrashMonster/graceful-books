@@ -547,26 +547,28 @@ export async function getUserEmailHistory(
 
   // Query sent emails from scheduled_emails table (where status='sent')
   // This is where workshop emails are tracked after being sent
+  // Join with sent_emails to get the actual rendered content (stored after sending)
   const scheduledSentResult = await db.query(`
     SELECT
       se.id,
       se.email_type,
-      COALESCE(se.custom_subject, INITCAP(REPLACE(se.email_type, '_', ' ')) || ' Email') as subject,
+      COALESCE(se.custom_subject, sent.subject, INITCAP(REPLACE(se.email_type, '_', ' ')) || ' Email') as subject,
       se.sent_at,
-      'sent' as delivery_status,
-      se.sent_at as delivery_status_updated_at,
-      NULL as bounce_type,
-      NULL as bounce_reason,
-      NULL as opened_at,
-      0 as open_count,
-      NULL as clicked_at,
-      0 as click_count,
-      'system' as triggered_by,
+      COALESCE(sent.delivery_status, 'sent') as delivery_status,
+      COALESCE(sent.delivery_status_updated_at, se.sent_at) as delivery_status_updated_at,
+      sent.bounce_type,
+      sent.bounce_reason,
+      sent.opened_at,
+      COALESCE(sent.open_count, 0) as open_count,
+      sent.clicked_at,
+      COALESCE(sent.click_count, 0) as click_count,
+      'cron' as triggered_by,
       NULL as triggered_by_admin_name,
-      se.custom_html_body as html_content,
-      se.custom_text_body as text_content,
+      COALESCE(sent.html_content, se.custom_html_body) as html_content,
+      COALESCE(sent.text_content, se.custom_text_body) as text_content,
       w.cohort_name as workshop_name
     FROM scheduled_emails se
+    LEFT JOIN sent_emails sent ON se.sent_email_id = sent.id
     LEFT JOIN workshops w ON se.workshop_id = w.id
     WHERE se.user_id = $1 AND se.status = 'sent'
     ORDER BY se.sent_at DESC
