@@ -535,11 +535,13 @@ export default function UserDetailsPage() {
               <h1 className={styles.title}>{displayName}</h1>
               <p className={styles.email}>{user.email}</p>
               <div className={styles.badges}>
-                <StatusBadge
-                  label={user.statusBadge.label}
-                  variant={user.statusBadge.variant}
-                  details={user.statusBadge.details}
-                />
+                {user.statusBadge && (
+                  <StatusBadge
+                    label={user.statusBadge.label}
+                    variant={user.statusBadge.variant}
+                    details={user.statusBadge.details}
+                  />
+                )}
                 {user.isBeta && <StatusBadge label="BETA" variant="purple" />}
                 {user.needsAttention && (
                   <span className={styles.attentionBadge}>Needs Attention</span>

@@ -104,16 +104,28 @@ export function useUserDetails(): UseUserDetailsReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Get admin session from sessionStorage
+  const getSession = useCallback(() => {
+    const sessionData = sessionStorage.getItem('graceful_books_admin_session');
+    return sessionData ? JSON.parse(sessionData) : null;
+  }, []);
+
   // Fetch user details
   const fetch = useCallback(async (userId: string) => {
+    const session = getSession();
+    if (!session?.token) {
+      setError('Not authenticated');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
       const response = await window.fetch(`${API_URL}/admin/users/${userId}/details`, {
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.token}`,
         },
       });
 
@@ -129,17 +141,20 @@ export function useUserDetails(): UseUserDetailsReturn {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [getSession]);
 
   // Add note
   const addNote = useCallback(
     async (userId: string, note: string, noteType: string): Promise<boolean> => {
+      const session = getSession();
+      if (!session?.token) return false;
+
       try {
         const response = await window.fetch(`${API_URL}/admin/users/${userId}/notes`, {
           method: 'POST',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.token}`,
           },
           body: JSON.stringify({ note, noteType }),
         });
@@ -155,20 +170,23 @@ export function useUserDetails(): UseUserDetailsReturn {
         return false;
       }
     },
-    [fetch]
+    [fetch, getSession]
   );
 
   // Update note
   const updateNote = useCallback(
     async (userId: string, noteId: string, note: string): Promise<boolean> => {
+      const session = getSession();
+      if (!session?.token) return false;
+
       try {
         const response = await window.fetch(
           `${API_URL}/admin/users/${userId}/notes/${noteId}`,
           {
             method: 'PATCH',
-            credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.token}`,
             },
             body: JSON.stringify({ note }),
           }
@@ -185,18 +203,23 @@ export function useUserDetails(): UseUserDetailsReturn {
         return false;
       }
     },
-    [fetch]
+    [fetch, getSession]
   );
 
   // Delete note
   const deleteNote = useCallback(
     async (userId: string, noteId: string): Promise<boolean> => {
+      const session = getSession();
+      if (!session?.token) return false;
+
       try {
         const response = await window.fetch(
           `${API_URL}/admin/users/${userId}/notes/${noteId}`,
           {
             method: 'DELETE',
-            credentials: 'include',
+            headers: {
+              'Authorization': `Bearer ${session.token}`,
+            },
           }
         );
 
@@ -211,18 +234,21 @@ export function useUserDetails(): UseUserDetailsReturn {
         return false;
       }
     },
-    [fetch]
+    [fetch, getSession]
   );
 
   // Add tag
   const addTag = useCallback(
     async (userId: string, tag: string): Promise<boolean> => {
+      const session = getSession();
+      if (!session?.token) return false;
+
       try {
         const response = await window.fetch(`${API_URL}/admin/users/${userId}/tags`, {
           method: 'POST',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.token}`,
           },
           body: JSON.stringify({ tag }),
         });
@@ -244,18 +270,23 @@ export function useUserDetails(): UseUserDetailsReturn {
         return false;
       }
     },
-    [data]
+    [data, getSession]
   );
 
   // Remove tag
   const removeTag = useCallback(
     async (userId: string, tag: string): Promise<boolean> => {
+      const session = getSession();
+      if (!session?.token) return false;
+
       try {
         const response = await window.fetch(
           `${API_URL}/admin/users/${userId}/tags/${encodeURIComponent(tag)}`,
           {
             method: 'DELETE',
-            credentials: 'include',
+            headers: {
+              'Authorization': `Bearer ${session.token}`,
+            },
           }
         );
 
@@ -275,18 +306,23 @@ export function useUserDetails(): UseUserDetailsReturn {
         return false;
       }
     },
-    [data]
+    [data, getSession]
   );
 
   // Resend email
   const resendEmail = useCallback(
     async (userId: string, emailId: string): Promise<boolean> => {
+      const session = getSession();
+      if (!session?.token) return false;
+
       try {
         const response = await window.fetch(
           `${API_URL}/admin/users/${userId}/emails/${emailId}/resend`,
           {
             method: 'POST',
-            credentials: 'include',
+            headers: {
+              'Authorization': `Bearer ${session.token}`,
+            },
           }
         );
 
@@ -299,18 +335,23 @@ export function useUserDetails(): UseUserDetailsReturn {
         return false;
       }
     },
-    []
+    [getSession]
   );
 
   // Cancel scheduled email
   const cancelScheduledEmail = useCallback(
     async (userId: string, scheduledId: string): Promise<boolean> => {
+      const session = getSession();
+      if (!session?.token) return false;
+
       try {
         const response = await window.fetch(
           `${API_URL}/admin/users/${userId}/scheduled-emails/${scheduledId}`,
           {
             method: 'DELETE',
-            credentials: 'include',
+            headers: {
+              'Authorization': `Bearer ${session.token}`,
+            },
           }
         );
 
@@ -325,20 +366,23 @@ export function useUserDetails(): UseUserDetailsReturn {
         return false;
       }
     },
-    [fetch]
+    [fetch, getSession]
   );
 
   // Add suppression
   const addSuppression = useCallback(
     async (userId: string, type: string, reason?: string): Promise<boolean> => {
+      const session = getSession();
+      if (!session?.token) return false;
+
       try {
         const response = await window.fetch(
           `${API_URL}/admin/users/${userId}/suppressions`,
           {
             method: 'POST',
-            credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.token}`,
             },
             body: JSON.stringify({ type, reason }),
           }
@@ -355,18 +399,23 @@ export function useUserDetails(): UseUserDetailsReturn {
         return false;
       }
     },
-    [fetch]
+    [fetch, getSession]
   );
 
   // Remove suppression
   const removeSuppression = useCallback(
     async (userId: string, type: string): Promise<boolean> => {
+      const session = getSession();
+      if (!session?.token) return false;
+
       try {
         const response = await window.fetch(
           `${API_URL}/admin/users/${userId}/suppressions/${encodeURIComponent(type)}`,
           {
             method: 'DELETE',
-            credentials: 'include',
+            headers: {
+              'Authorization': `Bearer ${session.token}`,
+            },
           }
         );
 
@@ -381,7 +430,7 @@ export function useUserDetails(): UseUserDetailsReturn {
         return false;
       }
     },
-    [fetch]
+    [fetch, getSession]
   );
 
   return {
