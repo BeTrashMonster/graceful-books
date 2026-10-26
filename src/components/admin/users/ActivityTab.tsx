@@ -32,7 +32,7 @@ interface ActivityTabProps {
   userId: string;
 }
 
-type FilterType = 'all' | 'login' | 'system' | 'email' | 'payment';
+type FilterType = 'all' | 'login' | 'system' | 'email' | 'payment' | 'charity';
 
 export function ActivityTab({ userId }: ActivityTabProps) {
   const [activities, setActivities] = useState<ActivityEntry[]>([]);
@@ -158,6 +158,8 @@ export function ActivityTab({ userId }: ActivityTabProps) {
         return 'E';
       case 'payment':
         return '$';
+      case 'charity':
+        return 'C';
       default:
         return '?';
     }
@@ -175,6 +177,8 @@ export function ActivityTab({ userId }: ActivityTabProps) {
         return 'Email';
       case 'payment':
         return 'Payment';
+      case 'charity':
+        return 'Charity';
       default:
         return type;
     }
@@ -195,6 +199,7 @@ export function ActivityTab({ userId }: ActivityTabProps) {
       if (metadata.priceMonthly) {
         items.push({ key: 'Price', value: `$${metadata.priceMonthly}/month` });
       }
+      // Show trial period info
       if (metadata.trialEndsAt) {
         const trialEnd = new Date(metadata.trialEndsAt as string);
         const now = new Date();
@@ -202,16 +207,38 @@ export function ActivityTab({ userId }: ActivityTabProps) {
         if (daysRemaining > 0) {
           items.push({ key: 'Trial ends', value: `${formatDate(metadata.trialEndsAt as string)} (${daysRemaining} days left)` });
         } else {
+          // Trial has ended - show when it ended
           items.push({ key: 'Trial ended', value: formatDate(metadata.trialEndsAt as string) });
+          if (metadata.trialConverted === true) {
+            items.push({ key: 'Converted to paid', value: formatDate(metadata.trialEndsAt as string) });
+          }
         }
       } else if (metadata.trialConverted === false) {
-        items.push({ key: 'Trial', value: 'No trial period' });
+        items.push({ key: 'Trial', value: 'No trial period (paid immediately)' });
       }
-      if (metadata.trialConverted === true) {
-        items.push({ key: 'Converted', value: 'Yes (trial completed)' });
-      }
+      // Next payment date
       if (metadata.currentPeriodEnd) {
-        items.push({ key: 'Current period ends', value: formatDate(metadata.currentPeriodEnd as string) });
+        items.push({ key: 'Next payment', value: formatDate(metadata.currentPeriodEnd as string) });
+      }
+      // Charity selection
+      if (metadata.charityName) {
+        items.push({ key: 'Supporting', value: String(metadata.charityName) });
+      }
+      return items;
+    }
+
+    if (activity.activityType === 'charity') {
+      // Format charity-specific metadata
+      if (metadata.charityName) {
+        items.push({ key: 'Charity', value: String(metadata.charityName) });
+      }
+      if (metadata.category) {
+        items.push({ key: 'Category', value: String(metadata.category) });
+      }
+      if (metadata.isCurrent) {
+        items.push({ key: 'Status', value: 'Current selection' });
+      } else if (metadata.effectiveUntil) {
+        items.push({ key: 'Changed on', value: formatDate(metadata.effectiveUntil as string) });
       }
       return items;
     }
@@ -261,7 +288,7 @@ export function ActivityTab({ userId }: ActivityTabProps) {
       <div className={styles.filterBar}>
         <span className={styles.filterLabel}>Filter:</span>
         <div className={styles.filterButtons}>
-          {(['all', 'login', 'system', 'email', 'payment'] as FilterType[]).map((type) => (
+          {(['all', 'login', 'system', 'email', 'payment', 'charity'] as FilterType[]).map((type) => (
             <button
               key={type}
               type="button"

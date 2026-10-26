@@ -161,6 +161,10 @@
   background-color: #065f46;
 }
 
+.activityIcon.charity {
+  background-color: #b45309;
+}
+
 /* Activity Content */
 .activityContent {
   flex: 1;
@@ -229,6 +233,11 @@
 .activityType.payment {
   color: #065f46;
   background-color: #d1fae5;
+}
+
+.activityType.charity {
+  color: #b45309;
+  background-color: #fef3c7;
 }
 
 .ipAddress {

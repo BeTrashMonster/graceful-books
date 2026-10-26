@@ -11,7 +11,7 @@ import { Pool } from 'pg';
 // TYPES
 // =============================================================================
 
-export type ActivityType = 'login' | 'page_view' | 'action' | 'system' | 'email' | 'payment';
+export type ActivityType = 'login' | 'page_view' | 'action' | 'system' | 'email' | 'payment' | 'charity';
 
 export interface LogActivityOptions {
   userId: string;
@@ -404,13 +404,18 @@ export async function getUserActivityHistory(
   // 4. Get payment events from payments/subscriptions (if not filtered to other types)
   if (!options.activityType || options.activityType === 'payment') {
     try {
+      // Get subscription with charity info
       const paymentResult = await db.query(`
         SELECT
           up.id, up.status, up.activated_at, up.trial_ends_at, up.trial_converted,
           up.current_period_end, up.stripe_subscription_id,
-          p.name as product_name, p.slug as product_slug, p.price_monthly
+          p.name as product_name, p.slug as product_slug, p.price_monthly,
+          c.name as charity_name
         FROM user_products up
         LEFT JOIN products p ON up.product_id = p.id
+        LEFT JOIN user_charity_selections ucs ON ucs.user_id = up.user_id
+          AND ucs.effective_until IS NULL
+        LEFT JOIN charities c ON ucs.charity_id = c.id
         WHERE up.user_id = $1 AND up.activated_at IS NOT NULL
         ORDER BY up.activated_at DESC
       `, [userId]);
@@ -427,6 +432,7 @@ export async function getUserActivityHistory(
           currentPeriodEnd: row.current_period_end,
           priceMonthly: row.price_monthly,
           hasStripeSubscription: !!row.stripe_subscription_id,
+          charityName: row.charity_name,
         },
         ipAddress: null,
         userAgent: null,
@@ -434,6 +440,44 @@ export async function getUserActivityHistory(
       })));
     } catch (err) {
       console.warn('[ActivityLog] payment query failed:', err);
+    }
+  }
+
+  // 5. Get charity selection events
+  if (!options.activityType || options.activityType === 'charity') {
+    try {
+      const charityResult = await db.query(`
+        SELECT
+          ucs.id, ucs.selected_at, ucs.effective_from, ucs.effective_until,
+          c.name as charity_name, c.category
+        FROM user_charity_selections ucs
+        JOIN charities c ON ucs.charity_id = c.id
+        WHERE ucs.user_id = $1
+        ORDER BY ucs.selected_at DESC
+      `, [userId]);
+
+      allActivities.push(...charityResult.rows.map((row, index) => ({
+        id: `charity-${row.id}`,
+        userId: userId,
+        activityType: 'charity' as ActivityType,
+        activityName: index === 0 && !row.effective_until
+          ? `Current charity: ${row.charity_name}`
+          : row.effective_until
+            ? `Changed from ${row.charity_name}`
+            : `Selected ${row.charity_name}`,
+        metadata: {
+          charityName: row.charity_name,
+          category: row.category,
+          effectiveFrom: row.effective_from,
+          effectiveUntil: row.effective_until,
+          isCurrent: !row.effective_until,
+        },
+        ipAddress: null,
+        userAgent: null,
+        createdAt: row.selected_at,
+      })));
+    } catch (err) {
+      console.warn('[ActivityLog] charity query failed:', err);
     }
   }
 
@@ -525,6 +569,7 @@ export async function getActivityStats(
     system: 0,
     email: 0,
     payment: 0,
+    charity: 0,
   };
   let totalActivities = 0;
   let lastActivityAt: string | null = null;
@@ -615,6 +660,15 @@ export async function getActivityStats(
     const subCount = parseInt(subCountResult.rows[0]?.count || '0');
     activityByType.payment = (activityByType.payment || 0) + subCount;
     totalActivities += subCount;
+
+    // Get charity selection count
+    const charityCountResult = await db.query(`
+      SELECT COUNT(*) FROM user_charity_selections
+      WHERE user_id = $1
+    `, [userId]);
+    const charityCount = parseInt(charityCountResult.rows[0]?.count || '0');
+    activityByType.charity = (activityByType.charity || 0) + charityCount;
+    totalActivities += charityCount;
   } catch (err) {
     console.warn('[ActivityLog] fallback stats query failed:', err);
   }
