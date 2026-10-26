@@ -406,10 +406,10 @@ export async function getUserActivityHistory(
     try {
       const paymentResult = await db.query(`
         SELECT
-          up.id, up.product_slug, up.status, up.activated_at, up.trial_ends_at,
-          p.name as product_name
+          up.id, up.status, up.activated_at, up.trial_ends_at,
+          p.name as product_name, p.slug as product_slug
         FROM user_products up
-        LEFT JOIN products p ON up.product_slug = p.slug
+        LEFT JOIN products p ON up.product_id = p.id
         WHERE up.user_id = $1 AND up.activated_at IS NOT NULL
         ORDER BY up.activated_at DESC
       `, [userId]);
@@ -418,7 +418,7 @@ export async function getUserActivityHistory(
         id: `subscription-${row.id}`,
         userId: userId,
         activityType: 'payment' as ActivityType,
-        activityName: `Subscription activated: ${row.product_name || row.product_slug}`,
+        activityName: `Subscription activated: ${row.product_name || row.product_slug || 'Unknown product'}`,
         metadata: {
           status: row.status,
           trialEndsAt: row.trial_ends_at,
@@ -520,7 +520,6 @@ export async function getActivityStats(
     system: 0,
     email: 0,
     payment: 0,
-    action: 0,
   };
   let totalActivities = 0;
   let lastActivityAt: string | null = null;

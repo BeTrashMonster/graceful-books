@@ -953,8 +953,8 @@ workshops.post('/my-enrollment/worksheet/complete', requireAuth, async (c) => {
 
     console.log('[Workshops] Marked worksheet complete for user:', userId);
 
-    // Log activity for admin diagnostics
-    await logUserAction(db, userId, 'Completed worksheet', { enrollmentId });
+    // Log activity for admin diagnostics (as system event since it's a milestone)
+    await logSystemEvent(db, userId, 'Completed worksheet', { enrollmentId });
 
     return success(c, { success: true });
   } catch (error) {

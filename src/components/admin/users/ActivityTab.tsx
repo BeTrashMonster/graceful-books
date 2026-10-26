@@ -32,7 +32,7 @@ interface ActivityTabProps {
   userId: string;
 }
 
-type FilterType = 'all' | 'login' | 'action' | 'system' | 'email' | 'payment';
+type FilterType = 'all' | 'login' | 'system' | 'email' | 'payment';
 
 export function ActivityTab({ userId }: ActivityTabProps) {
   const [activities, setActivities] = useState<ActivityEntry[]>([]);
@@ -152,8 +152,6 @@ export function ActivityTab({ userId }: ActivityTabProps) {
         return 'L';
       case 'page_view':
         return 'P';
-      case 'action':
-        return 'A';
       case 'system':
         return 'S';
       case 'email':
@@ -171,8 +169,6 @@ export function ActivityTab({ userId }: ActivityTabProps) {
         return 'Login';
       case 'page_view':
         return 'Page View';
-      case 'action':
-        return 'Action';
       case 'system':
         return 'System';
       case 'email':
@@ -216,7 +212,7 @@ export function ActivityTab({ userId }: ActivityTabProps) {
       <div className={styles.filterBar}>
         <span className={styles.filterLabel}>Filter:</span>
         <div className={styles.filterButtons}>
-          {(['all', 'login', 'action', 'system', 'email', 'payment'] as FilterType[]).map((type) => (
+          {(['all', 'login', 'system', 'email', 'payment'] as FilterType[]).map((type) => (
             <button
               key={type}
               type="button"
