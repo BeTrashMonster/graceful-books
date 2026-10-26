@@ -3442,4 +3442,152 @@ admin.get('/users/:userId/activity/stats', requireAdmin, async (c) => {
   }
 });
 
+// =============================================================================
+// PRODUCT MANAGEMENT
+// =============================================================================
+
+const updateProductSchema = z.object({
+  priceMonthly: z.number().min(0).optional(),
+  priceAnnual: z.number().min(0).optional(),
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  active: z.boolean().optional(),
+});
+
+/**
+ * GET /admin/products
+ *
+ * List all products (admin only)
+ */
+admin.get('/products', requireAdmin, async (c) => {
+  const db = c.get('db');
+
+  try {
+    const result = await db.query(`
+      SELECT id, name, slug, description, price_monthly, price_annual,
+             stripe_price_id, stripe_price_id_annual, active, display_order, created_at, updated_at
+      FROM products
+      ORDER BY display_order ASC, name ASC
+    `);
+
+    return success(c, {
+      products: result.rows.map(row => ({
+        id: row.id,
+        name: row.name,
+        slug: row.slug,
+        description: row.description,
+        priceMonthly: row.price_monthly,
+        priceAnnual: row.price_annual,
+        stripePriceId: row.stripe_price_id,
+        stripePriceIdAnnual: row.stripe_price_id_annual,
+        active: row.active,
+        displayOrder: row.display_order,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      })),
+    });
+  } catch (error) {
+    console.error('[Admin] Error fetching products:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch products');
+  }
+});
+
+/**
+ * PATCH /admin/products/:slug
+ *
+ * Update a product (admin only)
+ */
+admin.patch('/products/:slug', requireAdmin, validate(updateProductSchema), async (c) => {
+  const adminId = c.get('adminId');
+  const { slug } = c.req.param();
+  const data = c.get('validatedData') as z.infer<typeof updateProductSchema>;
+  const db = c.get('db');
+
+  try {
+    // Check if product exists
+    const existingResult = await db.query('SELECT * FROM products WHERE slug = $1', [slug]);
+
+    if (existingResult.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Product not found');
+    }
+
+    const oldValues = existingResult.rows[0];
+
+    // Build update query
+    const updates: string[] = [];
+    const values: unknown[] = [];
+    let paramCount = 1;
+
+    if (data.priceMonthly !== undefined) {
+      updates.push(`price_monthly = $${paramCount++}`);
+      values.push(data.priceMonthly);
+    }
+    if (data.priceAnnual !== undefined) {
+      updates.push(`price_annual = $${paramCount++}`);
+      values.push(data.priceAnnual);
+    }
+    if (data.name !== undefined) {
+      updates.push(`name = $${paramCount++}`);
+      values.push(data.name);
+    }
+    if (data.description !== undefined) {
+      updates.push(`description = $${paramCount++}`);
+      values.push(data.description);
+    }
+    if (data.active !== undefined) {
+      updates.push(`active = $${paramCount++}`);
+      values.push(data.active);
+    }
+
+    if (updates.length === 0) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'No fields to update');
+    }
+
+    values.push(slug);
+
+    const result = await db.query(
+      `UPDATE products SET ${updates.join(', ')}, updated_at = NOW()
+       WHERE slug = $${paramCount}
+       RETURNING id, name, slug, price_monthly, price_annual, active, updated_at`,
+      values
+    );
+
+    // Log action
+    const ipAddress =
+      c.req.header('x-forwarded-for')?.split(',')[0].trim() ||
+      c.req.header('x-real-ip') ||
+      c.req.header('cf-connecting-ip') ||
+      '';
+
+    await db.query(
+      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, old_values, new_values)
+       VALUES ('product_updated', 'product', $1, $2, $3, $4, $5)`,
+      [result.rows[0].id, adminId, ipAddress, JSON.stringify({
+        priceMonthly: oldValues.price_monthly,
+        priceAnnual: oldValues.price_annual,
+        name: oldValues.name,
+        active: oldValues.active,
+      }), JSON.stringify(data)]
+    );
+
+    console.log(`[Admin] Product "${slug}" updated by admin ${adminId}:`, data);
+
+    return success(c, {
+      message: 'Product updated successfully',
+      product: {
+        id: result.rows[0].id,
+        name: result.rows[0].name,
+        slug: result.rows[0].slug,
+        priceMonthly: result.rows[0].price_monthly,
+        priceAnnual: result.rows[0].price_annual,
+        active: result.rows[0].active,
+        updatedAt: result.rows[0].updated_at,
+      },
+    });
+  } catch (error) {
+    console.error('[Admin] Error updating product:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to update product');
+  }
+});
+
 export default admin;
