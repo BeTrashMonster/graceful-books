@@ -42,11 +42,29 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
       return;
     }
 
+    console.log('[SubscriptionContext] Loading subscription...');
+
     try {
       const data = await getSubscription();
+
+      // DIAGNOSTIC: Log subscription data
+      console.log('[SubscriptionContext] Subscription loaded:', data ? {
+        id: data.id,
+        status: data.status,
+        trialConverted: data.trialConverted,
+        trialEndsAt: data.trialEndsAt,
+        currentPeriodEnd: data.currentPeriodEnd,
+      } : 'NULL (no subscription)');
+
       setSubscription(data);
     } catch (error) {
+      // DIAGNOSTIC: Log the actual error with details
       console.error('[SubscriptionContext] Failed to load subscription:', error);
+      console.error('[SubscriptionContext] Error details:', {
+        name: (error as Error)?.name,
+        message: (error as Error)?.message,
+        timestamp: new Date().toISOString(),
+      });
       setSubscription(null);
     } finally {
       setIsLoading(false);

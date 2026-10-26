@@ -188,12 +188,29 @@ export function FrozenStateProvider({ children }: FrozenStateProviderProps) {
       return;
     }
 
+    console.log('[FrozenState] Loading workshop enrollment...');
+
     try {
       const enrollment = await getMyWorkshopEnrollment();
+
+      // DIAGNOSTIC: Log the enrollment data we received
+      console.log('[FrozenState] Workshop enrollment loaded:', enrollment ? {
+        id: enrollment.id,
+        convertedToPaidAt: enrollment.convertedToPaidAt,
+        trialExpiresAt: enrollment.trialExpiresAt,
+        trialStartedAt: enrollment.trialStartedAt,
+        accessGranted: enrollment.accessGranted,
+      } : 'NULL (no enrollment)');
+
       setWorkshopEnrollment(enrollment);
     } catch (error) {
-      // User might not be in a workshop - that's fine
-      console.debug('[FrozenState] No workshop enrollment found');
+      // DIAGNOSTIC: Log the actual error
+      console.error('[FrozenState] Failed to load workshop enrollment:', error);
+      console.error('[FrozenState] Error details:', {
+        name: (error as Error)?.name,
+        message: (error as Error)?.message,
+        timestamp: new Date().toISOString(),
+      });
       setWorkshopEnrollment(null);
     } finally {
       setIsLoading(false);
@@ -227,12 +244,42 @@ export function FrozenStateProvider({ children }: FrozenStateProviderProps) {
     };
     window.addEventListener('account-frozen-error', handleBackendFrozenError);
 
+    // DIAGNOSTIC: Listen for visibility changes to detect tab suspension issues
+    const handleVisibilityChange = () => {
+      const isVisible = !document.hidden;
+      console.log(`[FrozenState] VISIBILITY CHANGE: Tab is now ${isVisible ? 'VISIBLE' : 'HIDDEN'}`);
+      console.log('[FrozenState] Current state at visibility change:', {
+        workshopEnrollment: workshopEnrollment ? {
+          id: workshopEnrollment.id,
+          convertedToPaidAt: workshopEnrollment.convertedToPaidAt,
+          trialExpiresAt: workshopEnrollment.trialExpiresAt,
+        } : null,
+        subscription: subscription ? {
+          id: subscription.id,
+          status: subscription.status,
+          trialConverted: subscription.trialConverted,
+        } : null,
+        isLoading,
+        timestamp: new Date().toISOString(),
+      });
+
+      // If tab becomes visible and we have stale data, refresh it
+      if (isVisible && !isLoading) {
+        console.log('[FrozenState] Tab visible - refreshing data to ensure freshness');
+        loadWorkshopEnrollment();
+        // Also trigger subscription refresh
+        window.dispatchEvent(new Event('subscription-updated'));
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       window.removeEventListener('frozen-state-updated', handleUpdate);
       window.removeEventListener('subscription-updated', handleUpdate);
       window.removeEventListener('account-frozen-error', handleBackendFrozenError);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [loadWorkshopEnrollment]);
+  }, [loadWorkshopEnrollment, workshopEnrollment, subscription, isLoading]);
 
   // ===========================================================================
   // COMPUTED VALUES
@@ -268,13 +315,33 @@ export function FrozenStateProvider({ children }: FrozenStateProviderProps) {
    * to detect expiry without requiring a page reload.
    */
   const isWorkshopTrialExpired = (() => {
-    if (!workshopEnrollment) return false;
-    if (workshopEnrollment.convertedToPaidAt) return false;
-    if (!workshopEnrollment.trialExpiresAt) return false;
+    if (!workshopEnrollment) {
+      return false;
+    }
+    if (workshopEnrollment.convertedToPaidAt) {
+      // DIAGNOSTIC: User has converted - should NOT be frozen
+      console.debug('[FrozenState] Workshop trial check: User has convertedToPaidAt, NOT expired');
+      return false;
+    }
+    if (!workshopEnrollment.trialExpiresAt) {
+      return false;
+    }
 
     const now = new Date();
     const expiresAt = new Date(workshopEnrollment.trialExpiresAt);
-    return now > expiresAt;
+    const expired = now > expiresAt;
+
+    // DIAGNOSTIC: Log when we detect expiration
+    if (expired) {
+      console.warn('[FrozenState] WORKSHOP TRIAL EXPIRED DETECTED:', {
+        now: now.toISOString(),
+        expiresAt: expiresAt.toISOString(),
+        convertedToPaidAt: workshopEnrollment.convertedToPaidAt,
+        enrollmentId: workshopEnrollment.id,
+      });
+    }
+
+    return expired;
   })();
 
   /**
@@ -426,6 +493,35 @@ export function FrozenStateProvider({ children }: FrozenStateProviderProps) {
   const isFrozenModalVisible = isFrozen && !isFrozenModalDismissed && !isReactivationFlowOpen;
 
   // ===========================================================================
+  // DEBUG STATE SYNC
+  // ===========================================================================
+
+  // Update debug state for console access
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as Window & { __setFrozenDebugState?: (state: unknown) => void }).__setFrozenDebugState) {
+      (window as Window & { __setFrozenDebugState?: (state: unknown) => void }).__setFrozenDebugState({
+        workshopEnrollment: workshopEnrollment ? {
+          id: workshopEnrollment.id,
+          convertedToPaidAt: workshopEnrollment.convertedToPaidAt,
+          trialExpiresAt: workshopEnrollment.trialExpiresAt,
+          trialStartedAt: workshopEnrollment.trialStartedAt,
+          accessGranted: workshopEnrollment.accessGranted,
+        } : null,
+        subscription: subscription ? {
+          id: subscription.id,
+          status: subscription.status,
+          trialConverted: subscription.trialConverted,
+          trialEndsAt: subscription.trialEndsAt,
+        } : null,
+        isFrozen,
+        frozenReason,
+        isLoading,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }, [workshopEnrollment, subscription, isFrozen, frozenReason, isLoading]);
+
+  // ===========================================================================
   // CONTEXT VALUE
   // ===========================================================================
 
@@ -573,4 +669,47 @@ export class FrozenStateError extends Error {
     this.name = 'FrozenStateError';
     this.reason = reason;
   }
+}
+
+// =============================================================================
+// DIAGNOSTIC HELPER
+// =============================================================================
+
+/**
+ * Debug helper exposed on window for diagnosing frozen state issues
+ * Access via browser console: window.__frozenStateDebug()
+ *
+ * This will print the current state of all frozen state related data
+ */
+if (typeof window !== 'undefined') {
+  let debugState: {
+    workshopEnrollment: unknown;
+    subscription: unknown;
+    isFrozen: boolean;
+    frozenReason: FrozenReason | null;
+    isLoading: boolean;
+    timestamp: string;
+  } | null = null;
+
+  // This will be set by the provider
+  (window as Window & { __frozenStateDebug?: () => void; __setFrozenDebugState?: (state: typeof debugState) => void }).__frozenStateDebug = () => {
+    if (debugState) {
+      console.log('=== FROZEN STATE DEBUG ===');
+      console.log('Timestamp:', debugState.timestamp);
+      console.log('Is Frozen:', debugState.isFrozen);
+      console.log('Frozen Reason:', debugState.frozenReason);
+      console.log('Is Loading:', debugState.isLoading);
+      console.log('Workshop Enrollment:', debugState.workshopEnrollment);
+      console.log('Subscription:', debugState.subscription);
+      console.log('========================');
+    } else {
+      console.log('[FrozenState] Debug state not available - provider may not be mounted');
+    }
+  };
+
+  (window as Window & { __setFrozenDebugState?: (state: typeof debugState) => void }).__setFrozenDebugState = (state) => {
+    debugState = state;
+  };
+
+  console.log('[FrozenState] Debug helper available: call window.__frozenStateDebug() in console to see current state');
 }
