@@ -78,7 +78,9 @@ export function ActivityTab({ userId }: ActivityTabProps) {
         throw new Error('Failed to fetch activity history');
       }
 
-      const data = await response.json();
+      const responseData = await response.json();
+      // Unwrap API response - backend wraps data in { data: ... }
+      const data = responseData.data || responseData;
       setActivities(data.activities || []);
       setTotalPages(data.pagination?.totalPages || 1);
     } catch (err) {
@@ -103,8 +105,10 @@ export function ActivityTab({ userId }: ActivityTabProps) {
       );
 
       if (response.ok) {
-        const data = await response.json();
-        setStats(data);
+        const responseData = await response.json();
+        // Unwrap API response - backend wraps data in { data: ... }
+        const statsData = responseData.data || responseData;
+        setStats(statsData);
       }
     } catch (err) {
       console.error('Failed to fetch activity stats:', err);
@@ -223,7 +227,7 @@ export function ActivityTab({ userId }: ActivityTabProps) {
               }}
             >
               {type === 'all' ? 'All' : getActivityTypeLabel(type)}
-              {stats?.activityByType[type] !== undefined && (
+              {stats?.activityByType?.[type] !== undefined && (
                 <span className={styles.filterCount}>
                   {stats.activityByType[type]}
                 </span>
