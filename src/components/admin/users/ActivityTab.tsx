@@ -180,6 +180,55 @@ export function ActivityTab({ userId }: ActivityTabProps) {
     }
   };
 
+  /**
+   * Format metadata for display based on activity type
+   */
+  const formatMetadata = (activity: ActivityEntry): { key: string; value: string }[] => {
+    const metadata = activity.metadata;
+    const items: { key: string; value: string }[] = [];
+
+    if (activity.activityType === 'payment') {
+      // Format payment-specific metadata nicely
+      if (metadata.status) {
+        items.push({ key: 'Status', value: String(metadata.status) });
+      }
+      if (metadata.priceMonthly) {
+        items.push({ key: 'Price', value: `$${metadata.priceMonthly}/month` });
+      }
+      if (metadata.trialEndsAt) {
+        const trialEnd = new Date(metadata.trialEndsAt as string);
+        const now = new Date();
+        const daysRemaining = Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysRemaining > 0) {
+          items.push({ key: 'Trial ends', value: `${formatDate(metadata.trialEndsAt as string)} (${daysRemaining} days left)` });
+        } else {
+          items.push({ key: 'Trial ended', value: formatDate(metadata.trialEndsAt as string) });
+        }
+      } else if (metadata.trialConverted === false) {
+        items.push({ key: 'Trial', value: 'No trial period' });
+      }
+      if (metadata.trialConverted === true) {
+        items.push({ key: 'Converted', value: 'Yes (trial completed)' });
+      }
+      if (metadata.currentPeriodEnd) {
+        items.push({ key: 'Current period ends', value: formatDate(metadata.currentPeriodEnd as string) });
+      }
+      return items;
+    }
+
+    // For other activity types, show raw metadata
+    Object.entries(metadata).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        items.push({
+          key,
+          value: typeof value === 'string' ? value : JSON.stringify(value),
+        });
+      }
+    });
+
+    return items;
+  };
+
   return (
     <div className={styles.container}>
       {/* Stats Summary */}
@@ -267,12 +316,10 @@ export function ActivityTab({ userId }: ActivityTabProps) {
                 </div>
                 {Object.keys(activity.metadata).length > 0 && (
                   <div className={styles.activityMetadata}>
-                    {Object.entries(activity.metadata).map(([key, value]) => (
+                    {formatMetadata(activity).map(({ key, value }) => (
                       <span key={key} className={styles.metadataItem}>
                         <span className={styles.metadataKey}>{key}:</span>
-                        <span className={styles.metadataValue}>
-                          {typeof value === 'string' ? value : JSON.stringify(value)}
-                        </span>
+                        <span className={styles.metadataValue}>{value}</span>
                       </span>
                     ))}
                   </div>

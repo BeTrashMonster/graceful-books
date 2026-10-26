@@ -406,8 +406,9 @@ export async function getUserActivityHistory(
     try {
       const paymentResult = await db.query(`
         SELECT
-          up.id, up.status, up.activated_at, up.trial_ends_at,
-          p.name as product_name, p.slug as product_slug
+          up.id, up.status, up.activated_at, up.trial_ends_at, up.trial_converted,
+          up.current_period_end, up.stripe_subscription_id,
+          p.name as product_name, p.slug as product_slug, p.price_monthly
         FROM user_products up
         LEFT JOIN products p ON up.product_id = p.id
         WHERE up.user_id = $1 AND up.activated_at IS NOT NULL
@@ -422,6 +423,10 @@ export async function getUserActivityHistory(
         metadata: {
           status: row.status,
           trialEndsAt: row.trial_ends_at,
+          trialConverted: row.trial_converted,
+          currentPeriodEnd: row.current_period_end,
+          priceMonthly: row.price_monthly,
+          hasStripeSubscription: !!row.stripe_subscription_id,
         },
         ipAddress: null,
         userAgent: null,
