@@ -29,6 +29,22 @@ const HOST = process.env.HOST || '0.0.0.0';
 async function runStartupMigrations() {
   const db = getDatabase();
 
+  // Fix CPU/CPG Calculator price to $20/month (was incorrectly $15)
+  try {
+    const result = await db.query(`
+      UPDATE products
+      SET price_monthly = 20, updated_at = NOW()
+      WHERE slug = 'cpu-cpg-calculator' AND price_monthly != 20
+      RETURNING id, slug, price_monthly
+    `);
+
+    if (result.rowCount > 0) {
+      console.log(`[Migration] Updated CPU/CPG Calculator price to $20/month`);
+    }
+  } catch (error) {
+    console.error('[Migration] Error updating product price:', error);
+  }
+
   // Backfill workshop enrollment trial dates
   // For enrollments created before we started setting trial dates at enrollment time
   try {
