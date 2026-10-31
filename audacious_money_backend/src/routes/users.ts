@@ -963,9 +963,104 @@ users.put('/me/payment-method', async (c) => {
 
     console.log(`[Users] Payment method updated successfully: ${userId}`);
 
+    // ==========================================================================
+    // AUTO-CREATE SUBSCRIPTION FOR WORKSHOP TRIAL USERS
+    // ==========================================================================
+    // When a workshop trial user adds their payment method, we automatically
+    // create a Stripe subscription with trial_end synced to their workshop trial.
+    // This ensures they are auto-charged when trial ends and don't see "trial ended".
+    // ==========================================================================
+
+    let subscriptionCreated = false;
+
+    try {
+      // Check if user has an active workshop enrollment in trial (not expired, not converted)
+      const enrollmentResult = await db.query(
+        `SELECT we.id, we.workshop_id, we.trial_expires_at, we.converted_to_paid_at,
+                w.stripe_price_id
+         FROM workshop_enrollments we
+         JOIN workshops w ON we.workshop_id = w.id
+         WHERE we.user_id = $1
+           AND we.status = 'active'
+           AND we.converted_to_paid_at IS NULL
+           AND we.trial_expires_at > NOW()
+         ORDER BY we.enrolled_at DESC
+         LIMIT 1`,
+        [userId]
+      );
+
+      if (enrollmentResult.rows.length > 0) {
+        const enrollment = enrollmentResult.rows[0];
+        const workshopPriceId = enrollment.stripe_price_id;
+
+        if (!workshopPriceId) {
+          console.warn(`[Users] Workshop ${enrollment.workshop_id} has no stripe_price_id, skipping auto-subscription`);
+        } else {
+          // Check if user already has an active Stripe subscription (avoid duplicates)
+          const existingSubscriptions = await stripe.subscriptions.list({
+            customer: customerId,
+            status: 'all', // Check all statuses to avoid creating duplicates
+            limit: 10,
+          });
+
+          // Filter for active or trialing subscriptions with same price
+          const hasExistingSubscription = existingSubscriptions.data.some(sub => {
+            const isActiveOrTrialing = sub.status === 'active' || sub.status === 'trialing';
+            const hasSamePrice = sub.items.data.some(item => item.price.id === workshopPriceId);
+            return isActiveOrTrialing && hasSamePrice;
+          });
+
+          if (hasExistingSubscription) {
+            console.log(`[Users] User ${userId} already has an active subscription for this price, skipping auto-subscription`);
+          } else {
+            // Create subscription with trial_end synced to workshop trial expiration
+            const trialEndTimestamp = Math.floor(new Date(enrollment.trial_expires_at).getTime() / 1000);
+
+            console.log(`[Users] Creating auto-subscription for workshop trial user ${userId}`);
+            console.log(`[Users] Trial ends at: ${enrollment.trial_expires_at} (Unix: ${trialEndTimestamp})`);
+
+            const subscription = await stripe.subscriptions.create({
+              customer: customerId,
+              items: [{ price: workshopPriceId }],
+              trial_end: trialEndTimestamp,
+              default_payment_method: paymentMethodId,
+              metadata: {
+                userId: userId,
+                workshopId: enrollment.workshop_id,
+                enrollmentId: enrollment.id,
+                autoCreated: 'true',
+                source: 'payment_method_update',
+              },
+            });
+
+            console.log(`[Users] Auto-subscription created: ${subscription.id} for user ${userId}`);
+            console.log(`[Users] Subscription status: ${subscription.status}, trial_end: ${subscription.trial_end}`);
+
+            // Update user_products to reflect the new subscription
+            await db.query(
+              `UPDATE user_products
+               SET stripe_subscription_id = $1,
+                   status = 'trialing',
+                   updated_at = NOW()
+               WHERE user_id = $2
+                 AND product_id = (SELECT id FROM products WHERE slug = 'cpu-cpg-calculator')`,
+              [subscription.id, userId]
+            );
+
+            subscriptionCreated = true;
+          }
+        }
+      }
+    } catch (subscriptionError) {
+      // Log but don't fail the payment method update
+      console.error('[Users] Error creating auto-subscription for workshop user:', subscriptionError);
+      // The payment method was still updated successfully
+    }
+
     return success(c, {
       message: 'Payment method updated successfully',
       updated: true,
+      subscriptionCreated, // Let frontend know if subscription was auto-created
     });
   } catch (error) {
     console.error('[Users] Update payment method error:', error);
