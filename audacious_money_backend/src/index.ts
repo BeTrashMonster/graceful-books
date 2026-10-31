@@ -30,16 +30,21 @@ async function runStartupMigrations() {
   const db = getDatabase();
 
   // Fix CPU/CPG Calculator price to $20/month (was incorrectly $15)
+  // Must update both price_monthly AND revenue_amount to satisfy the constraint:
+  // price_monthly = charity_amount + revenue_amount
+  // $20 = $5 (charity) + $15 (revenue)
   try {
     const result = await db.query(`
       UPDATE products
-      SET price_monthly = 20, updated_at = NOW()
+      SET price_monthly = 20,
+          revenue_amount = 15,
+          updated_at = NOW()
       WHERE slug = 'cpu-cpg-calculator' AND price_monthly != 20
-      RETURNING id, slug, price_monthly
+      RETURNING id, slug, price_monthly, revenue_amount
     `);
 
-    if (result.rowCount > 0) {
-      console.log(`[Migration] Updated CPU/CPG Calculator price to $20/month`);
+    if (result.rowCount && result.rowCount > 0) {
+      console.log(`[Migration] Updated CPU/CPG Calculator price to $20/month (revenue: $15, charity: $5)`);
     }
   } catch (error) {
     console.error('[Migration] Error updating product price:', error);
