@@ -3704,6 +3704,103 @@ admin.get('/workshops/:workshopId/trial-ending-preview', requireAdmin, async (c)
 });
 
 /**
+ * POST /api/admin/send-trial-ending-to-list
+ *
+ * Send trial ending email to a SPECIFIC list of email addresses.
+ * Simple and direct - no complex filtering.
+ */
+admin.post('/send-trial-ending-to-list', requireAdmin, async (c) => {
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const { emails, workshopCohortName, customTemplate, confirm } = body;
+
+    if (confirm !== 'SEND_NOW') {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Must include confirm: "SEND_NOW" to send emails');
+    }
+
+    if (!emails || !Array.isArray(emails) || emails.length === 0) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Must provide "emails" array');
+    }
+
+    if (!workshopCohortName) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Must provide "workshopCohortName"');
+    }
+
+    // Get workshop
+    const workshopResult = await db.query(
+      `SELECT id, cohort_name, workshop_name, custom_email_templates FROM workshops WHERE cohort_name = $1`,
+      [workshopCohortName]
+    );
+
+    if (workshopResult.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, `Workshop not found: ${workshopCohortName}`);
+    }
+
+    const workshop = workshopResult.rows[0];
+
+    // Update template if provided
+    if (customTemplate) {
+      const existingTemplates = workshop.custom_email_templates || {};
+      const updatedTemplates = { ...existingTemplates, trialEnding: customTemplate };
+      await db.query(
+        `UPDATE workshops SET custom_email_templates = $1, updated_at = NOW() WHERE id = $2`,
+        [JSON.stringify(updatedTemplates), workshop.id]
+      );
+    }
+
+    // Get enrollments for these specific emails
+    const enrollmentsResult = await db.query(
+      `SELECT we.id as enrollment_id, we.user_id, we.trial_expires_at, u.email, u.first_name
+       FROM workshop_enrollments we
+       JOIN users u ON we.user_id = u.id
+       WHERE we.workshop_id = $1 AND LOWER(u.email) = ANY($2)`,
+      [workshop.id, emails.map((e: string) => e.toLowerCase())]
+    );
+
+    // Schedule for immediate send
+    const sendTime = new Date();
+    sendTime.setMinutes(sendTime.getMinutes() + 1);
+
+    const sent: string[] = [];
+    const notFoundList: string[] = [];
+
+    // Track which emails we found
+    const foundEmails = new Set(enrollmentsResult.rows.map((r: any) => r.email.toLowerCase()));
+
+    for (const email of emails) {
+      if (!foundEmails.has(email.toLowerCase())) {
+        notFoundList.push(email);
+      }
+    }
+
+    for (const enrollment of enrollmentsResult.rows) {
+      await db.query(
+        `INSERT INTO scheduled_emails
+         (enrollment_id, workshop_id, user_id, email_type, recipient_email, scheduled_for, status)
+         VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+         ON CONFLICT DO NOTHING`,
+        [enrollment.enrollment_id, workshop.id, enrollment.user_id, 'trialEnding', enrollment.email, sendTime.toISOString()]
+      );
+      sent.push(enrollment.email);
+    }
+
+    console.log(`[Admin] Scheduled trial ending emails for: ${sent.join(', ')}`);
+
+    return success(c, {
+      message: `Scheduled ${sent.length} emails for immediate delivery`,
+      sent,
+      notFoundInWorkshop: notFoundList,
+      scheduledFor: sendTime.toISOString(),
+    });
+  } catch (error) {
+    console.error('[Admin] Error sending trial ending emails:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to send trial ending emails');
+  }
+});
+
+/**
  * POST /api/admin/workshops/:workshopId/send-trial-ending-now
  *
  * SEND trial ending email IMMEDIATELY to eligible enrollees.
