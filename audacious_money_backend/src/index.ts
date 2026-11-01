@@ -183,13 +183,11 @@ async function runStartupMigrations() {
             continue;
           }
 
-          // Create subscription - if trial expired, charge immediately; otherwise sync to trial end
-          const trialExpired = user.trial_expired;
-          const trialEnd = trialExpired
-            ? 'now' as const
-            : Math.floor(new Date(user.trial_expires_at).getTime() / 1000);
+          // ALWAYS charge immediately - if they're in this fix, their trial is effectively over
+          // Previously we tried to sync to trial_expires_at but timezone issues caused problems
+          const trialEnd = 'now' as const;
 
-          console.log(`[Migration] Creating subscription for ${user.email} (trial ${trialExpired ? 'expired - charging now' : 'active'})...`);
+          console.log(`[Migration] Creating subscription for ${user.email} (charging immediately)...`);
 
           const subscription = await stripe.subscriptions.create({
             customer: user.stripe_customer_id,
@@ -244,6 +242,81 @@ async function runStartupMigrations() {
   } catch (error) {
     console.error('[Migration] Error fixing workshop subscriptions:', error);
     // Don't fail startup, just log the error
+  }
+
+  // ==========================================================================
+  // Fix subscriptions that were created with wrong trial_end dates
+  // These are subscriptions in "trialing" status but workshop trial has expired
+  // ==========================================================================
+  console.log('[Migration] Checking for subscriptions with incorrect trial dates...');
+  try {
+    // Find users with trialing subscriptions but expired workshop trials
+    const trialingResult = await db.query(`
+      SELECT
+        u.id as user_id,
+        u.email,
+        u.stripe_customer_id,
+        we.id as enrollment_id,
+        we.trial_expires_at,
+        up.stripe_subscription_id
+      FROM users u
+      JOIN workshop_enrollments we ON we.user_id = u.id
+      JOIN user_products up ON up.user_id = u.id
+        AND up.product_id = (SELECT id FROM products WHERE slug = 'cpu-cpg-calculator')
+      WHERE we.converted_to_paid_at IS NULL
+        AND we.status = 'active'
+        AND up.stripe_subscription_id IS NOT NULL
+        AND up.status = 'trialing'
+        AND we.trial_expires_at < NOW()
+    `);
+
+    if (trialingResult.rows.length === 0) {
+      console.log('[Migration] No subscriptions need trial date correction');
+    } else {
+      console.log(`[Migration] Found ${trialingResult.rows.length} subscriptions with expired workshop trials but still trialing in Stripe`);
+
+      let correctedCount = 0;
+
+      for (const user of trialingResult.rows) {
+        try {
+          console.log(`[Migration] Ending trial immediately for ${user.email} (subscription: ${user.stripe_subscription_id})...`);
+
+          // Update the subscription to end trial now
+          const updatedSubscription = await stripe.subscriptions.update(user.stripe_subscription_id, {
+            trial_end: 'now',
+          });
+
+          console.log(`[Migration] Subscription ${user.stripe_subscription_id} updated to status: ${updatedSubscription.status}`);
+
+          // Update user_products status
+          await db.query(
+            `UPDATE user_products
+             SET status = $1, updated_at = NOW()
+             WHERE stripe_subscription_id = $2`,
+            [updatedSubscription.status, user.stripe_subscription_id]
+          );
+
+          // If now active, mark enrollment as converted
+          if (updatedSubscription.status === 'active') {
+            await db.query(
+              `UPDATE workshop_enrollments
+               SET converted_to_paid_at = NOW(), updated_at = NOW()
+               WHERE id = $1`,
+              [user.enrollment_id]
+            );
+            console.log(`[Migration] Marked enrollment ${user.enrollment_id} as converted`);
+          }
+
+          correctedCount++;
+        } catch (subError: any) {
+          console.error(`[Migration] Error correcting subscription for ${user.email}:`, subError.message);
+        }
+      }
+
+      console.log(`[Migration] Trial date correction complete: ${correctedCount} subscriptions updated`);
+    }
+  } catch (error) {
+    console.error('[Migration] Error correcting subscription trial dates:', error);
   }
 }
 
