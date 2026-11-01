@@ -91,6 +91,7 @@ export const emailTemplatesSchema = z
     week3: emailTemplateSchema.optional(),
     week4: emailTemplateSchema.optional(),
     wrapUp: emailTemplateSchema.optional(),
+    trialEnding: emailTemplateSchema.optional(),
   })
   .optional()
   .refine(
@@ -134,6 +135,7 @@ const emailScheduleWhenSchema = z.union([
   z.literal('immediate'),
   z.object({ hours_before: z.number().int().positive().max(168) }),
   z.object({ days_after_workshop: z.number().int().min(0).max(90) }),
+  z.object({ days_before_trial_expires: z.number().int().min(1).max(30) }),
 ]);
 
 const emailScheduleConfigSchema = z.object({
@@ -149,6 +151,7 @@ export const customEmailScheduleSchema = z.object({
   week3: emailScheduleConfigSchema.optional(),
   week4: emailScheduleConfigSchema.optional(),
   wrapUp: emailScheduleConfigSchema.optional(),
+  trialEnding: emailScheduleConfigSchema.optional(),
 });
 
 // =============================================================================
