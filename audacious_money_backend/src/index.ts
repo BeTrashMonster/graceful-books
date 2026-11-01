@@ -246,11 +246,12 @@ async function runStartupMigrations() {
 
   // ==========================================================================
   // Fix subscriptions that were created with wrong trial_end dates
-  // These are subscriptions in "trialing" status but workshop trial has expired
+  // If user has trialing subscription but hasn't converted, check Stripe and fix
   // ==========================================================================
-  console.log('[Migration] Checking for subscriptions with incorrect trial dates...');
+  console.log('[Migration] Checking for subscriptions that need trial correction...');
   try {
-    // Find users with trialing subscriptions but expired workshop trials
+    // Find users with trialing subscriptions who haven't converted
+    // Don't rely on trial_expires_at comparison - check Stripe directly
     const trialingResult = await db.query(`
       SELECT
         u.id as user_id,
@@ -267,53 +268,82 @@ async function runStartupMigrations() {
         AND we.status = 'active'
         AND up.stripe_subscription_id IS NOT NULL
         AND up.status = 'trialing'
-        AND we.trial_expires_at < NOW()
     `);
 
     if (trialingResult.rows.length === 0) {
-      console.log('[Migration] No subscriptions need trial date correction');
+      console.log('[Migration] No trialing subscriptions found for unconverted users');
     } else {
-      console.log(`[Migration] Found ${trialingResult.rows.length} subscriptions with expired workshop trials but still trialing in Stripe`);
+      console.log(`[Migration] Found ${trialingResult.rows.length} trialing subscriptions for unconverted users`);
 
       let correctedCount = 0;
+      let skippedCount = 0;
 
       for (const user of trialingResult.rows) {
         try {
-          console.log(`[Migration] Ending trial immediately for ${user.email} (subscription: ${user.stripe_subscription_id})...`);
+          // Get the subscription from Stripe to check its trial_end
+          const subscription = await stripe.subscriptions.retrieve(user.stripe_subscription_id);
 
-          // Update the subscription to end trial now
-          const updatedSubscription = await stripe.subscriptions.update(user.stripe_subscription_id, {
-            trial_end: 'now',
-          });
+          console.log(`[Migration] Checking ${user.email}:`);
+          console.log(`[Migration]   DB trial_expires_at: ${user.trial_expires_at}`);
+          console.log(`[Migration]   Stripe trial_end: ${subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : 'none'}`);
+          console.log(`[Migration]   Stripe status: ${subscription.status}`);
 
-          console.log(`[Migration] Subscription ${user.stripe_subscription_id} updated to status: ${updatedSubscription.status}`);
-
-          // Update user_products status
-          await db.query(
-            `UPDATE user_products
-             SET status = $1, updated_at = NOW()
-             WHERE stripe_subscription_id = $2`,
-            [updatedSubscription.status, user.stripe_subscription_id]
-          );
-
-          // If now active, mark enrollment as converted
-          if (updatedSubscription.status === 'active') {
-            await db.query(
-              `UPDATE workshop_enrollments
-               SET converted_to_paid_at = NOW(), updated_at = NOW()
-               WHERE id = $1`,
-              [user.enrollment_id]
-            );
-            console.log(`[Migration] Marked enrollment ${user.enrollment_id} as converted`);
+          // If subscription is no longer trialing, skip
+          if (subscription.status !== 'trialing') {
+            console.log(`[Migration]   Skipping - subscription is ${subscription.status}, not trialing`);
+            skippedCount++;
+            continue;
           }
 
-          correctedCount++;
+          // Check if Stripe trial_end is more than 1 day in the future
+          // If so, something is wrong - end trial immediately
+          const now = Math.floor(Date.now() / 1000);
+          const trialEnd = subscription.trial_end || 0;
+          const daysUntilTrialEnd = (trialEnd - now) / (60 * 60 * 24);
+
+          console.log(`[Migration]   Days until Stripe trial_end: ${daysUntilTrialEnd.toFixed(1)}`);
+
+          // If trial ends more than 1 day from now, that's wrong - end it now
+          if (daysUntilTrialEnd > 1) {
+            console.log(`[Migration]   Trial end is ${daysUntilTrialEnd.toFixed(1)} days away - this is incorrect, ending trial now...`);
+
+            // Update the subscription to end trial now
+            const updatedSubscription = await stripe.subscriptions.update(user.stripe_subscription_id, {
+              trial_end: 'now',
+            });
+
+            console.log(`[Migration]   Subscription updated to status: ${updatedSubscription.status}`);
+
+            // Update user_products status
+            await db.query(
+              `UPDATE user_products
+               SET status = $1, updated_at = NOW()
+               WHERE stripe_subscription_id = $2`,
+              [updatedSubscription.status, user.stripe_subscription_id]
+            );
+
+            // If now active, mark enrollment as converted
+            if (updatedSubscription.status === 'active') {
+              await db.query(
+                `UPDATE workshop_enrollments
+                 SET converted_to_paid_at = NOW(), updated_at = NOW()
+                 WHERE id = $1`,
+                [user.enrollment_id]
+              );
+              console.log(`[Migration]   Marked enrollment as converted to paid`);
+            }
+
+            correctedCount++;
+          } else {
+            console.log(`[Migration]   Trial end is within 1 day, skipping`);
+            skippedCount++;
+          }
         } catch (subError: any) {
-          console.error(`[Migration] Error correcting subscription for ${user.email}:`, subError.message);
+          console.error(`[Migration] Error checking/correcting subscription for ${user.email}:`, subError.message);
         }
       }
 
-      console.log(`[Migration] Trial date correction complete: ${correctedCount} subscriptions updated`);
+      console.log(`[Migration] Trial correction complete: ${correctedCount} fixed, ${skippedCount} skipped`);
     }
   } catch (error) {
     console.error('[Migration] Error correcting subscription trial dates:', error);
