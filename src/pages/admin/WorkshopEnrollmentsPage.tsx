@@ -542,6 +542,9 @@ function SendEmailModal({
   const [customSubject, setCustomSubject] = useState('');
   const [customBody, setCustomBody] = useState('');
   const [sending, setSending] = useState(false);
+  const [sendingTest, setSendingTest] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
+  const [testSuccess, setTestSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const predefinedEmailTypes: { value: EmailType; label: string; description: string }[] = [
@@ -552,7 +555,50 @@ function SendEmailModal({
     { value: 'week3', label: 'Week 3 Email', description: 'Third week follow-up' },
     { value: 'week4', label: 'Week 4 Email', description: 'Fourth week follow-up' },
     { value: 'wrapUp', label: 'Wrap-Up Email', description: 'Workshop completion summary' },
+    { value: 'trialEnding', label: 'Trial Ending Email', description: 'Reminder sent before trial expires' },
   ];
+
+  const handleSendTest = async () => {
+    if (!testEmail.trim()) {
+      setError('Please enter a test email address.');
+      return;
+    }
+
+    if (isCustom && (!customSubject.trim() || !customBody.trim())) {
+      setError('Please enter both a subject and message for custom emails.');
+      return;
+    }
+
+    setSendingTest(true);
+    setError(null);
+    setTestSuccess(null);
+
+    try {
+      const response = await sendWorkshopEmails(workshopId, {
+        enrollmentIds,
+        emailType: isCustom ? 'custom' : emailType,
+        testEmail: testEmail.trim(),
+        customContent: isCustom
+          ? {
+              subject: customSubject,
+              htmlBody: customBody.replace(/\n/g, '<br>'),
+              plainTextBody: customBody,
+            }
+          : undefined,
+      });
+
+      if (response.summary.success > 0) {
+        setTestSuccess(`Test email sent successfully to ${testEmail}`);
+      } else {
+        setError('Failed to send test email. Please check the email address.');
+      }
+    } catch (err) {
+      console.error('Error sending test email:', err);
+      setError(err instanceof Error ? err.message : 'Failed to send test email');
+    } finally {
+      setSendingTest(false);
+    }
+  };
 
   const handleSend = async () => {
     if (isCustom && (!customSubject.trim() || !customBody.trim())) {
@@ -601,6 +647,9 @@ function SendEmailModal({
       >
         <div className={styles.modalHeader}>
           <h2 id="send-email-title">Send Email to {enrollmentIds.length} Attendee(s)</h2>
+          <p style={{ fontSize: '14px', color: '#666', marginTop: '4px', fontWeight: 'normal' }}>
+            Send a predefined or custom email to selected workshop participants
+          </p>
           <button
             type="button"
             onClick={onClose}
@@ -717,6 +766,43 @@ function SendEmailModal({
             )}
           </div>
 
+          {/* Test Email Section */}
+          <div className={styles.detailSection} style={{ borderTop: '1px solid #eee', paddingTop: '16px', marginTop: '16px' }}>
+            <h3>Send Test Email First</h3>
+            <p style={{ fontSize: '13px', color: '#666', marginBottom: '12px' }}>
+              Preview the email by sending it to yourself or a test address before sending to all recipients.
+            </p>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <input
+                type="email"
+                value={testEmail}
+                onChange={e => {
+                  setTestEmail(e.target.value);
+                  setTestSuccess(null);
+                  setError(null);
+                }}
+                placeholder="Enter test email address"
+                className={styles.searchInput}
+                style={{ flex: 1 }}
+                disabled={sendingTest}
+              />
+              <button
+                type="button"
+                onClick={handleSendTest}
+                className={styles.exportButton}
+                disabled={sendingTest || !testEmail.trim()}
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                {sendingTest ? 'Sending...' : 'Send Test'}
+              </button>
+            </div>
+            {testSuccess && (
+              <div style={{ background: '#f0fdf4', color: '#166534', padding: '8px 12px', borderRadius: '6px', marginTop: '8px', fontSize: '13px' }}>
+                {testSuccess}
+              </div>
+            )}
+          </div>
+
           {error && (
             <div style={{ background: '#fef2f2', color: '#dc2626', padding: '12px', borderRadius: '6px', marginTop: '16px' }}>
               {error}
@@ -729,7 +815,7 @@ function SendEmailModal({
             type="button"
             onClick={onClose}
             className={styles.bulkActionClear}
-            disabled={sending}
+            disabled={sending || sendingTest}
           >
             Cancel
           </button>
@@ -737,7 +823,7 @@ function SendEmailModal({
             type="button"
             onClick={handleSend}
             className={styles.bulkActionButton}
-            disabled={sending}
+            disabled={sending || sendingTest}
           >
             {sending ? 'Sending...' : `Send to ${enrollmentIds.length} Recipient(s)`}
           </button>

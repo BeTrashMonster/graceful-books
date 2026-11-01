@@ -387,11 +387,12 @@ export async function logWorksheetError(errorData: {
 // ADMIN EMAIL SENDING
 // =============================================================================
 
-export type EmailType = 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'custom';
+export type EmailType = 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'trialEnding' | 'custom';
 
 export interface SendEmailRequest {
   enrollmentIds: string[];
   emailType: EmailType;
+  testEmail?: string; // If provided, sends to this address instead of enrollment recipients (for testing)
   customContent?: {
     subject: string;
     htmlBody: string;

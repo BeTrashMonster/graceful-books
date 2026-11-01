@@ -2815,7 +2815,7 @@ export async function sendCustomWorkshopEmail(
   workshopLocation: string,
   userId: string,
   workshopId: string,
-  emailType: 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'custom',
+  emailType: 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'trialEnding' | 'custom',
   customContent?: {
     subject: string;
     htmlBody: string;
@@ -2823,19 +2823,24 @@ export async function sendCustomWorkshopEmail(
     fromName?: string;
   },
   customTemplate?: CustomEmailTemplate, // For resending predefined types with custom templates
-  enrollmentId?: string // For unsubscribe link (optional for admin-triggered emails)
+  trialEndDate?: string // For trialEnding emails - when the trial expires
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     // Template replacement values for both predefined and custom emails
-    const templateValues = {
+    const templateValues: Record<string, string> = {
       firstName,
       workshopName,
       workshopDate,
       workshopLocation,
     };
 
-    // Use a placeholder enrollmentId if not provided (admin-triggered emails may not have one)
-    const effectiveEnrollmentId = enrollmentId || 'admin-triggered';
+    // Add trialEndDate if provided
+    if (trialEndDate) {
+      templateValues.trialEndDate = trialEndDate;
+    }
+
+    // Use a placeholder enrollmentId since this is for admin-triggered emails
+    const effectiveEnrollmentId = 'admin-triggered';
 
     // If it's a predefined email type (not 'custom'), delegate to the appropriate function
     if (emailType !== 'custom') {
@@ -2860,6 +2865,9 @@ export async function sendCustomWorkshopEmail(
           break;
         case 'wrapUp':
           await sendWorkshopWrapUpEmail(to, firstName, workshopName, userId, workshopId, effectiveEnrollmentId, undefined, customTemplate);
+          break;
+        case 'trialEnding':
+          await sendWorkshopTrialEndingEmail(to, firstName, workshopName, trialEndDate || 'N/A', userId, workshopId, effectiveEnrollmentId, undefined, customTemplate);
           break;
       }
       return { success: true };

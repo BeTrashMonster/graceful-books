@@ -1901,8 +1901,9 @@ workshops.post('/:id/send-email', requireAdmin, async (c) => {
     const body = await c.req.json();
     const {
       enrollmentIds, // Array of enrollment IDs to send to
-      emailType, // 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'custom'
+      emailType, // 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'trialEnding' | 'custom'
       customContent, // For custom emails: { subject, htmlBody, plainTextBody?, fromName? }
+      testEmail, // If provided, sends to this address instead (for testing)
     } = body;
 
     // Validate required fields
@@ -1914,9 +1915,15 @@ workshops.post('/:id/send-email', requireAdmin, async (c) => {
       return badRequest(c, ErrorCodes.INVALID_INPUT, 'Please select an email type');
     }
 
-    const validEmailTypes = ['welcome', 'reminder', 'week1', 'week2', 'week3', 'week4', 'wrapUp', 'custom'];
+    const validEmailTypes = ['welcome', 'reminder', 'week1', 'week2', 'week3', 'week4', 'wrapUp', 'trialEnding', 'custom'];
     if (!validEmailTypes.includes(emailType)) {
       return badRequest(c, ErrorCodes.INVALID_INPUT, 'Invalid email type');
+    }
+
+    // Validate test email format if provided
+    const isTestMode = !!testEmail;
+    if (testEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testEmail)) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Invalid test email address');
     }
 
     if (emailType === 'custom' && (!customContent?.subject || !customContent?.htmlBody)) {
@@ -1955,19 +1962,30 @@ workshops.post('/:id/send-email', requireAdmin, async (c) => {
       return badRequest(c, ErrorCodes.INVALID_INPUT, 'No valid enrollments found');
     }
 
-    // Send emails to each selected attendee
+    // Send emails to each selected attendee (or to test email if in test mode)
     const results: { email: string; success: boolean; error?: string }[] = [];
 
-    for (const row of enrollmentsResult.rows) {
+    if (isTestMode) {
+      // Test mode: send only one email to the test address using first enrollment's data
+      const row = enrollmentsResult.rows[0];
       const firstName = row.first_name || 'there';
-      const userEmail = row.email;
       const userId = row.user_id;
+
+      // For trialEnding emails, we need trial_expires_at data
+      const trialEndDate = row.trial_expires_at
+        ? new Date(row.trial_expires_at).toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          })
+        : 'N/A';
 
       // Get the appropriate custom template for this email type (if not custom)
       const customTemplate = emailType !== 'custom' ? customEmailTemplates[emailType] : undefined;
 
       const result = await sendCustomWorkshopEmail(
-        userEmail,
+        testEmail,
         firstName,
         workshopName,
         workshopDateFormatted,
@@ -1976,16 +1994,59 @@ workshops.post('/:id/send-email', requireAdmin, async (c) => {
         workshopId,
         emailType,
         emailType === 'custom' ? customContent : undefined,
-        customTemplate
+        customTemplate,
+        trialEndDate
       );
 
       results.push({
-        email: userEmail,
+        email: testEmail,
         success: result.success,
         error: result.error,
       });
 
-      console.log(`[Workshops] Email ${emailType} sent to ${userEmail}: ${result.success ? '✅' : '❌ ' + result.error}`);
+      console.log(`[Workshops] TEST Email ${emailType} sent to ${testEmail}: ${result.success ? '✅' : '❌ ' + result.error}`);
+    } else {
+      // Normal mode: send to all selected enrollees
+      for (const row of enrollmentsResult.rows) {
+        const firstName = row.first_name || 'there';
+        const userEmail = row.email;
+        const userId = row.user_id;
+
+        // For trialEnding emails, we need trial_expires_at data
+        const trialEndDate = row.trial_expires_at
+          ? new Date(row.trial_expires_at).toLocaleDateString('en-US', {
+              weekday: 'long',
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })
+          : 'N/A';
+
+        // Get the appropriate custom template for this email type (if not custom)
+        const customTemplate = emailType !== 'custom' ? customEmailTemplates[emailType] : undefined;
+
+        const result = await sendCustomWorkshopEmail(
+          userEmail,
+          firstName,
+          workshopName,
+          workshopDateFormatted,
+          workshopLocation,
+          userId,
+          workshopId,
+          emailType,
+          emailType === 'custom' ? customContent : undefined,
+          customTemplate,
+          trialEndDate
+        );
+
+        results.push({
+          email: userEmail,
+          success: result.success,
+          error: result.error,
+        });
+
+        console.log(`[Workshops] Email ${emailType} sent to ${userEmail}: ${result.success ? '✅' : '❌ ' + result.error}`);
+      }
     }
 
     const successCount = results.filter(r => r.success).length;
