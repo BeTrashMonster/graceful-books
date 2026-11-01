@@ -3591,35 +3591,148 @@ admin.patch('/products/:slug', requireAdmin, validate(updateProductSchema), asyn
 });
 
 // =============================================================================
-// SCHEDULE TRIAL ENDING EMAILS FOR WORKSHOP
+// TRIAL ENDING EMAIL MANAGEMENT FOR WORKSHOP
 // =============================================================================
 
 /**
- * POST /api/admin/workshops/:cohortName/schedule-trial-ending-emails
+ * GET /api/admin/workshops/:workshopId/trial-ending-preview
  *
- * Schedule trial ending emails for all eligible enrollees in a workshop.
- * Also updates the workshop's trial ending email template if provided.
+ * PREVIEW who would receive the trial ending email - NO emails sent.
+ * Shows all enrollees and their status so you can verify before sending.
  */
-admin.post('/workshops/:cohortName/schedule-trial-ending-emails', requireAdmin, async (c) => {
-  const cohortName = c.req.param('cohortName');
+admin.get('/workshops/:workshopId/trial-ending-preview', requireAdmin, async (c) => {
+  const workshopId = c.req.param('workshopId');
   const db = c.get('db');
 
   try {
-    const body = await c.req.json().catch(() => ({}));
-    const customTemplate = body.customTemplate;
-
-    console.log('[Admin] Scheduling trial ending emails for workshop:', cohortName);
-
     // Find the workshop
     const workshopResult = await db.query(
-      `SELECT id, cohort_name, workshop_name, custom_email_templates, custom_email_schedule
+      `SELECT id, cohort_name, workshop_name
        FROM workshops
-       WHERE cohort_name = $1`,
-      [cohortName]
+       WHERE id = $1 OR cohort_name = $1 OR slug = $1`,
+      [workshopId]
     );
 
     if (workshopResult.rowCount === 0) {
-      return notFound(c, ErrorCodes.NOT_FOUND, `Workshop not found: ${cohortName}`);
+      return notFound(c, ErrorCodes.NOT_FOUND, `Workshop not found: ${workshopId}`);
+    }
+
+    const workshop = workshopResult.rows[0];
+
+    // Get ALL enrollees with detailed status info
+    const enrollmentsResult = await db.query(
+      `SELECT
+         we.id as enrollment_id,
+         we.user_id,
+         we.trial_expires_at,
+         we.converted_to_paid_at,
+         we.status as enrollment_status,
+         u.email,
+         u.first_name,
+         u.last_name,
+         (SELECT up.status FROM user_products up WHERE up.user_id = we.user_id AND up.status = 'active' LIMIT 1) as active_subscription,
+         (SELECT se.status FROM scheduled_emails se WHERE se.enrollment_id = we.id AND se.email_type = 'trialEnding' ORDER BY se.created_at DESC LIMIT 1) as trial_email_status
+       FROM workshop_enrollments we
+       JOIN users u ON we.user_id = u.id
+       WHERE we.workshop_id = $1
+       ORDER BY u.email`,
+      [workshop.id]
+    );
+
+    const allEnrollees: any[] = [];
+    const wouldReceive: any[] = [];
+    const excluded: any[] = [];
+
+    for (const row of enrollmentsResult.rows) {
+      const enrollee = {
+        email: row.email,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        trialExpiresAt: row.trial_expires_at,
+        enrollmentStatus: row.enrollment_status,
+        convertedToPaid: row.converted_to_paid_at ? true : false,
+        hasActiveSubscription: row.active_subscription === 'active',
+        trialEmailStatus: row.trial_email_status || 'not_scheduled',
+      };
+
+      allEnrollees.push(enrollee);
+
+      // Determine if they would receive the email
+      const reasons: string[] = [];
+
+      if (row.converted_to_paid_at) {
+        reasons.push('already_converted_to_paid');
+      }
+      if (row.active_subscription === 'active') {
+        reasons.push('has_active_subscription');
+      }
+      if (row.trial_email_status === 'sent') {
+        reasons.push('email_already_sent');
+      }
+      if (row.trial_email_status === 'pending') {
+        reasons.push('email_already_scheduled');
+      }
+      if (row.enrollment_status !== 'active') {
+        reasons.push(`enrollment_status_is_${row.enrollment_status}`);
+      }
+
+      if (reasons.length === 0) {
+        wouldReceive.push(enrollee);
+      } else {
+        excluded.push({ ...enrollee, excludeReasons: reasons });
+      }
+    }
+
+    return success(c, {
+      workshop: {
+        id: workshop.id,
+        cohortName: workshop.cohort_name,
+        workshopName: workshop.workshop_name,
+      },
+      summary: {
+        totalEnrollees: allEnrollees.length,
+        wouldReceiveEmail: wouldReceive.length,
+        excluded: excluded.length,
+      },
+      wouldReceive,
+      excluded,
+    });
+  } catch (error) {
+    console.error('[Admin] Error previewing trial ending emails:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to preview trial ending emails');
+  }
+});
+
+/**
+ * POST /api/admin/workshops/:workshopId/send-trial-ending-now
+ *
+ * SEND trial ending email IMMEDIATELY to eligible enrollees.
+ * Requires confirmation in request body.
+ */
+admin.post('/workshops/:workshopId/send-trial-ending-now', requireAdmin, async (c) => {
+  const workshopId = c.req.param('workshopId');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+
+    // Require explicit confirmation
+    if (body.confirm !== 'SEND_NOW') {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Must include { "confirm": "SEND_NOW" } to send emails');
+    }
+
+    const customTemplate = body.customTemplate;
+
+    // Find the workshop
+    const workshopResult = await db.query(
+      `SELECT id, cohort_name, workshop_name, custom_email_templates
+       FROM workshops
+       WHERE id = $1 OR cohort_name = $1 OR slug = $1`,
+      [workshopId]
+    );
+
+    if (workshopResult.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, `Workshop not found: ${workshopId}`);
     }
 
     const workshop = workshopResult.rows[0];
@@ -3632,29 +3745,24 @@ admin.post('/workshops/:cohortName/schedule-trial-ending-emails', requireAdmin, 
         trialEnding: customTemplate,
       };
 
-      const existingSchedule = workshop.custom_email_schedule || {};
-      const updatedSchedule = {
-        ...existingSchedule,
-        trialEnding: { enabled: true, when: { days_before_trial_expires: 3 } },
-      };
-
       await db.query(
-        `UPDATE workshops
-         SET custom_email_templates = $1, custom_email_schedule = $2, updated_at = NOW()
-         WHERE id = $3`,
-        [JSON.stringify(updatedTemplates), JSON.stringify(updatedSchedule), workshop.id]
+        `UPDATE workshops SET custom_email_templates = $1, updated_at = NOW() WHERE id = $2`,
+        [JSON.stringify(updatedTemplates), workshop.id]
       );
-      console.log('[Admin] Updated workshop email template');
+      console.log('[Admin] Updated workshop trial ending template');
     }
 
-    // Find eligible enrollees (excludes those with active subscriptions or already scheduled)
+    // Find eligible enrollees
     const enrollmentsResult = await db.query(
-      `SELECT we.id, we.user_id, we.trial_expires_at, u.email, u.first_name
+      `SELECT
+         we.id as enrollment_id,
+         we.user_id,
+         we.trial_expires_at,
+         u.email,
+         u.first_name
        FROM workshop_enrollments we
        JOIN users u ON we.user_id = u.id
        WHERE we.workshop_id = $1
-         AND we.trial_expires_at IS NOT NULL
-         AND we.trial_expires_at > NOW()
          AND we.status = 'active'
          AND we.converted_to_paid_at IS NULL
          AND NOT EXISTS (
@@ -3671,50 +3779,39 @@ admin.post('/workshops/:cohortName/schedule-trial-ending-emails', requireAdmin, 
       [workshop.id]
     );
 
-    let scheduled = 0;
-    let skipped = 0;
-    const results: Array<{ email: string; status: string; sendAt?: string }> = [];
+    // Schedule for immediate send (1 minute from now to let cron pick it up)
+    const sendTime = new Date();
+    sendTime.setMinutes(sendTime.getMinutes() + 1);
+
+    const results: any[] = [];
 
     for (const enrollment of enrollmentsResult.rows) {
-      const trialExpiresAt = new Date(enrollment.trial_expires_at);
-      const daysBefore = 3;
-      const sendTime = new Date(trialExpiresAt);
-      sendTime.setDate(sendTime.getDate() - daysBefore);
-
-      if (sendTime > new Date()) {
-        await db.query(
-          `INSERT INTO scheduled_emails
-           (enrollment_id, workshop_id, user_id, email_type, recipient_email, scheduled_for, status)
-           VALUES ($1, $2, $3, $4, $5, $6, 'pending')
-           ON CONFLICT DO NOTHING`,
-          [
-            enrollment.id,
-            workshop.id,
-            enrollment.user_id,
-            'trialEnding',
-            enrollment.email,
-            sendTime.toISOString(),
-          ]
-        );
-        scheduled++;
-        results.push({ email: enrollment.email, status: 'scheduled', sendAt: sendTime.toISOString() });
-      } else {
-        skipped++;
-        results.push({ email: enrollment.email, status: 'skipped_time_passed' });
-      }
+      await db.query(
+        `INSERT INTO scheduled_emails
+         (enrollment_id, workshop_id, user_id, email_type, recipient_email, scheduled_for, status)
+         VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
+        [
+          enrollment.enrollment_id,
+          workshop.id,
+          enrollment.user_id,
+          'trialEnding',
+          enrollment.email,
+          sendTime.toISOString(),
+        ]
+      );
+      results.push({ email: enrollment.email, firstName: enrollment.first_name });
     }
 
-    console.log(`[Admin] Scheduled ${scheduled} trial ending emails, skipped ${skipped}`);
+    console.log(`[Admin] Scheduled ${results.length} trial ending emails for immediate send`);
 
     return success(c, {
-      message: `Scheduled ${scheduled} trial ending emails for ${cohortName}`,
-      scheduled,
-      skipped,
-      results,
+      message: `Scheduled ${results.length} trial ending emails for immediate delivery`,
+      scheduledFor: sendTime.toISOString(),
+      recipients: results,
     });
   } catch (error) {
-    console.error('[Admin] Error scheduling trial ending emails:', error);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to schedule trial ending emails');
+    console.error('[Admin] Error sending trial ending emails:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to send trial ending emails');
   }
 });
 
