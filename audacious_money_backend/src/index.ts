@@ -80,7 +80,30 @@ async function runStartupMigrations() {
   // These users have payment methods on file but no Stripe subscription, so they
   // weren't charged when their trial ended. Create subscriptions for them now.
   // ==========================================================================
+  console.log('[Migration] Starting workshop subscription fix check...');
   try {
+    // First, diagnostic query to see all unconverted workshop users
+    const diagnosticResult = await db.query(`
+      SELECT
+        u.id as user_id,
+        u.email,
+        u.stripe_customer_id,
+        we.status as enrollment_status,
+        we.converted_to_paid_at,
+        w.stripe_price_id
+      FROM users u
+      JOIN workshop_enrollments we ON we.user_id = u.id
+      JOIN workshops w ON w.id = we.workshop_id
+      WHERE we.converted_to_paid_at IS NULL
+      LIMIT 10
+    `);
+    console.log(`[Migration] Diagnostic: Found ${diagnosticResult.rows.length} unconverted workshop enrollments`);
+    if (diagnosticResult.rows.length > 0) {
+      diagnosticResult.rows.forEach((row, i) => {
+        console.log(`[Migration]   ${i+1}. ${row.email} - customer_id: ${row.stripe_customer_id ? 'YES' : 'NO'}, status: ${row.enrollment_status}, price_id: ${row.stripe_price_id ? 'YES' : 'NO'}`);
+      });
+    }
+
     // Find workshop users who:
     // 1. Have a Stripe customer ID
     // 2. Have not converted to paid
@@ -109,8 +132,10 @@ async function runStartupMigrations() {
         AND w.stripe_price_id IS NOT NULL
     `);
 
+    console.log(`[Migration] Found ${usersResult.rows.length} users matching all criteria for subscription fix`);
+
     if (usersResult.rows.length === 0) {
-      // No users need fixing
+      console.log('[Migration] No users need subscription fix (either no payment method, already have subscription, or missing criteria)');
     } else {
       console.log(`[Migration] Checking ${usersResult.rows.length} workshop users for missing subscriptions...`);
 
