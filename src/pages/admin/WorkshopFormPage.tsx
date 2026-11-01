@@ -134,6 +134,8 @@ export default function WorkshopFormPage() {
 
       // Determine which emails are customized based on customEmailTemplates from API
       const customTemplates = workshop.customEmailTemplates || {};
+      console.log('[Workshop Load] customEmailTemplates from API:', workshop.customEmailTemplates);
+      console.log('[Workshop Load] customTemplates object:', customTemplates);
       const customizedEmailTypes: EmailType[] = [];
 
       (['welcome', 'reminder', 'week1', 'week2', 'week3', 'week4', 'wrapUp', 'trialEnding'] as EmailType[]).forEach(emailType => {
@@ -141,6 +143,7 @@ export default function WorkshopFormPage() {
           customizedEmailTypes.push(emailType);
         }
       });
+      console.log('[Workshop Load] customizedEmailTypes result:', customizedEmailTypes);
 
       // Parse email schedule - merge with defaults to ensure trialEnding exists for existing workshops
       const defaultSchedule: EmailSchedule = {
