@@ -10,6 +10,7 @@
 import { serve } from '@hono/node-server';
 import app from './app.js';
 import { initializeDatabase, closeDatabase, getDatabase } from './db/connection.js';
+import { stripe } from './services/stripe.service.js';
 
 // ==========================================
 // Configuration
@@ -71,6 +72,152 @@ async function runStartupMigrations() {
     }
   } catch (error) {
     console.error('[Migration] Error backfilling workshop trial dates:', error);
+    // Don't fail startup, just log the error
+  }
+
+  // ==========================================================================
+  // Fix workshop users who added payment methods before auto-subscription feature
+  // These users have payment methods on file but no Stripe subscription, so they
+  // weren't charged when their trial ended. Create subscriptions for them now.
+  // ==========================================================================
+  try {
+    // Find workshop users who:
+    // 1. Have a Stripe customer ID
+    // 2. Have not converted to paid
+    // 3. Have an active workshop enrollment
+    // 4. Workshop has a stripe_price_id
+    const usersResult = await db.query(`
+      SELECT
+        u.id as user_id,
+        u.email,
+        u.first_name,
+        u.stripe_customer_id,
+        we.id as enrollment_id,
+        we.workshop_id,
+        w.stripe_price_id,
+        we.trial_expires_at,
+        we.trial_expires_at < NOW() as trial_expired,
+        up.stripe_subscription_id
+      FROM users u
+      JOIN workshop_enrollments we ON we.user_id = u.id
+      JOIN workshops w ON w.id = we.workshop_id
+      LEFT JOIN user_products up ON up.user_id = u.id
+        AND up.product_id = (SELECT id FROM products WHERE slug = 'cpu-cpg-calculator')
+      WHERE we.converted_to_paid_at IS NULL
+        AND we.status = 'active'
+        AND u.stripe_customer_id IS NOT NULL
+        AND w.stripe_price_id IS NOT NULL
+    `);
+
+    if (usersResult.rows.length === 0) {
+      // No users need fixing
+    } else {
+      console.log(`[Migration] Checking ${usersResult.rows.length} workshop users for missing subscriptions...`);
+
+      let fixedCount = 0;
+      let skippedNoPayment = 0;
+      let skippedHasSubscription = 0;
+
+      for (const user of usersResult.rows) {
+        try {
+          // Skip if already has a subscription ID in our database
+          if (user.stripe_subscription_id) {
+            skippedHasSubscription++;
+            continue;
+          }
+
+          // Check if user has a payment method on file
+          const paymentMethods = await stripe.paymentMethods.list({
+            customer: user.stripe_customer_id,
+            type: 'card',
+            limit: 1,
+          });
+
+          if (paymentMethods.data.length === 0) {
+            skippedNoPayment++;
+            continue;
+          }
+
+          const paymentMethodId = paymentMethods.data[0].id;
+
+          // Check if user already has an active subscription in Stripe
+          const subscriptions = await stripe.subscriptions.list({
+            customer: user.stripe_customer_id,
+            status: 'all',
+            limit: 10,
+          });
+
+          const hasActiveSubscription = subscriptions.data.some(sub => {
+            const isActiveOrTrialing = sub.status === 'active' || sub.status === 'trialing';
+            const hasSamePrice = sub.items.data.some(item => item.price.id === user.stripe_price_id);
+            return isActiveOrTrialing && hasSamePrice;
+          });
+
+          if (hasActiveSubscription) {
+            skippedHasSubscription++;
+            continue;
+          }
+
+          // Create subscription - if trial expired, charge immediately; otherwise sync to trial end
+          const trialExpired = user.trial_expired;
+          const trialEnd = trialExpired
+            ? 'now' as const
+            : Math.floor(new Date(user.trial_expires_at).getTime() / 1000);
+
+          console.log(`[Migration] Creating subscription for ${user.email} (trial ${trialExpired ? 'expired - charging now' : 'active'})...`);
+
+          const subscription = await stripe.subscriptions.create({
+            customer: user.stripe_customer_id,
+            items: [{ price: user.stripe_price_id }],
+            trial_end: trialEnd,
+            default_payment_method: paymentMethodId,
+            metadata: {
+              userId: user.user_id,
+              workshopId: user.workshop_id,
+              enrollmentId: user.enrollment_id,
+              autoCreated: 'true',
+              source: 'startup_migration_fix',
+              fixedAt: new Date().toISOString(),
+            },
+          });
+
+          // Update user_products with subscription ID
+          await db.query(
+            `UPDATE user_products
+             SET stripe_subscription_id = $1,
+                 status = $2,
+                 updated_at = NOW()
+             WHERE user_id = $3
+               AND product_id = (SELECT id FROM products WHERE slug = 'cpu-cpg-calculator')`,
+            [subscription.id, subscription.status, user.user_id]
+          );
+
+          // If subscription is active (charged immediately), mark as converted
+          if (subscription.status === 'active') {
+            await db.query(
+              `UPDATE workshop_enrollments
+               SET converted_to_paid_at = NOW(),
+                   updated_at = NOW()
+               WHERE id = $1`,
+              [user.enrollment_id]
+            );
+          }
+
+          console.log(`[Migration] Created subscription ${subscription.id} for ${user.email} (status: ${subscription.status})`);
+          fixedCount++;
+
+        } catch (userError: any) {
+          console.error(`[Migration] Error fixing user ${user.email}:`, userError.message);
+          // Continue with next user
+        }
+      }
+
+      if (fixedCount > 0 || skippedNoPayment > 0 || skippedHasSubscription > 0) {
+        console.log(`[Migration] Workshop subscription fix complete: ${fixedCount} fixed, ${skippedHasSubscription} already had subscription, ${skippedNoPayment} no payment method`);
+      }
+    }
+  } catch (error) {
+    console.error('[Migration] Error fixing workshop subscriptions:', error);
     // Don't fail startup, just log the error
   }
 }
