@@ -136,7 +136,7 @@ export default function WorkshopFormPage() {
       const customTemplates = workshop.customEmailTemplates || {};
       const customizedEmailTypes: EmailType[] = [];
 
-      (['welcome', 'reminder', 'week1', 'week2', 'week3', 'week4', 'wrapUp'] as EmailType[]).forEach(emailType => {
+      (['welcome', 'reminder', 'week1', 'week2', 'week3', 'week4', 'wrapUp', 'trialEnding'] as EmailType[]).forEach(emailType => {
         if (customTemplates[emailType]) {
           customizedEmailTypes.push(emailType);
         }
