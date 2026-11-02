@@ -255,6 +255,14 @@ export default function WorkshopsPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div>
+          <button
+            type="button"
+            onClick={() => navigate('/admin')}
+            className={styles.backButton}
+            aria-label="Back to dashboard"
+          >
+            ← Back to Dashboard
+          </button>
           <h1 className={styles.title}>Workshops</h1>
           <p className={styles.subtitle}>
             Manage educational workshop cohorts, track enrollments, and monitor conversions.
