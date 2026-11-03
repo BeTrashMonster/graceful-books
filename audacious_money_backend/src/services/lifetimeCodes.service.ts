@@ -8,7 +8,7 @@
 import { Pool } from 'pg';
 import { grantProductAccess } from './adminDiagnostics.service.js';
 import { sendWelcomeEmail } from './email.service.js';
-import { generateUserToken } from '../utils/auth.js';
+import { generateUserToken } from '../utils/jwt.js';
 import { hashPassword } from '../utils/password.js';
 
 // =============================================================================
