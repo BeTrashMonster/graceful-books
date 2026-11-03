@@ -6,10 +6,10 @@
  */
 
 import { Pool } from 'pg';
-import * as argon2 from 'argon2';
 import { grantProductAccess } from './adminDiagnostics.service.js';
 import { sendWelcomeEmail } from './email.service.js';
 import { generateUserToken } from '../utils/auth.js';
+import { hashPassword } from '../utils/password.js';
 
 // =============================================================================
 // TYPES
@@ -444,18 +444,6 @@ export async function validateCode(
 // =============================================================================
 // REDEMPTION
 // =============================================================================
-
-/**
- * Hash password using Argon2id
- */
-async function hashPassword(password: string): Promise<string> {
-  return argon2.hash(password, {
-    type: argon2.argon2id,
-    memoryCost: 65536,
-    timeCost: 3,
-    parallelism: 4,
-  });
-}
 
 /**
  * Redeem a code for a new user (signup)
