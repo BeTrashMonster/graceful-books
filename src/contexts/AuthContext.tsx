@@ -3,9 +3,13 @@
  *
  * Provides authentication state and user/company information throughout the app.
  * Reads from sessionStorage where auth data is stored after login.
+ *
+ * If sessionStorage is empty but a valid auth token exists in localStorage,
+ * we hydrate the session by verifying the token with the server.
  */
 
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
+import { verifyToken, getAuthToken } from '../services/auth.service'
 
 interface AuthContextValue {
   isAuthenticated: boolean
@@ -36,7 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     // Load auth data from sessionStorage (new authentication system)
-    const loadAuthData = () => {
+    const loadAuthData = async () => {
       try {
         const sessionData = sessionStorage.getItem('graceful_books_session')
         if (sessionData) {
@@ -67,6 +71,50 @@ export function AuthProvider({ children }: AuthProviderProps) {
             isLoading: false,
           })
         } else {
+          // No sessionStorage - check if we have a valid auth token to hydrate from
+          const authToken = getAuthToken()
+          if (authToken) {
+            console.log('[AuthContext] Session empty but auth token found, verifying...')
+            try {
+              const response = await verifyToken(authToken)
+              if (response.valid && response.user) {
+                console.log('[AuthContext] Token valid, hydrating session with products:', response.user.products)
+
+                // Rebuild sessionStorage from verified token data
+                const hydratedSession = {
+                  token: authToken,
+                  user: response.user,
+                  products: response.user.products || [],
+                  expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                }
+                sessionStorage.setItem('graceful_books_session', JSON.stringify(hydratedSession))
+
+                // Set auth state from hydrated data
+                const userId = response.user.id
+                const userEmail = response.user.email
+                setAuthState({
+                  isAuthenticated: true,
+                  userIdentifier: userEmail,
+                  companyId: userId,
+                  currentCompany: userId ? {
+                    id: userId,
+                    name: userEmail || userId
+                  } : null,
+                  deviceId: userId,
+                  role: 'user',
+                  isLoading: false,
+                })
+                return
+              } else {
+                console.log('[AuthContext] Token invalid, clearing...')
+                localStorage.removeItem('auth_token')
+              }
+            } catch (err) {
+              console.error('[AuthContext] Token verification failed:', err)
+              // Don't clear token on network error - might be offline
+            }
+          }
+
           // Fallback: Check localStorage for dev/legacy setup
           const localData = localStorage.getItem('graceful_books_user')
           if (localData) {

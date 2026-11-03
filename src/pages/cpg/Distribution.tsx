@@ -23,6 +23,7 @@ import type {
 import { DistributionCostCalculatorService } from '../../services/cpg/distributionCostCalculator.service';
 import type { DistributorFormData } from '../../components/cpg/DistributorProfileForm';
 import { DistributorCostsTab } from './tabs/DistributorCostsTab';
+import { FeatureActivationBanner } from '../../components/cpg/FeatureActivationBanner';
 import styles from './Distribution.module.css';
 
 type ViewMode = 'manage' | 'costs' | 'calculations' | 'scenarios';
@@ -1137,6 +1138,12 @@ export default function Distribution() {
           Add Distributor
         </button>
       </div>
+
+      {/* Feature Activation Banner */}
+      <FeatureActivationBanner
+        featureName="distribution"
+        featureDisplayName="Distribution Center"
+      />
 
       {/* Error Message */}
       {error && (

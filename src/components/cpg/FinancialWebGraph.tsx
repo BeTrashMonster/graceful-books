@@ -183,16 +183,19 @@ export function FinancialWebGraph({
 
           // Check if feature is actually inactive
           if (!userFeaturePrefs[featureName]) {
-            // Show activate button
-            const rect = svgRef.current?.getBoundingClientRect();
-            if (rect) {
-              setActivateButton({
-                visible: true,
-                x: rect.left + (d.x || 0),
-                y: rect.top + (d.y || 0),
-                featureName,
-              });
-            }
+            // Show activate button - use getBoundingClientRect on the actual circle element
+            // to get the correct screen position accounting for all transforms (zoom, pan, CSS)
+            const circleElement = this as SVGCircleElement;
+            const circleRect = circleElement.getBoundingClientRect();
+            const centerX = circleRect.left + circleRect.width / 2;
+            const centerY = circleRect.top + circleRect.height / 2;
+
+            setActivateButton({
+              visible: true,
+              x: centerX,
+              y: centerY,
+              featureName,
+            });
             return; // Don't show tooltip when showing activate button
           }
         }

@@ -13,6 +13,7 @@ import { EventAnalyticsTab } from './tabs/EventAnalyticsTab';
 import { PinIcon } from '../../components/common/PinIcon';
 import { useTabPinning } from '../../hooks/useTabPinning';
 import { PAGE_IDS } from '../../db/schema/tabPreferences.schema';
+import { FeatureActivationBanner } from '../../components/cpg/FeatureActivationBanner';
 import styles from './EventsAnalysis.module.css';
 
 type ViewTab = 'decision-tool' | 'event-tracker' | 'event-analytics';
@@ -98,6 +99,12 @@ export default function EventsAnalysis() {
       <div className="page-header">
         <h1 className="page-title">Events Analysis</h1>
       </div>
+
+      {/* Feature Activation Banner */}
+      <FeatureActivationBanner
+        featureName="events"
+        featureDisplayName="Events Analysis"
+      />
 
       {/* Tabs */}
       <div className={styles.tabs}>

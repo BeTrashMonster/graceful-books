@@ -15,6 +15,7 @@ import type { CPGSettings } from '../../db/schema/cpg.schema';
 import { createDefaultCPGSettings, getProfitMarginQualityWithSettings } from '../../db/schema/cpg.schema';
 import { SalesPromoAnalyzerService, type PromoAnalysisResult } from '../../services/cpg/salesPromoAnalyzer.service';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
+import { FeatureActivationBanner } from '../../components/cpg/FeatureActivationBanner';
 import styles from './SalesPromoDecisionTool.module.css';
 
 /**
@@ -1094,6 +1095,12 @@ export default function SalesPromoDecisionTool() {
       <div className="page-header">
         <h1 className="page-title">Promo Analysis</h1>
       </div>
+
+      {/* Feature Activation Banner */}
+      <FeatureActivationBanner
+        featureName="promos"
+        featureDisplayName="Promo Analysis"
+      />
 
       {/* Tabs */}
       <div className={styles.tabs}>
