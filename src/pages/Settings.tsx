@@ -33,6 +33,7 @@ import type { FeatureName } from '../services/userFeaturePreferences.service';
 import type { CPGSettings } from '../db/schema/cpg.schema';
 import type { Charity } from '../types/database.types';
 import { getMyCharitySelection, selectCharity as selectCharityAPI, type CharitySelection } from '../services/charities.api';
+import { API_URL } from '../config/api';
 import styles from './cpg/CPGSettings.module.css';
 
 // =============================================================================
@@ -174,6 +175,13 @@ export default function Settings() {
   const [isChangingCharity, setIsChangingCharity] = useState(false);
   const [showCharitySelector, setShowCharitySelector] = useState(false);
 
+  // Redeem Code state
+  const [redeemSectionExpanded, setRedeemSectionExpanded] = useState(false);
+  const [redeemCode, setRedeemCode] = useState('');
+  const [isRedeeming, setIsRedeeming] = useState(false);
+  const [redeemError, setRedeemError] = useState<string | null>(null);
+  const [redeemSuccess, setRedeemSuccess] = useState<string | null>(null);
+
   // =============================================================================
   // INITIALIZATION
   // =============================================================================
@@ -288,6 +296,63 @@ export default function Settings() {
   // =============================================================================
   // HANDLERS
   // =============================================================================
+
+  const handleRedeemCode = async () => {
+    if (!redeemCode.trim()) {
+      setRedeemError('Please enter a code');
+      return;
+    }
+
+    setIsRedeeming(true);
+    setRedeemError(null);
+    setRedeemSuccess(null);
+
+    try {
+      const token = localStorage.getItem('graceful_books_token');
+      if (!token) {
+        setRedeemError('You must be logged in to redeem a code');
+        setIsRedeeming(false);
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/api/redeem/${redeemCode.trim()}/claim`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setRedeemError(data.error?.message || 'Failed to redeem code');
+        setIsRedeeming(false);
+        return;
+      }
+
+      // Success - refresh session to get updated products
+      const productNames = data.data.products?.map((p: any) => p.name).join(', ') || 'products';
+      setRedeemSuccess(`Code redeemed! You now have access to: ${productNames}`);
+      setRedeemCode('');
+
+      // If worksheet is required, redirect after a short delay
+      if (data.data.requiresWorksheet) {
+        setTimeout(() => {
+          window.location.href = '/workshops/worksheet';
+        }, 2000);
+      } else {
+        // Refresh the page to update user session with new products
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      }
+    } catch (err) {
+      setRedeemError('Failed to redeem code. Please try again.');
+    } finally {
+      setIsRedeeming(false);
+    }
+  };
 
   const handleCharitySelect = async (charity: Charity) => {
     setIsChangingCharity(true);
@@ -708,6 +773,85 @@ export default function Settings() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Redeem Access Code Section */}
+      <div className={styles.settingsSection}>
+        <div
+          className={styles.sectionHeader}
+          onClick={() => setRedeemSectionExpanded(!redeemSectionExpanded)}
+        >
+          <div className={styles.sectionHeaderLeft}>
+            <span className={styles.sectionIcon}>🎁</span>
+            <div className={styles.sectionHeaderContent}>
+              <h2 className={styles.sectionTitle}>Redeem Access Code</h2>
+              <p className={styles.sectionSubtitle}>
+                Have an access code? Redeem it here to unlock product access
+              </p>
+            </div>
+          </div>
+          <span className={`${styles.expandIcon} ${redeemSectionExpanded ? styles.expanded : ''}`}>
+            ▼
+          </span>
+        </div>
+
+        <div className={`${styles.sectionContent} ${redeemSectionExpanded ? styles.expanded : ''}`}>
+          <div className={styles.sectionInner}>
+            <p className={styles.sectionDescription}>
+              If you received a lifetime access code, enter it below to unlock your product access.
+            </p>
+
+            {redeemError && (
+              <div style={{
+                padding: '0.75rem',
+                marginBottom: '1rem',
+                backgroundColor: '#fee2e2',
+                border: '1px solid #fecaca',
+                borderRadius: '0.375rem',
+                color: '#991b1b',
+                fontSize: '0.875rem',
+              }}>
+                {redeemError}
+              </div>
+            )}
+
+            {redeemSuccess && (
+              <div style={{
+                padding: '0.75rem',
+                marginBottom: '1rem',
+                backgroundColor: '#dcfce7',
+                border: '1px solid #bbf7d0',
+                borderRadius: '0.375rem',
+                color: '#166534',
+                fontSize: '0.875rem',
+              }}>
+                {redeemSuccess}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+              <div style={{ flex: 1 }}>
+                <input
+                  type="text"
+                  value={redeemCode}
+                  onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
+                  placeholder="Enter your access code"
+                  className={styles.input}
+                  style={{ width: '100%', textTransform: 'uppercase' }}
+                  disabled={isRedeeming}
+                />
+              </div>
+              <Button
+                variant="primary"
+                onClick={handleRedeemCode}
+                loading={isRedeeming}
+                disabled={isRedeeming || !redeemCode.trim()}
+              >
+                Redeem
+              </Button>
+            </div>
           </div>
         </div>
       </div>

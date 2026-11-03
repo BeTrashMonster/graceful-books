@@ -5,23 +5,37 @@
  * - Tier 1: User row with key info at a glance
  * - Tier 2: Expanded panel with quick actions and details
  * - Tier 3: Full details page (navigates to separate route)
+ *
+ * Also includes Lifetime Codes tab for managing access codes.
  */
 
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   UserFilterBar,
   UserRowHeader,
   UserRow,
   UserExpandedPanel,
 } from '../../components/admin/users';
+import { LifetimeCodesTab } from '../../components/admin/lifetimeCodes';
 import { useAdminUsers } from '../../hooks/admin/useAdminUsers';
 import { useUserDetails } from '../../hooks/admin/useUserDetails';
 import styles from './AdminUsersPage.module.css';
 
+type TabType = 'users' | 'lifetime-codes';
+
 export default function AdminUsersPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+
+  // Get active tab from URL or default to 'users'
+  const activeTab = (searchParams.get('tab') as TabType) || 'users';
+
+  const handleTabChange = (tab: TabType) => {
+    setSearchParams({ tab });
+    setExpandedUserId(null);
+  };
 
   // User list with filters
   const {
@@ -136,9 +150,13 @@ export default function AdminUsersPage() {
         <header className={styles.header}>
           <div className={styles.headerContent}>
             <div>
-              <h1 className={styles.title}>Users</h1>
+              <h1 className={styles.title}>
+                {activeTab === 'users' ? 'Users' : 'Lifetime Codes'}
+              </h1>
               <p className={styles.subtitle}>
-                {totalCount} total users
+                {activeTab === 'users'
+                  ? `${totalCount} total users`
+                  : 'Manage lifetime access codes'}
               </p>
             </div>
             <div className={styles.headerActions}>
@@ -153,8 +171,31 @@ export default function AdminUsersPage() {
           </div>
         </header>
 
-        {/* Filter bar */}
-        <UserFilterBar
+        {/* Tab Navigation */}
+        <div className={styles.tabNav}>
+          <button
+            type="button"
+            className={`${styles.tabButton} ${activeTab === 'users' ? styles.tabActive : ''}`}
+            onClick={() => handleTabChange('users')}
+          >
+            Users
+          </button>
+          <button
+            type="button"
+            className={`${styles.tabButton} ${activeTab === 'lifetime-codes' ? styles.tabActive : ''}`}
+            onClick={() => handleTabChange('lifetime-codes')}
+          >
+            Lifetime Codes
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'lifetime-codes' ? (
+          <LifetimeCodesTab onRefresh={refresh} />
+        ) : (
+          <>
+            {/* Filter bar */}
+            <UserFilterBar
           filters={filters}
           options={filterOptions}
           onFilterChange={setFilters}
@@ -228,29 +269,31 @@ export default function AdminUsersPage() {
           )}
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className={styles.pagination}>
-            <button
-              type="button"
-              className={styles.pageButton}
-              onClick={() => setPage(currentPage - 1)}
-              disabled={currentPage === 1 || isLoading}
-            >
-              Previous
-            </button>
-            <span className={styles.pageInfo}>
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              type="button"
-              className={styles.pageButton}
-              onClick={() => setPage(currentPage + 1)}
-              disabled={currentPage === totalPages || isLoading}
-            >
-              Next
-            </button>
-          </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  type="button"
+                  className={styles.pageButton}
+                  onClick={() => setPage(currentPage - 1)}
+                  disabled={currentPage === 1 || isLoading}
+                >
+                  Previous
+                </button>
+                <span className={styles.pageInfo}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  className={styles.pageButton}
+                  onClick={() => setPage(currentPage + 1)}
+                  disabled={currentPage === totalPages || isLoading}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

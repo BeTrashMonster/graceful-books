@@ -59,6 +59,13 @@ import {
   getActivityStats,
   type ActivityType,
 } from '../services/activityLog.service.js';
+import {
+  createLifetimeCode,
+  getLifetimeCodes,
+  getLifetimeCodeDetails,
+  updateLifetimeCode,
+  deactivateLifetimeCode,
+} from '../services/lifetimeCodes.service.js';
 
 const admin = new Hono<HonoEnv>();
 
@@ -3909,6 +3916,150 @@ admin.post('/workshops/:workshopId/send-trial-ending-now', requireAdmin, async (
   } catch (error) {
     console.error('[Admin] Error sending trial ending emails:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to send trial ending emails');
+  }
+});
+
+// =============================================================================
+// LIFETIME ACCESS CODES
+// =============================================================================
+
+/**
+ * GET /admin/lifetime-codes
+ *
+ * List all lifetime codes with stats
+ */
+admin.get('/lifetime-codes', requireAdmin, async (c) => {
+  const db = c.get('db');
+  const includeInactive = c.req.query('includeInactive') === 'true';
+
+  try {
+    const codes = await getLifetimeCodes(db, includeInactive);
+    return success(c, { codes });
+  } catch (error) {
+    console.error('[Admin] Error fetching lifetime codes:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch lifetime codes');
+  }
+});
+
+/**
+ * POST /admin/lifetime-codes
+ *
+ * Create a new lifetime code
+ */
+admin.post('/lifetime-codes', requireAdmin, async (c) => {
+  const db = c.get('db');
+  const adminId = c.get('adminId');
+
+  try {
+    const body = await c.req.json();
+    const { name, productIds, maxRedemptions, expiresAt, notes, customCode } = body;
+
+    if (!name || !productIds || !Array.isArray(productIds) || productIds.length === 0) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Name and at least one product are required');
+    }
+
+    const result = await createLifetimeCode(db, adminId, {
+      name,
+      productIds,
+      maxRedemptions: maxRedemptions || null,
+      expiresAt: expiresAt || null,
+      notes: notes || null,
+      customCode: customCode || undefined,
+    });
+
+    if (!result.success) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, result.error || 'Failed to create code');
+    }
+
+    return success(c, {
+      code: result.code,
+      redemptionUrl: `https://app.audacious.money/redeem?code=${result.code?.code}`,
+    }, 201);
+  } catch (error) {
+    console.error('[Admin] Error creating lifetime code:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to create lifetime code');
+  }
+});
+
+/**
+ * GET /admin/lifetime-codes/:id
+ *
+ * Get a single code with redemption details
+ */
+admin.get('/lifetime-codes/:id', requireAdmin, async (c) => {
+  const db = c.get('db');
+  const codeId = c.req.param('id');
+
+  try {
+    const details = await getLifetimeCodeDetails(db, codeId);
+
+    if (!details) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Code not found');
+    }
+
+    return success(c, {
+      code: details.code,
+      redemptions: details.redemptions,
+      redemptionUrl: `https://app.audacious.money/redeem?code=${details.code.code}`,
+    });
+  } catch (error) {
+    console.error('[Admin] Error fetching lifetime code details:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch code details');
+  }
+});
+
+/**
+ * PATCH /admin/lifetime-codes/:id
+ *
+ * Update a lifetime code
+ */
+admin.patch('/lifetime-codes/:id', requireAdmin, async (c) => {
+  const db = c.get('db');
+  const codeId = c.req.param('id');
+
+  try {
+    const body = await c.req.json();
+    const { name, maxRedemptions, expiresAt, notes, isActive } = body;
+
+    const result = await updateLifetimeCode(db, codeId, {
+      name,
+      maxRedemptions,
+      expiresAt,
+      notes,
+      isActive,
+    });
+
+    if (!result.success) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, result.error || 'Failed to update code');
+    }
+
+    return success(c, { message: 'Code updated successfully' });
+  } catch (error) {
+    console.error('[Admin] Error updating lifetime code:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to update code');
+  }
+});
+
+/**
+ * DELETE /admin/lifetime-codes/:id
+ *
+ * Deactivate a lifetime code (soft delete)
+ */
+admin.delete('/lifetime-codes/:id', requireAdmin, async (c) => {
+  const db = c.get('db');
+  const codeId = c.req.param('id');
+
+  try {
+    const result = await deactivateLifetimeCode(db, codeId);
+
+    if (!result.success) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, result.error || 'Failed to deactivate code');
+    }
+
+    return success(c, { message: 'Code deactivated successfully' });
+  } catch (error) {
+    console.error('[Admin] Error deactivating lifetime code:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to deactivate code');
   }
 });
 

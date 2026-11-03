@@ -87,6 +87,9 @@ const WorkshopUnsubscribePage = lazy(() => import('../pages/workshops/WorkshopUn
 const TrialExpiredPage = lazy(() => import('../pages/workshops/TrialExpiredPage'))
 const UpgradePage = lazy(() => import('../pages/workshops/UpgradePage'))
 
+// Lifetime Code Redemption
+const RedeemCodePage = lazy(() => import('../pages/RedeemCodePage'))
+
 export function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
@@ -99,6 +102,7 @@ export function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/checkout/success" element={<CheckoutSuccess />} />
         <Route path="/checkout/cancel" element={<CheckoutCancel />} />
+        <Route path="/redeem" element={<RedeemCodePage />} />
 
         {/* Workshop routes - Public signup flow */}
         <Route path="/workshops/:slug" element={<WorkshopSignupPage />} />

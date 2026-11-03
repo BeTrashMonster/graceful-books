@@ -1,0 +1,413 @@
+/**
+ * RedeemCodePage Styles
+ * Uses brand autumn color palette
+ */
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* Loading state */
+.loading {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 1rem;
+  border: 3px solid #e2e8f0;
+  border-top-color: #1e3a5f;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* Error state */
+.errorState {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.errorTitle {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #991b1b;
+}
+
+.errorMessage {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  color: #334155;
+}
+
+.errorHint {
+  margin: 0 0 1.5rem 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.linkButton {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1e3a5f;
+  text-decoration: none;
+  background-color: #f1f5f9;
+  border-radius: 0.375rem;
+  transition: background-color 0.15s ease;
+}
+
+.linkButton:hover {
+  background-color: #e2e8f0;
+}
+
+/* Success state */
+.successState {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.successIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.5rem;
+  color: #166534;
+}
+
+.successIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.successTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.successMessage {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.productList {
+  margin: 0 0 1.5rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.productList li {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  margin: 0.25rem;
+  font-size: 0.875rem;
+  color: #1a4731;
+  background-color: #d1fae5;
+  border-radius: 9999px;
+}
+
+.worksheetNote {
+  margin: 0 0 1.5rem 0;
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: #92400e;
+  background-color: #fef3c7;
+  border-radius: 0.375rem;
+}
+
+.continueButton {
+  padding: 0.875rem 2rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #1e3a5f;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.continueButton:hover {
+  background-color: #2c5282;
+}
+
+/* Header */
+.header {
+  padding: 2rem 2rem 1.5rem;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+  color: #ffffff;
+}
+
+.title {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.codeInfo {
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+}
+
+.codeName {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.accessTo {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.8125rem;
+  opacity: 0.8;
+}
+
+.productBadges {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.productBadge {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #1a4731;
+  background-color: #d1fae5;
+  border-radius: 9999px;
+}
+
+/* Error message in form */
+.error {
+  margin: 0;
+  padding: 0.875rem 2rem;
+  font-size: 0.875rem;
+  color: #991b1b;
+  background-color: #fee2e2;
+  border-bottom: 1px solid #fecaca;
+}
+
+/* Choice container */
+.choiceContainer {
+  padding: 2rem;
+}
+
+.choiceText {
+  margin: 0 0 1.5rem 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #334155;
+  text-align: center;
+}
+
+.choiceButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+.choiceButton {
+  flex: 1;
+  padding: 1.25rem 1rem;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.choiceButton:hover {
+  background-color: #f1f5f9;
+  border-color: #1e3a5f;
+}
+
+.choiceButtonTitle {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.choiceButtonDesc {
+  display: block;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+/* Form */
+.form {
+  padding: 2rem;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.required {
+  color: #991b1b;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.9375rem;
+  color: #1e293b;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #1e3a5f;
+  box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+}
+
+.input::placeholder {
+  color: #94a3b8;
+}
+
+.hint {
+  margin: 0.375rem 0 0 0;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.backButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.backButton:hover {
+  background-color: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.submitButton {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #1e3a5f;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #2c5282;
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .page {
+    padding: 1rem;
+  }
+
+  .header {
+    padding: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .form,
+  .choiceContainer {
+    padding: 1.5rem;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .choiceButtons {
+    flex-direction: column;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .backButton,
+  .submitButton {
+    width: 100%;
+  }
+}

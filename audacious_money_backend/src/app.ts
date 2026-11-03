@@ -26,6 +26,7 @@ import charityRoutes from './routes/charities.js';
 import workshopRoutes from './routes/workshops.js';
 import subscriptionRoutes from './routes/subscriptions.js';
 import cronRoutes from './routes/cron.js';
+import redemptionRoutes from './routes/redemption.js';
 
 // Create Hono app
 const app = new Hono();
@@ -320,6 +321,9 @@ app.route('/api/workshops', workshopRoutes);
 
 // Subscription routes (reactivation, etc.)
 app.route('/api/subscriptions', subscriptionRoutes);
+
+// Lifetime access code redemption routes
+app.route('/api/redeem', redemptionRoutes);
 
 // ==========================================
 // Error Handling (Must be last)

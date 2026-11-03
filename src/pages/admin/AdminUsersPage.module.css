@@ -62,6 +62,36 @@
   border-color: #94a3b8;
 }
 
+/* Tab Navigation */
+.tabNav {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tabButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: -1px;
+}
+
+.tabButton:hover {
+  color: #334155;
+}
+
+.tabActive {
+  color: #1e3a5f;
+  border-bottom-color: #1e3a5f;
+}
+
 /* Error state */
 .error {
   display: flex;

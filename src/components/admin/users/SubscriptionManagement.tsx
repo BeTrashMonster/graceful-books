@@ -547,6 +547,9 @@ export function SubscriptionManagement({
         <div className={styles.modal} onClick={closeModal}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3>Grant Product Access</h3>
+            <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', color: '#64748b' }}>
+              Grant complimentary access to this user. Leave expiration blank for lifetime access.
+            </p>
             <div className={styles.formGroup}>
               <label>Product</label>
               <select
@@ -568,12 +571,28 @@ export function SubscriptionManagement({
               />
             </div>
             <div className={styles.formGroup}>
-              <label>Expires (optional)</label>
+              <label>
+                Expiration Date
+                <span style={{
+                  marginLeft: '0.5rem',
+                  padding: '0.125rem 0.5rem',
+                  fontSize: '0.6875rem',
+                  fontWeight: 500,
+                  color: '#1a4731',
+                  backgroundColor: '#d1fae5',
+                  borderRadius: '9999px',
+                }}>
+                  {grantExpires ? 'Temporary' : 'Lifetime Access'}
+                </span>
+              </label>
               <input
                 type="date"
                 value={grantExpires}
                 onChange={(e) => setGrantExpires(e.target.value)}
               />
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>
+                Leave blank for lifetime access (no expiration)
+              </p>
             </div>
             <div className={styles.modalActions}>
               <button type="button" onClick={closeModal}>Cancel</button>
@@ -583,7 +602,7 @@ export function SubscriptionManagement({
                 onClick={handleGrantAccess}
                 disabled={isLoading || !grantProduct}
               >
-                {isLoading ? 'Granting...' : 'Grant Access'}
+                {isLoading ? 'Granting...' : grantExpires ? 'Grant Temporary Access' : 'Grant Lifetime Access'}
               </button>
             </div>
           </div>
