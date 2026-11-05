@@ -1398,7 +1398,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
               checked={distributorCPUMode === 'custom'}
               onChange={() => setDistributorCPUMode('custom')}
             />
-            <span>Custom:</span>
+            <span>Custom CPU:</span>
             <input
               type="text"
               className={styles.customInput}
