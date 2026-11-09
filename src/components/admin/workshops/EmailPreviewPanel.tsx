@@ -17,6 +17,7 @@ import {
   EmailTemplates,
   DEFAULT_EMAIL_TEMPLATES,
 } from '../../../utils/emailTemplates';
+import { sanitizeEmailHtml } from '../../../utils/sanitize';
 
 interface EmailPreviewPanelProps {
   workshopId: string;
@@ -104,7 +105,7 @@ export function EmailPreviewPanel({
           )}
           <div
             className={styles.emailBody}
-            dangerouslySetInnerHTML={{ __html: previewBody }}
+            dangerouslySetInnerHTML={{ __html: sanitizeEmailHtml(previewBody) }}
           />
         </div>
       </div>
