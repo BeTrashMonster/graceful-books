@@ -32,12 +32,13 @@ const renderWithRouter = (ui: React.ReactElement) => {
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-// Default mock metrics
+// Default mock metrics (AI not active)
 const defaultMetrics: DashboardMetrics = {
-  ai_enabled: true,
-  ai_accuracy_7d: 0.92,
-  ai_rejection_rate_7d: 0.15,
-  proof_gate_failure_rate_7d: 0.02,
+  ai_enabled: false,
+  ai_active: false,
+  ai_accuracy_7d: null,
+  ai_rejection_rate_7d: null,
+  proof_gate_failure_rate_7d: null,
   injection_attempts_24h: 2,
   suspicious_imports_24h: 1,
   quarantined_transactions: 3,
@@ -356,9 +357,10 @@ describe('GATE 6.3: Security Dashboard', () => {
       expect(screen.getByText(/All Systems Operational|Attention Required|Critical/i)).toBeInTheDocument();
     });
 
-    it('shows operational status when all is well', () => {
+    it('shows attention status when AI not active', () => {
       renderWithRouter(<SecurityDashboard />);
-      expect(screen.getByText(/All Systems Operational/i)).toBeInTheDocument();
+      // Shows "Attention Required" because AI is not yet active
+      expect(screen.getByText(/Attention Required/i)).toBeInTheDocument();
     });
   });
 

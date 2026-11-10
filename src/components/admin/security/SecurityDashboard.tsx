@@ -17,9 +17,10 @@ import { useNavigate } from 'react-router-dom';
 export interface DashboardMetrics {
   // AI Health
   ai_enabled: boolean;
-  ai_accuracy_7d: number;
-  ai_rejection_rate_7d: number;
-  proof_gate_failure_rate_7d: number;
+  ai_active: boolean; // Whether AI features are actually implemented
+  ai_accuracy_7d: number | null;
+  ai_rejection_rate_7d: number | null;
+  proof_gate_failure_rate_7d: number | null;
 
   // Threat Detection
   injection_attempts_24h: number;
@@ -66,10 +67,11 @@ interface UserContext {
  */
 export function useSecurityMetrics(): DashboardMetrics {
   const [metrics, setMetrics] = useState<DashboardMetrics>({
-    ai_enabled: true,
-    ai_accuracy_7d: 0.92,
-    ai_rejection_rate_7d: 0.15,
-    proof_gate_failure_rate_7d: 0.02,
+    ai_enabled: false,
+    ai_active: false, // AI features not yet implemented
+    ai_accuracy_7d: null,
+    ai_rejection_rate_7d: null,
+    proof_gate_failure_rate_7d: null,
     injection_attempts_24h: 0,
     suspicious_imports_24h: 0,
     quarantined_transactions: 0,
@@ -109,12 +111,13 @@ async function fetchMetrics(): Promise<DashboardMetrics> {
     console.error('Failed to fetch security metrics:', error);
   }
 
-  // Return defaults if fetch fails
+  // Return defaults if fetch fails (AI not active)
   return {
-    ai_enabled: true,
-    ai_accuracy_7d: 0.92,
-    ai_rejection_rate_7d: 0.15,
-    proof_gate_failure_rate_7d: 0.02,
+    ai_enabled: false,
+    ai_active: false,
+    ai_accuracy_7d: null,
+    ai_rejection_rate_7d: null,
+    proof_gate_failure_rate_7d: null,
     injection_attempts_24h: 0,
     suspicious_imports_24h: 0,
     quarantined_transactions: 0,
@@ -302,21 +305,31 @@ function MetricCard({ title, value, status, trend }: MetricCardProps) {
 }
 
 /**
+ * Format a metric value, showing N/A if null
+ */
+function formatMetric(value: number | null, suffix = '%'): string {
+  if (value === null) return 'N/A';
+  return `${(value * 100).toFixed(1)}${suffix}`;
+}
+
+/**
  * AI Health Panel component
  */
 function AIHealthPanel({ metrics }: { metrics: DashboardMetrics }) {
+  const notActive = !metrics.ai_active;
+
   return (
     <div className="panel ai-health-panel">
-      <h3>AI Health</h3>
-      <div style={{ display: 'grid', gap: '16px' }}>
+      <h3>AI Health {notActive && <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'normal' }}>(Not Active)</span>}</h3>
+      <div style={{ display: 'grid', gap: '16px', color: notActive ? '#9ca3af' : 'inherit' }}>
         <div>
-          <strong>Accuracy (7d):</strong> {(metrics.ai_accuracy_7d * 100).toFixed(1)}%
+          <strong>Accuracy (7d):</strong> {formatMetric(metrics.ai_accuracy_7d)}
         </div>
         <div>
-          <strong>Rejection Rate:</strong> {(metrics.ai_rejection_rate_7d * 100).toFixed(1)}%
+          <strong>Rejection Rate:</strong> {formatMetric(metrics.ai_rejection_rate_7d)}
         </div>
         <div>
-          <strong>Proof Gate Failures:</strong> {(metrics.proof_gate_failure_rate_7d * 100).toFixed(1)}%
+          <strong>Proof Gate Failures:</strong> {formatMetric(metrics.proof_gate_failure_rate_7d)}
         </div>
       </div>
     </div>
@@ -640,7 +653,7 @@ export function SecurityDashboard() {
       >
         <strong>Note:</strong> AI features are not yet implemented. This dashboard shows the security
         framework that will monitor AI-powered features (transaction categorization, anomaly detection,
-        forecasting) when they are added. Current metrics display placeholder values.
+        forecasting) when they are added. AI metrics show "N/A" until features are active.
       </div>
 
       <AlertBanner alerts={alerts} />
@@ -656,14 +669,14 @@ export function SecurityDashboard() {
       >
         <MetricCard
           title="AI System Status"
-          value={metrics.ai_enabled ? 'Enabled' : 'Disabled'}
-          status={metrics.ai_enabled ? 'good' : 'warning'}
+          value={metrics.ai_active ? (metrics.ai_enabled ? 'Enabled' : 'Disabled') : 'Not Active'}
+          status={metrics.ai_active ? (metrics.ai_enabled ? 'good' : 'warning') : 'warning'}
         />
 
         <MetricCard
           title="AI Accuracy (7d)"
-          value={`${(metrics.ai_accuracy_7d * 100).toFixed(1)}%`}
-          status={metrics.ai_accuracy_7d > 0.9 ? 'good' : metrics.ai_accuracy_7d > 0.8 ? 'warning' : 'error'}
+          value={metrics.ai_accuracy_7d !== null ? `${(metrics.ai_accuracy_7d * 100).toFixed(1)}%` : 'N/A'}
+          status={metrics.ai_accuracy_7d !== null ? (metrics.ai_accuracy_7d > 0.9 ? 'good' : metrics.ai_accuracy_7d > 0.8 ? 'warning' : 'error') : 'warning'}
           trend={calculateTrend(metrics.ai_accuracy_7d_history)}
         />
 
