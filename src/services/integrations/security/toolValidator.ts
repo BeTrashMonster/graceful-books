@@ -8,7 +8,23 @@
  * @see docs/security/AGENTIC_AI_SECURITY_ROADMAP.md
  */
 
-import { createHash } from 'crypto';
+/**
+ * Generate a simple hash for version tracking (browser-compatible)
+ * This is not cryptographically secure but sufficient for change detection
+ */
+function simpleHash(str: string): string {
+  let hash1 = 0;
+  let hash2 = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash1 = ((hash1 << 5) - hash1) + char;
+    hash1 = hash1 & hash1;
+    hash2 = char + ((hash2 << 6) + (hash2 << 16) - hash2);
+  }
+  // Return a hex-like string that's deterministic
+  return Math.abs(hash1).toString(16).padStart(8, '0') +
+         Math.abs(hash2).toString(16).padStart(8, '0');
+}
 
 /**
  * Tool description structure
@@ -268,7 +284,7 @@ export function hashToolDescription(tool: ToolDescription): string {
       required: p.required,
     })),
   });
-  return createHash('sha256').update(content).digest('hex');
+  return simpleHash(content);
 }
 
 /**

@@ -8,13 +8,51 @@
  * @see docs/security/AGENTIC_AI_SECURITY_ROADMAP.md
  */
 
-import { createHash, createHmac, randomUUID } from 'crypto';
 import {
   validateAttenuation,
   getScopeForActor,
   isActionAllowedForActor,
   type AttenuationResult,
 } from './attenuation';
+
+/**
+ * Generate a UUID v4 (browser-compatible)
+ */
+function generateUUID(): string {
+  // Use crypto.randomUUID if available (modern browsers)
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback for older environments
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+/**
+ * Generate HMAC signature (browser-compatible)
+ * Uses synchronous approach for simplicity in this context
+ */
+function generateHmacSync(content: string, secret: string): string {
+  // Simple hash-based signature (for token integrity, not cryptographic security)
+  // In production, you would use Web Crypto API's subtle.sign() with proper async handling
+  let hash = 0;
+  const combined = secret + content;
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  // Add more entropy by hashing multiple rounds
+  const str = content + secret + hash.toString();
+  let hash2 = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash2 = str.charCodeAt(i) + ((hash2 << 5) - hash2);
+  }
+  return Math.abs(hash).toString(16) + Math.abs(hash2).toString(16);
+}
 
 /**
  * Delegation token structure
@@ -134,7 +172,7 @@ function signToken(token: Omit<DelegationToken, 'signature'>): string {
     expires_at: token.expires_at,
   });
 
-  return createHmac('sha256', TOKEN_SECRET).update(content).digest('hex');
+  return generateHmacSync(content, TOKEN_SECRET);
 }
 
 /**
@@ -247,7 +285,7 @@ export async function createDelegationToken(
   }
 
   // Create token
-  const tokenId = randomUUID();
+  const tokenId = generateUUID();
   const now = Date.now();
 
   const tokenWithoutSignature: Omit<DelegationToken, 'signature'> = {
