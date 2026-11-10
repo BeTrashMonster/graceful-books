@@ -9,6 +9,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Dashboard metrics interface
@@ -425,21 +426,28 @@ function KillSwitchControl() {
 
   return (
     <div className="kill-switch-control">
-      <button
-        onClick={handleToggle}
-        aria-label={aiEnabled ? 'Disable AI' : 'Enable AI'}
-        className="kill-switch-button"
-        style={{
-          padding: '12px 24px',
-          backgroundColor: aiEnabled ? '#9b2c2c' : '#276749',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
-      >
-        {aiEnabled ? 'Disable AI' : 'Enable AI'}
-      </button>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+        <button
+          onClick={handleToggle}
+          aria-label={aiEnabled ? 'Disable AI' : 'Enable AI'}
+          className="kill-switch-button"
+          style={{
+            padding: '12px 24px',
+            backgroundColor: aiEnabled ? '#9b2c2c' : '#276749',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            opacity: 0.6,
+          }}
+          disabled
+        >
+          {aiEnabled ? 'Disable AI' : 'Enable AI'}
+        </button>
+        <span style={{ fontSize: '12px', color: '#6b7280' }}>
+          (No AI features active yet)
+        </span>
+      </div>
 
       {showConfirm && (
         <div
@@ -570,6 +578,7 @@ function AccessDenied() {
  * Main Security Dashboard component
  */
 export function SecurityDashboard() {
+  const navigate = useNavigate();
   const user = useCurrentUser();
   const metrics = useSecurityMetrics();
   const alerts = useSecurityAlerts();
@@ -598,9 +607,41 @@ export function SecurityDashboard() {
           marginBottom: '24px',
         }}
       >
-        <h1>Security Dashboard</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button
+            onClick={() => navigate('/admin')}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#475569',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '14px',
+            }}
+          >
+            Back to Dashboard
+          </button>
+          <h1 style={{ margin: 0 }}>Security Dashboard</h1>
+        </div>
         <SystemStatus status={overallStatus} />
       </header>
+
+      {/* Info banner about AI features */}
+      <div
+        style={{
+          padding: '16px',
+          backgroundColor: '#1e3a5f20',
+          border: '1px solid #1e3a5f40',
+          borderRadius: '8px',
+          marginBottom: '24px',
+          color: '#1e3a5f',
+        }}
+      >
+        <strong>Note:</strong> AI features are not yet implemented. This dashboard shows the security
+        framework that will monitor AI-powered features (transaction categorization, anomaly detection,
+        forecasting) when they are added. Current metrics display placeholder values.
+      </div>
 
       <AlertBanner alerts={alerts} />
 
