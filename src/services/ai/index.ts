@@ -2,7 +2,7 @@
  * AI Services Module
  *
  * Central export for all AI-related services.
- * Implements the security architecture defined in Phase 3.
+ * Implements the security architecture defined in Phase 3 & 4.
  *
  * Architecture:
  * - CaMeL dual-LLM separation (Planner + Quarantine)
@@ -10,7 +10,13 @@
  * - Kill switch and monitoring
  * - User consent framework
  *
- * @security Phase 3 - AI Security Preparation
+ * Features:
+ * - Categorization (Phase 4.1)
+ * - Anomaly Detection (Phase 4.2)
+ * - Forecasting (Phase 4.3)
+ * - Behavioral Testing (Phase 4.4)
+ *
+ * @security Phase 3 & 4 - AI Security
  * @see docs/security/AGENTIC_AI_SECURITY_ROADMAP.md
  */
 
@@ -22,6 +28,9 @@ export * from './monitoring';
 
 // Re-export consent module
 export * from './consent';
+
+// Re-export features module
+export * from './features';
 
 // Re-export verification module (from parent)
 export * from '../verification';
