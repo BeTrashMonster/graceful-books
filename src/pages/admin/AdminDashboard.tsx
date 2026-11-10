@@ -520,7 +520,22 @@ export default function AdminDashboard() {
                 fontWeight: 600,
               }}
             >
-              🏛️ Charity Management
+              Charity Management
+            </button>
+            <button
+              onClick={() => navigate('/admin/security')}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#9b2c2c',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+              }}
+            >
+              Security Dashboard
             </button>
             <button
               onClick={() => setShowPasswordChange(true)}
