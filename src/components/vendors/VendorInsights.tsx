@@ -72,6 +72,7 @@ interface GroupBreakdown {
   totalSpend: number
   transactionCount: number
   percentageOfTotal: number
+  percentageOfCount: number
 }
 
 type TransactionType = 'expense' | 'bill' | 'bill-payment' | 'check' | 'journal-entry'
@@ -286,6 +287,11 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
   // Track expanded transactions (for showing payment details)
   const [expandedTxnIds, setExpandedTxnIds] = useState<Set<string>>(new Set())
 
+  // Stacked bar state
+  const [barVolumeType, setBarVolumeType] = useState<'spending' | 'transactions'>('spending')
+  const [selectedBreakdownItem, setSelectedBreakdownItem] = useState<string | null>(null)
+  const [hoveredSegment, setHoveredSegment] = useState<number | null>(null)
+
   // Track if we've done initial auto-selection
   const hasAutoSelected = useRef(false)
 
@@ -343,19 +349,28 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
   // Build account lookup map for classification names
   const accountMap = useMemo(() => {
     const map = new Map<string, { name: string; color: string }>()
+    // Brand colors for categories
+    const categoryColors = [
+      '#4b006e', // Royal Purple
+      '#1e3a5f', // Royal Blue
+      '#742a2a', // Burgundy
+      '#1a4731', // Forest Green
+      '#7c2d12', // Rust
+      '#92400e', // Amber
+      '#134e4a', // Teal
+      '#334155', // Slate
+      '#d4af37', // Gold
+      '#1e1b4b', // Navy
+      '#6b21a8', // Royal Purple (lighter)
+      '#2c5282', // Royal Blue (lighter)
+    ]
+    let colorIndex = 0
     accounts.forEach((acc) => {
-      // Use account type to determine color
-      const typeColors: Record<string, string> = {
-        'expense': '#4b006e',
-        'cost-of-goods-sold': '#1e3a5f',
-        'asset': '#92400e',
-        'liability': '#742a2a',
-        'equity': '#1a4731',
-      }
       map.set(acc.id, {
         name: acc.name,
-        color: typeColors[acc.type] || '#6b7280',
+        color: categoryColors[colorIndex % categoryColors.length],
       })
+      colorIndex++
     })
     return map
   }, [accounts])
@@ -769,12 +784,20 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
     )
   }, [filteredTransactions, selectedVendorId])
 
-  // Sort selected vendor transactions
+  // Filter and sort selected vendor transactions (including breakdown item filter)
   const sortedVendorTransactions = useMemo(() => {
-    const sorted = [...selectedVendorTransactions]
+    let filtered = [...selectedVendorTransactions]
+
+    // Filter by selected breakdown item (classification/category)
+    if (selectedBreakdownItem) {
+      filtered = filtered.filter((txn) =>
+        txn.classifications.some((cls) => cls.name === selectedBreakdownItem)
+      )
+    }
+
     const direction = txnSortDirection === 'asc' ? 1 : -1
 
-    sorted.sort((a, b) => {
+    filtered.sort((a, b) => {
       switch (txnSortField) {
         case 'date':
           return direction * (a.date.getTime() - b.date.getTime())
@@ -795,8 +818,8 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
       }
     })
 
-    return sorted
-  }, [selectedVendorTransactions, txnSortField, txnSortDirection])
+    return filtered
+  }, [selectedVendorTransactions, txnSortField, txnSortDirection, selectedBreakdownItem])
 
   // Handle column header click for sorting
   const handleColumnSort = (field: TransactionSortField) => {
@@ -868,6 +891,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
     })
 
     const totalSpend = Array.from(groupTotals.values()).reduce((sum, g) => sum + g.spend, 0)
+    const totalCount = Array.from(groupTotals.values()).reduce((sum, g) => sum + g.count, 0)
 
     // Convert to array and calculate percentages
     return Array.from(groupTotals.entries())
@@ -878,6 +902,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
         totalSpend: data.spend,
         transactionCount: data.count,
         percentageOfTotal: totalSpend > 0 ? (data.spend / totalSpend) * 100 : 0,
+        percentageOfCount: totalCount > 0 ? (data.count / totalCount) * 100 : 0,
       }))
       .sort((a, b) => b.totalSpend - a.totalSpend)
   }, [selectedVendorTransactions])
@@ -967,6 +992,11 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
       }
     }
   }, [sortedVendors, selectedVendorId])
+
+  // Reset breakdown selection when vendor changes
+  useEffect(() => {
+    setSelectedBreakdownItem(null)
+  }, [selectedVendorId])
 
   // Filter transactions by selected classifications (for overview stats)
   const classificationFilteredTransactions = useMemo(() => {
@@ -1443,40 +1473,110 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
         <div className={styles.vendorDetails}>
           {selectedVendor ? (
             <>
-              {/* Classification Breakdown */}
+              {/* Classification Breakdown - Stacked Bar */}
               <div className={styles.section}>
-                <div className={styles.groupList}>
-                  {classificationBreakdown.map((group) => (
-                    <div key={group.groupId} className={styles.groupItem}>
-                      <div className={styles.groupHeader}>
-                        <span
-                          className={styles.groupColor}
-                          style={{ backgroundColor: group.groupColor }}
-                        />
-                        <span className={styles.groupName}>{group.groupName}</span>
-                        <span className={styles.groupPercent}>{group.percentageOfTotal.toFixed(0)}%</span>
+                {classificationBreakdown.length > 0 ? (
+                  <div className={styles.stackedBreakdown}>
+                    {/* Header with Toggle */}
+                    <div className={styles.stackedHeader}>
+                      <span className={styles.stackedTitle}>Expense Breakdown</span>
+                      <div className={styles.volumeToggle}>
+                        <button
+                          className={`${styles.toggleBtn} ${barVolumeType === 'spending' ? styles.toggleActive : ''}`}
+                          onClick={() => setBarVolumeType('spending')}
+                        >
+                          Spending
+                        </button>
+                        <button
+                          className={`${styles.toggleBtn} ${barVolumeType === 'transactions' ? styles.toggleActive : ''}`}
+                          onClick={() => setBarVolumeType('transactions')}
+                        >
+                          Transactions
+                        </button>
                       </div>
-                      <div className={styles.groupBar}>
+                      {selectedBreakdownItem && (
+                        <button
+                          className={styles.clearFilterBtn}
+                          onClick={() => setSelectedBreakdownItem(null)}
+                        >
+                          Clear filter: {selectedBreakdownItem}
+                        </button>
+                      )}
+                    </div>
+                    {/* Stacked Bar */}
+                    <div className={styles.stackedBarContainer}>
+                      <div className={styles.stackedBar}>
+                        {classificationBreakdown.map((group, index) => {
+                          const percentage = barVolumeType === 'spending' ? group.percentageOfTotal : group.percentageOfCount
+                          const isSelected = selectedBreakdownItem === group.groupName
+                          const showLabel = percentage >= 5
+                          return (
+                            <div
+                              key={group.groupId}
+                              className={`${styles.stackedSegment} ${isSelected ? styles.segmentSelected : ''} ${selectedBreakdownItem && !isSelected ? styles.segmentDimmed : ''}`}
+                              style={{
+                                width: `${percentage}%`,
+                                backgroundColor: group.groupColor,
+                              }}
+                              onClick={() => setSelectedBreakdownItem(isSelected ? null : group.groupName)}
+                              onMouseEnter={() => setHoveredSegment(index)}
+                              onMouseLeave={() => setHoveredSegment(null)}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={`${group.groupName}: ${formatCurrency(group.totalSpend)}, ${group.transactionCount} transactions`}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  setSelectedBreakdownItem(isSelected ? null : group.groupName)
+                                }
+                              }}
+                            >
+                              {showLabel && (
+                                <span className={styles.segmentLabel}>
+                                  {percentage >= 25 ? group.groupName : `${percentage.toFixed(0)}%`}
+                                </span>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <div className={styles.barHint}>Hover for details • Click to filter</div>
+                      {/* Hover Tooltip */}
+                      {hoveredSegment !== null && classificationBreakdown[hoveredSegment] && (
                         <div
-                          className={styles.groupBarFill}
-                          style={{
-                            width: `${group.percentageOfTotal}%`,
-                            backgroundColor: group.groupColor,
-                          }}
-                        />
-                      </div>
-                      <div className={styles.groupStats}>
-                        <span>{formatCurrency(group.totalSpend)}</span>
-                        <span>{group.transactionCount} transactions</span>
-                      </div>
+                          className={styles.segmentTooltip}
+                          style={{ '--tooltip-color': classificationBreakdown[hoveredSegment].groupColor } as React.CSSProperties}
+                        >
+                          <div className={styles.tooltipHeader}>
+                            <span
+                              className={styles.tooltipColorDot}
+                              style={{ backgroundColor: classificationBreakdown[hoveredSegment].groupColor }}
+                            />
+                            <span className={styles.tooltipName}>{classificationBreakdown[hoveredSegment].groupName}</span>
+                          </div>
+                          <div className={styles.tooltipStats}>
+                            <div className={styles.tooltipStat}>
+                              <span className={styles.tooltipStatLabel}>Spent</span>
+                              <span className={styles.tooltipStatValue}>{formatCurrency(classificationBreakdown[hoveredSegment].totalSpend)}</span>
+                            </div>
+                            <div className={styles.tooltipStat}>
+                              <span className={styles.tooltipStatLabel}>Share</span>
+                              <span className={styles.tooltipStatValue}>{classificationBreakdown[hoveredSegment].percentageOfTotal.toFixed(1)}%</span>
+                            </div>
+                            <div className={styles.tooltipStat}>
+                              <span className={styles.tooltipStatLabel}>Transactions</span>
+                              <span className={styles.tooltipStatValue}>{classificationBreakdown[hoveredSegment].transactionCount}</span>
+                            </div>
+                          </div>
+                          <div className={styles.tooltipHint}>Click to filter transactions</div>
+                        </div>
+                      )}
                     </div>
-                  ))}
-                  {classificationBreakdown.length === 0 && (
-                    <div className={styles.emptyState}>
-                      No transactions in this date range
-                    </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div className={styles.emptyState}>
+                    No transactions in this date range
+                  </div>
+                )}
               </div>
 
               {/* Transaction History */}
@@ -1484,6 +1584,9 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                 <div className={styles.transactionSectionHeader}>
                   <h4 className={styles.sectionTitle}>
                     Transactions ({sortedVendorTransactions.length})
+                    {selectedBreakdownItem && (
+                      <span className={styles.filterIndicatorSmall}> for {selectedBreakdownItem}</span>
+                    )}
                   </h4>
                   {sortedVendorTransactions.length > 0 && (
                     <Button variant="outline" size="sm" onClick={exportVendorTransactionsCSV}>

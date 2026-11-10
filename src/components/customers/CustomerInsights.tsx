@@ -63,6 +63,7 @@ interface ProductServiceBreakdown {
   totalRevenue: number
   transactionCount: number
   percentageOfTotal: number
+  percentageOfCount: number
 }
 
 type TransactionType = 'invoice' | 'invoice-payment' | 'billable-expense' | 'reimbursable-expense'
@@ -81,6 +82,8 @@ interface TransactionDetail {
   daysLate: number
   productService: string
   type: TransactionType
+  quantity: number
+  unitType: string // e.g., "units", "hours", "packages", "licenses"
 }
 
 type TransactionSortField = 'date' | 'dueDate' | 'reference' | 'description' | 'type' | 'status' | 'amount'
@@ -104,11 +107,11 @@ function formatTransactionType(type: TransactionType): string {
 
 // Products/Services with placeholder data
 const PRODUCTS_SERVICES = [
-  { id: 'consulting', name: 'Consulting Services', type: 'service' as const },
-  { id: 'development', name: 'Development', type: 'service' as const },
-  { id: 'design', name: 'Design Services', type: 'service' as const },
-  { id: 'support', name: 'Support Package', type: 'product' as const },
-  { id: 'license', name: 'Software License', type: 'product' as const },
+  { id: 'consulting', name: 'Consulting Services', type: 'service' as const, unitType: 'hours' },
+  { id: 'development', name: 'Development', type: 'service' as const, unitType: 'hours' },
+  { id: 'design', name: 'Design Services', type: 'service' as const, unitType: 'hours' },
+  { id: 'support', name: 'Support Package', type: 'product' as const, unitType: 'packages' },
+  { id: 'license', name: 'Software License', type: 'product' as const, unitType: 'licenses' },
 ]
 
 type DateRangeFilter = '3mo' | '6mo' | '12mo' | 'ytd' | 'this-year' | 'last-year' | 'custom' | 'all'
@@ -238,6 +241,11 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
   const [txnSortField, setTxnSortField] = useState<TransactionSortField>('date')
   const [txnSortDirection, setTxnSortDirection] = useState<SortDirection>('desc')
 
+  // Stacked bar state
+  const [barVolumeType, setBarVolumeType] = useState<'revenue' | 'transactions'>('revenue')
+  const [selectedBreakdownItem, setSelectedBreakdownItem] = useState<string | null>(null)
+  const [hoveredSegment, setHoveredSegment] = useState<number | null>(null)
+
   // Track if we've done initial auto-selection
   const hasAutoSelected = useRef(false)
 
@@ -295,6 +303,12 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
         }
 
         const productService = PRODUCTS_SERVICES[Math.floor(Math.random() * PRODUCTS_SERVICES.length)]!
+        // Generate quantity based on unit type
+        const quantity = productService.unitType === 'hours'
+          ? Math.floor(Math.random() * 40) + 1  // 1-40 hours
+          : productService.unitType === 'licenses'
+          ? Math.floor(Math.random() * 10) + 1  // 1-10 licenses
+          : Math.floor(Math.random() * 5) + 1   // 1-5 packages/units
 
         transactions.push({
           id: `txn-${customerIndex}-${i}`,
@@ -310,6 +324,8 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
           daysLate,
           productService: productService.name,
           type,
+          quantity,
+          unitType: productService.unitType,
         })
       }
     })
@@ -421,6 +437,11 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
     }
   }, [sortedCustomers, selectedCustomerId])
 
+  // Reset breakdown selection when customer changes
+  useEffect(() => {
+    setSelectedBreakdownItem(null)
+  }, [selectedCustomerId])
+
   // Get transactions for selected customer (already filtered by date)
   const selectedCustomerTransactions = useMemo(() => {
     if (!selectedCustomerId) return []
@@ -441,12 +462,34 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
     return txns
   }, [filteredTransactions, selectedCustomerId, overdueFilter, selectedProductsServices])
 
-  // Sort selected customer transactions
+  // Filter and sort selected customer transactions (including breakdown item filter)
   const sortedCustomerTransactions = useMemo(() => {
-    const sorted = [...selectedCustomerTransactions]
+    let filtered = [...selectedCustomerTransactions]
+
+    // Filter by selected breakdown item (product/service)
+    if (selectedBreakdownItem) {
+      // Get all transactions for this product/service (invoices, billable expenses, etc.)
+      const matchingTxnIds = new Set<string>()
+      filtered.forEach((txn) => {
+        if (txn.productService === selectedBreakdownItem) {
+          matchingTxnIds.add(txn.id)
+          // Also include the reference to find related payments
+          matchingTxnIds.add(txn.reference)
+        }
+      })
+
+      // Include matching transactions and any payments that reference the same invoice
+      filtered = filtered.filter((txn) => {
+        if (txn.productService === selectedBreakdownItem) return true
+        // Include payments that are related to the filtered invoices
+        if (txn.type === 'invoice-payment' && matchingTxnIds.has(txn.reference)) return true
+        return false
+      })
+    }
+
     const direction = txnSortDirection === 'asc' ? 1 : -1
 
-    sorted.sort((a, b) => {
+    filtered.sort((a, b) => {
       switch (txnSortField) {
         case 'date':
           return direction * (a.date.getTime() - b.date.getTime())
@@ -467,8 +510,8 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
       }
     })
 
-    return sorted
-  }, [selectedCustomerTransactions, txnSortField, txnSortDirection])
+    return filtered
+  }, [selectedCustomerTransactions, txnSortField, txnSortDirection, selectedBreakdownItem])
 
   // Handle column header click for sorting
   const handleColumnSort = (field: TransactionSortField) => {
@@ -526,6 +569,7 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
     })
 
     const totalRevenue = Array.from(psTotals.values()).reduce((sum, ps) => sum + ps.revenue, 0)
+    const totalCount = Array.from(psTotals.values()).reduce((sum, ps) => sum + ps.count, 0)
 
     return Array.from(psTotals.entries())
       .map(([name, data], index) => ({
@@ -535,6 +579,7 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
         totalRevenue: data.revenue,
         transactionCount: data.count,
         percentageOfTotal: totalRevenue > 0 ? (data.revenue / totalRevenue) * 100 : 0,
+        percentageOfCount: totalCount > 0 ? (data.count / totalCount) * 100 : 0,
       }))
       .sort((a, b) => b.totalRevenue - a.totalRevenue)
   }, [selectedCustomerTransactions])
@@ -948,37 +993,104 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
         <div className={styles.customerDetails}>
           {selectedCustomer ? (
             <>
-              {/* Product/Service Breakdown */}
+              {/* Product/Service Breakdown - Stacked Bar */}
               <div className={styles.section}>
-                <div className={styles.breakdownList}>
-                  {productServiceBreakdown.map((ps) => (
-                    <div key={ps.id} className={styles.breakdownItem}>
-                      <div className={styles.breakdownHeader}>
-                        <span className={styles.breakdownBadge} data-type={ps.type}>
-                          {ps.type === 'product' ? 'Product' : 'Service'}
-                        </span>
-                        <span className={styles.breakdownName}>{ps.name}</span>
-                        <span className={styles.breakdownPercent}>{ps.percentageOfTotal.toFixed(0)}%</span>
+                {productServiceBreakdown.length > 0 ? (
+                  <div className={styles.stackedBreakdown}>
+                    {/* Header with Toggle */}
+                    <div className={styles.stackedHeader}>
+                      <span className={styles.stackedTitle}>Revenue Breakdown</span>
+                      <div className={styles.volumeToggle}>
+                        <button
+                          className={`${styles.toggleBtn} ${barVolumeType === 'revenue' ? styles.toggleActive : ''}`}
+                          onClick={() => setBarVolumeType('revenue')}
+                        >
+                          Revenue
+                        </button>
+                        <button
+                          className={`${styles.toggleBtn} ${barVolumeType === 'transactions' ? styles.toggleActive : ''}`}
+                          onClick={() => setBarVolumeType('transactions')}
+                        >
+                          Transactions
+                        </button>
                       </div>
-                      <div className={styles.breakdownBar}>
-                        <div
-                          className={styles.breakdownBarFill}
-                          style={{ width: `${ps.percentageOfTotal}%` }}
-                          data-type={ps.type}
-                        />
-                      </div>
-                      <div className={styles.breakdownStats}>
-                        <span>{formatCurrency(ps.totalRevenue)}</span>
-                        <span>{ps.transactionCount} transactions</span>
-                      </div>
+                      {selectedBreakdownItem && (
+                        <button
+                          className={styles.clearFilterBtn}
+                          onClick={() => setSelectedBreakdownItem(null)}
+                        >
+                          Clear filter: {selectedBreakdownItem}
+                        </button>
+                      )}
                     </div>
-                  ))}
-                  {productServiceBreakdown.length === 0 && (
-                    <div className={styles.emptyState}>
-                      No transactions in this date range
+                    {/* Stacked Bar */}
+                    <div className={styles.stackedBarContainer}>
+                      <div className={styles.stackedBar}>
+                        {productServiceBreakdown.map((ps, index) => {
+                          const percentage = barVolumeType === 'revenue' ? ps.percentageOfTotal : ps.percentageOfCount
+                          const isSelected = selectedBreakdownItem === ps.name
+                          const showLabel = percentage >= 5
+                          return (
+                            <div
+                              key={ps.id}
+                              className={`${styles.stackedSegment} ${isSelected ? styles.segmentSelected : ''} ${selectedBreakdownItem && !isSelected ? styles.segmentDimmed : ''}`}
+                              style={{ width: `${percentage}%` }}
+                              data-index={index}
+                              onClick={() => setSelectedBreakdownItem(isSelected ? null : ps.name)}
+                              onMouseEnter={() => setHoveredSegment(index)}
+                              onMouseLeave={() => setHoveredSegment(null)}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={`${ps.name}: ${formatCurrency(ps.totalRevenue)}, ${ps.transactionCount} transactions`}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  setSelectedBreakdownItem(isSelected ? null : ps.name)
+                                }
+                              }}
+                            >
+                              {showLabel && (
+                                <span className={styles.segmentLabel}>
+                                  {percentage >= 25 ? ps.name : `${percentage.toFixed(0)}%`}
+                                </span>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <div className={styles.barHint}>Hover for details • Click to filter</div>
+                      {/* Hover Tooltip */}
+                      {hoveredSegment !== null && productServiceBreakdown[hoveredSegment] && (
+                        <div className={styles.segmentTooltip} data-index={hoveredSegment}>
+                          <div className={styles.tooltipHeader}>
+                            <span className={styles.tooltipBadge} data-type={productServiceBreakdown[hoveredSegment].type}>
+                              {productServiceBreakdown[hoveredSegment].type === 'product' ? 'Product' : 'Service'}
+                            </span>
+                            <span className={styles.tooltipName}>{productServiceBreakdown[hoveredSegment].name}</span>
+                          </div>
+                          <div className={styles.tooltipStats}>
+                            <div className={styles.tooltipStat}>
+                              <span className={styles.tooltipStatLabel}>Revenue</span>
+                              <span className={styles.tooltipStatValue}>{formatCurrency(productServiceBreakdown[hoveredSegment].totalRevenue)}</span>
+                            </div>
+                            <div className={styles.tooltipStat}>
+                              <span className={styles.tooltipStatLabel}>Share</span>
+                              <span className={styles.tooltipStatValue}>{productServiceBreakdown[hoveredSegment].percentageOfTotal.toFixed(1)}%</span>
+                            </div>
+                            <div className={styles.tooltipStat}>
+                              <span className={styles.tooltipStatLabel}>Transactions</span>
+                              <span className={styles.tooltipStatValue}>{productServiceBreakdown[hoveredSegment].transactionCount}</span>
+                            </div>
+                          </div>
+                          <div className={styles.tooltipHint}>Click to filter transactions</div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div className={styles.emptyState}>
+                    No transactions in this date range
+                  </div>
+                )}
               </div>
 
               {/* Transaction History */}
@@ -986,6 +1098,9 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
                 <div className={styles.transactionSectionHeader}>
                   <h4 className={styles.sectionTitle}>
                     Transactions ({sortedCustomerTransactions.length})
+                    {selectedBreakdownItem && (
+                      <span className={styles.filterIndicatorSmall}> for {selectedBreakdownItem}</span>
+                    )}
                   </h4>
                   {sortedCustomerTransactions.length > 0 && (
                     <Button variant="outline" size="sm" onClick={exportCustomerTransactionsCSV}>
