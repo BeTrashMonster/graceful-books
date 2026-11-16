@@ -5,12 +5,16 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { CPGSettingsProvider } from './contexts/CPGSettingsContext'
 import { SubscriptionProvider } from './contexts/SubscriptionContext'
 import { FrozenStateProvider } from './contexts/FrozenStateContext'
+import { FloatingCardsProvider } from './contexts/FloatingCardsContext'
+import { TransactionEditProvider } from './contexts/TransactionEditContext'
 // NOTE: SmartAutoBackupService is NOT wired up. See SmartAutoBackupService.ts for details.
 // Automatic/scheduled backups require a design for secure passphrase handling that doesn't exist yet.
 import { useDataRecovery } from './hooks/useDataRecovery'
 import { DataRecoveryModal } from './components/backup/DataRecoveryModal'
 import { BackupStatusIndicator } from './components/backup/BackupStatusIndicator'
 import { FrozenStateBanner, FrozenStateModal, ReactivationFlow } from './components/frozen'
+import { FloatingCardsPortal } from './components/transactions/FloatingCardsPortal'
+import { TransactionEditModal } from './components/transactions/TransactionEditModal'
 
 function AppContent() {
   const { isAuthenticated } = useAuth()
@@ -39,6 +43,12 @@ function AppContent() {
       {/* Reactivation flow - charity confirmation and payment */}
       <ReactivationFlow />
 
+      {/* Floating transaction cards - persist across page navigation */}
+      <FloatingCardsPortal />
+
+      {/* Transaction edit modal - opens from floating cards using same forms as create */}
+      <TransactionEditModal />
+
       {/* Data recovery modal (only shows if database is empty AND user is authenticated) */}
       {recovery.needsRecovery && (
         <DataRecoveryModal
@@ -61,9 +71,13 @@ function App() {
         <AuthProvider>
           <SubscriptionProvider>
             <FrozenStateProvider>
-              <CPGSettingsProvider>
-                <AppContent />
-              </CPGSettingsProvider>
+              <FloatingCardsProvider>
+                <TransactionEditProvider>
+                  <CPGSettingsProvider>
+                    <AppContent />
+                  </CPGSettingsProvider>
+                </TransactionEditProvider>
+              </FloatingCardsProvider>
             </FrozenStateProvider>
           </SubscriptionProvider>
         </AuthProvider>

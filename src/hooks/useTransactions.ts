@@ -48,10 +48,10 @@ export interface UseTransactionsReturn {
   loadTransactions: (filter: TransactionFilter) => Promise<void>
   loadTransaction: (id: string, companyId?: string) => Promise<void>
   createNewTransaction: (transaction: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>) => Promise<JournalEntry | null>
-  updateExistingTransaction: (id: string, updates: Partial<JournalEntry>) => Promise<JournalEntry | null>
-  removeTransaction: (id: string) => Promise<boolean>
+  updateExistingTransaction: (id: string, updates: Partial<JournalEntry>, overrideCompanyId?: string) => Promise<JournalEntry | null>
+  removeTransaction: (id: string, overrideCompanyId?: string) => Promise<boolean>
   postTransaction: (id: string) => Promise<boolean>
-  voidTransaction: (id: string) => Promise<boolean>
+  voidTransaction: (id: string, overrideCompanyId?: string) => Promise<boolean>
 
   // Validation helpers
   validateCurrentTransaction: () => ReturnType<typeof validateTransaction>
@@ -185,15 +185,20 @@ export function useTransactions(): UseTransactionsReturn {
 
   /**
    * Update an existing transaction
+   * @param id - Transaction ID
+   * @param updates - Partial transaction updates
+   * @param overrideCompanyId - Optional company ID (uses auth context if not provided)
    */
   const updateExistingTransaction = useCallback(
-    async (id: string, updates: Partial<JournalEntry>): Promise<JournalEntry | null> => {
+    async (id: string, updates: Partial<JournalEntry>, overrideCompanyId?: string): Promise<JournalEntry | null> => {
       setIsLoading(true)
       setError(null)
 
+      const effectiveCompanyId = overrideCompanyId || companyId
+
       try {
         // SECURITY: Require companyId for authorization
-        if (!companyId) {
+        if (!effectiveCompanyId) {
           setError('Not authenticated - companyId required')
           return null
         }
@@ -207,7 +212,7 @@ export function useTransactions(): UseTransactionsReturn {
           }
         }
 
-        const result = await updateTransaction(id, companyId, updates)
+        const result = await updateTransaction(id, effectiveCompanyId, updates)
 
         if (result.success) {
           setCurrentTransaction(result.data)
@@ -228,19 +233,25 @@ export function useTransactions(): UseTransactionsReturn {
 
   /**
    * Delete a transaction (soft delete)
+   * @param id - Transaction ID
+   * @param overrideCompanyId - Optional company ID (uses auth context if not provided)
    */
-  const removeTransaction = useCallback(async (id: string): Promise<boolean> => {
+  const removeTransaction = useCallback(async (id: string, overrideCompanyId?: string): Promise<boolean> => {
     setIsLoading(true)
     setError(null)
 
     try {
       // SECURITY: Require companyId for authorization
-      if (!companyId) {
+      const targetCompanyId = overrideCompanyId || companyId
+      console.log('[useTransactions] removeTransaction called with id:', id, 'companyId:', targetCompanyId)
+      if (!targetCompanyId) {
+        console.error('[useTransactions] No companyId available')
         setError('Not authenticated - companyId required')
         return false
       }
 
-      const result = await deleteTransaction(id, companyId)
+      const result = await deleteTransaction(id, targetCompanyId)
+      console.log('[useTransactions] deleteTransaction result:', result)
 
       if (result.success) {
         if (currentTransaction?.id === id) {
@@ -248,10 +259,12 @@ export function useTransactions(): UseTransactionsReturn {
         }
         return true
       } else {
+        console.error('[useTransactions] Delete failed:', result.error)
         setError(result.error.message)
         return false
       }
     } catch (err) {
+      console.error('[useTransactions] Delete exception:', err)
       setError(err instanceof Error ? err.message : 'Failed to delete transaction')
       return false
     } finally {
@@ -292,19 +305,22 @@ export function useTransactions(): UseTransactionsReturn {
 
   /**
    * Void a transaction
+   * @param id - Transaction ID
+   * @param overrideCompanyId - Optional company ID (uses auth context if not provided)
    */
-  const voidTransaction = useCallback(async (id: string): Promise<boolean> => {
+  const voidTransaction = useCallback(async (id: string, overrideCompanyId?: string): Promise<boolean> => {
     setIsLoading(true)
     setError(null)
 
     try {
       // SECURITY: Require companyId for authorization
-      if (!companyId) {
+      const targetCompanyId = overrideCompanyId || companyId
+      if (!targetCompanyId) {
         setError('Not authenticated - companyId required')
         return false
       }
 
-      const result = await voidTransactionAPI(id, companyId)
+      const result = await voidTransactionAPI(id, targetCompanyId)
 
       if (result.success) {
         setCurrentTransaction(result.data)

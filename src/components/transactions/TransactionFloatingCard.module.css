@@ -1,0 +1,444 @@
+/**
+ * TransactionFloatingCard Styles
+ * A draggable floating card for transaction details
+ */
+
+/* Overlay - transparent, allows clicking through */
+.overlay {
+  position: fixed;
+  bottom: 1rem;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+}
+
+/* Card */
+.card {
+  position: relative;
+  width: 550px;
+  max-width: calc(100vw - 2rem);
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  pointer-events: auto;
+  user-select: none;
+  animation: slideUp 200ms ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(to bottom, #f9fafb, #ffffff);
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.badges {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.amount {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.starButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #d1d5db;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, transform 0.15s;
+}
+
+.starButton:hover {
+  background: #fef3c7;
+  color: #d97706;
+  transform: scale(1.1);
+}
+
+.starButton.starred {
+  color: #d97706;
+}
+
+.starButton.starred:hover {
+  background: #fef3c7;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.closeButton:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+/* Voided banner */
+.voidedBanner {
+  padding: 0.375rem 1rem;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Content - two columns */
+.content {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* Details column */
+.detailsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding-right: 1rem;
+  border-right: 1px solid #f3f4f6;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.detailLabel {
+  font-size: 0.6875rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.detailValue {
+  font-size: 0.75rem;
+  color: #1f2937;
+  font-weight: 500;
+  text-align: right;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Memo value - allow full text with wrapping */
+.memoValue {
+  font-size: 0.75rem;
+  color: #1f2937;
+  font-weight: 500;
+  text-align: left;
+  max-width: none;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+/* Make memo row span full width */
+.memoRow {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+/* Line items column */
+.lineItemsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Balance Summary */
+.balanceSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem 0.625rem;
+  background: #f8fafc;
+  border-radius: 0.375rem;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 0.25rem;
+}
+
+.balanceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.balanceLabel {
+  font-size: 0.6875rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.balanceValue {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #475569;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.totalValue {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f766e;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.lineSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.5rem 0.625rem;
+  background: #fafafa;
+  border-radius: 0.375rem;
+  border: 1px solid #e8e8e8;
+}
+
+.lineSectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.075em;
+  margin-bottom: 0.25rem;
+  color: #64748b;
+}
+
+.sectionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+}
+
+/* Money Section - Blue theme (bank/credit card) */
+.moneySection {
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+  border-color: #bfdbfe;
+  border-left: 3px solid #3b82f6;
+}
+
+.moneySection .lineSectionLabel {
+  color: #1e40af;
+}
+
+.moneySection .sectionIcon {
+  color: #3b82f6;
+}
+
+/* Holding Section - Amber theme (A/P, A/R, pending) */
+.holdingSection {
+  background: linear-gradient(135deg, #fffbeb 0%, #fefce8 100%);
+  border-color: #fde68a;
+  border-left: 3px solid #f59e0b;
+}
+
+.holdingSection .lineSectionLabel {
+  color: #92400e;
+}
+
+.holdingSection .sectionIcon {
+  color: #f59e0b;
+}
+
+/* Category Section - Teal theme (expense/income) */
+.categorySection {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ecfdf5 100%);
+  border-color: #99f6e4;
+  border-left: 3px solid #14b8a6;
+}
+
+.categorySection .lineSectionLabel {
+  color: #115e59;
+}
+
+.categorySection .sectionIcon {
+  color: #14b8a6;
+}
+
+/* Flow Arrow - visual connector */
+.flowArrow {
+  display: flex;
+  justify-content: center;
+  color: #d1d5db;
+  padding: 0.125rem 0;
+}
+
+.lineItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+/* Subtle divider between line items when there are multiple */
+.lineItem + .lineItem {
+  border-top: 1px dashed #e5e7eb;
+  padding-top: 0.375rem;
+  margin-top: 0.125rem;
+}
+
+.lineAccountWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.lineAccount {
+  font-size: 0.8125rem;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lineMemo {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.linkedRef {
+  font-size: 0.6875rem;
+  color: #0f766e;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lineAmount {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1f2937;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  white-space: nowrap;
+}
+
+/* Actions - Brand accent footer */
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid rgba(75, 0, 110, 0.15);
+  background: linear-gradient(135deg, #f5f3f7 0%, #ebe7f0 50%, #e8e4ed 100%);
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.actions button {
+  font-size: 0.8125rem;
+  padding: 0.375rem 0.75rem;
+  background: white;
+  border-color: rgba(75, 0, 110, 0.2);
+}
+
+.actions button:hover {
+  border-color: rgba(75, 0, 110, 0.4);
+}
+
+.voidButton {
+  color: #92400e;
+  border-color: #fef3c7;
+}
+
+.voidButton:hover {
+  background: #fef3c7;
+}
+
+.deleteButton {
+  color: #991b1b;
+  border-color: #fef2f2;
+}
+
+.deleteButton:hover {
+  background: #fef2f2;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .card {
+    width: calc(100vw - 1rem);
+    margin: 0 0.5rem;
+  }
+
+  .content {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .detailsColumn {
+    border-right: none;
+    border-bottom: 1px solid #f3f4f6;
+    padding-right: 0;
+    padding-bottom: 0.75rem;
+  }
+
+  .detailValue {
+    max-width: none;
+  }
+}

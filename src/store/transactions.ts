@@ -22,6 +22,7 @@ import type {
 } from './types'
 import type { JournalEntry, JournalEntryLine, TransactionStatus } from '../types'
 import { requireCompanyOwnership, validateCompanyId } from '../utils/authorization'
+import { fromCents } from '../utils/money'
 
 /**
  * Generate current device ID (stored in localStorage)
@@ -56,6 +57,9 @@ function incrementVersionVector(current: VersionVector): VersionVector {
 
 /**
  * Validate that transaction is balanced (debits = credits)
+ *
+ * CURRENCY CONVENTION: All amounts are in CENTS (integers).
+ * With integer cents, we can do exact comparison.
  */
 function validateBalance(lines: JournalEntryLine[]): {
   isBalanced: boolean
@@ -65,8 +69,8 @@ function validateBalance(lines: JournalEntryLine[]): {
   const totalDebits = lines.reduce((sum, line) => sum + line.debit, 0)
   const totalCredits = lines.reduce((sum, line) => sum + line.credit, 0)
 
-  // Allow for small floating point differences (< 0.01)
-  const isBalanced = Math.abs(totalDebits - totalCredits) < 0.01
+  // With integer cents, exact comparison is valid
+  const isBalanced = totalDebits === totalCredits
 
   return { isBalanced, totalDebits, totalCredits }
 }
@@ -202,7 +206,7 @@ export async function createTransaction(
         success: false,
         error: {
           code: 'UNBALANCED_TRANSACTION',
-          message: `Transaction is not balanced. Debits: ${totalDebits.toFixed(2)}, Credits: ${totalCredits.toFixed(2)}`,
+          message: `Transaction is not balanced. Debits: $${fromCents(totalDebits).toFixed(2)}, Credits: $${fromCents(totalCredits).toFixed(2)}`,
         },
       }
     }
@@ -383,13 +387,13 @@ export async function updateTransaction(
       }
     }
 
-    // Only allow updates to draft transactions
-    if (authorizedEntity.status !== 'draft') {
+    // Only prevent updates to voided transactions (they've been reversed)
+    if (authorizedEntity.status === 'voided') {
       return {
         success: false,
         error: {
           code: 'CONSTRAINT_VIOLATION',
-          message: 'Cannot update a posted transaction. Use void instead.',
+          message: 'Cannot update a voided transaction.',
         },
       }
     }
@@ -403,7 +407,7 @@ export async function updateTransaction(
         success: false,
         error: {
           code: 'UNBALANCED_TRANSACTION',
-          message: `Transaction is not balanced. Debits: ${totalDebits.toFixed(2)}, Credits: ${totalCredits.toFixed(2)}`,
+          message: `Transaction is not balanced. Debits: $${fromCents(totalDebits).toFixed(2)}, Credits: $${fromCents(totalCredits).toFixed(2)}`,
         },
       }
     }
@@ -608,38 +612,34 @@ export async function deleteTransaction(
   companyId: string
 ): Promise<DatabaseResult<void>> {
   try {
+    console.log('[deleteTransaction] Starting delete for id:', id, 'companyId:', companyId)
+
     // SECURITY: Validate companyId is provided
     const companyIdError = validateCompanyId(companyId)
     if (companyIdError) {
+      console.error('[deleteTransaction] companyId validation failed:', companyIdError)
       return { success: false, error: companyIdError }
     }
 
     const existing = await db.transactions.get(id)
+    console.log('[deleteTransaction] Found transaction:', existing ? 'yes' : 'no', existing?.companyId)
 
     // SECURITY: Verify resource ownership before allowing access
     const authCheck = requireCompanyOwnership(existing, companyId)
     if (!authCheck.authorized) {
+      console.error('[deleteTransaction] Authorization failed:', authCheck.error)
       return { success: false, error: authCheck.error }
     }
 
     const authorizedEntity = authCheck.resource
 
     if (authorizedEntity.deletedAt) {
+      console.log('[deleteTransaction] Already deleted')
       return { success: true, data: undefined } // Already deleted
     }
 
-    // Only allow deleting draft transactions
-    if (authorizedEntity.status !== 'draft') {
-      return {
-        success: false,
-        error: {
-          code: 'CONSTRAINT_VIOLATION',
-          message: 'Cannot delete a posted transaction. Use void instead.',
-        },
-      }
-    }
-
-    // Soft delete with tombstone marker
+    // Soft delete with tombstone marker - audit log preserves history
+    console.log('[deleteTransaction] Performing soft delete')
     const now = new Date()
     const deviceId = getDeviceId()
 

@@ -9,8 +9,9 @@
  * - Proper transaction type tagging
  */
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import type { JournalEntry, Account, TransactionType } from '../../types'
+import { fromCents } from '../../utils/money'
 import type { Vendor } from '../../types/vendor.types'
 import { Input } from '../forms/Input'
 import { Select } from '../forms/Select'
@@ -18,6 +19,7 @@ import { VendorSelect } from '../vendors/VendorSelect'
 import { AccountAutocomplete } from '../accounts/AccountAutocomplete'
 import { VendorModal } from '../vendors/VendorModal'
 import { useNewLineItem } from '../../hooks/useTransactions'
+import { toCents } from '../../utils/money'
 import styles from './ExpenseForm.module.css'
 
 type ExpenseType = 'expense' | 'check' | 'bill'
@@ -74,6 +76,79 @@ export function ExpenseForm({
     { id: crypto.randomUUID(), categoryId: '', amount: '', memo: '' },
     { id: crypto.randomUUID(), categoryId: '', amount: '', memo: '' },
   ])
+
+  // Track if we've initialized from an existing transaction
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // Initialize form from existing transaction (for edit mode)
+  useEffect(() => {
+    // Only initialize once and only if transaction has lines (meaning it's an edit)
+    if (isInitialized || !transaction.lines || transaction.lines.length === 0) return
+    if (!accounts.length) return // Wait for accounts to load
+
+    // Build account lookup
+    const accountMap = new Map(accounts.map(a => [a.id, a]))
+
+    // Separate lines into payment source and categories
+    const expenseAccountTypes = ['expense', 'cost-of-goods-sold', 'other-expense']
+    const assetLiabilityTypes = ['asset', 'liability']
+
+    let foundPaymentAccount = ''
+    const foundCategories: CategoryLine[] = []
+    let total = 0
+
+    transaction.lines.forEach(line => {
+      const account = accountMap.get(line.accountId)
+      if (!account) return
+
+      const amount = line.debit || line.credit || 0
+
+      if (expenseAccountTypes.includes(account.type)) {
+        // This is a category line
+        foundCategories.push({
+          id: crypto.randomUUID(),
+          categoryId: line.accountId,
+          amount: fromCents(amount).toFixed(2),
+          memo: line.memo || '',
+        })
+        total += amount
+      } else if (assetLiabilityTypes.includes(account.type) && line.credit > 0) {
+        // This is the payment source (credit to asset = money going out)
+        foundPaymentAccount = line.accountId
+      }
+    })
+
+    // Set transaction type from the transaction
+    if (transaction.transactionType === 'check') {
+      setExpenseType('check')
+    } else if (transaction.transactionType === 'bill') {
+      setExpenseType('bill')
+    } else {
+      setExpenseType('expense')
+    }
+
+    // Populate form fields
+    if (foundPaymentAccount) setPaidFromAccount(foundPaymentAccount)
+    if (transaction.vendorId) setVendorId(transaction.vendorId)
+    if (transaction.reference) setReference(transaction.reference)
+    if (transaction.memo) setMemo(transaction.memo)
+    if (total > 0) setTotalAmount(fromCents(total).toFixed(2))
+
+    // Set category lines (add empty lines to make at least 3)
+    if (foundCategories.length > 0) {
+      while (foundCategories.length < 3) {
+        foundCategories.push({
+          id: crypto.randomUUID(),
+          categoryId: '',
+          amount: '',
+          memo: '',
+        })
+      }
+      setCategoryLines(foundCategories)
+    }
+
+    setIsInitialized(true)
+  }, [transaction, accounts, isInitialized])
 
   // Build set of parent account IDs (accounts that have children can't be posted to)
   const parentAccountIds = useMemo(
@@ -312,18 +387,18 @@ export function ExpenseForm({
     // Build journal entry lines
     const journalLines = []
 
-    // Add category lines (debits)
+    // Add category lines (debits) - convert dollars to cents for storage
     for (const catLine of validLines) {
       journalLines.push({
         ...useNewLineItem(),
         accountId: catLine.categoryId,
-        debit: parseFloat(catLine.amount),
+        debit: toCents(parseFloat(catLine.amount)),
         credit: 0,
         memo: catLine.memo || memo,
       })
     }
 
-    // Add payment/payable line (credit)
+    // Add payment/payable line (credit) - convert dollars to cents for storage
     if (expenseType === 'bill') {
       // Bill: Credit Accounts Payable
       if (accountsPayableAccount) {
@@ -331,7 +406,7 @@ export function ExpenseForm({
           ...useNewLineItem(),
           accountId: accountsPayableAccount.id,
           debit: 0,
-          credit: amountNum,
+          credit: toCents(amountNum),
           memo: memo,
         })
       }
@@ -342,7 +417,7 @@ export function ExpenseForm({
           ...useNewLineItem(),
           accountId: paidFromAccount,
           debit: 0,
-          credit: amountNum,
+          credit: toCents(amountNum),
           memo: memo,
         })
       }

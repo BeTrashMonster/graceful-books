@@ -5,11 +5,12 @@
  * Compact layout with fields side-by-side for efficient data entry.
  */
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type { JournalEntry, Account } from '../../types'
 import { Input } from '../forms/Input'
 import { Select } from '../forms/Select'
 import { useNewLineItem } from '../../hooks/useTransactions'
+import { toCents, fromCents } from '../../utils/money'
 import styles from './SimpleTransactionForm.module.css'
 
 export interface SimpleTransactionFormProps {
@@ -45,6 +46,72 @@ export function SimpleTransactionForm({
   const [date, setDate] = useState<string>(
     transaction.date.toISOString().split('T')[0] || ''
   )
+
+  // Track if we've initialized from an existing transaction
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // Initialize form from existing transaction (for edit mode)
+  useEffect(() => {
+    // Only initialize once and only if transaction has lines (meaning it's an edit)
+    if (isInitialized || !transaction.lines || transaction.lines.length === 0) return
+    if (!accounts.length) return // Wait for accounts to load
+
+    // Build account lookup
+    const accountMap = new Map(accounts.map(a => [a.id, a]))
+
+    // Determine transaction type and extract values from lines
+    const expenseTypes = ['expense', 'cost-of-goods-sold', 'other-expense']
+    const incomeTypes = ['income', 'other-income']
+    const assetTypes = ['asset']
+    const liabilityTypes = ['liability']
+
+    let foundFromAccount = ''
+    let foundToAccount = ''
+    let foundCategory = ''
+    let foundAmount = 0
+
+    transaction.lines.forEach(line => {
+      const account = accountMap.get(line.accountId)
+      if (!account) return
+
+      const lineAmount = line.debit || line.credit || 0
+
+      // For "spent" type: debit expense, credit asset
+      // For "received" type: debit asset, credit income
+      // For "transfer" type: debit to-account, credit from-account
+      // For "paid-credit" type: debit liability, credit asset
+
+      if (expenseTypes.includes(account.type)) {
+        foundCategory = line.accountId
+        foundAmount = lineAmount
+      } else if (incomeTypes.includes(account.type)) {
+        foundCategory = line.accountId
+        foundAmount = lineAmount
+      } else if (assetTypes.includes(account.type)) {
+        if (line.debit > 0) {
+          foundToAccount = line.accountId // Money coming in
+        } else if (line.credit > 0) {
+          foundFromAccount = line.accountId // Money going out
+        }
+        if (!foundAmount) foundAmount = lineAmount
+      } else if (liabilityTypes.includes(account.type)) {
+        if (line.debit > 0) {
+          // Paying down a liability
+          foundToAccount = line.accountId
+        }
+        if (!foundAmount) foundAmount = lineAmount
+      }
+    })
+
+    // Set form fields
+    if (foundAmount > 0) setAmount(fromCents(foundAmount).toFixed(2))
+    if (foundFromAccount) setFromAccount(foundFromAccount)
+    if (foundToAccount) setToAccount(foundToAccount)
+    if (foundCategory) setCategory(foundCategory)
+    if (transaction.memo) setDescription(transaction.memo)
+
+    setIsInitialized(true)
+  }, [transaction, accounts, isInitialized])
 
   // Build set of parent account IDs (accounts that have children can't be posted to)
   const parentAccountIds = useMemo(
@@ -123,6 +190,9 @@ export function SimpleTransactionForm({
     const amountNum = parseFloat(amount) || 0
     if (amountNum === 0) return
 
+    // Convert dollars to cents for storage
+    const amountCents = toCents(amountNum)
+
     const lines = []
 
     switch (transactionType) {
@@ -132,7 +202,7 @@ export function SimpleTransactionForm({
         lines.push({
           ...useNewLineItem(),
           accountId: category, // Expense account (debit)
-          debit: amountNum,
+          debit: amountCents,
           credit: 0,
           memo: description,
         })
@@ -140,7 +210,7 @@ export function SimpleTransactionForm({
           ...useNewLineItem(),
           accountId: fromAccount, // Bank account (credit)
           debit: 0,
-          credit: amountNum,
+          credit: amountCents,
           memo: description,
         })
         break
@@ -151,7 +221,7 @@ export function SimpleTransactionForm({
         lines.push({
           ...useNewLineItem(),
           accountId: toAccount, // Bank account (debit)
-          debit: amountNum,
+          debit: amountCents,
           credit: 0,
           memo: description,
         })
@@ -159,7 +229,7 @@ export function SimpleTransactionForm({
           ...useNewLineItem(),
           accountId: category, // Income account (credit)
           debit: 0,
-          credit: amountNum,
+          credit: amountCents,
           memo: description,
         })
         break
@@ -170,7 +240,7 @@ export function SimpleTransactionForm({
         lines.push({
           ...useNewLineItem(),
           accountId: toAccount, // To account (debit)
-          debit: amountNum,
+          debit: amountCents,
           credit: 0,
           memo: description,
         })
@@ -178,7 +248,7 @@ export function SimpleTransactionForm({
           ...useNewLineItem(),
           accountId: fromAccount, // From account (credit)
           debit: 0,
-          credit: amountNum,
+          credit: amountCents,
           memo: description,
         })
         break
@@ -189,7 +259,7 @@ export function SimpleTransactionForm({
         lines.push({
           ...useNewLineItem(),
           accountId: category, // Credit card account (debit - reduces liability)
-          debit: amountNum,
+          debit: amountCents,
           credit: 0,
           memo: description,
         })
@@ -197,7 +267,7 @@ export function SimpleTransactionForm({
           ...useNewLineItem(),
           accountId: fromAccount, // Bank account (credit)
           debit: 0,
-          credit: amountNum,
+          credit: amountCents,
           memo: description,
         })
         break
