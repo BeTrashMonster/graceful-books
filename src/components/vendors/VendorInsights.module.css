@@ -575,6 +575,28 @@
   font-size: 0.8125rem;
 }
 
+/* Notes display - spans full width with more room for text */
+.contactDetailNotes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border-light, #e5e7eb);
+}
+
+.contactDetailNotes .contactDetailLabel {
+  font-size: 0.5625rem;
+}
+
+.contactDetailNotesValue {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .selectedVendorBilling {
   flex: 1;
   display: flex;
@@ -1231,7 +1253,7 @@
 
 .transactionHeader {
   display: grid;
-  grid-template-columns: 95px 95px 90px 1fr 130px 90px;
+  grid-template-columns: 95px 95px 90px 1fr 130px 90px 32px;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   background: var(--color-background-secondary, #f9fafb);
@@ -1244,7 +1266,7 @@
 
 .transactionRow {
   display: grid;
-  grid-template-columns: 95px 95px 90px 1fr 130px 90px;
+  grid-template-columns: 95px 95px 90px 1fr 130px 90px 32px;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--color-border, #e5e7eb);
@@ -1352,6 +1374,12 @@
 .transactionAmount {
   font-weight: 600;
   text-align: right;
+}
+
+.transactionActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .groupTag {
@@ -1504,6 +1532,20 @@
 
 .transactionRowExpandable:hover {
   background: var(--color-background-secondary, #f9fafb);
+}
+
+.transactionRowClickable {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.transactionRowClickable:hover {
+  background: linear-gradient(135deg, #f0e6f5 0%, #f8f5fa 100%);
+}
+
+.transactionRowClickable:focus {
+  outline: 2px solid var(--color-focus-ring, #93c5fd);
+  outline-offset: -2px;
 }
 
 /* Date cell with expand button */
@@ -1721,6 +1763,138 @@
   font-size: 0.8125rem;
 }
 
+/* Expanded Transaction Details */
+.transactionExpandedDetails {
+  background: linear-gradient(135deg, #f8f5fa 0%, #f0e8f5 100%);
+  border-top: 1px dashed #e0d4e8;
+  padding: 1rem 1rem 1rem 2.5rem;
+  animation: slideDown 0.15s ease-out;
+}
+
+.transactionExpandedDetails .paymentDetails {
+  background: transparent;
+  padding: 0;
+  border: none;
+  margin-bottom: 1rem;
+}
+
+/* Transaction Detail View (read-only) */
+.transactionDetailView {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detailViewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem 1.5rem;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.detailItemLabel {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detailItemValue {
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.detailDescription {
+  padding-top: 0.5rem;
+  border-top: 1px dashed #e0d4e8;
+}
+
+.detailDescription .detailItemValue {
+  margin-top: 0.25rem;
+}
+
+.detailViewActions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0d4e8;
+  margin-top: 0.5rem;
+}
+
+/* Transaction Edit Form */
+.transactionEditForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #e0d4e8;
+}
+
+.editFormRow {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.editLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex: 1;
+  min-width: 120px;
+}
+
+.editLabelFull {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  width: 100%;
+}
+
+.editInput {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e0d4e8;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #1a1a1a);
+  background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.editInput:hover {
+  border-color: #c9a227;
+}
+
+.editInput:focus {
+  outline: none;
+  border-color: #4b006e;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.1);
+}
+
+.editFormActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0d4e8;
+}
+
 /* Responsive */
 @media (max-width: 1100px) {
   .summaryRow {
@@ -1755,7 +1929,7 @@
 
   .transactionHeader,
   .transactionRow {
-    grid-template-columns: 80px 70px 1fr 80px;
+    grid-template-columns: 80px 70px 1fr 80px 28px;
   }
 
   /* Hide Reference and Classification on smaller screens */

@@ -15,7 +15,6 @@ import { ExpenseForm } from '../components/transactions/ExpenseForm'
 import { BillPaidForm } from '../components/transactions/BillPaidForm'
 import { InvoicePaidForm } from '../components/transactions/InvoicePaidForm'
 import { RecentActivityTable } from '../components/transactions/RecentActivityTable'
-import { TransactionDetailDrawer } from '../components/transactions/TransactionDetailDrawer'
 import { Modal } from '../components/modals/Modal'
 import { useTransactions, useNewTransaction } from '../hooks/useTransactions'
 import { markTransactionsConsolidated, voidTransaction } from '../store/transactions'
@@ -23,6 +22,7 @@ import { useAccounts } from '../hooks/useAccounts'
 import { useVendors } from '../hooks/useVendors'
 import { useCustomers } from '../hooks/useCustomers'
 import { useAuth } from '../contexts/AuthContext'
+import { useFloatingCards } from '../contexts/FloatingCardsContext'
 import type { JournalEntry } from '../types'
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns'
 
@@ -115,8 +115,8 @@ export default function Transactions() {
   const [showAdvancedForm, setShowAdvancedForm] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<JournalEntry | null>(null)
 
-  // State for transaction detail drawer
-  const [viewingTransactionId, setViewingTransactionId] = useState<string | null>(null)
+  // Use global floating cards context for transaction details
+  const { toggleCard, subscribeToChanges } = useFloatingCards()
 
   // Load transactions on mount
   useEffect(() => {
@@ -462,20 +462,18 @@ export default function Transactions() {
     setCurrentTransaction(transaction)
   }
 
-  // Handle clicking on a transaction in the activity table
+  // Handle clicking on a transaction in the activity table - open floating card
   const handleTransactionClick = useCallback((transaction: JournalEntry) => {
-    setViewingTransactionId(transaction.id)
-  }, [])
+    toggleCard({ transactionId: transaction.id, companyId: activeCompanyId })
+  }, [toggleCard, activeCompanyId])
 
-  // Handle closing the transaction detail drawer
-  const handleCloseDetailDrawer = useCallback(() => {
-    setViewingTransactionId(null)
-  }, [])
-
-  // Handle transaction updates from the drawer
-  const handleTransactionUpdated = useCallback(() => {
-    loadTransactions({ companyId: activeCompanyId })
-  }, [loadTransactions, activeCompanyId])
+  // Subscribe to floating card changes to refresh transaction list
+  useEffect(() => {
+    const unsubscribe = subscribeToChanges(async () => {
+      await loadTransactions({ companyId: activeCompanyId })
+    })
+    return unsubscribe
+  }, [subscribeToChanges, loadTransactions, activeCompanyId])
 
   const renderInsight = (type: TransactionType) => {
     if (!type) return null
@@ -886,19 +884,6 @@ export default function Transactions() {
             />
           )}
         </Modal>
-      )}
-
-      {/* Transaction Detail Drawer */}
-      {viewingTransactionId && (
-        <TransactionDetailDrawer
-          isOpen={true}
-          onClose={handleCloseDetailDrawer}
-          transactionId={viewingTransactionId}
-          companyId={activeCompanyId}
-          onTransactionUpdated={handleTransactionUpdated}
-          onTransactionVoided={handleTransactionUpdated}
-          onTransactionDeleted={handleTransactionUpdated}
-        />
       )}
 
       {/* Bill Paid Modal */}

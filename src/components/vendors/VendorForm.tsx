@@ -361,178 +361,188 @@ export const VendorForm: FC<VendorFormProps> = ({
       )}
 
       <div className={styles.formBody}>
-        <Input
-          label="Vendor Name"
-          value={formData.name}
-          onChange={(e) => updateField('name', e.target.value)}
-          error={touched.has('name') ? errors.name : undefined}
-          required
-          fullWidth
-          placeholder="e.g., Office Supply Co"
-          disabled={isSubmitting}
-        />
+        {/* Vendor Name - full width across both columns */}
+        <div className={styles.fullWidth}>
+          <Input
+            label="Vendor Name"
+            value={formData.name}
+            onChange={(e) => updateField('name', e.target.value)}
+            error={touched.has('name') ? errors.name : undefined}
+            required
+            fullWidth
+            placeholder="e.g., Office Supply Co"
+            disabled={isSubmitting}
+          />
+        </div>
 
-        <Input
-          label="Email Address"
-          type="email"
-          value={formData.email}
-          onChange={(e) => updateField('email', e.target.value)}
-          error={touched.has('email') ? errors.email : undefined}
-          fullWidth
-          placeholder="vendor@example.com"
-          disabled={isSubmitting}
-        />
-
-        <Input
-          label="Phone Number"
-          type="tel"
-          value={formData.phone}
-          onChange={(e) => updateField('phone', e.target.value)}
-          error={touched.has('phone') ? errors.phone : undefined}
-          fullWidth
-          placeholder="(555) 123-4567"
-          disabled={isSubmitting}
-        />
-
-        <div className={styles.addressSection}>
-          <Checkbox
-            label="Add mailing address"
-            checked={showAddress}
-            onChange={(e) => setShowAddress(e.target.checked)}
+        {/* Two-column layout: Left = contact info, Right = address */}
+        <div className={styles.leftColumn}>
+          <Input
+            label="Email Address"
+            type="email"
+            value={formData.email}
+            onChange={(e) => updateField('email', e.target.value)}
+            error={touched.has('email') ? errors.email : undefined}
+            fullWidth
+            placeholder="vendor@example.com"
             disabled={isSubmitting}
           />
 
-          {showAddress && (
-            <div className={styles.addressFields}>
-              <Input
-                label="Street Address"
-                value={formData.address?.line1}
-                onChange={(e) => updateAddressField('line1', e.target.value)}
-                error={touched.has('address.line1') ? errors.address?.line1 : undefined}
-                fullWidth
-                placeholder="123 Main Street"
-                disabled={isSubmitting}
-              />
-
-              <Input
-                label="Address Line 2"
-                value={formData.address?.line2}
-                onChange={(e) => updateAddressField('line2', e.target.value)}
-                fullWidth
-                placeholder="Suite 100"
-                disabled={isSubmitting}
-              />
-
-              <div className={styles.addressRow}>
-                <Input
-                  label="City"
-                  value={formData.address?.city}
-                  onChange={(e) => updateAddressField('city', e.target.value)}
-                  error={touched.has('address.city') ? errors.address?.city : undefined}
-                  fullWidth
-                  placeholder="New York"
-                  disabled={isSubmitting}
-                />
-
-                <Input
-                  label="State"
-                  value={formData.address?.state}
-                  onChange={(e) => updateAddressField('state', e.target.value)}
-                  error={touched.has('address.state') ? errors.address?.state : undefined}
-                  fullWidth
-                  placeholder="NY"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className={styles.addressRow}>
-                <Input
-                  label="Postal Code"
-                  value={formData.address?.postalCode}
-                  onChange={(e) => updateAddressField('postalCode', e.target.value)}
-                  error={touched.has('address.postalCode') ? errors.address?.postalCode : undefined}
-                  fullWidth
-                  placeholder="10001"
-                  disabled={isSubmitting}
-                />
-
-                <Input
-                  label="Country"
-                  value={formData.address?.country}
-                  onChange={(e) => updateAddressField('country', e.target.value)}
-                  error={touched.has('address.country') ? errors.address?.country : undefined}
-                  fullWidth
-                  placeholder="US"
-                  disabled={isSubmitting}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className={styles.taxIdSection}>
           <Input
-            label="Tax ID / EIN"
-            value={
-              isEditMode && vendor?.taxId && !showFullTaxId
-                ? maskTaxId(formData.taxId || '')
-                : formData.taxId
-            }
-            onChange={(e) => {
-              // If editing existing and showing masked, don't allow changes until revealed
-              if (isEditMode && vendor?.taxId && !showFullTaxId) return
-              updateField('taxId', e.target.value)
-            }}
+            label="Phone Number"
+            type="tel"
+            value={formData.phone}
+            onChange={(e) => updateField('phone', e.target.value)}
+            error={touched.has('phone') ? errors.phone : undefined}
             fullWidth
-            placeholder="XX-XXXXXXX"
-            disabled={isSubmitting || (isEditMode && vendor?.taxId && !showFullTaxId)}
+            placeholder="(555) 123-4567"
+            disabled={isSubmitting}
           />
-          {isEditMode && vendor?.taxId && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (showFullTaxId) {
-                  setShowFullTaxId(false)
-                } else {
-                  setShowPasswordModal(true)
-                }
+
+          <div className={styles.taxIdSection}>
+            <Input
+              label="Tax ID / EIN"
+              value={
+                isEditMode && vendor?.taxId && !showFullTaxId
+                  ? maskTaxId(formData.taxId || '')
+                  : formData.taxId
+              }
+              onChange={(e) => {
+                // If editing existing and showing masked, don't allow changes until revealed
+                if (isEditMode && vendor?.taxId && !showFullTaxId) return
+                updateField('taxId', e.target.value)
               }}
-              disabled={isSubmitting}
-              className={styles.viewTaxIdButton}
-            >
-              {showFullTaxId ? 'Hide' : 'View'}
-            </Button>
-          )}
+              fullWidth
+              placeholder="XX-XXXXXXX"
+              disabled={isSubmitting || (isEditMode && !!vendor?.taxId && !showFullTaxId)}
+            />
+            {isEditMode && vendor?.taxId && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (showFullTaxId) {
+                    setShowFullTaxId(false)
+                  } else {
+                    setShowPasswordModal(true)
+                  }
+                }}
+                disabled={isSubmitting}
+                className={styles.viewTaxIdButton}
+              >
+                {showFullTaxId ? 'Hide' : 'View'}
+              </Button>
+            )}
+          </div>
+
+          <Checkbox
+            label="1099 Eligible"
+            checked={formData.is1099Eligible}
+            onChange={(e) => updateField('is1099Eligible', e.target.checked)}
+            disabled={isSubmitting}
+          />
+
+          <Input
+            label="Notes"
+            value={formData.notes}
+            onChange={(e) => updateField('notes', e.target.value)}
+            fullWidth
+            placeholder="Any special information about this vendor"
+            disabled={isSubmitting}
+          />
         </div>
 
-        <Checkbox
-          label="1099 Eligible"
-          checked={formData.is1099Eligible}
-          onChange={(e) => updateField('is1099Eligible', e.target.checked)}
-          disabled={isSubmitting}
-        />
+        <div className={styles.rightColumn}>
+          <div className={styles.addressSection}>
+            <Checkbox
+              label="Add mailing address"
+              checked={showAddress}
+              onChange={(e) => setShowAddress(e.target.checked)}
+              disabled={isSubmitting}
+            />
 
-        <Input
-          label="Notes"
-          value={formData.notes}
-          onChange={(e) => updateField('notes', e.target.value)}
-          fullWidth
-          placeholder="Any special information about this vendor"
-          disabled={isSubmitting}
-        />
+            {showAddress && (
+              <div className={styles.addressFields}>
+                <Input
+                  label="Street Address"
+                  value={formData.address?.line1}
+                  onChange={(e) => updateAddressField('line1', e.target.value)}
+                  error={touched.has('address.line1') ? errors.address?.line1 : undefined}
+                  fullWidth
+                  placeholder="123 Main Street"
+                  disabled={isSubmitting}
+                />
+
+                <Input
+                  label="Address Line 2"
+                  value={formData.address?.line2}
+                  onChange={(e) => updateAddressField('line2', e.target.value)}
+                  fullWidth
+                  placeholder="Suite 100"
+                  disabled={isSubmitting}
+                />
+
+                <div className={styles.addressRow}>
+                  <Input
+                    label="City"
+                    value={formData.address?.city}
+                    onChange={(e) => updateAddressField('city', e.target.value)}
+                    error={touched.has('address.city') ? errors.address?.city : undefined}
+                    fullWidth
+                    placeholder="New York"
+                    disabled={isSubmitting}
+                  />
+
+                  <Input
+                    label="State"
+                    value={formData.address?.state}
+                    onChange={(e) => updateAddressField('state', e.target.value)}
+                    error={touched.has('address.state') ? errors.address?.state : undefined}
+                    fullWidth
+                    placeholder="NY"
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div className={styles.addressRow}>
+                  <Input
+                    label="Postal Code"
+                    value={formData.address?.postalCode}
+                    onChange={(e) => updateAddressField('postalCode', e.target.value)}
+                    error={touched.has('address.postalCode') ? errors.address?.postalCode : undefined}
+                    fullWidth
+                    placeholder="10001"
+                    disabled={isSubmitting}
+                  />
+
+                  <Input
+                    label="Country"
+                    value={formData.address?.country}
+                    onChange={(e) => updateAddressField('country', e.target.value)}
+                    error={touched.has('address.country') ? errors.address?.country : undefined}
+                    fullWidth
+                    placeholder="US"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* G3: Parent Account Selector - Progressive Disclosure (only show if user has > 5 contacts) */}
         {totalContacts > 5 && (
-          <ParentAccountSelector
-            value={formData.parentId || null}
-            onChange={handleParentChange}
-            currentContactId={vendor?.id || ''}
-            companyId={companyId}
-            disabled={isSubmitting}
-            defaultExpanded={!!formData.parentId}
-          />
+          <div className={styles.parentSection}>
+            <ParentAccountSelector
+              value={formData.parentId || null}
+              onChange={handleParentChange}
+              currentContactId={vendor?.id || ''}
+              companyId={companyId}
+              disabled={isSubmitting}
+              defaultExpanded={!!formData.parentId}
+            />
+          </div>
         )}
 
       </div>

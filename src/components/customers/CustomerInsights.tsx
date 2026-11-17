@@ -18,6 +18,7 @@ import { type FC, useState, useMemo, useEffect, useRef } from 'react'
 import { Select, type SelectOption } from '../forms/Select'
 import { Button } from '../core/Button'
 import type { Contact } from '../../types'
+import { formatMoney, toCents } from '../../utils/money'
 import styles from './CustomerInsights.module.css'
 
 type OverdueFilter = 'all' | 'current' | 'overdue'
@@ -116,16 +117,9 @@ const PRODUCTS_SERVICES = [
 
 type DateRangeFilter = '3mo' | '6mo' | '12mo' | 'ytd' | 'this-year' | 'last-year' | 'custom' | 'all'
 
-/**
- * Format currency amount
- */
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(amount)
-}
+// Currency formatting: Use formatMoney from ../../utils/money
+// All amounts are stored in CENTS (integers) for precision
+// formatMoney(cents) converts to formatted dollar string
 
 /**
  * Format date for display
@@ -281,7 +275,8 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
       const txnCount = 10 + Math.floor(Math.random() * 40)
 
       for (let i = 0; i < txnCount; i++) {
-        const amount = Math.random() * 10000 + 500
+        // Generate amount in CENTS (500-10500 dollars = 50000-1050000 cents)
+        const amount = toCents(Math.random() * 10000 + 500)
         const daysAgo = Math.floor(Math.random() * 730)
         const date = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000)
         const dueDaysAfter = 30 + Math.floor(Math.random() * 30)
@@ -839,16 +834,16 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
                 'Total Revenue'
               )}
             </span>
-            <span className={styles.overviewValue}>{formatCurrency(aggregateStats.totalRevenue)}</span>
+            <span className={styles.overviewValue}>{formatMoney(aggregateStats.totalRevenue)}</span>
           </div>
           <div className={styles.overviewStatRow}>
             <div className={styles.overviewStatItem}>
               <span className={styles.overviewStatLabel}>Current</span>
-              <span className={styles.overviewStatValue}>{formatCurrency(aggregateStats.currentAmount)}</span>
+              <span className={styles.overviewStatValue}>{formatMoney(aggregateStats.currentAmount)}</span>
             </div>
             <div className={`${styles.overviewStatItem} ${aggregateStats.overdueAmount > 0 ? styles.overdueHighlight : ''}`}>
               <span className={styles.overviewStatLabel}>Overdue</span>
-              <span className={styles.overviewStatValue}>{formatCurrency(aggregateStats.overdueAmount)}</span>
+              <span className={styles.overviewStatValue}>{formatMoney(aggregateStats.overdueAmount)}</span>
             </div>
           </div>
           <div className={styles.overviewTopRow}>
@@ -857,14 +852,14 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
                 {aggregateStats.isFiltered ? 'Top Customer (Filtered)' : 'Top Customer'}
               </span>
               <span className={styles.overviewTopCustomerName}>{aggregateStats.topCustomerName}</span>
-              <span className={styles.overviewTopCustomerRevenue}>{formatCurrency(aggregateStats.topCustomerRevenue)}</span>
+              <span className={styles.overviewTopCustomerRevenue}>{formatMoney(aggregateStats.topCustomerRevenue)}</span>
             </div>
             <div className={styles.overviewTopProductService}>
               <span className={styles.overviewStatLabel}>
                 {aggregateStats.isFiltered ? 'Top Product/Service (Filtered)' : 'Top Product/Service'}
               </span>
               <span className={styles.overviewTopProductServiceName}>{aggregateStats.topProductService}</span>
-              <span className={styles.overviewTopProductServiceRevenue}>{formatCurrency(aggregateStats.topProductServiceRevenue)}</span>
+              <span className={styles.overviewTopProductServiceRevenue}>{formatMoney(aggregateStats.topProductServiceRevenue)}</span>
             </div>
           </div>
         </div>
@@ -889,16 +884,16 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
                 <div className={styles.selectedCustomerStats}>
                   <div className={styles.selectedCustomerStat}>
                     <span className={styles.selectedCustomerStatLabel}>Total Revenue</span>
-                    <span className={styles.selectedCustomerStatValue}>{formatCurrency(selectedCustomer.totalRevenue)}</span>
+                    <span className={styles.selectedCustomerStatValue}>{formatMoney(selectedCustomer.totalRevenue)}</span>
                   </div>
                   <div className={styles.selectedCustomerStat}>
                     <span className={styles.selectedCustomerStatLabel}>Current</span>
-                    <span className={styles.selectedCustomerStatValueCurrent}>{formatCurrency(selectedCustomer.currentAmount)}</span>
+                    <span className={styles.selectedCustomerStatValueCurrent}>{formatMoney(selectedCustomer.currentAmount)}</span>
                   </div>
                   <div className={styles.selectedCustomerStat}>
                     <span className={styles.selectedCustomerStatLabel}>Overdue</span>
                     <span className={`${styles.selectedCustomerStatValue} ${selectedCustomer.overdueAmount > 0 ? styles.overdueText : ''}`}>
-                      {formatCurrency(selectedCustomer.overdueAmount)}
+                      {formatMoney(selectedCustomer.overdueAmount)}
                     </span>
                   </div>
                 </div>
@@ -924,9 +919,9 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
                   </div>
                 )}
                 {selectedCustomerFull.notes && (
-                  <div className={styles.contactDetailItem}>
+                  <div className={styles.contactDetailNotes}>
                     <span className={styles.contactDetailLabel}>Notes</span>
-                    <span className={styles.contactDetailValue}>{selectedCustomerFull.notes}</span>
+                    <span className={styles.contactDetailNotesValue}>{selectedCustomerFull.notes}</span>
                   </div>
                 )}
                 {!selectedCustomerFull.email && !selectedCustomerFull.phone && !selectedCustomerFull.address && !selectedCustomerFull.notes && (
@@ -974,9 +969,9 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
                   </span>
                 </div>
                 <div className={styles.customerRevenue}>
-                  <span className={styles.revenueAmount}>{formatCurrency(customer.totalRevenue)}</span>
+                  <span className={styles.revenueAmount}>{formatMoney(customer.totalRevenue)}</span>
                   {customer.overdueAmount > 0 && (
-                    <span className={styles.overdueAmount}>{formatCurrency(customer.overdueAmount)} overdue</span>
+                    <span className={styles.overdueAmount}>{formatMoney(customer.overdueAmount)} overdue</span>
                   )}
                 </div>
               </button>
@@ -1041,7 +1036,7 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
                               onMouseLeave={() => setHoveredSegment(null)}
                               role="button"
                               tabIndex={0}
-                              aria-label={`${ps.name}: ${formatCurrency(ps.totalRevenue)}, ${ps.transactionCount} transactions`}
+                              aria-label={`${ps.name}: ${formatMoney(ps.totalRevenue)}, ${ps.transactionCount} transactions`}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter' || e.key === ' ') {
                                   setSelectedBreakdownItem(isSelected ? null : ps.name)
@@ -1070,7 +1065,7 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
                           <div className={styles.tooltipStats}>
                             <div className={styles.tooltipStat}>
                               <span className={styles.tooltipStatLabel}>Revenue</span>
-                              <span className={styles.tooltipStatValue}>{formatCurrency(productServiceBreakdown[hoveredSegment].totalRevenue)}</span>
+                              <span className={styles.tooltipStatValue}>{formatMoney(productServiceBreakdown[hoveredSegment].totalRevenue)}</span>
                             </div>
                             <div className={styles.tooltipStat}>
                               <span className={styles.tooltipStatLabel}>Share</span>
@@ -1166,9 +1161,9 @@ export const CustomerInsights: FC<CustomerInsightsProps> = ({
                           )}
                         </span>
                         <span className={styles.transactionAmount}>
-                          {formatCurrency(txn.amount)}
+                          {formatMoney(txn.amount)}
                           {txn.amountDue > 0 && txn.status !== 'paid' && (
-                            <span className={styles.amountDue}>({formatCurrency(txn.amountDue)} due)</span>
+                            <span className={styles.amountDue}>({formatMoney(txn.amountDue)} due)</span>
                           )}
                         </span>
                       </div>

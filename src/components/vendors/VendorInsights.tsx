@@ -13,13 +13,15 @@
  * - WCAG 2.1 AA accessible
  */
 
-import { type FC, useState, useMemo, useEffect, useRef } from 'react'
+import { type FC, useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { Select, type SelectOption } from '../forms/Select'
 import { Button } from '../core/Button'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useAccounts } from '../../hooks/useAccounts'
+import { useFloatingCards } from '../../contexts/FloatingCardsContext'
 import type { Vendor } from '../../types/vendor.types'
 import type { JournalEntry } from '../../types'
+import { formatMoney } from '../../utils/money'
 import styles from './VendorInsights.module.css'
 
 type Vendor1099Filter = 'all' | '1099-only' | 'non-1099'
@@ -158,16 +160,8 @@ const CLASSIFICATION_GROUPS = [
 
 type DateRangeFilter = '3mo' | '6mo' | '12mo' | 'ytd' | 'this-year' | 'last-year' | 'custom' | 'all'
 
-/**
- * Format currency amount
- */
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(amount)
-}
+// Note: Use formatMoney from ../../utils/money for currency formatting
+// It expects amounts in CENTS (integers) and converts to dollars for display
 
 /**
  * Format date for display
@@ -286,6 +280,9 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
 
   // Track expanded transactions (for showing payment details)
   const [expandedTxnIds, setExpandedTxnIds] = useState<Set<string>>(new Set())
+
+  // Use global floating cards context for transaction details
+  const { toggleCard, subscribeToChanges, isCardOpen, isStarred, toggleStar } = useFloatingCards()
 
   // Stacked bar state
   const [barVolumeType, setBarVolumeType] = useState<'spending' | 'transactions'>('spending')
@@ -846,6 +843,20 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
     })
   }
 
+  // Open transaction in floating card
+  const openTransactionCard = useCallback((txnId: string) => {
+    toggleCard({ transactionId: txnId, companyId })
+  }, [toggleCard, companyId])
+
+  // Subscribe to floating card changes to refresh transaction list
+  useEffect(() => {
+    const unsubscribe = subscribeToChanges(async () => {
+      // Refresh transactions when any transaction is changed
+      await loadTransactions({ companyId })
+    })
+    return unsubscribe
+  }, [subscribeToChanges, loadTransactions, companyId])
+
   // Export vendor transactions to CSV
   const exportVendorTransactionsCSV = () => {
     if (!selectedVendor || sortedVendorTransactions.length === 0) return
@@ -856,7 +867,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
       formatTransactionType(txn.type),
       txn.reference,
       `"${txn.description.replace(/"/g, '""')}"`,
-      `"${txn.classifications.map((c) => `${c.name} (${formatCurrency(c.amount)})`).join('; ')}"`,
+      `"${txn.classifications.map((c) => `${c.name} (${formatMoney(c.amount)})`).join('; ')}"`,
       txn.amount.toFixed(2),
     ])
 
@@ -1265,16 +1276,16 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                 'Total Expenses'
               )}
             </span>
-            <span className={styles.overviewValue}>{formatCurrency(aggregateStats.totalBills)}</span>
+            <span className={styles.overviewValue}>{formatMoney(aggregateStats.totalBills)}</span>
           </div>
           <div className={styles.overviewStatRow}>
             <div className={styles.overviewStatItem}>
               <span className={styles.overviewStatLabel}>Paid</span>
-              <span className={styles.overviewStatValuePaid}>{formatCurrency(aggregateStats.paidAmount)}</span>
+              <span className={styles.overviewStatValuePaid}>{formatMoney(aggregateStats.paidAmount)}</span>
             </div>
             <div className={`${styles.overviewStatItem} ${aggregateStats.stillOwe > 0 ? styles.oweHighlight : ''}`}>
               <span className={styles.overviewStatLabel}>Still Owe</span>
-              <span className={styles.overviewStatValueOwe}>{formatCurrency(aggregateStats.stillOwe)}</span>
+              <span className={styles.overviewStatValueOwe}>{formatMoney(aggregateStats.stillOwe)}</span>
             </div>
           </div>
           <div className={styles.overviewStatRow}>
@@ -1283,7 +1294,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                 {aggregateStats.isFiltered ? 'Top Vendor (Filtered)' : 'Top Vendor'}
               </span>
               <span className={styles.overviewStatName}>{aggregateStats.topVendorName}</span>
-              <span className={styles.overviewStatSpend}>{formatCurrency(aggregateStats.topVendorBills)}</span>
+              <span className={styles.overviewStatSpend}>{formatMoney(aggregateStats.topVendorBills)}</span>
             </div>
             <div className={styles.overviewStatItem}>
               <span className={styles.overviewStatLabel}>
@@ -1296,7 +1307,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                 />
                 {aggregateStats.biggestClassificationName}
               </span>
-              <span className={styles.overviewStatSpend}>{formatCurrency(aggregateStats.biggestClassificationSpend)}</span>
+              <span className={styles.overviewStatSpend}>{formatMoney(aggregateStats.biggestClassificationSpend)}</span>
             </div>
           </div>
         </div>
@@ -1328,7 +1339,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
               <div className={styles.selectedVendorBottom}>
                 {/* Contact Details - Bottom Left */}
                 <div className={styles.selectedVendorContact}>
-                  {(selectedVendorFull.email || selectedVendorFull.phone || selectedVendorFull.address) ? (
+                  {(selectedVendorFull.email || selectedVendorFull.phone || selectedVendorFull.address || selectedVendorFull.notes) ? (
                     <>
                       {selectedVendorFull.email && (
                         <div className={styles.contactDetailCompact}>
@@ -1360,6 +1371,12 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                           </span>
                         </div>
                       )}
+                      {selectedVendorFull.notes && (
+                        <div className={styles.contactDetailNotes}>
+                          <span className={styles.contactDetailLabel}>Notes</span>
+                          <span className={styles.contactDetailNotesValue}>{selectedVendorFull.notes}</span>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <div className={styles.noContactDetails}>No contact details</div>
@@ -1370,27 +1387,27 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                   <div className={styles.billingMain}>
                     <div className={styles.billingStat}>
                       <span className={styles.billingLabel}>Total Expenses</span>
-                      <span className={styles.billingValueLarge}>{formatCurrency(selectedVendor.totalBills)}</span>
+                      <span className={styles.billingValueLarge}>{formatMoney(selectedVendor.totalBills)}</span>
                     </div>
                   </div>
                   <div className={styles.billingRow}>
                     <div className={styles.billingStat}>
                       <span className={styles.billingLabel}>Paid</span>
-                      <span className={styles.billingValuePaid}>{formatCurrency(selectedVendor.paidAmount)}</span>
+                      <span className={styles.billingValuePaid}>{formatMoney(selectedVendor.paidAmount)}</span>
                     </div>
                     <div className={styles.billingStat}>
                       <span className={styles.billingLabel}>Still Owe</span>
-                      <span className={styles.billingValueOwe}>{formatCurrency(selectedVendor.stillOwe)}</span>
+                      <span className={styles.billingValueOwe}>{formatMoney(selectedVendor.stillOwe)}</span>
                     </div>
                   </div>
                   <div className={styles.billingBreakdown}>
                     <div className={styles.billingSmall}>
                       <span className={styles.billingLabelSmall}>Current</span>
-                      <span className={styles.billingValueSmall}>{formatCurrency(selectedVendor.currentAmount)}</span>
+                      <span className={styles.billingValueSmall}>{formatMoney(selectedVendor.currentAmount)}</span>
                     </div>
                     <div className={`${styles.billingSmall} ${selectedVendor.overdueAmount > 0 ? styles.overdueHighlight : ''}`}>
                       <span className={styles.billingLabelSmall}>Overdue</span>
-                      <span className={styles.billingValueSmall}>{formatCurrency(selectedVendor.overdueAmount)}</span>
+                      <span className={styles.billingValueSmall}>{formatMoney(selectedVendor.overdueAmount)}</span>
                     </div>
                   </div>
                   {/* Cross-vendor consolidation notes */}
@@ -1398,12 +1415,12 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                     <div className={styles.consolidationNote}>
                       {selectedVendor.crossVendorPaidAmount > 0 && (
                         <span className={styles.consolidationNoteItem}>
-                          Paid includes {formatCurrency(selectedVendor.crossVendorPaidAmount)} for other vendors' expenses
+                          Paid includes {formatMoney(selectedVendor.crossVendorPaidAmount)} for other vendors' expenses
                         </span>
                       )}
                       {selectedVendor.consolidatedOutAmount > 0 && (
                         <span className={styles.consolidationNoteItem}>
-                          {formatCurrency(selectedVendor.consolidatedOutAmount)} was paid via another vendor's payment
+                          {formatMoney(selectedVendor.consolidatedOutAmount)} was paid via another vendor's payment
                         </span>
                       )}
                     </div>
@@ -1454,9 +1471,9 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                   </span>
                 </div>
                 <div className={styles.vendorSpend}>
-                  <span className={styles.spendAmount}>{formatCurrency(vendor.totalBills)}</span>
+                  <span className={styles.spendAmount}>{formatMoney(vendor.totalBills)}</span>
                   {vendor.overdueAmount > 0 && (
-                    <span className={styles.overdueAmount}>{formatCurrency(vendor.overdueAmount)} overdue</span>
+                    <span className={styles.overdueAmount}>{formatMoney(vendor.overdueAmount)} overdue</span>
                   )}
                 </div>
               </button>
@@ -1523,7 +1540,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                               onMouseLeave={() => setHoveredSegment(null)}
                               role="button"
                               tabIndex={0}
-                              aria-label={`${group.groupName}: ${formatCurrency(group.totalSpend)}, ${group.transactionCount} transactions`}
+                              aria-label={`${group.groupName}: ${formatMoney(group.totalSpend)}, ${group.transactionCount} transactions`}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter' || e.key === ' ') {
                                   setSelectedBreakdownItem(isSelected ? null : group.groupName)
@@ -1556,7 +1573,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                           <div className={styles.tooltipStats}>
                             <div className={styles.tooltipStat}>
                               <span className={styles.tooltipStatLabel}>Spent</span>
-                              <span className={styles.tooltipStatValue}>{formatCurrency(classificationBreakdown[hoveredSegment].totalSpend)}</span>
+                              <span className={styles.tooltipStatValue}>{formatMoney(classificationBreakdown[hoveredSegment].totalSpend)}</span>
                             </div>
                             <div className={styles.tooltipStat}>
                               <span className={styles.tooltipStatLabel}>Share</span>
@@ -1633,6 +1650,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                       >
                         Amount {txnSortField === 'amount' && (txnSortDirection === 'asc' ? '↑' : '↓')}
                       </button>
+                      <span aria-hidden="true"></span>
                     </div>
                     {sortedVendorTransactions.slice(0, 10).map((txn) => {
                       const isExpanded = expandedTxnIds.has(txn.id)
@@ -1803,18 +1821,44 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                       }
 
                       const hasBreakdown = isPayment && paymentBreakdownItems.length > 0
+                      const isOpen = isCardOpen(txn.id)
+                      const starred = isStarred(txn.id)
 
                       return (
                         <div key={txn.id} className={styles.transactionRowWrapper}>
-                          <div className={`${styles.transactionRow} ${hasBreakdown ? styles.transactionRowExpandable : ''}`}>
+                          <div
+                            className={`${styles.transactionRow} ${styles.transactionRowClickable}`}
+                            onClick={() => openTransactionCard(txn.id)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                openTransactionCard(txn.id)
+                              }
+                            }}
+                            title="Click to view/edit transaction"
+                            style={{
+                              ...(starred && !isOpen && {
+                                backgroundColor: '#fef9e7',
+                                boxShadow: 'inset 3px 0 0 #d97706',
+                              }),
+                              ...(isOpen && {
+                                backgroundColor: '#ecfdf5',
+                                boxShadow: 'inset 3px 0 0 #0f766e',
+                              }),
+                            }}
+                          >
                             <span className={styles.transactionDateCell}>
                               {hasBreakdown && (
                                 <button
                                   className={`${styles.expandButton} ${isExpanded ? styles.expandButtonOpen : ''}`}
-                                  onClick={() => toggleTxnExpanded(txn.id)}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    toggleTxnExpanded(txn.id)
+                                  }}
                                   aria-expanded={isExpanded}
-                                  aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
-                                  title={`${paymentBreakdownItems.length} item${paymentBreakdownItems.length !== 1 ? 's' : ''}`}
+                                  aria-label={isExpanded ? 'Collapse payment details' : 'Expand payment details'}
+                                  title="Show what this payment covered"
                                 >
                                   <svg
                                     fill="none"
@@ -1860,22 +1904,52 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                                   key={idx}
                                   className={styles.groupTag}
                                   style={{ backgroundColor: cls.color }}
-                                  title={`${cls.name}: ${formatCurrency(cls.amount)}`}
+                                  title={`${cls.name}: ${formatMoney(cls.amount)}`}
                                 >
                                   {txn.type === 'bill-payment'
-                                    ? `${cls.name} ${formatCurrency(cls.amount)}`
+                                    ? `${cls.name} ${formatMoney(cls.amount)}`
                                     : cls.name
                                   }
                                 </span>
                               ))}
                             </span>
                             <span className={styles.transactionAmount}>
-                              {formatCurrency(txn.amount)}
+                              {formatMoney(txn.amount)}
                               {txn.type === 'bill' && txn.amountDue > 0 && (
                                 <span className={styles.amountDue}>
-                                  {formatCurrency(txn.amountDue)} remaining
+                                  {formatMoney(txn.amountDue)} remaining
                                 </span>
                               )}
+                            </span>
+                            <span className={styles.transactionActions}>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toggleStar(txn.id)
+                                }}
+                                style={{
+                                  padding: '0.25rem',
+                                  border: 'none',
+                                  background: 'transparent',
+                                  cursor: 'pointer',
+                                  color: starred ? '#d97706' : '#d1d5db',
+                                  transition: 'color 0.15s, transform 0.15s',
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (!starred) e.currentTarget.style.color = '#f59e0b'
+                                  e.currentTarget.style.transform = 'scale(1.2)'
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.color = starred ? '#d97706' : '#d1d5db'
+                                  e.currentTarget.style.transform = 'scale(1)'
+                                }}
+                                title={starred ? 'Remove highlight' : 'Highlight this transaction'}
+                                aria-label={starred ? 'Remove highlight' : 'Highlight this transaction'}
+                              >
+                                <svg width="14" height="14" viewBox="0 0 20 20" fill={starred ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5">
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                              </button>
                             </span>
                           </div>
                           {/* Payment breakdown - shows what this payment covered */}
@@ -1908,7 +1982,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                                         {item.category}
                                       </span>
                                     </span>
-                                    <span className={styles.paymentAmount}>{formatCurrency(item.amount)}</span>
+                                    <span className={styles.paymentAmount}>{formatMoney(item.amount)}</span>
                                   </div>
                                 ))}
                               </div>

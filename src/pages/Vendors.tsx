@@ -344,6 +344,7 @@ const Vendors: FC<VendorsProps> = ({ companyId: propCompanyId }) => {
           isOpen
           onClose={handleCloseModal}
           title={modalState.type === 'create' ? 'Add Vendor' : 'Edit Vendor'}
+          size="xl"
           headerStyle={{
             background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
             color: 'white',

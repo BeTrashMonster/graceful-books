@@ -1,12 +1,14 @@
 /**
  * VendorForm Styles
+ * Two-column layout: Left = contact info, Right = address
  */
 
 .vendorForm {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-width: 600px;
+  width: 100%;
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -33,12 +35,33 @@
   line-height: 1.5;
 }
 
+/* Form body uses CSS grid for two-column layout */
 .formBody {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.5rem;
+}
+
+/* Full-width items span both columns */
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+/* Left column - contact info, tax, notes */
+.leftColumn {
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
 }
 
+/* Right column - address */
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Address section */
 .addressSection {
   display: flex;
   flex-direction: column;
@@ -75,6 +98,11 @@
 .viewTaxIdButton {
   flex-shrink: 0;
   height: 42px;
+}
+
+/* Parent selector spans full width */
+.parentSection {
+  grid-column: 1 / -1;
 }
 
 /* Form footer with status button on left */
@@ -121,10 +149,19 @@
   margin-top: 0.5rem;
 }
 
-/* Responsive */
-@media (max-width: 640px) {
+/* Responsive - single column on small screens */
+@media (max-width: 700px) {
   .vendorForm {
     max-width: 100%;
+  }
+
+  .formBody {
+    grid-template-columns: 1fr;
+  }
+
+  .fullWidth,
+  .parentSection {
+    grid-column: 1;
   }
 
   .addressRow {
