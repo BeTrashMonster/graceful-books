@@ -16,7 +16,9 @@
  * Config: src/config/dataClassification.ts
  */
 
-import { Pool, PoolClient } from 'pg';
+import pg from 'pg';
+const { Pool } = pg;
+type PoolClient = pg.PoolClient;
 import { randomBytes, createHash } from 'crypto';
 import { hashPassword } from '../utils/password.js';
 import { cancelAllUserSubscriptions } from './stripe.service.js';

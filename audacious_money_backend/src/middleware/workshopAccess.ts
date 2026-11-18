@@ -12,7 +12,7 @@
  */
 
 import { Context, Next } from 'hono';
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
 import {
   hasWorkshopAccess,
   hasTrialStarted,

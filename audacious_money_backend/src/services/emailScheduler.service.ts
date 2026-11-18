@@ -10,7 +10,7 @@
  * 3. Admin can view/cancel/retry via helper functions
  */
 
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
 import {
   sendWorkshopWelcomeEmail,
   sendWorkshopReminderEmail,

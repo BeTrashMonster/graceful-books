@@ -8,7 +8,7 @@
  * - Tier 3: Full history for detail page
  */
 
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
 
 // =============================================================================
 // TYPES

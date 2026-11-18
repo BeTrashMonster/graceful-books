@@ -17,7 +17,8 @@
 // Load environment variables first
 import 'dotenv/config';
 
-import { Client } from 'pg';
+import pg from 'pg';
+const { Client } = pg;
 import { readdir, readFile } from 'fs/promises';
 import { join, basename, dirname } from 'path';
 import { fileURLToPath } from 'url';

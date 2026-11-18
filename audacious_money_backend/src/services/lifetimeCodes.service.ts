@@ -5,7 +5,7 @@
  * These codes allow users to gain product access without payment.
  */
 
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
 import { grantProductAccess } from './adminDiagnostics.service.js';
 import { sendWelcomeEmail } from './email.service.js';
 import { generateUserToken } from '../utils/jwt.js';

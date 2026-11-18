@@ -5,7 +5,7 @@
  * Activities are categorized by type and include metadata for context.
  */
 
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
 
 // =============================================================================
 // TYPES
