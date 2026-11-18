@@ -10,7 +10,7 @@
  * - IDOR prevention (userId in context)
  */
 
-import { describe, expect, test, beforeAll } from 'bun:test';
+import { describe, expect, test, beforeAll } from 'vitest';
 import { Hono } from 'hono';
 import { requireAuth, requireAdmin, requirePermission } from './auth.js';
 import { generateUserToken, generateAdminToken } from '../utils/jwt.js';

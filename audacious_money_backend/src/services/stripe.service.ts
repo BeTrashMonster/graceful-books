@@ -6,16 +6,49 @@
 
 import Stripe from 'stripe';
 
-// Initialize Stripe client
+// =============================================================================
+// STRIPE CLIENT INITIALIZATION
+// =============================================================================
+
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-if (!stripeSecretKey) {
-  throw new Error('STRIPE_SECRET_KEY environment variable is required');
+const IS_STRIPE_ENABLED = !!stripeSecretKey && stripeSecretKey.length > 0;
+
+// Initialize Stripe client only if key is provided
+// This allows the app to start without Stripe configured (e.g., for testing)
+let stripe: Stripe | null = null;
+
+if (IS_STRIPE_ENABLED) {
+  stripe = new Stripe(stripeSecretKey, {
+    apiVersion: '2026-02-25.clover',
+    typescript: true,
+  });
+} else {
+  // Log warning only in non-test environments
+  if (process.env.NODE_ENV !== 'test') {
+    console.warn('[Stripe] STRIPE_SECRET_KEY not configured. Stripe functionality will not work.');
+  }
 }
 
-export const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: '2024-09-30.acacia',
-  typescript: true,
-});
+/**
+ * Check if Stripe is enabled
+ */
+export function isStripeEnabled(): boolean {
+  return IS_STRIPE_ENABLED && stripe !== null;
+}
+
+/**
+ * Get the Stripe client, throwing if not configured
+ * Use this for operations that absolutely require Stripe
+ */
+export function getStripeClient(): Stripe {
+  if (!stripe) {
+    throw new Error('Stripe is not configured. Set STRIPE_SECRET_KEY environment variable.');
+  }
+  return stripe;
+}
+
+// Export stripe for backwards compatibility (may be null)
+export { stripe };
 
 /**
  * Create a Stripe checkout session for a product subscription
@@ -50,7 +83,7 @@ export async function createCheckoutSession({
     subscriptionData.trial_period_days = trialDays;
   }
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripeClient().checkout.sessions.create({
     mode: 'subscription',
     payment_method_types: ['card'],
     line_items: [
@@ -82,7 +115,7 @@ export function verifyWebhookSignature(
   signature: string,
   webhookSecret: string
 ): Stripe.Event {
-  return stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+  return getStripeClient().webhooks.constructEvent(payload, signature, webhookSecret);
 }
 
 /**
@@ -97,7 +130,7 @@ export async function cancelAllUserSubscriptions(
 
   for (const subscriptionId of subscriptionIds) {
     try {
-      await stripe.subscriptions.cancel(subscriptionId);
+      await getStripeClient().subscriptions.cancel(subscriptionId);
       cancelled++;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -113,7 +146,7 @@ export async function cancelAllUserSubscriptions(
  * Pause a subscription (user still has read-only access)
  */
 export async function pauseSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
-  return await stripe.subscriptions.update(subscriptionId, {
+  return await getStripeClient().subscriptions.update(subscriptionId, {
     pause_collection: {
       behavior: 'void', // Don't collect payments while paused
     },
@@ -124,7 +157,7 @@ export async function pauseSubscription(subscriptionId: string): Promise<Stripe.
  * Resume a paused subscription (charges immediately)
  */
 export async function resumeSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
-  return await stripe.subscriptions.update(subscriptionId, {
+  return await getStripeClient().subscriptions.update(subscriptionId, {
     pause_collection: null, // Resume billing
     billing_cycle_anchor: 'now', // Start new billing cycle immediately
     proration_behavior: 'create_prorations', // Charge for the current period
@@ -135,7 +168,7 @@ export async function resumeSubscription(subscriptionId: string): Promise<Stripe
  * Get customer's payment methods
  */
 export async function getPaymentMethods(customerId: string): Promise<Stripe.PaymentMethod[]> {
-  const paymentMethods = await stripe.paymentMethods.list({
+  const paymentMethods = await getStripeClient().paymentMethods.list({
     customer: customerId,
     type: 'card',
   });
@@ -150,7 +183,7 @@ export async function getPaymentMethods(customerId: string): Promise<Stripe.Paym
 export async function getDefaultPaymentMethod(
   customerId: string
 ): Promise<Stripe.PaymentMethod | null> {
-  const customer = await stripe.customers.retrieve(customerId);
+  const customer = await getStripeClient().customers.retrieve(customerId);
 
   if (customer.deleted) {
     return null;
@@ -163,12 +196,12 @@ export async function getDefaultPaymentMethod(
       : customer.invoice_settings.default_payment_method?.id;
 
   if (defaultPaymentMethodId) {
-    return await stripe.paymentMethods.retrieve(defaultPaymentMethodId);
+    return await getStripeClient().paymentMethods.retrieve(defaultPaymentMethodId);
   }
 
   // If no default payment method, check active subscriptions
   // (Payment method might be on subscription from Checkout)
-  const subscriptions = await stripe.subscriptions.list({
+  const subscriptions = await getStripeClient().subscriptions.list({
     customer: customerId,
     status: 'active',
     limit: 1,
@@ -182,12 +215,12 @@ export async function getDefaultPaymentMethod(
         : subscription.default_payment_method?.id;
 
     if (subPaymentMethodId) {
-      return await stripe.paymentMethods.retrieve(subPaymentMethodId);
+      return await getStripeClient().paymentMethods.retrieve(subPaymentMethodId);
     }
   }
 
   // Also check trialing subscriptions
-  const trialSubscriptions = await stripe.subscriptions.list({
+  const trialSubscriptions = await getStripeClient().subscriptions.list({
     customer: customerId,
     status: 'trialing',
     limit: 1,
@@ -201,7 +234,7 @@ export async function getDefaultPaymentMethod(
         : subscription.default_payment_method?.id;
 
     if (subPaymentMethodId) {
-      return await stripe.paymentMethods.retrieve(subPaymentMethodId);
+      return await getStripeClient().paymentMethods.retrieve(subPaymentMethodId);
     }
   }
 
@@ -216,12 +249,12 @@ export async function updateDefaultPaymentMethod(
   paymentMethodId: string
 ): Promise<Stripe.Customer> {
   // Attach payment method to customer
-  await stripe.paymentMethods.attach(paymentMethodId, {
+  await getStripeClient().paymentMethods.attach(paymentMethodId, {
     customer: customerId,
   });
 
   // Set as default payment method
-  return await stripe.customers.update(customerId, {
+  return await getStripeClient().customers.update(customerId, {
     invoice_settings: {
       default_payment_method: paymentMethodId,
     },
@@ -235,7 +268,7 @@ export async function getInvoiceHistory(
   customerId: string,
   limit: number = 10
 ): Promise<Stripe.Invoice[]> {
-  const invoices = await stripe.invoices.list({
+  const invoices = await getStripeClient().invoices.list({
     customer: customerId,
     limit,
   });
@@ -246,7 +279,7 @@ export async function getInvoiceHistory(
  * Create a Setup Intent for updating payment method
  */
 export async function createSetupIntent(customerId: string): Promise<Stripe.SetupIntent> {
-  return await stripe.setupIntents.create({
+  return await getStripeClient().setupIntents.create({
     customer: customerId,
     payment_method_types: ['card'],
   });

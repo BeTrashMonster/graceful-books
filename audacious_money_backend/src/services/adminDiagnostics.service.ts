@@ -27,7 +27,7 @@ export interface WorkshopBadge {
 
 export interface UserSummary {
   id: string;
-  email: string;
+  email: string | null; // null for deleted users
   name: string;
   companyName: string | null;
   supportKey: string;
@@ -95,6 +95,17 @@ export interface EmailHealthCard {
   bounceCount: number;
 }
 
+export interface DeletionCard {
+  isDeleted: boolean;
+  gracefulExitId: string | null;
+  deletedAt: string | null;
+  deletionReason: string | null;
+  deletionRequestedBy: 'user' | 'admin' | null;
+  deletionAdminId: string | null;
+  deletionAdminName: string | null;
+  emailHash: string | null; // For fraud detection lookup
+}
+
 export interface UserDetailsResponse {
   summary: UserSummary;
   cards: {
@@ -103,6 +114,7 @@ export interface UserDetailsResponse {
     workshop: WorkshopCard | null;
     health: HealthCard;
     emailHealth: EmailHealthCard;
+    deletion: DeletionCard | null; // Only present for deleted users
   };
 }
 
@@ -185,17 +197,22 @@ function isPastDate(dateStr: string | null): boolean {
 export function computeStatusBadge(user: UserForBadge): StatusBadge {
   // Priority order (highest first)
 
-  // 1. Beta users
+  // 1. Account deleted (anonymized) - always takes priority
+  if (user.accountStatus === 'deleted') {
+    return { label: 'DELETED', variant: 'error', details: 'Account has been anonymized' };
+  }
+
+  // 2. Beta users
   if (user.isBeta) {
     return { label: 'BETA', variant: 'purple' };
   }
 
-  // 2. Account suspended
+  // 3. Account suspended
   if (user.accountStatus === 'suspended') {
     return { label: 'SUSPENDED', variant: 'error' };
   }
 
-  // 3. Account cancelled
+  // 4. Account cancelled
   if (user.accountStatus === 'cancelled') {
     return { label: 'CANCELLED', variant: 'error' };
   }
@@ -294,13 +311,15 @@ export function computeStatusBadge(user: UserForBadge): StatusBadge {
 // =============================================================================
 
 export async function getUserDetails(db: Pool, userId: string): Promise<UserDetailsResponse | null> {
-  // Get user basic info
+  // Get user basic info (including deletion fields)
   const userResult = await db.query(`
     SELECT
       u.id, u.email, u.first_name, u.last_name, u.company_name,
       u.support_key, u.account_status, u.email_verified,
       u.created_at, u.last_login_at, u.is_beta, u.stripe_customer_id,
-      u.current_workshop_enrollment_id
+      u.current_workshop_enrollment_id,
+      u.deleted_at, u.deletion_reason, u.deletion_requested_by,
+      u.deletion_admin_id, u.graceful_exit_id, u.email_hash
     FROM users u
     WHERE u.id = $1
   `, [userId]);
@@ -438,23 +457,59 @@ export async function getUserDetails(db: Pool, userId: string): Promise<UserDeta
     };
   }
 
+  // Check if user is deleted
+  const isDeleted = user.account_status === 'deleted';
+
   // Build health card
   const isFrozen = statusBadge.variant === 'error' &&
-    ['FROZEN', 'SUSPENDED', 'CANCELLED', 'TRIAL EXPIRED', 'NO SUBSCRIPTION'].includes(statusBadge.label);
+    ['FROZEN', 'SUSPENDED', 'CANCELLED', 'DELETED', 'TRIAL EXPIRED', 'NO SUBSCRIPTION'].includes(statusBadge.label);
 
   const hasPaymentIssue = statusBadge.label === 'PAYMENT ISSUE';
 
   const issuesSummary: string[] = [];
-  if (isFrozen) issuesSummary.push(statusBadge.details || statusBadge.label);
+  if (isDeleted) issuesSummary.push('Account has been deleted (anonymized)');
+  else if (isFrozen) issuesSummary.push(statusBadge.details || statusBadge.label);
   if (hasPaymentIssue) issuesSummary.push(statusBadge.details || 'Payment issue');
   if (suppression) issuesSummary.push(`Email suppressed: ${suppression.suppression_type}`);
+
+  // Build deletion card (only for deleted users)
+  let deletionCard: DeletionCard | null = null;
+  if (isDeleted) {
+    // Get admin name if deleted by admin
+    let deletionAdminName: string | null = null;
+    if (user.deletion_admin_id) {
+      const adminResult = await db.query(
+        `SELECT first_name, last_name FROM admin_users WHERE id = $1`,
+        [user.deletion_admin_id]
+      );
+      if (adminResult.rows.length > 0) {
+        deletionAdminName = `${adminResult.rows[0].first_name} ${adminResult.rows[0].last_name}`;
+      }
+    }
+
+    deletionCard = {
+      isDeleted: true,
+      gracefulExitId: user.graceful_exit_id,
+      deletedAt: user.deleted_at,
+      deletionReason: user.deletion_reason,
+      deletionRequestedBy: user.deletion_requested_by,
+      deletionAdminId: user.deletion_admin_id,
+      deletionAdminName,
+      emailHash: user.email_hash,
+    };
+  }
+
+  // For deleted users, use GracefulExit ID as display name
+  const displayName = isDeleted
+    ? (user.graceful_exit_id || 'Deleted User')
+    : `${user.first_name || ''} ${user.last_name || ''}`.trim();
 
   return {
     summary: {
       id: user.id,
-      email: user.email,
-      name: `${user.first_name} ${user.last_name}`.trim(),
-      companyName: user.company_name,
+      email: isDeleted ? null : user.email,
+      name: displayName,
+      companyName: isDeleted ? null : user.company_name,
       supportKey: user.support_key,
       statusBadge,
       workshopBadge,
@@ -487,8 +542,8 @@ export async function getUserDetails(db: Pool, userId: string): Promise<UserDeta
       },
       workshop: workshopCard,
       health: {
-        isFrozen,
-        frozenReason: isFrozen ? (statusBadge.details || statusBadge.label) : null,
+        isFrozen: isFrozen || isDeleted,
+        frozenReason: isDeleted ? 'Account has been deleted' : (isFrozen ? (statusBadge.details || statusBadge.label) : null),
         hasPaymentIssue,
         issuesSummary,
       },
@@ -502,6 +557,7 @@ export async function getUserDetails(db: Pool, userId: string): Promise<UserDeta
         lastOpenedAt: emailStats.last_opened_at,
         bounceCount: parseInt(emailStats.bounce_count) || 0,
       },
+      deletion: deletionCard,
     },
     // Recent data for expanded panel
     recentEmails: recentEmailsResult.rows.map(e => ({

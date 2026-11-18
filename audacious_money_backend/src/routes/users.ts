@@ -34,6 +34,7 @@ import {
   sendSubscriptionPausedEmail,
   sendSubscriptionResumedEmail,
 } from '../services/email.service.js';
+import { processUserDeletion } from '../services/anonymization.service.js';
 
 const users = new Hono<HonoEnv>();
 
@@ -357,7 +358,6 @@ const deleteAccountSchema = z.object({
 
 users.delete('/me', async (c) => {
   const userId = c.get('userId');
-  const userEmail = c.get('userEmail');
   const db = c.get('db');
 
   // Validate request body
@@ -374,9 +374,9 @@ users.delete('/me', async (c) => {
   const { password } = parseResult.data;
 
   try {
-    // Get user details
+    // Get user details for password verification
     const userResult = await db.query(
-      `SELECT id, email, password_hash, first_name, last_name, account_status
+      `SELECT id, password_hash, account_status
        FROM users
        WHERE id = $1`,
       [userId]
@@ -388,70 +388,40 @@ users.delete('/me', async (c) => {
 
     const user = userResult.rows[0];
 
-    // Verify password
+    // Check if already deleted (idempotent)
+    if (user.account_status === 'deleted') {
+      return success(c, {
+        message: 'Account already deleted',
+        deleted: true,
+      });
+    }
+
+    // Verify password (critical security check)
     const isValid = await timingSafeVerify(password, user.password_hash);
     if (!isValid) {
       return unauthorized(c, ErrorCodes.INVALID_CREDENTIALS, 'Password is incorrect');
     }
 
-    // Get all active Stripe subscriptions
-    const subscriptionsResult = await db.query(
-      `SELECT stripe_subscription_id
-       FROM user_products
-       WHERE user_id = $1 AND stripe_subscription_id IS NOT NULL AND status IN ('trialing', 'active')`,
-      [userId]
-    );
-
-    const subscriptionIds = subscriptionsResult.rows
-      .map((row) => row.stripe_subscription_id)
-      .filter((id): id is string => id !== null);
-
-    // Cancel all Stripe subscriptions
-    if (subscriptionIds.length > 0) {
-      console.log(`[Users] Cancelling ${subscriptionIds.length} Stripe subscriptions for user ${userId}`);
-      const { cancelled, errors } = await cancelAllUserSubscriptions(subscriptionIds);
-      console.log(`[Users] Cancelled ${cancelled}/${subscriptionIds.length} subscriptions`);
-
-      if (errors.length > 0) {
-        console.error('[Users] Errors cancelling subscriptions:', errors);
-        // Continue with deletion even if some subscriptions failed to cancel
-      }
-    }
-
-    // Update user_products to cancelled status
-    await db.query(
-      `UPDATE user_products
-       SET status = 'cancelled', cancelled_at = NOW(), updated_at = NOW()
-       WHERE user_id = $1 AND status IN ('trialing', 'active')`,
-      [userId]
-    );
-
-    // Delete user (CASCADE will delete related records)
-    await db.query('DELETE FROM users WHERE id = $1', [userId]);
-
-    // Create audit log entry
+    // Get IP address for audit
     const ipAddressRaw =
       c.req.header('x-forwarded-for') ||
       c.req.header('x-real-ip') ||
       c.req.header('cf-connecting-ip') ||
       '';
-    const ipAddress = ipAddressRaw.split(',')[0].trim() || null;
+    const ipAddress = ipAddressRaw.split(',')[0].trim() || undefined;
 
-    await db.query(
-      `INSERT INTO admin_audit_log (action, resource_type, resource_id, old_values, ip_address)
-       VALUES ('account_deleted', 'user', $1, $2, $3)`,
-      [userId, JSON.stringify({ email: user.email }), ipAddress]
-    );
+    // Process deletion via anonymization service
+    // This handles: Stripe cancellation, PII removal, audit logging, email notification
+    const result = await processUserDeletion(db, userId, {
+      requestedBy: 'user',
+      ipAddress,
+    });
 
-    // Send confirmation email
-    try {
-      await sendAccountDeletedEmail(userEmail, user.first_name);
-    } catch (emailError) {
-      console.error('[Users] Failed to send account deleted email:', emailError);
-      // Don't fail the request if email fails
+    if (result.status === 'blocked') {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, result.message || 'Deletion blocked');
     }
 
-    console.log(`[Users] Account deleted successfully: ${userId} (${userEmail})`);
+    console.log(`[Users] Account deleted successfully: ${userId} -> ${result.gracefulExitId}`);
 
     return success(c, {
       message: 'Account deleted successfully',

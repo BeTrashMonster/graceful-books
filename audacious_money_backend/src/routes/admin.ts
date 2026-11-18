@@ -23,6 +23,7 @@ import { hashPassword } from '../utils/password.js';
 import { z } from 'zod';
 import { stripe } from '../services/stripe.service.js';
 import { sendAdminBroadcastEmail, BROADCAST_TEMPLATES, type BroadcastTemplateId } from '../services/email.service.js';
+import { processUserDeletion, checkEmailHashMatch, getDeletionStats } from '../services/anonymization.service.js';
 import {
   getUserDetails,
   getUserEmailHistory,
@@ -143,7 +144,10 @@ admin.post('/login', validate(loginSchema), async (c) => {
  * GET /admin/users
  *
  * List all users (admin only)
- * Supports filtering by: search, product, workshop, status, isBeta, needsAttention, emailSuppressed
+ * Supports filtering by: search, product, workshop, status, isBeta, needsAttention, emailSuppressed, includeDeleted
+ *
+ * Note: Deleted users are hidden by default. Use includeDeleted=true or status=deleted to view them.
+ * Deleted users can be searched by their GracefulExit ID.
  */
 admin.get('/users', requireAdmin, async (c) => {
   const db = c.get('db');
@@ -157,6 +161,7 @@ admin.get('/users', requireAdmin, async (c) => {
   const needsAttention = c.req.query('needsAttention');
   const emailSuppressed = c.req.query('emailSuppressed');
   const tag = c.req.query('tag');
+  const includeDeleted = c.req.query('includeDeleted') === 'true';
   const page = parseInt(c.req.query('page') || '1');
   const pageSize = Math.min(parseInt(c.req.query('pageSize') || '50'), 100);
   const offset = (page - 1) * pageSize;
@@ -167,12 +172,24 @@ admin.get('/users', requireAdmin, async (c) => {
     const params: any[] = [];
     let paramIndex = 1;
 
-    // Search filter (email, name, support key)
+    // Filter out deleted users by default (unless includeDeleted=true or filtering by status=deleted)
+    const wantsDeletedOnly = status?.toLowerCase() === 'deleted';
+    if (!includeDeleted && !wantsDeletedOnly) {
+      conditions.push(`u.account_status != 'deleted'`);
+    }
+
+    // If filtering by deleted status specifically, only show deleted users
+    if (wantsDeletedOnly) {
+      conditions.push(`u.account_status = 'deleted'`);
+    }
+
+    // Search filter (email, name, support key, graceful_exit_id)
     if (search) {
       conditions.push(`(
-        LOWER(u.email) LIKE $${paramIndex}
-        OR LOWER(u.first_name || ' ' || u.last_name) LIKE $${paramIndex}
+        LOWER(COALESCE(u.email, '')) LIKE $${paramIndex}
+        OR LOWER(COALESCE(u.first_name || ' ' || u.last_name, '')) LIKE $${paramIndex}
         OR LOWER(u.support_key) LIKE $${paramIndex}
+        OR LOWER(COALESCE(u.graceful_exit_id, '')) LIKE $${paramIndex}
       )`);
       params.push(`%${search}%`);
       paramIndex++;
@@ -249,6 +266,10 @@ admin.get('/users', requireAdmin, async (c) => {
         u.last_login_at,
         u.is_beta,
         u.current_workshop_enrollment_id,
+        -- Deletion info (for deleted users)
+        u.deleted_at,
+        u.graceful_exit_id,
+        u.deletion_requested_by,
         -- Get primary product info
         (SELECT p.slug FROM user_products up JOIN products p ON up.product_id = p.id WHERE up.user_id = u.id ORDER BY up.activated_at DESC LIMIT 1) as product_slug,
         (SELECT p.name FROM user_products up JOIN products p ON up.product_id = p.id WHERE up.user_id = u.id ORDER BY up.activated_at DESC LIMIT 1) as product_name,
@@ -316,12 +337,18 @@ admin.get('/users', requireAdmin, async (c) => {
         };
       }
 
+      // For deleted users, use GracefulExit ID as display name
+      const isDeleted = row.account_status === 'deleted';
+      const displayName = isDeleted
+        ? row.graceful_exit_id || 'Unknown'
+        : `${row.first_name || ''} ${row.last_name || ''}`.trim() || null;
+
       return {
         id: row.id,
-        email: row.email,
-        firstName: row.first_name,
-        lastName: row.last_name,
-        companyName: row.company_name,
+        email: isDeleted ? null : row.email,
+        firstName: isDeleted ? null : row.first_name,
+        lastName: isDeleted ? null : row.last_name,
+        companyName: isDeleted ? null : row.company_name,
         supportKey: row.support_key,
         productSlug: row.product_slug || '',
         productName: row.product_name || '',
@@ -336,6 +363,14 @@ admin.get('/users', requireAdmin, async (c) => {
         emailVerified: row.email_verified,
         createdAt: row.created_at,
         lastLoginAt: row.last_login_at,
+        // Deletion info (only present for deleted users)
+        ...(isDeleted && {
+          isDeleted: true,
+          gracefulExitId: row.graceful_exit_id,
+          deletedAt: row.deleted_at,
+          deletionRequestedBy: row.deletion_requested_by,
+          displayName,
+        }),
       };
     });
 
@@ -453,8 +488,16 @@ admin.get('/users/:userId/deletion-preview', requireAdmin, async (c) => {
 /**
  * DELETE /admin/users/:userId
  *
- * Delete a user (admin only)
+ * Delete a user (admin only) via soft delete with anonymization
  * Requires confirmation (type user's email) and reason for audit trail
+ *
+ * Uses the centralized AnonymizationService which:
+ * - Cancels Stripe subscriptions
+ * - Nulls PII fields (email, name, etc.)
+ * - Sets account_status to 'deleted'
+ * - Creates GracefulExit ID for anonymous reference
+ * - Preserves accounting records (payments, charity selections, etc.)
+ * - Creates compliance audit log entry
  */
 admin.delete('/users/:userId', requireAdmin, async (c) => {
   const { userId } = c.req.param();
@@ -479,14 +522,26 @@ admin.delete('/users/:userId', requireAdmin, async (c) => {
       return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Reason is required (minimum 5 characters)');
     }
 
-    // Check if user exists
-    const userResult = await db.query('SELECT id, email FROM users WHERE id = $1', [userId]);
+    // Check if user exists and get current status
+    const userResult = await db.query(
+      'SELECT id, email, account_status, graceful_exit_id FROM users WHERE id = $1',
+      [userId]
+    );
 
     if (userResult.rowCount === 0) {
       return notFound(c, ErrorCodes.NOT_FOUND, 'User not found');
     }
 
     const user = userResult.rows[0];
+
+    // Check if already deleted (idempotent)
+    if (user.account_status === 'deleted') {
+      return success(c, {
+        success: true,
+        message: 'User already deleted',
+        gracefulExitId: user.graceful_exit_id,
+      });
+    }
 
     // Validate email confirmation
     if (!confirmEmail || confirmEmail.toLowerCase() !== user.email.toLowerCase()) {
@@ -497,92 +552,42 @@ admin.delete('/users/:userId', requireAdmin, async (c) => {
     console.log(`[Admin] Reason: ${reason}`);
 
     // Prepare deletion: cancel scheduled emails, remove suppressions, create snapshot
+    // This is still useful for capturing state before deletion
     const preparation = await prepareUserDeletion(db, userId, adminId, reason);
     console.log(`[Admin] Preparation complete: ${preparation.scheduledEmailsCancelled} scheduled emails cancelled, ${preparation.suppressionsRemoved} suppressions removed`);
 
-    // CRITICAL: Cancel all active Stripe subscriptions before deleting user
-    console.log(`[Admin] Checking for Stripe subscriptions for user ${userId}`);
-    const subscriptionsResult = await db.query(
-      `SELECT stripe_subscription_id
-       FROM user_products
-       WHERE user_id = $1
-       AND stripe_subscription_id IS NOT NULL`,
-      [userId]
-    );
-
-    const cancelledSubscriptions: string[] = [];
-    const failedCancellations: { subscriptionId: string; error: string }[] = [];
-
-    for (const row of subscriptionsResult.rows) {
-      const subscriptionId = row.stripe_subscription_id;
-      try {
-        console.log(`[Admin] Cancelling Stripe subscription: ${subscriptionId}`);
-        await stripe.subscriptions.cancel(subscriptionId);
-        cancelledSubscriptions.push(subscriptionId);
-        console.log(`[Admin] ✅ Successfully cancelled subscription: ${subscriptionId}`);
-      } catch (stripeError: any) {
-        console.error(`[Admin] ❌ Failed to cancel subscription ${subscriptionId}:`, stripeError);
-        failedCancellations.push({
-          subscriptionId,
-          error: stripeError.message || 'Unknown error',
-        });
-      }
-    }
-
-    // Log subscription cancellation results
-    if (cancelledSubscriptions.length > 0) {
-      console.log(`[Admin] Cancelled ${cancelledSubscriptions.length} subscription(s)`);
-    }
-    if (failedCancellations.length > 0) {
-      console.warn(
-        `[Admin] ⚠️ Failed to cancel ${failedCancellations.length} subscription(s):`,
-        failedCancellations
-      );
-    }
-
-    // Delete user (cascade will handle related records)
-    await db.query('DELETE FROM users WHERE id = $1', [userId]);
-
-    // Log the action with complete user snapshot
+    // Get IP address for audit
     const ipAddress =
       c.req.header('x-forwarded-for')?.split(',')[0].trim() ||
       c.req.header('x-real-ip') ||
       c.req.header('cf-connecting-ip') ||
-      '';
+      undefined;
 
-    await db.query(
-      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, old_values, new_values)
-       VALUES ('user_deleted', 'user', $1, $2, $3, $4, $5)`,
-      [
-        userId,
-        adminId,
-        ipAddress,
-        JSON.stringify(preparation.userSnapshot),
-        JSON.stringify({
-          reason,
-          cancelledSubscriptions,
-          failedCancellations,
-          scheduledEmailsCancelled: preparation.scheduledEmailsCancelled,
-          suppressionsRemoved: preparation.suppressionsRemoved,
-        }),
-      ]
-    );
+    // Process deletion via centralized anonymization service
+    // This handles: Stripe cancellation, PII removal, audit logging, email notification
+    const result = await processUserDeletion(db, userId, {
+      requestedBy: 'admin',
+      adminId,
+      reason: reason.trim(),
+      ipAddress,
+    });
 
-    console.log(`[Admin] ✅ User ${user.email} deleted successfully`);
+    if (result.status === 'blocked') {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, result.message || 'Deletion blocked');
+    }
+
+    console.log(`[Admin] ✅ User ${user.email} deleted successfully -> ${result.gracefulExitId}`);
 
     return success(c, {
       success: true,
-      message: 'User deleted successfully',
+      message: 'User deleted successfully (soft delete with anonymization)',
+      gracefulExitId: result.gracefulExitId,
       deletedData: {
         userId,
-        email: user.email,
-        subscriptionsCancelled: cancelledSubscriptions.length,
+        originalEmail: user.email, // Safe to return in admin response
         scheduledEmailsCancelled: preparation.scheduledEmailsCancelled,
         suppressionsRemoved: preparation.suppressionsRemoved,
       },
-      warnings: failedCancellations.length > 0
-        ? [`${failedCancellations.length} Stripe subscription(s) could not be cancelled. Check Stripe Dashboard.`]
-        : undefined,
     });
   } catch (error) {
     console.error('[Admin] Error deleting user:', error);
@@ -4060,6 +4065,224 @@ admin.delete('/lifetime-codes/:id', requireAdmin, async (c) => {
   } catch (error) {
     console.error('[Admin] Error deactivating lifetime code:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to deactivate code');
+  }
+});
+
+// =============================================================================
+// USER DELETION MANAGEMENT (Phase 6: Admin Dashboard Updates)
+// =============================================================================
+
+/**
+ * GET /admin/deletion-stats
+ *
+ * Get statistics about user deletions (admin only)
+ * Returns total deletions, breakdown by requestor (user vs admin),
+ * and recent deletion activity.
+ *
+ * Query params:
+ * - since: ISO date string (default: 30 days ago)
+ */
+admin.get('/deletion-stats', requireAdmin, async (c) => {
+  const db = c.get('db');
+
+  try {
+    // Parse optional since date
+    const sinceParam = c.req.query('since');
+    const since = sinceParam ? new Date(sinceParam) : undefined;
+
+    // Validate date if provided
+    if (sinceParam && isNaN(since!.getTime())) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Invalid date format for "since" parameter');
+    }
+
+    const stats = await getDeletionStats(db, since);
+
+    // Also get all-time total for context
+    const allTimeResult = await db.query(
+      `SELECT COUNT(*) as count FROM users WHERE account_status = 'deleted'`
+    );
+    const allTimeTotal = parseInt(allTimeResult.rows[0]?.count || '0');
+
+    return success(c, {
+      ...stats,
+      allTimeTotal,
+      queryPeriod: {
+        since: since || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        isDefaultPeriod: !sinceParam,
+      },
+    });
+  } catch (error) {
+    console.error('[Admin] Error fetching deletion stats:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch deletion statistics');
+  }
+});
+
+/**
+ * POST /admin/check-email-hash
+ *
+ * Check if an email matches a previously deleted account (fraud detection)
+ * This is an admin-only tool for investigating potential abuse.
+ *
+ * Request body:
+ * - email: The email address to check
+ *
+ * Returns:
+ * - matched: boolean
+ * - gracefulExitId: string | null (if matched)
+ * - deletedAt: ISO date string | null (if matched)
+ */
+admin.post('/check-email-hash', requireAdmin, async (c) => {
+  const db = c.get('db');
+  const adminId = c.get('adminId');
+
+  try {
+    const body = await c.req.json();
+    const { email } = body;
+
+    if (!email || typeof email !== 'string') {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Email is required');
+    }
+
+    // Basic email format validation
+    if (!email.includes('@')) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Invalid email format');
+    }
+
+    const result = await checkEmailHashMatch(db, email);
+
+    // Log this lookup in the audit log (security-sensitive action)
+    const ipAddress =
+      c.req.header('x-forwarded-for')?.split(',')[0].trim() ||
+      c.req.header('x-real-ip') ||
+      c.req.header('cf-connecting-ip') ||
+      '';
+
+    await db.query(
+      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, new_values)
+       VALUES ('email_hash_lookup', 'fraud_detection', $1, $2, $3, $4)`,
+      [
+        result.gracefulExitId || 'no_match',
+        adminId,
+        ipAddress,
+        JSON.stringify({
+          matched: result.matched,
+          // Don't log the actual email for privacy - just note if it was found
+          lookupPerformed: true,
+        }),
+      ]
+    );
+
+    return success(c, {
+      matched: result.matched,
+      gracefulExitId: result.gracefulExitId,
+      deletedAt: result.deletedAt,
+      message: result.matched
+        ? `This email was previously associated with deleted account ${result.gracefulExitId}`
+        : 'No matching deleted account found',
+    });
+  } catch (error) {
+    console.error('[Admin] Error checking email hash:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to check email hash');
+  }
+});
+
+/**
+ * GET /admin/deleted-users
+ *
+ * List all deleted users with their GracefulExit IDs
+ * Convenience endpoint for browsing deleted accounts
+ *
+ * Query params:
+ * - page: number (default: 1)
+ * - pageSize: number (default: 50, max: 100)
+ * - search: string (search by GracefulExit ID)
+ */
+admin.get('/deleted-users', requireAdmin, async (c) => {
+  const db = c.get('db');
+
+  const search = c.req.query('search')?.toLowerCase();
+  const page = parseInt(c.req.query('page') || '1');
+  const pageSize = Math.min(parseInt(c.req.query('pageSize') || '50'), 100);
+  const offset = (page - 1) * pageSize;
+
+  try {
+    // Build search condition
+    const conditions: string[] = [`account_status = 'deleted'`];
+    const params: any[] = [];
+    let paramIndex = 1;
+
+    if (search) {
+      conditions.push(`LOWER(graceful_exit_id) LIKE $${paramIndex}`);
+      params.push(`%${search}%`);
+      paramIndex++;
+    }
+
+    const whereClause = `WHERE ${conditions.join(' AND ')}`;
+
+    // Get total count
+    const countResult = await db.query(
+      `SELECT COUNT(*) FROM users ${whereClause}`,
+      params
+    );
+    const total = parseInt(countResult.rows[0].count);
+
+    // Get deleted users
+    const result = await db.query(
+      `SELECT
+        id,
+        graceful_exit_id,
+        support_key,
+        deleted_at,
+        deletion_reason,
+        deletion_requested_by,
+        deletion_admin_id,
+        email_hash,
+        created_at,
+        last_login_at
+       FROM users
+       ${whereClause}
+       ORDER BY deleted_at DESC
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+      [...params, pageSize, offset]
+    );
+
+    // Get admin names for admin-initiated deletions
+    const adminIds = [...new Set(result.rows.map(r => r.deletion_admin_id).filter(Boolean))];
+    let adminNames: Record<string, string> = {};
+    if (adminIds.length > 0) {
+      const adminResult = await db.query(
+        `SELECT id, first_name, last_name FROM admin_users WHERE id = ANY($1)`,
+        [adminIds]
+      );
+      adminNames = Object.fromEntries(
+        adminResult.rows.map(a => [a.id, `${a.first_name} ${a.last_name}`])
+      );
+    }
+
+    return success(c, {
+      deletedUsers: result.rows.map(row => ({
+        id: row.id,
+        gracefulExitId: row.graceful_exit_id,
+        supportKey: row.support_key,
+        deletedAt: row.deleted_at,
+        deletionReason: row.deletion_reason,
+        deletionRequestedBy: row.deletion_requested_by,
+        deletionAdminId: row.deletion_admin_id,
+        deletionAdminName: row.deletion_admin_id ? adminNames[row.deletion_admin_id] || null : null,
+        emailHash: row.email_hash, // For fraud investigation
+        createdAt: row.created_at,
+        lastLoginAt: row.last_login_at,
+      })),
+      pagination: {
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      },
+    });
+  } catch (error) {
+    console.error('[Admin] Error fetching deleted users:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch deleted users');
   }
 });
 

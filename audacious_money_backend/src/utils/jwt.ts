@@ -5,7 +5,7 @@
  */
 
 import { sign, verify } from 'hono/jwt';
-import type { Permission } from '../config/permissions.js';
+import type { PermissionOrWildcard } from '../config/permissions.js';
 
 /**
  * User token payload (7 day expiry)
@@ -15,6 +15,7 @@ export interface UserTokenPayload {
   email: string;
   role: 'user';
   exp: number;
+  [key: string]: unknown; // Required for Hono JWT compatibility
 }
 
 /**
@@ -24,8 +25,9 @@ export interface AdminTokenPayload {
   adminId: string;
   email: string;
   role: string;
-  permissions: Permission[] | ['*'];
+  permissions: PermissionOrWildcard[];
   exp: number;
+  [key: string]: unknown; // Required for Hono JWT compatibility
 }
 
 /**
@@ -34,11 +36,21 @@ export interface AdminTokenPayload {
 export type TokenPayload = UserTokenPayload | AdminTokenPayload;
 
 /**
+ * Default test secret - ONLY used in test environment when JWT_SECRET is not set
+ * This allows tests to run without environment configuration
+ */
+const TEST_JWT_SECRET = 'test-jwt-secret-do-not-use-in-production';
+
+/**
  * Get JWT secret from environment
  */
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
+    // In test environment, use a default test secret
+    if (process.env.NODE_ENV === 'test') {
+      return TEST_JWT_SECRET;
+    }
     console.error('[JWT] FATAL: JWT_SECRET is not set in environment');
     throw new Error('JWT_SECRET environment variable is not set');
   }
@@ -93,7 +105,7 @@ export async function generateAdminToken(
   adminId: string,
   email: string,
   role: string,
-  permissions: Permission[] | ['*']
+  permissions: PermissionOrWildcard[]
 ): Promise<string> {
   const secret = getJwtSecret();
   const expiresIn = 60 * 60 * 24; // 24 hours in seconds

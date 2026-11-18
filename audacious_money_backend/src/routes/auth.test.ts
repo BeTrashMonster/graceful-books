@@ -2,12 +2,28 @@
  * Integration tests for authentication routes
  *
  * Tests user signup, login, email verification, and password reset
+ *
+ * NOTE: These tests require a database connection. They will be skipped
+ * if DATABASE_URL or PG* environment variables are not configured.
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { testClient } from 'hono/testing';
 import app from '../app.js';
 import { initializeDatabase, closeDatabase, query } from '../db/connection.js';
+
+// Check if database is configured
+const hasDatabase = !!(
+  process.env.DATABASE_URL ||
+  (process.env.PGHOST && process.env.PGUSER && process.env.PGDATABASE)
+);
+
+// Skip all tests if no database is configured
+if (!hasDatabase) {
+  describe.skip('Auth Integration Tests (skipped - no database configured)', () => {
+    it('requires DATABASE_URL or PG* environment variables', () => {});
+  });
+}
 
 // Test client
 const client = testClient(app);
@@ -16,6 +32,7 @@ const client = testClient(app);
  * Setup database connection before all tests
  */
 beforeAll(async () => {
+  if (!hasDatabase) return;
   // Initialize database connection
   initializeDatabase();
 });
@@ -24,6 +41,7 @@ beforeAll(async () => {
  * Cleanup after all tests
  */
 afterAll(async () => {
+  if (!hasDatabase) return;
   await closeDatabase();
 });
 
@@ -31,11 +49,15 @@ afterAll(async () => {
  * Clean up test data before each test
  */
 beforeEach(async () => {
+  if (!hasDatabase) return;
   // Delete test users created during tests
   await query('DELETE FROM users WHERE email LIKE $1', ['test-%@example.com']);
 });
 
-describe('POST /auth/signup', () => {
+// Skip all describe blocks if no database is configured
+const describeWithDb = hasDatabase ? describe : describe.skip;
+
+describeWithDb('POST /auth/signup', () => {
   it('should create a new user with valid data', async () => {
     const response = await client.auth.signup.$post({
       json: {
@@ -305,7 +327,7 @@ describe('POST /auth/signup', () => {
   });
 });
 
-describe('POST /auth/login', () => {
+describeWithDb('POST /auth/login', () => {
   it('should login successfully with valid credentials', async () => {
     // First, create a test user
     await client.auth.signup.$post({
@@ -603,7 +625,7 @@ describe('POST /auth/login', () => {
   });
 });
 
-describe('POST /auth/verify-email', () => {
+describeWithDb('POST /auth/verify-email', () => {
   it('should verify email with valid token', async () => {
     // Create a test user
     const signupResponse = await client.auth.signup.$post({
@@ -830,7 +852,7 @@ describe('POST /auth/verify-email', () => {
   });
 });
 
-describe('POST /auth/resend-verification', () => {
+describeWithDb('POST /auth/resend-verification', () => {
   it('should resend verification email for authenticated unverified user', async () => {
     // Create a test user
     const signupResponse = await client.auth.signup.$post({
@@ -973,7 +995,7 @@ describe('POST /auth/resend-verification', () => {
   });
 });
 
-describe('POST /auth/forgot-password', () => {
+describeWithDb('POST /auth/forgot-password', () => {
   it('should return success for existing email', async () => {
     // Create a test user
     await client.auth.signup.$post({
@@ -1158,7 +1180,7 @@ describe('POST /auth/forgot-password', () => {
   });
 });
 
-describe('POST /auth/reset-password', () => {
+describeWithDb('POST /auth/reset-password', () => {
   it('should reset password with valid token', async () => {
     // Create a test user
     const signupResponse = await client.auth.signup.$post({

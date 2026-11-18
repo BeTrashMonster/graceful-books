@@ -8,10 +8,32 @@
 import * as postmark from 'postmark';
 import { query } from '../db/connection.js';
 
-// Initialize Postmark client
-const client = new postmark.ServerClient(
-  process.env.POSTMARK_SERVER_TOKEN || ''
-);
+// =============================================================================
+// POSTMARK CLIENT INITIALIZATION
+// =============================================================================
+
+const POSTMARK_TOKEN = process.env.POSTMARK_SERVER_TOKEN;
+const IS_EMAIL_ENABLED = !!POSTMARK_TOKEN && POSTMARK_TOKEN.length > 0;
+
+// Initialize Postmark client only if token is provided
+// This allows the app to start without Postmark configured (e.g., for testing)
+let client: postmark.ServerClient | null = null;
+
+if (IS_EMAIL_ENABLED) {
+  client = new postmark.ServerClient(POSTMARK_TOKEN);
+} else {
+  // Log warning only once at startup, not on every email attempt
+  if (process.env.NODE_ENV !== 'test') {
+    console.warn('[Email] POSTMARK_SERVER_TOKEN not configured. Emails will not be sent.');
+  }
+}
+
+/**
+ * Check if email sending is enabled
+ */
+export function isEmailEnabled(): boolean {
+  return IS_EMAIL_ENABLED && client !== null;
+}
 
 const FROM_EMAIL = process.env.POSTMARK_FROM_EMAIL || 'noreply@audacious.money';
 const FROM_NAME = process.env.POSTMARK_FROM_NAME || 'Audacious Money';
@@ -100,6 +122,24 @@ function replaceTemplateTags(
 }
 
 /**
+ * Internal helper to send email via Postmark
+ * Returns null if email is disabled (no Postmark token configured)
+ * This allows the app to run without email configuration (e.g., for testing)
+ */
+async function sendEmailInternal(
+  options: postmark.Models.Message
+): Promise<postmark.Models.MessageSendingResponse | null> {
+  if (!client) {
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(`[Email] Skipped (no Postmark): ${options.Subject} to ${options.To}`);
+    }
+    return null;
+  }
+
+  return client.sendEmail(options);
+}
+
+/**
  * Format location for HTML email - makes URLs clickable
  * If the location looks like a URL (http/https), wrap it in an anchor tag
  */
@@ -185,7 +225,7 @@ export async function sendWelcomeEmail(
   userName: string,
   supportKey: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: 'Welcome to Audacious Money! 🌟',
@@ -259,7 +299,7 @@ export async function sendTrialStartedEmail(
   productName: string,
   trialEndDate: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: `Your ${productName} trial has started!`,
@@ -318,7 +358,7 @@ export async function sendTrialEndingSoonEmail(
   productName: string,
   trialEndDate: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: `Your ${productName} trial ends in 3 days`,
@@ -379,7 +419,7 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   const resetUrl = `${appUrl}/reset-password?token=${resetToken}`;
 
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: 'Reset your Audacious Money password',
@@ -430,7 +470,7 @@ export async function sendPaymentFailedEmail(
   productName: string,
   amount: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: 'Payment issue with your subscription',
@@ -485,7 +525,7 @@ export async function sendSubscriptionCancelledEmail(
   productName: string,
   endDate: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: `Your ${productName} subscription has been cancelled`,
@@ -534,7 +574,7 @@ export async function sendEmailVerificationEmail(
 ): Promise<void> {
   const verifyUrl = `${appUrl}/verify-email?token=${verificationToken}`;
 
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: 'Verify your email address',
@@ -575,7 +615,7 @@ Didn't sign up? You can safely ignore this email.
  * Test email function (for testing Postmark integration)
  */
 export async function sendTestEmail(to: string): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: 'Postmark Test Email',
@@ -601,12 +641,17 @@ export async function sendVerificationEmail(
 
 /**
  * Send account deleted confirmation email
+ *
+ * Updated for soft delete with anonymization approach.
+ * Accurately describes what was removed vs retained.
  */
 export async function sendAccountDeletedEmail(
   to: string,
-  userName: string
+  userName?: string
 ): Promise<void> {
-  await client.sendEmail({
+  const greeting = userName ? `Hi ${userName},` : 'Hi there,';
+
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     ReplyTo: 'hello@audacious.money',
@@ -614,22 +659,23 @@ export async function sendAccountDeletedEmail(
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #4b006e;">Account Deleted</h1>
-        <p>Hi ${userName},</p>
-        <p>We've successfully deleted your Audacious Money account as requested.</p>
+        <p>${greeting}</p>
+        <p>We've successfully processed your Audacious Money account deletion as requested.</p>
 
         <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ef4444;">
           <p style="margin: 0; font-size: 14px; color: #991b1b;">
-            <strong>What's been deleted:</strong><br>
-            • Your account and profile information<br>
+            <strong>What's been removed:</strong><br>
+            • Your email, name, and identifying information<br>
+            • Your password (you can no longer log in)<br>
             • All active subscriptions have been cancelled<br>
             • Your local financial data remains on your device
           </p>
         </div>
 
         <h3>Important Notes</h3>
-        <p><strong>What We Retain:</strong> A record of this deletion (your email and deletion date) is kept in our audit log for 7 years for legal compliance.</p>
+        <p><strong>What We Retain:</strong> For legal and accounting compliance, we retain anonymous records of transactions, payment history, and charity selections for 7 years. These records no longer contain your name or email - they are linked to an anonymous identifier.</p>
         <p><strong>Local Data:</strong> Any data stored locally on your device has not been affected. You can delete this manually if needed.</p>
-        <p><strong>Creating a New Account:</strong> You're welcome to create a new account anytime using the same email address. If you have a backup file, you can upload it to restore your data.</p>
+        <p><strong>Creating a New Account:</strong> You're welcome to create a new account anytime using the same email address. This will be a fresh start - previous account history is not recoverable.</p>
 
         <p>We're sorry to see you go. If you have any feedback about your experience, we'd genuinely appreciate hearing from you. Just reply to this email.</p>
 
@@ -646,22 +692,23 @@ export async function sendAccountDeletedEmail(
     `,
     TextBody: `Account Deleted
 
-Hi ${userName},
+${greeting}
 
-We've successfully deleted your Audacious Money account as requested.
+We've successfully processed your Audacious Money account deletion as requested.
 
-What's been deleted:
-• Your account and profile information
+What's been removed:
+• Your email, name, and identifying information
+• Your password (you can no longer log in)
 • All active subscriptions have been cancelled
 • Your local financial data remains on your device
 
 Important Notes:
 
-What We Retain: A record of this deletion (your email and deletion date) is kept in our audit log for 7 years for legal compliance.
+What We Retain: For legal and accounting compliance, we retain anonymous records of transactions, payment history, and charity selections for 7 years. These records no longer contain your name or email - they are linked to an anonymous identifier.
 
 Local Data: Any data stored locally on your device has not been affected. You can delete this manually if needed.
 
-Creating a New Account: You're welcome to create a new account anytime using the same email address. If you have a backup file, you can upload it to restore your data.
+Creating a New Account: You're welcome to create a new account anytime using the same email address. This will be a fresh start - previous account history is not recoverable.
 
 We're sorry to see you go. If you have any feedback about your experience, we'd genuinely appreciate hearing from you. Just reply to this email.
 
@@ -682,7 +729,7 @@ export async function sendAccountDeactivatedEmail(
   to: string,
   userName: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: 'Your Audacious Money account has been deactivated',
@@ -749,7 +796,7 @@ export async function sendAccountReactivatedEmail(
   to: string,
   userName: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: 'Welcome back to Audacious Money! 🌟',
@@ -819,7 +866,7 @@ export async function sendSubscriptionPausedEmail(
   userName: string,
   productName: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: `Your ${productName} subscription has been paused`,
@@ -894,7 +941,7 @@ export async function sendSubscriptionResumedEmail(
   userName: string,
   productName: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: `Welcome back! Your ${productName} subscription is active`,
@@ -964,7 +1011,7 @@ export async function sendPaymentFailedGracePeriodEmail(
   productName: string,
   gracePeriodEndDate: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: `Payment failed - 3-day grace period for ${productName}`,
@@ -1048,7 +1095,7 @@ export async function sendGracePeriodEndingSoonEmail(
   productName: string,
   gracePeriodEndDate: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: `Grace period ends tomorrow - ${productName}`,
@@ -1130,7 +1177,7 @@ export async function sendCPGLaunchSignupEmail(
 ): Promise<void> {
   const unsubscribeUrl = `https://audacious.money/cpg-unsubscribe?id=${signupId}`;
 
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: 'You\'re on the list! Product Costing Tool launches May 4th 🚀',
@@ -1240,7 +1287,7 @@ export async function sendHomeEmailSignupEmail(
 ): Promise<void> {
   const unsubscribeUrl = `https://audacious.money/home-email-unsubscribe?id=${signupId}`;
 
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: 'Welcome to the Rebellion! 🔥',
@@ -1342,7 +1389,7 @@ export async function sendBookkeepingSignupEmail(
 ): Promise<void> {
   const unsubscribeUrl = `https://audacious.money/home-email-unsubscribe?id=${signupId}`;
 
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: 'Welcome to the Rebellion! 🔥',
@@ -1455,7 +1502,7 @@ export async function sendContactFormEmail(
 
   const subjectLine = subjectMap[subject] || 'Contact Form Submission';
 
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: FROM_EMAIL, // Send to hello@audacious.money (or noreply@audacious.money based on your FROM_EMAIL)
     ReplyTo: email, // User's email for easy reply
@@ -1661,7 +1708,7 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     emailOptions.SendAt = sendAt;
   }
 
-  const result = await client.sendEmail(emailOptions);
+  const result = await sendEmailInternal(emailOptions);
 
   // Log sent email to database
   await logEmailSent(
@@ -1818,7 +1865,7 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     emailOptions.SendAt = sendAt;
   }
 
-  const result = await client.sendEmail(emailOptions);
+  const result = await sendEmailInternal(emailOptions);
 
   // Log sent email to database
   await logEmailSent(
@@ -1988,7 +2035,7 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     emailOptions.SendAt = sendAt;
   }
 
-  const result = await client.sendEmail(emailOptions);
+  const result = await sendEmailInternal(emailOptions);
 
   // Log email event
   await logEmailSent(
@@ -2148,7 +2195,7 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     emailOptions.SendAt = sendAt;
   }
 
-  const result = await client.sendEmail(emailOptions);
+  const result = await sendEmailInternal(emailOptions);
 
   // Log sent email to database
   await logEmailSent(
@@ -2302,7 +2349,7 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     emailOptions.SendAt = sendAt;
   }
 
-  const result = await client.sendEmail(emailOptions);
+  const result = await sendEmailInternal(emailOptions);
 
   // Log sent email to database
   await logEmailSent(
@@ -2454,7 +2501,7 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     emailOptions.SendAt = sendAt;
   }
 
-  const result = await client.sendEmail(emailOptions);
+  const result = await sendEmailInternal(emailOptions);
 
   // Log sent email to database
   await logEmailSent(
@@ -2613,7 +2660,7 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     emailOptions.SendAt = sendAt;
   }
 
-  const result = await client.sendEmail(emailOptions);
+  const result = await sendEmailInternal(emailOptions);
 
   // Log sent email to database
   await logEmailSent(
@@ -2781,7 +2828,7 @@ Don't want to receive these emails? Unsubscribe: ${unsubscribeUrl}`;
     emailOptions.SendAt = sendAt;
   }
 
-  const result = await client.sendEmail(emailOptions);
+  const result = await sendEmailInternal(emailOptions);
 
   // Log sent email to database
   await logEmailSent(
@@ -2903,7 +2950,7 @@ export async function sendCustomWorkshopEmail(
       },
     };
 
-    const result = await client.sendEmail(emailOptions);
+    const result = await sendEmailInternal(emailOptions);
 
     // Log sent email to database
     await logEmailSent(
@@ -2931,7 +2978,7 @@ export async function sendProductWelcomeEmail(
   firstName: string,
   productName: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: `Welcome to ${productName}!`,
@@ -3001,7 +3048,7 @@ export async function sendPaymentReceiptEmail(
   amount: number,
   currency: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: `Payment received - ${productName}`,
@@ -3056,7 +3103,7 @@ export async function sendEmailChangedAlertToOldEmail(
 ): Promise<void> {
   const supportEmail = process.env.SUPPORT_EMAIL || 'support@audacious.money';
 
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: oldEmail,
     Subject: 'Your Audacious Money email address has been changed',
@@ -3137,7 +3184,7 @@ export async function sendEmailChangedConfirmationToNewEmail(
   newEmail: string,
   userName: string
 ): Promise<void> {
-  await client.sendEmail({
+  await sendEmailInternal({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: newEmail,
     Subject: 'Your Audacious Money email address has been updated',
@@ -3214,7 +3261,7 @@ export async function sendAdminBroadcastEmail(
   textBody: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
-    const result = await client.sendEmail({
+    const result = await sendEmailInternal({
       From: `${FROM_NAME} <${FROM_EMAIL}>`,
       To: to,
       Subject: subject,
