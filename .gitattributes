@@ -1,0 +1,5 @@
+# Handle line endings automatically for files detected as text
+* text=auto
+
+# Shell scripts should use Unix line endings (LF), even on Windows
+*.sh text eol=lf

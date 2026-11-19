@@ -15,7 +15,8 @@
     "typecheck:watch": "tsc --noEmit --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "ratchet": "bash scripts/ts-ratchet.sh"
   },
   "dependencies": {
     "@hono/node-server": "2.1.3",
