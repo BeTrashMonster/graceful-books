@@ -134,6 +134,24 @@ export function ExpenseForm({
     if (transaction.memo) setMemo(transaction.memo)
     if (total > 0) setTotalAmount(fromCents(total).toFixed(2))
 
+    // Set date from transaction (in case initial state didn't capture it correctly)
+    if (transaction.date) {
+      const txnDate = transaction.date instanceof Date ? transaction.date : new Date(transaction.date)
+      const year = txnDate.getFullYear()
+      const month = String(txnDate.getMonth() + 1).padStart(2, '0')
+      const day = String(txnDate.getDate()).padStart(2, '0')
+      setDate(`${year}-${month}-${day}`)
+    }
+
+    // Set due date for bills
+    if (transaction.dueDate) {
+      const dueDateObj = transaction.dueDate instanceof Date ? transaction.dueDate : new Date(transaction.dueDate)
+      const year = dueDateObj.getFullYear()
+      const month = String(dueDateObj.getMonth() + 1).padStart(2, '0')
+      const day = String(dueDateObj.getDate()).padStart(2, '0')
+      setDueDate(`${year}-${month}-${day}`)
+    }
+
     // Set category lines (add empty lines to make at least 3)
     if (foundCategories.length > 0) {
       while (foundCategories.length < 3) {

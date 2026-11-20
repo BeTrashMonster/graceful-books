@@ -1305,6 +1305,17 @@
   font-weight: 700;
 }
 
+.sortIndicator {
+  font-size: 0.6rem;
+  opacity: 0.4;
+}
+
+.sortIndicatorActive {
+  font-size: 0.55rem;
+  color: var(--color-primary, #4b006e);
+  opacity: 1;
+}
+
 .transactionType {
   font-size: 0.8125rem;
   color: var(--color-text-secondary, #6b7280);

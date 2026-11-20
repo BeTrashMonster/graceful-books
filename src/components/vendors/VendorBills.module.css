@@ -87,6 +87,44 @@
 
 .actions {
   margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* View Toggle */
+.viewToggle {
+  display: flex;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.viewToggleBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  background: #ffffff;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary, #6b7280);
+  transition: all 0.15s ease;
+}
+
+.viewToggleBtn:not(:last-child) {
+  border-right: 1px solid var(--color-border, #e5e7eb);
+}
+
+.viewToggleBtn:hover {
+  background: var(--color-background-secondary, #f9fafb);
+}
+
+.viewToggleBtnActive {
+  background: var(--color-primary, #4b006e);
+  color: #ffffff;
+}
+
+.viewToggleBtnActive:hover {
+  background: var(--color-primary, #4b006e);
 }
 
 /* Results */
@@ -100,6 +138,260 @@
   margin: 0;
 }
 
+/* Two Column Layout */
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.column {
+  min-width: 0; /* Prevent overflow */
+}
+
+/* Section */
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0 0 0.75rem 0;
+}
+
+/* Compact Header for two-column layout */
+.compactHeader {
+  display: grid;
+  grid-template-columns: 85px minmax(80px, 1fr) 60px minmax(80px, 1fr) 70px 90px;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-background-secondary, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Sortable Header Button */
+.sortableHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.15s ease;
+}
+
+.sortableHeader:hover {
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.sortIndicator {
+  font-size: 0.6rem;
+  opacity: 0.4;
+}
+
+.sortIndicatorActive {
+  font-size: 0.55rem;
+  color: var(--color-primary, #4b006e);
+  opacity: 1;
+}
+
+.compactRow {
+  display: grid;
+  grid-template-columns: 85px minmax(80px, 1fr) 60px minmax(80px, 1fr) 70px 90px;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  align-items: center;
+  font-size: 0.8125rem;
+  transition: background-color 0.15s ease;
+}
+
+.compactRow:last-child {
+  border-bottom: none;
+}
+
+.compactRow:hover {
+  background: var(--color-background-secondary, #f9fafb);
+}
+
+.cellDate {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.cellVendor {
+  font-weight: 500;
+  color: var(--color-text-primary, #1a1a1a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cellAmount {
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  text-align: right;
+}
+
+.cellRef {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cellDescription {
+  font-size: 0.75rem;
+  color: var(--color-text-primary, #1a1a1a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cellStatus {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.cellStatusWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.cellActions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Void Badge */
+.voidBadge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #991b1b;
+  background: #fee2e2;
+  padding: 0.125rem 0.25rem;
+  border-radius: 2px;
+  text-decoration: none !important;
+}
+
+/* Linked Badge */
+.linkedBadge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #1a4731;
+  background: #dcfce7;
+  padding: 0.125rem 0.375rem;
+  border-radius: 9999px;
+  min-width: 1.25rem;
+  text-align: center;
+}
+
+/* Payments Header with expand column */
+.paymentsHeader {
+  display: grid;
+  grid-template-columns: 20px 85px minmax(80px, 1fr) 60px minmax(80px, 1fr) 70px 90px;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-background-secondary, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Payment row with expand column */
+.paymentRow {
+  display: grid;
+  grid-template-columns: 20px 85px minmax(80px, 1fr) 60px minmax(80px, 1fr) 70px 90px;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  align-items: center;
+  font-size: 0.8125rem;
+  transition: background-color 0.15s ease;
+}
+
+.paymentRow:hover {
+  background: var(--color-background-secondary, #f9fafb);
+}
+
+/* Expand button */
+.expandBtn {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.65rem;
+  color: var(--color-text-secondary, #6b7280);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.expandBtn:hover {
+  color: var(--color-primary, #4b006e);
+}
+
+.expandPlaceholder {
+  width: 20px;
+}
+
+/* Linked Bills Container */
+.linkedBillsContainer {
+  background: var(--color-background-secondary, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.linkedBillRow {
+  display: grid;
+  grid-template-columns: 20px 85px 60px minmax(80px, 1fr) 70px;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem 0.375rem 1rem;
+  border-top: 1px dashed var(--color-border, #e5e7eb);
+  align-items: center;
+  font-size: 0.75rem;
+  transition: background-color 0.15s ease;
+}
+
+.linkedBillRow:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.linkedBillIcon {
+  color: var(--color-text-secondary, #9ca3af);
+  font-size: 0.875rem;
+}
+
 /* Bills List */
 .billsList {
   background: #ffffff;
@@ -110,8 +402,8 @@
 
 .billsHeader {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 100px;
-  gap: 1rem;
+  grid-template-columns: 90px 130px 100px 1fr 90px 90px 70px 32px;
+  gap: 0.75rem;
   padding: 0.75rem 1rem;
   background: var(--color-background-secondary, #f9fafb);
   border-bottom: 1px solid var(--color-border, #e5e7eb);
@@ -122,11 +414,28 @@
   letter-spacing: 0.05em;
 }
 
+.headerDate,
+.headerVendor,
+.headerRef,
+.headerDescription,
+.headerDueDate,
+.headerAmount,
+.headerStatus,
+.headerActions {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headerAmount {
+  text-align: right;
+}
+
 .billRow {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 100px;
-  gap: 1rem;
-  padding: 1rem;
+  grid-template-columns: 90px 130px 100px 1fr 90px 90px 70px 32px;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--color-border, #e5e7eb);
   align-items: center;
   transition: background-color 0.15s ease;
@@ -140,20 +449,40 @@
   background: var(--color-background-secondary, #f9fafb);
 }
 
-.billNumber {
-  font-weight: 500;
-  color: var(--color-text-primary, #1a1a1a);
-}
-
 .billDate,
 .billDueDate {
   font-size: 0.875rem;
   color: var(--color-text-secondary, #6b7280);
 }
 
+.billVendor {
+  font-weight: 500;
+  color: var(--color-text-primary, #1a1a1a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.billRef {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.billDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #1a1a1a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .billAmount {
   font-weight: 600;
   color: var(--color-text-primary, #1a1a1a);
+  text-align: right;
 }
 
 .billStatus {
@@ -226,6 +555,12 @@
 }
 
 /* Responsive */
+@media (max-width: 1100px) {
+  .twoColumnLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .toolbar {
     flex-direction: column;
@@ -240,21 +575,39 @@
     margin-left: 0;
   }
 
-  .billsHeader {
+  .compactHeader {
     display: none;
   }
 
-  .billRow {
+  .compactRow {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
     align-items: flex-start;
+    padding: 0.75rem;
+    position: relative;
   }
 
-  .billRow::before {
-    content: none;
+  .cellVendor {
+    font-size: 0.9rem;
   }
 
+  .cellAmount {
+    text-align: left;
+  }
+
+  .cellActions {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .summaryCards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 500px) {
   .summaryCards {
     grid-template-columns: 1fr;
   }

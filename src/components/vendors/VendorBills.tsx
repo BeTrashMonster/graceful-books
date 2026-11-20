@@ -1,32 +1,33 @@
 /**
  * VendorBills Component
  *
- * Displays bills associated with vendors.
+ * Displays bills and bill payments from transactions.
  * Part of the Vendors page tabbed interface.
  *
  * Features:
  * - List bills from vendors with status indicators
- * - Filter by status (Draft, Due, Overdue, Paid, Void)
- * - Search by bill number or vendor
- * - Create new bills using ExpenseForm with defaultExpenseType='bill'
+ * - Filter by status (Posted, Paid, Overdue, Void)
+ * - Search by reference or description
+ * - Shows bill payments and their links
  * - WCAG 2.1 AA accessible
  *
  * Per E6: Bill Entry & Management
  */
 
-import { type FC, useState, useEffect, useMemo } from 'react'
+import { type FC, useState, useEffect, useMemo, useCallback } from 'react'
 import { Input } from '../forms/Input'
 import { Select, type SelectOption } from '../forms/Select'
 import { Button } from '../core/Button'
 import { Modal } from '../modals/Modal'
 import { ExpenseForm } from '../transactions/ExpenseForm'
-import { getBills } from '../../store/bills'
-import { deleteTransaction, voidTransaction } from '../../store/transactions'
+import { BillPaidForm } from '../transactions/BillPaidForm'
 import { useTransactions, useNewTransaction } from '../../hooks/useTransactions'
 import { useAccounts } from '../../hooks/useAccounts'
+import { useVendors } from '../../hooks/useVendors'
 import { useAuth } from '../../contexts/AuthContext'
-import type { Bill, BillStatus } from '../../db/schema/bills.schema'
+import { useFloatingCards } from '../../contexts/FloatingCardsContext'
 import type { JournalEntry } from '../../types'
+import { formatMoney } from '../../utils/money'
 import styles from './VendorBills.module.css'
 
 export interface VendorBillsProps {
@@ -41,22 +42,19 @@ export interface VendorBillsProps {
   vendorId?: string
 }
 
-/**
- * Format currency amount
- */
-function formatAmount(amount: string): string {
-  const num = parseFloat(amount)
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(num)
-}
+type BillStatusFilter = 'all' | 'unpaid' | 'paid' | 'overdue' | 'voided'
+
+type BillSortColumn = 'date' | 'vendor' | 'ref' | 'description' | 'amount' | 'status'
+type SortDirection = 'asc' | 'desc'
+
+type BillsViewMode = 'outstanding' | 'all'
 
 /**
  * Format date
  */
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('en-US', {
+function formatDate(date: Date | string | number): string {
+  const d = date instanceof Date ? date : new Date(date)
+  return d.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -64,42 +62,44 @@ function formatDate(timestamp: number): string {
 }
 
 /**
- * Get status badge class
+ * Check if a bill is overdue (due date is BEFORE today, not equal to today)
  */
-function getStatusClass(status: BillStatus): string {
-  switch (status) {
-    case 'DRAFT':
-      return styles.statusDraft
-    case 'DUE':
-      return styles.statusDue
-    case 'OVERDUE':
-      return styles.statusOverdue
-    case 'PAID':
-      return styles.statusPaid
-    case 'VOID':
-      return styles.statusVoid
-    default:
-      return ''
-  }
+function isBillOverdue(bill: JournalEntry): boolean {
+  if (bill.status === 'reconciled') return false // Paid
+  if (bill.status === 'void') return false // Voided
+  if (!bill.dueDate) return false
+  const dueDate = bill.dueDate instanceof Date ? bill.dueDate : new Date(bill.dueDate)
+  // Compare dates only (not time) - overdue means due date is strictly before today
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const dueDateStart = new Date(dueDate)
+  dueDateStart.setHours(0, 0, 0, 0)
+  return dueDateStart < today
 }
 
 /**
- * Get status display text
+ * Get bill status for display
  */
-function getStatusText(status: BillStatus): string {
+function getBillStatus(bill: JournalEntry): string {
+  if (bill.status === 'void') return 'Voided'
+  if (bill.status === 'reconciled') return 'Paid'
+  if (isBillOverdue(bill)) return 'Overdue'
+  return 'Unpaid'
+}
+
+/**
+ * Get status class for styling
+ */
+function getStatusClass(status: string): string {
   switch (status) {
-    case 'DRAFT':
-      return 'Draft'
-    case 'DUE':
-      return 'Due'
-    case 'OVERDUE':
-      return 'Overdue'
-    case 'PAID':
-      return 'Paid'
-    case 'VOID':
-      return 'Void'
+    case 'Paid':
+      return styles.statusPaid
+    case 'Overdue':
+      return styles.statusOverdue
+    case 'Voided':
+      return styles.statusVoid
     default:
-      return status
+      return styles.statusDue
   }
 }
 
@@ -113,118 +113,241 @@ export const VendorBills: FC<VendorBillsProps> = ({
   const { userIdentifier } = useAuth()
   const activeUserId = userIdentifier || 'demo-user'
 
-  const [bills, setBills] = useState<Bill[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterStatus, setFilterStatus] = useState<string>('all')
+  const [filterStatus, setFilterStatus] = useState<BillStatusFilter>('all')
+  const [viewMode, setViewMode] = useState<BillsViewMode>('outstanding')
 
-  // Modal state for creating bills
+  // Sort state for bills
+  const [billsSortColumn, setBillsSortColumn] = useState<BillSortColumn>('date')
+  const [billsSortDirection, setBillsSortDirection] = useState<SortDirection>('desc')
+
+  // Sort state for payments
+  const [paymentsSortColumn, setPaymentsSortColumn] = useState<BillSortColumn>('date')
+  const [paymentsSortDirection, setPaymentsSortDirection] = useState<SortDirection>('desc')
+
+  // Modal state for creating bills/payments
   const [showBillModal, setShowBillModal] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [currentTransaction, setCurrentTransaction] = useState<JournalEntry | null>(null)
 
-  // Cleanup modal state
-  const [showCleanupModal, setShowCleanupModal] = useState(false)
-  const [orphanedPayments, setOrphanedPayments] = useState<JournalEntry[]>([])
-  const [isCleaningUp, setIsCleaningUp] = useState(false)
-  const [cleanupMessage, setCleanupMessage] = useState<string | null>(null)
+  // Expanded payment IDs to show linked bills
+  const [expandedPayments, setExpandedPayments] = useState<Set<string>>(new Set())
 
-  // Migration modal state
-  const [showMigrationModal, setShowMigrationModal] = useState(false)
-  const [migrationItems, setMigrationItems] = useState<Array<{
-    payment: JournalEntry
-    expensesToConsolidate: JournalEntry[]
-    needsAdjustmentOnly?: boolean
-  }>>([])
-  const [isMigrating, setIsMigrating] = useState(false)
-  const [migrationMessage, setMigrationMessage] = useState<string | null>(null)
-
-  // Hooks for the expense form
-  const { transactions: allTransactions, loadTransactions, createNewTransaction } = useTransactions()
+  // Hooks
+  const { transactions, isLoading, loadTransactions, createNewTransaction } = useTransactions()
   const { accounts, isLoading: accountsLoading } = useAccounts({
     companyId,
     isActive: true,
   })
+  const { vendors } = useVendors({ companyId })
+  const { toggleCard, isCardOpen, isStarred, toggleStar, subscribeToChanges } = useFloatingCards()
 
-  // Load bills
+  // Load transactions on mount
   useEffect(() => {
-    const loadBills = async () => {
-      setIsLoading(true)
-      try {
-        const result = await getBills({
-          company_id: companyId,
-          vendor_id: vendorId,
-        })
-        if (result.success) {
-          setBills(result.data)
-        }
-      } catch (error) {
-        console.error('Failed to load bills:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+    loadTransactions({ companyId })
+  }, [loadTransactions, companyId])
 
-    loadBills()
-  }, [companyId, vendorId])
+  // Subscribe to floating card changes to refresh
+  useEffect(() => {
+    const unsubscribe = subscribeToChanges(async () => {
+      await loadTransactions({ companyId })
+    })
+    return unsubscribe
+  }, [subscribeToChanges, loadTransactions, companyId])
+
+  // Build vendor lookup map
+  const vendorMap = useMemo(() => {
+    const map = new Map<string, string>()
+    vendors.forEach((v) => map.set(v.id, v.name))
+    return map
+  }, [vendors])
+
+  // Filter transactions to only bills and bill-payments
+  const billTransactions = useMemo(() => {
+    return transactions.filter((txn) => {
+      // Filter by transaction type
+      if (txn.transactionType !== 'bill' && txn.transactionType !== 'bill-payment') {
+        return false
+      }
+      // Filter by vendor if specified
+      if (vendorId && txn.vendorId !== vendorId) {
+        return false
+      }
+      return true
+    })
+  }, [transactions, vendorId])
+
+  // Separate bills and payments
+  const bills = useMemo(() => {
+    return billTransactions.filter((txn) => txn.transactionType === 'bill')
+  }, [billTransactions])
+
+  const payments = useMemo(() => {
+    return billTransactions.filter((txn) => txn.transactionType === 'bill-payment')
+  }, [billTransactions])
+
+  // Helper to get sortable value from a bill
+  const getSortValue = useCallback((bill: JournalEntry, column: BillSortColumn): string | number => {
+    switch (column) {
+      case 'date':
+        return bill.date instanceof Date ? bill.date.getTime() : new Date(bill.date).getTime()
+      case 'vendor':
+        return vendorMap.get(bill.vendorId || '')?.toLowerCase() || ''
+      case 'ref':
+        return bill.reference?.toLowerCase() || ''
+      case 'description':
+        return (bill.description || bill.memo || '').toLowerCase()
+      case 'amount':
+        return bill.lines.reduce((sum, l) => sum + (l.debit || 0), 0)
+      case 'status':
+        return getBillStatus(bill)
+      default:
+        return 0
+    }
+  }, [vendorMap])
 
   // Filter and search bills
   const filteredBills = useMemo(() => {
     let filtered = [...bills]
+
+    // View mode filter - outstanding only shows unpaid/overdue
+    if (viewMode === 'outstanding') {
+      filtered = filtered.filter((bill) => {
+        const status = getBillStatus(bill)
+        return status === 'Unpaid' || status === 'Overdue'
+      })
+    }
 
     // Search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       filtered = filtered.filter(
         (bill) =>
-          bill.bill_number.toLowerCase().includes(term) ||
-          bill.notes?.toLowerCase().includes(term)
+          bill.reference?.toLowerCase().includes(term) ||
+          bill.description?.toLowerCase().includes(term) ||
+          bill.memo?.toLowerCase().includes(term) ||
+          vendorMap.get(bill.vendorId || '')?.toLowerCase().includes(term)
       )
     }
 
     // Status filter
     if (filterStatus !== 'all') {
-      filtered = filtered.filter((bill) => bill.status === filterStatus)
+      filtered = filtered.filter((bill) => {
+        const status = getBillStatus(bill)
+        switch (filterStatus) {
+          case 'unpaid':
+            return status === 'Unpaid'
+          case 'paid':
+            return status === 'Paid'
+          case 'overdue':
+            return status === 'Overdue'
+          case 'voided':
+            return status === 'Voided'
+          default:
+            return true
+        }
+      })
     }
 
-    // Sort by date descending
-    filtered.sort((a, b) => b.bill_date - a.bill_date)
+    // Sort by selected column
+    filtered.sort((a, b) => {
+      const aVal = getSortValue(a, billsSortColumn)
+      const bVal = getSortValue(b, billsSortColumn)
+
+      let comparison = 0
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        comparison = aVal - bVal
+      } else {
+        comparison = String(aVal).localeCompare(String(bVal))
+      }
+
+      return billsSortDirection === 'asc' ? comparison : -comparison
+    })
 
     return filtered
-  }, [bills, searchTerm, filterStatus])
+  }, [bills, searchTerm, filterStatus, vendorMap, billsSortColumn, billsSortDirection, getSortValue, viewMode])
+
+  // Build a map of linked bill IDs per payment
+  const linkedBillsMap = useMemo(() => {
+    const map = new Map<string, JournalEntry[]>()
+    payments.forEach((payment) => {
+      // Check if payment has linkedBillIds or similar
+      const linkedIds = payment.linkedBillIds || payment.linkedTransactionIds || []
+      if (linkedIds.length > 0) {
+        const linkedBills = bills.filter((bill) => linkedIds.includes(bill.id))
+        if (linkedBills.length > 0) {
+          map.set(payment.id, linkedBills)
+        }
+      }
+    })
+    return map
+  }, [payments, bills])
+
+  // Filter and search payments
+  const filteredPayments = useMemo(() => {
+    let filtered = [...payments]
+
+    // Search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase()
+      filtered = filtered.filter(
+        (payment) =>
+          payment.reference?.toLowerCase().includes(term) ||
+          payment.description?.toLowerCase().includes(term) ||
+          payment.memo?.toLowerCase().includes(term) ||
+          vendorMap.get(payment.vendorId || '')?.toLowerCase().includes(term)
+      )
+    }
+
+    // Sort by selected column
+    filtered.sort((a, b) => {
+      const aVal = getSortValue(a, paymentsSortColumn)
+      const bVal = getSortValue(b, paymentsSortColumn)
+
+      let comparison = 0
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        comparison = aVal - bVal
+      } else {
+        comparison = String(aVal).localeCompare(String(bVal))
+      }
+
+      return paymentsSortDirection === 'asc' ? comparison : -comparison
+    })
+
+    return filtered
+  }, [payments, searchTerm, vendorMap, paymentsSortColumn, paymentsSortDirection, getSortValue])
 
   const statusOptions: SelectOption[] = [
     { value: 'all', label: 'All Status' },
-    { value: 'DRAFT', label: 'Draft' },
-    { value: 'DUE', label: 'Due' },
-    { value: 'OVERDUE', label: 'Overdue' },
-    { value: 'PAID', label: 'Paid' },
-    { value: 'VOID', label: 'Void' },
+    { value: 'unpaid', label: 'Unpaid' },
+    { value: 'paid', label: 'Paid' },
+    { value: 'overdue', label: 'Overdue' },
+    { value: 'voided', label: 'Voided' },
   ]
 
   // Calculate summary stats
   const stats = useMemo(() => {
     const total = bills.length
-    const outstanding = bills.filter(
-      (b) => b.status === 'DUE' || b.status === 'OVERDUE'
-    )
-    const outstandingAmount = outstanding.reduce(
-      (sum, b) => sum + parseFloat(b.total),
-      0
-    )
-    const overdue = bills.filter((b) => b.status === 'OVERDUE')
-    const overdueAmount = overdue.reduce(
-      (sum, b) => sum + parseFloat(b.total),
-      0
-    )
+    const unpaid = bills.filter((b) => getBillStatus(b) === 'Unpaid' || getBillStatus(b) === 'Overdue')
+    const unpaidAmount = unpaid.reduce((sum, b) => {
+      const amount = b.lines.reduce((s, l) => s + (l.debit || 0), 0)
+      return sum + amount
+    }, 0)
+    const overdue = bills.filter((b) => getBillStatus(b) === 'Overdue')
+    const overdueAmount = overdue.reduce((sum, b) => {
+      const amount = b.lines.reduce((s, l) => s + (l.debit || 0), 0)
+      return sum + amount
+    }, 0)
 
     return {
       total,
-      outstanding: outstanding.length,
-      outstandingAmount,
+      unpaid: unpaid.length,
+      unpaidAmount,
       overdue: overdue.length,
       overdueAmount,
+      payments: payments.length,
     }
-  }, [bills])
+  }, [bills, payments])
 
   // Handler to open the new bill modal
   const handleNewBill = () => {
@@ -232,6 +355,24 @@ export const VendorBills: FC<VendorBillsProps> = ({
     setCurrentTransaction(newTransaction)
     setShowBillModal(true)
   }
+
+  // Handler to open the bill payment modal
+  const handleNewBillPayment = () => {
+    setShowPaymentModal(true)
+  }
+
+  // Toggle expanded state for a payment
+  const togglePaymentExpanded = useCallback((paymentId: string) => {
+    setExpandedPayments((prev) => {
+      const next = new Set(prev)
+      if (next.has(paymentId)) {
+        next.delete(paymentId)
+      } else {
+        next.add(paymentId)
+      }
+      return next
+    })
+  }, [])
 
   // Handler for transaction changes in the form
   const handleTransactionChange = (transaction: JournalEntry) => {
@@ -242,20 +383,28 @@ export const VendorBills: FC<VendorBillsProps> = ({
   const handleSaveBill = async (transaction: JournalEntry) => {
     try {
       const result = await createNewTransaction(transaction)
-      if (result.success) {
+      if (result) {
         setShowBillModal(false)
         setCurrentTransaction(null)
-        // Refresh bills list
-        const billsResult = await getBills({
-          company_id: companyId,
-          vendor_id: vendorId,
-        })
-        if (billsResult.success) {
-          setBills(billsResult.data)
-        }
+        // Refresh transactions
+        await loadTransactions({ companyId })
       }
     } catch (error) {
       console.error('Failed to save bill:', error)
+    }
+  }
+
+  // Handler to save bill payments from BillPaidForm
+  const handleSaveBillPayments = async (paymentTransactions: JournalEntry[]) => {
+    try {
+      for (const transaction of paymentTransactions) {
+        await createNewTransaction(transaction)
+      }
+      setShowPaymentModal(false)
+      // Refresh transactions
+      await loadTransactions({ companyId })
+    } catch (error) {
+      console.error('Failed to save bill payment:', error)
     }
   }
 
@@ -265,231 +414,49 @@ export const VendorBills: FC<VendorBillsProps> = ({
     setCurrentTransaction(null)
   }
 
-  // Load transactions when component mounts (for cleanup detection)
-  useEffect(() => {
-    loadTransactions({ companyId })
-  }, [loadTransactions, companyId])
-
-  // Find orphaned bill-payments (those without linkedTransactionId or with invalid links)
-  const handleFindOrphanedPayments = async () => {
-    setCleanupMessage(null)
-
-    // Get all bill-payment transactions
-    const billPayments = allTransactions.filter(
-      (txn) => txn.transactionType === 'bill-payment'
-    )
-
-    // Get all bill transaction IDs
-    const billIds = new Set(
-      allTransactions
-        .filter((txn) => txn.transactionType === 'bill')
-        .map((txn) => txn.id)
-    )
-
-    // Find orphaned payments:
-    // 1. No linkedTransactionId
-    // 2. linkedTransactionId points to a non-existent bill
-    const orphaned = billPayments.filter((payment) => {
-      if (!payment.linkedTransactionId) {
-        return true // No link at all
-      }
-      if (!billIds.has(payment.linkedTransactionId)) {
-        return true // Links to non-existent bill
-      }
-      return false
-    })
-
-    setOrphanedPayments(orphaned)
-    setShowCleanupModal(true)
+  // Handler to cancel/close the payment modal
+  const handleCancelPayment = () => {
+    setShowPaymentModal(false)
+    setCurrentTransaction(null)
   }
 
-  // Delete orphaned payments
-  const handleDeleteOrphanedPayments = async () => {
-    setIsCleaningUp(true)
-    let deletedCount = 0
-    let errorCount = 0
+  // Open transaction in floating card
+  const handleTransactionClick = useCallback((txnId: string) => {
+    toggleCard({ transactionId: txnId, companyId })
+  }, [toggleCard, companyId])
 
-    for (const payment of orphanedPayments) {
-      try {
-        const result = await deleteTransaction(payment.id, companyId)
-        if (result.success) {
-          deletedCount++
-        } else {
-          errorCount++
-          console.error(`Failed to delete payment ${payment.id}:`, result.error)
-        }
-      } catch (error) {
-        errorCount++
-        console.error(`Error deleting payment ${payment.id}:`, error)
-      }
-    }
-
-    setIsCleaningUp(false)
-    setOrphanedPayments([])
-
-    if (errorCount === 0) {
-      setCleanupMessage(`Successfully deleted ${deletedCount} orphaned payment(s).`)
+  // Handle sort toggle for bills
+  const handleBillsSort = useCallback((column: BillSortColumn) => {
+    if (billsSortColumn === column) {
+      setBillsSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
     } else {
-      setCleanupMessage(`Deleted ${deletedCount} payment(s). ${errorCount} failed.`)
+      setBillsSortColumn(column)
+      setBillsSortDirection('asc')
     }
+  }, [billsSortColumn])
 
-    // Refresh transactions
-    loadTransactions({ companyId })
-  }
-
-  // Format currency for cleanup modal
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount)
-  }
-
-  // Find legacy bill-payments that need adjustment entries
-  const handleFindLegacyPayments = async () => {
-    setMigrationMessage(null)
-
-    // Get all bill-payments
-    const billPayments = allTransactions.filter(
-      (txn) => txn.transactionType === 'bill-payment'
-    )
-
-    // Get all bills
-    const bills = allTransactions.filter(
-      (txn) => txn.transactionType === 'bill'
-    )
-    const billRefs = new Map(bills.map((b) => [b.reference, b]))
-
-    // Get ALL expenses/checks (including already consolidated ones)
-    const allExpensesAndChecks = allTransactions.filter(
-      (txn) => txn.transactionType === 'expense' || txn.transactionType === 'check'
-    )
-
-    const expenseByRef = new Map(
-      allExpensesAndChecks.filter((e) => e.reference).map((e) => [e.reference, e])
-    )
-    const expenseById = new Map(allExpensesAndChecks.map((e) => [e.id, e]))
-
-    // Get existing adjustment entries (to avoid creating duplicates)
-    const adjustmentEntries = allTransactions.filter(
-      (txn) => txn.transactionType === 'journal' && txn.reference?.startsWith('ADJ-')
-    )
-    const paymentsWithAdjustments = new Set(
-      adjustmentEntries.map((adj) => adj.linkedTransactionId).filter(Boolean)
-    )
-
-    const itemsToFix: Array<{
-      payment: JournalEntry
-      expensesToConsolidate: JournalEntry[]
-      needsAdjustmentOnly: boolean
-    }> = []
-
-    // For each bill-payment, check if it has consolidated expenses needing adjustment
-    billPayments.forEach((payment) => {
-      const expensesToConsolidate: JournalEntry[] = []
-      let needsAdjustmentOnly = false
-
-      // Check payment line memos for expense references
-      payment.lines.forEach((line) => {
-        const memoMatch = line.memo?.match(/Payment for (\S+)/)
-        if (memoMatch) {
-          const ref = memoMatch[1]
-          const expense = expenseByRef.get(ref)
-          if (expense && !billRefs.has(ref)) {
-            if (!expensesToConsolidate.find((e) => e.id === expense.id)) {
-              expensesToConsolidate.push(expense)
-              // If already consolidated but no adjustment exists, only needs adjustment
-              if (expense.consolidatedIntoPaymentId && !paymentsWithAdjustments.has(payment.id)) {
-                needsAdjustmentOnly = true
-              }
-            }
-          }
-        }
-      })
-
-      // Check consolidatedTransactionIds (for payments that already tracked their consolidated items)
-      if (payment.consolidatedTransactionIds) {
-        payment.consolidatedTransactionIds.forEach((txnId) => {
-          const expense = expenseById.get(txnId)
-          if (expense && !expensesToConsolidate.find((e) => e.id === expense.id)) {
-            expensesToConsolidate.push(expense)
-            // If this payment has consolidated items but no adjustment entry yet
-            if (!paymentsWithAdjustments.has(payment.id)) {
-              needsAdjustmentOnly = true
-            }
-          }
-        })
-      }
-
-      // Also find expenses that are already marked as consolidated into THIS payment
-      // but might not be in consolidatedTransactionIds
-      allExpensesAndChecks.forEach((expense) => {
-        if (expense.consolidatedIntoPaymentId === payment.id) {
-          if (!expensesToConsolidate.find((e) => e.id === expense.id)) {
-            expensesToConsolidate.push(expense)
-          }
-          // If already consolidated but no adjustment exists
-          if (!paymentsWithAdjustments.has(payment.id)) {
-            needsAdjustmentOnly = true
-          }
-        }
-      })
-
-      if (expensesToConsolidate.length > 0) {
-        // Only add if adjustment is needed (skip if adjustment already exists)
-        if (!paymentsWithAdjustments.has(payment.id)) {
-          itemsToFix.push({ payment, expensesToConsolidate, needsAdjustmentOnly })
-        }
-      }
-    })
-
-    setMigrationItems(itemsToFix)
-    setShowMigrationModal(true)
-  }
-
-  // Apply migration - void consolidated expenses to remove them from bank register
-  const handleApplyMigration = async () => {
-    setIsMigrating(true)
-    let voidedCount = 0
-    let errorCount = 0
-
-    for (const item of migrationItems) {
-      // Void each expense that was consolidated into this payment
-      // This removes it from the bank register since the bill payment already covers it
-      for (const expense of item.expensesToConsolidate) {
-        try {
-          const result = await voidTransaction(expense.id, companyId)
-
-          if (result.success) {
-            voidedCount++
-          } else {
-            errorCount++
-            console.error(`Failed to void expense ${expense.id}:`, result.error)
-          }
-        } catch (error) {
-          errorCount++
-          console.error(`Error voiding expense ${expense.id}:`, error)
-        }
-      }
-    }
-
-    setIsMigrating(false)
-    setMigrationItems([])
-
-    if (errorCount === 0) {
-      setMigrationMessage(
-        `Successfully voided ${voidedCount} transaction(s). ` +
-        `These expenses have been removed from your bank register. Refresh the page to see changes.`
-      )
+  // Handle sort toggle for payments
+  const handlePaymentsSort = useCallback((column: BillSortColumn) => {
+    if (paymentsSortColumn === column) {
+      setPaymentsSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
     } else {
-      setMigrationMessage(
-        `Voided ${voidedCount} transaction(s). ${errorCount} failed.`
+      setPaymentsSortColumn(column)
+      setPaymentsSortDirection('asc')
+    }
+  }, [paymentsSortColumn])
+
+  // Sort indicator component
+  const SortIndicator: FC<{ column: BillSortColumn; currentColumn: BillSortColumn; direction: SortDirection }> =
+    ({ column, currentColumn, direction }) => {
+      if (column !== currentColumn) {
+        return <span className={styles.sortIndicator}>&#8597;</span>
+      }
+      return (
+        <span className={styles.sortIndicatorActive}>
+          {direction === 'asc' ? '▲' : '▼'}
+        </span>
       )
     }
-
-    // Refresh transactions
-    loadTransactions({ companyId })
-  }
 
   if (isLoading) {
     return (
@@ -510,23 +477,27 @@ export const VendorBills: FC<VendorBillsProps> = ({
         <div className={styles.summaryCard}>
           <span className={styles.summaryLabel}>Outstanding</span>
           <span className={styles.summaryValue}>
-            {formatAmount(stats.outstandingAmount.toFixed(2))}
+            {formatMoney(stats.unpaidAmount)}
           </span>
           <span className={styles.summarySubtext}>
-            {stats.outstanding} {stats.outstanding === 1 ? 'bill' : 'bills'}
+            {stats.unpaid} {stats.unpaid === 1 ? 'bill' : 'bills'}
           </span>
         </div>
         {stats.overdue > 0 && (
           <div className={`${styles.summaryCard} ${styles.summaryCardWarning}`}>
             <span className={styles.summaryLabel}>Overdue</span>
             <span className={styles.summaryValue}>
-              {formatAmount(stats.overdueAmount.toFixed(2))}
+              {formatMoney(stats.overdueAmount)}
             </span>
             <span className={styles.summarySubtext}>
               {stats.overdue} {stats.overdue === 1 ? 'bill' : 'bills'}
             </span>
           </div>
         )}
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Payments</span>
+          <span className={styles.summaryValue}>{stats.payments}</span>
+        </div>
       </div>
 
       {/* Toolbar */}
@@ -534,7 +505,7 @@ export const VendorBills: FC<VendorBillsProps> = ({
         <div className={styles.searchBar}>
           <Input
             type="search"
-            placeholder="Search by bill number..."
+            placeholder="Search bills..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             fullWidth
@@ -545,18 +516,33 @@ export const VendorBills: FC<VendorBillsProps> = ({
         <div className={styles.filters}>
           <Select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => setFilterStatus(e.target.value as BillStatusFilter)}
             options={statusOptions}
             aria-label="Filter by status"
           />
         </div>
 
+        {/* View Toggle */}
+        <div className={styles.viewToggle}>
+          <button
+            className={`${styles.viewToggleBtn} ${viewMode === 'outstanding' ? styles.viewToggleBtnActive : ''}`}
+            onClick={() => setViewMode('outstanding')}
+            aria-pressed={viewMode === 'outstanding'}
+          >
+            Outstanding
+          </button>
+          <button
+            className={`${styles.viewToggleBtn} ${viewMode === 'all' ? styles.viewToggleBtnActive : ''}`}
+            onClick={() => setViewMode('all')}
+            aria-pressed={viewMode === 'all'}
+          >
+            All Bills
+          </button>
+        </div>
+
         <div className={styles.actions}>
-          <Button variant="outline" size="sm" onClick={handleFindLegacyPayments}>
-            Fix Legacy Payments
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleFindOrphanedPayments}>
-            Cleanup Data
+          <Button variant="secondary" onClick={handleNewBillPayment}>
+            Pay Bills
           </Button>
           <Button variant="primary" onClick={handleNewBill}>
             New Bill
@@ -568,66 +554,273 @@ export const VendorBills: FC<VendorBillsProps> = ({
       <div className={styles.results}>
         <p className={styles.resultsCount} aria-live="polite">
           {filteredBills.length} {filteredBills.length === 1 ? 'bill' : 'bills'}
+          {filteredPayments.length > 0 && ` and ${filteredPayments.length} ${filteredPayments.length === 1 ? 'payment' : 'payments'}`}
         </p>
       </div>
 
-      {/* Bills List */}
-      {filteredBills.length === 0 ? (
-        <div className={styles.emptyState}>
-          {bills.length === 0 ? (
-            <>
-              <div className={styles.emptyIcon} aria-hidden="true">📄</div>
-              <h3 className={styles.emptyTitle}>No bills yet</h3>
-              <p className={styles.emptyDescription}>
-                Bills from your vendors will appear here. Track what you owe and when payments are due.
-              </p>
-            </>
+      {/* Two Column Layout: Bills on left, Payments on right */}
+      <div className={styles.twoColumnLayout}>
+        {/* Bills Column */}
+        <div className={styles.column}>
+          <h3 className={styles.sectionTitle}>Bills</h3>
+          {filteredBills.length === 0 ? (
+            <div className={styles.emptyState}>
+              {bills.length === 0 ? (
+                <>
+                  <h4 className={styles.emptyTitle}>No bills yet</h4>
+                  <p className={styles.emptyDescription}>
+                    Bills from your vendors will appear here.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className={styles.emptyTitle}>No bills match your search</p>
+                  <p className={styles.emptyDescription}>
+                    Try adjusting your search or filters
+                  </p>
+                </>
+              )}
+            </div>
           ) : (
-            <>
-              <p className={styles.emptyTitle}>No bills match your search</p>
-              <p className={styles.emptyDescription}>
-                Try adjusting your search or filters
-              </p>
-            </>
+            <div className={styles.billsList}>
+              <div className={styles.compactHeader}>
+                <button className={styles.sortableHeader} onClick={() => handleBillsSort('date')}>
+                  Date <SortIndicator column="date" currentColumn={billsSortColumn} direction={billsSortDirection} />
+                </button>
+                <button className={styles.sortableHeader} onClick={() => handleBillsSort('vendor')}>
+                  Vendor <SortIndicator column="vendor" currentColumn={billsSortColumn} direction={billsSortDirection} />
+                </button>
+                <button className={styles.sortableHeader} onClick={() => handleBillsSort('ref')}>
+                  Ref <SortIndicator column="ref" currentColumn={billsSortColumn} direction={billsSortDirection} />
+                </button>
+                <button className={styles.sortableHeader} onClick={() => handleBillsSort('description')}>
+                  Description <SortIndicator column="description" currentColumn={billsSortColumn} direction={billsSortDirection} />
+                </button>
+                <button className={styles.sortableHeader} onClick={() => handleBillsSort('amount')}>
+                  Amount <SortIndicator column="amount" currentColumn={billsSortColumn} direction={billsSortDirection} />
+                </button>
+                <button className={styles.sortableHeader} onClick={() => handleBillsSort('status')}>
+                  Status <SortIndicator column="status" currentColumn={billsSortColumn} direction={billsSortDirection} />
+                </button>
+              </div>
+
+              {filteredBills.map((bill) => {
+                const isOpen = isCardOpen(bill.id)
+                const starred = isStarred(bill.id)
+                const status = getBillStatus(bill)
+                const isVoided = bill.status === 'void'
+                const amount = bill.lines.reduce((sum, l) => sum + (l.debit || 0), 0)
+
+                return (
+                  <div
+                    key={bill.id}
+                    className={styles.compactRow}
+                    onClick={() => handleTransactionClick(bill.id)}
+                    style={{
+                      cursor: 'pointer',
+                      ...(starred && !isOpen && !isVoided && {
+                        backgroundColor: '#fef9e7',
+                        boxShadow: 'inset 3px 0 0 #d97706',
+                      }),
+                      ...(isOpen && {
+                        backgroundColor: '#ecfdf5',
+                        boxShadow: 'inset 3px 0 0 #0f766e',
+                      }),
+                      ...(isVoided && {
+                        opacity: 0.6,
+                        textDecoration: 'line-through',
+                        backgroundColor: isOpen ? '#ecfdf5' : starred ? '#fef9e7' : '#f9fafb',
+                      }),
+                    }}
+                  >
+                    <span className={styles.cellDate}>{formatDate(bill.date)}</span>
+                    <span className={styles.cellVendor}>{vendorMap.get(bill.vendorId || '') || 'Unknown'}</span>
+                    <span className={styles.cellRef}>{bill.reference || '-'}</span>
+                    <span className={styles.cellDescription}>{bill.description || bill.memo || '-'}</span>
+                    <span className={styles.cellAmount}>{formatMoney(amount)}</span>
+                    <span className={styles.cellStatusWrapper}>
+                      {isVoided ? (
+                        <span className={styles.voidBadge} title="Voided">VOID</span>
+                      ) : (
+                        <span className={`${styles.cellStatus} ${getStatusClass(status)}`}>
+                          {status}
+                        </span>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleStar(bill.id)
+                        }}
+                        style={{
+                          padding: '0.25rem',
+                          border: 'none',
+                          background: 'transparent',
+                          cursor: 'pointer',
+                          color: starred ? '#d97706' : '#d1d5db',
+                        }}
+                        title={starred ? 'Remove highlight' : 'Highlight'}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 20 20" fill={starred ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      </button>
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
           )}
         </div>
-      ) : (
-        <div className={styles.billsList}>
-          <div className={styles.billsHeader}>
-            <span className={styles.headerBillNumber}>Bill #</span>
-            <span className={styles.headerDate}>Date</span>
-            <span className={styles.headerDueDate}>Due Date</span>
-            <span className={styles.headerAmount}>Amount</span>
-            <span className={styles.headerStatus}>Status</span>
-            <span className={styles.headerActions}>Actions</span>
-          </div>
 
-          {filteredBills.map((bill) => (
-            <div key={bill.id} className={styles.billRow}>
-              <span className={styles.billNumber}>{bill.bill_number}</span>
-              <span className={styles.billDate}>{formatDate(bill.bill_date)}</span>
-              <span className={styles.billDueDate}>{formatDate(bill.due_date)}</span>
-              <span className={styles.billAmount}>{formatAmount(bill.total)}</span>
-              <span className={`${styles.billStatus} ${getStatusClass(bill.status)}`}>
-                {getStatusText(bill.status)}
-              </span>
-              <span className={styles.billActions}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    // TODO: Open view/edit modal
-                    alert('View bill functionality coming soon')
-                  }}
-                  aria-label={`View bill ${bill.bill_number}`}
-                >
-                  View
-                </Button>
-              </span>
+        {/* Payments Column */}
+        <div className={styles.column}>
+          <h3 className={styles.sectionTitle}>Bill Payments</h3>
+          {filteredPayments.length === 0 ? (
+            <div className={styles.emptyState}>
+              <h4 className={styles.emptyTitle}>No payments yet</h4>
+              <p className={styles.emptyDescription}>
+                Payments to vendors will appear here.
+              </p>
             </div>
-          ))}
+          ) : (
+            <div className={styles.billsList}>
+              <div className={styles.paymentsHeader}>
+                <span></span>
+                <button className={styles.sortableHeader} onClick={() => handlePaymentsSort('date')}>
+                  Date <SortIndicator column="date" currentColumn={paymentsSortColumn} direction={paymentsSortDirection} />
+                </button>
+                <button className={styles.sortableHeader} onClick={() => handlePaymentsSort('vendor')}>
+                  Vendor <SortIndicator column="vendor" currentColumn={paymentsSortColumn} direction={paymentsSortDirection} />
+                </button>
+                <button className={styles.sortableHeader} onClick={() => handlePaymentsSort('ref')}>
+                  Ref <SortIndicator column="ref" currentColumn={paymentsSortColumn} direction={paymentsSortDirection} />
+                </button>
+                <button className={styles.sortableHeader} onClick={() => handlePaymentsSort('description')}>
+                  Description <SortIndicator column="description" currentColumn={paymentsSortColumn} direction={paymentsSortDirection} />
+                </button>
+                <button className={styles.sortableHeader} onClick={() => handlePaymentsSort('amount')}>
+                  Amount <SortIndicator column="amount" currentColumn={paymentsSortColumn} direction={paymentsSortDirection} />
+                </button>
+                <span></span>
+              </div>
+
+              {filteredPayments.map((payment) => {
+                const isOpen = isCardOpen(payment.id)
+                const starred = isStarred(payment.id)
+                const isVoided = payment.status === 'void'
+                const amount = payment.lines.reduce((sum, l) => sum + (l.debit || 0), 0)
+                const linkedBills = linkedBillsMap.get(payment.id) || []
+                const hasLinkedBills = linkedBills.length > 0
+                const isExpanded = expandedPayments.has(payment.id)
+
+                return (
+                  <div key={payment.id}>
+                    <div
+                      className={styles.paymentRow}
+                      onClick={() => handleTransactionClick(payment.id)}
+                      style={{
+                        cursor: 'pointer',
+                        ...(starred && !isOpen && !isVoided && {
+                          backgroundColor: '#fef9e7',
+                          boxShadow: 'inset 3px 0 0 #d97706',
+                        }),
+                        ...(isOpen && {
+                          backgroundColor: '#ecfdf5',
+                          boxShadow: 'inset 3px 0 0 #0f766e',
+                        }),
+                        ...(isVoided && {
+                          opacity: 0.6,
+                          textDecoration: 'line-through',
+                          backgroundColor: isOpen ? '#ecfdf5' : starred ? '#fef9e7' : '#f9fafb',
+                        }),
+                      }}
+                    >
+                      {/* Expand/collapse toggle for linked bills */}
+                      {hasLinkedBills ? (
+                        <button
+                          className={styles.expandBtn}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            togglePaymentExpanded(payment.id)
+                          }}
+                          aria-expanded={isExpanded}
+                          aria-label={isExpanded ? 'Collapse linked bills' : 'Expand linked bills'}
+                        >
+                          {isExpanded ? '▼' : '▶'}
+                        </button>
+                      ) : (
+                        <span className={styles.expandPlaceholder}></span>
+                      )}
+                      <span className={styles.cellDate}>{formatDate(payment.date)}</span>
+                      <span className={styles.cellVendor}>{vendorMap.get(payment.vendorId || '') || 'Unknown'}</span>
+                      <span className={styles.cellRef}>{payment.reference || '-'}</span>
+                      <span className={styles.cellDescription}>{payment.description || payment.memo || '-'}</span>
+                      <span className={styles.cellAmount}>{formatMoney(amount)}</span>
+                      <span className={styles.cellStatusWrapper}>
+                        {isVoided && (
+                          <span className={styles.voidBadge} title="Voided">VOID</span>
+                        )}
+                        {hasLinkedBills && !isVoided && (
+                          <span className={styles.linkedBadge} title={`${linkedBills.length} linked bill${linkedBills.length > 1 ? 's' : ''}`}>
+                            {linkedBills.length}
+                          </span>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleStar(payment.id)
+                          }}
+                          style={{
+                            padding: '0.25rem',
+                            border: 'none',
+                            background: 'transparent',
+                            cursor: 'pointer',
+                            color: starred ? '#d97706' : '#d1d5db',
+                          }}
+                          title={starred ? 'Remove highlight' : 'Highlight'}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 20 20" fill={starred ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        </button>
+                      </span>
+                    </div>
+
+                    {/* Expanded linked bills */}
+                    {isExpanded && linkedBills.length > 0 && (
+                      <div className={styles.linkedBillsContainer}>
+                        {linkedBills.map((bill) => {
+                          const billIsOpen = isCardOpen(bill.id)
+                          const billAmount = bill.lines.reduce((sum, l) => sum + (l.debit || 0), 0)
+                          return (
+                            <div
+                              key={bill.id}
+                              className={styles.linkedBillRow}
+                              onClick={() => handleTransactionClick(bill.id)}
+                              style={{
+                                cursor: 'pointer',
+                                ...(billIsOpen && {
+                                  backgroundColor: '#ecfdf5',
+                                }),
+                              }}
+                            >
+                              <span className={styles.linkedBillIcon}>└</span>
+                              <span className={styles.cellDate}>{formatDate(bill.date)}</span>
+                              <span className={styles.cellRef}>{bill.reference || '-'}</span>
+                              <span className={styles.cellDescription}>{bill.description || bill.memo || '-'}</span>
+                              <span className={styles.cellAmount}>{formatMoney(billAmount)}</span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* New Bill Modal */}
       {showBillModal && currentTransaction && (
@@ -655,238 +848,29 @@ export const VendorBills: FC<VendorBillsProps> = ({
         </Modal>
       )}
 
-      {/* Cleanup Modal */}
-      {showCleanupModal && (
+      {/* New Bill Payment Modal */}
+      {showPaymentModal && (
         <Modal
-          isOpen={showCleanupModal}
-          onClose={() => {
-            setShowCleanupModal(false)
-            setCleanupMessage(null)
+          isOpen={showPaymentModal}
+          onClose={handleCancelPayment}
+          title="Pay Bills"
+          size="xl"
+          closeOnBackdropClick={false}
+          headerStyle={{
+            background: 'linear-gradient(135deg, #1a4731 0%, #276749 100%)',
+            color: 'white',
           }}
-          title="Cleanup Orphaned Payments"
-          size="md"
         >
-          <div style={{ padding: '1rem' }}>
-            {cleanupMessage ? (
-              <>
-                <p style={{ color: '#166534', marginBottom: '1rem' }}>{cleanupMessage}</p>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button
-                    variant="primary"
-                    onClick={() => {
-                      setShowCleanupModal(false)
-                      setCleanupMessage(null)
-                    }}
-                  >
-                    Done
-                  </Button>
-                </div>
-              </>
-            ) : orphanedPayments.length === 0 ? (
-              <>
-                <p style={{ color: '#166534', marginBottom: '1rem' }}>
-                  No orphaned bill payments found. Your data is clean.
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button variant="primary" onClick={() => setShowCleanupModal(false)}>
-                    Close
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p style={{ marginBottom: '1rem' }}>
-                  Found <strong>{orphanedPayments.length}</strong> orphaned bill payment(s)
-                  that are not linked to any bill:
-                </p>
-                <div style={{
-                  maxHeight: '300px',
-                  overflowY: 'auto',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '0.375rem',
-                  marginBottom: '1rem'
-                }}>
-                  {orphanedPayments.map((payment) => {
-                    const amount = payment.lines.reduce((sum, line) => sum + line.debit, 0)
-                    return (
-                      <div
-                        key={payment.id}
-                        style={{
-                          padding: '0.75rem 1rem',
-                          borderBottom: '1px solid #e5e7eb',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <div>
-                          <div style={{ fontWeight: 500 }}>
-                            {payment.reference || 'No Reference'}
-                          </div>
-                          <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                            {payment.date.toLocaleDateString()} - {payment.memo || 'No description'}
-                          </div>
-                        </div>
-                        <div style={{ fontWeight: 600, color: '#b91c1c' }}>
-                          {formatCurrency(amount)}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-                  These payments are not linked to any bill and may be causing data inconsistencies.
-                  Would you like to delete them?
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowCleanupModal(false)}
-                    disabled={isCleaningUp}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={handleDeleteOrphanedPayments}
-                    loading={isCleaningUp}
-                    disabled={isCleaningUp}
-                  >
-                    Delete {orphanedPayments.length} Payment(s)
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        </Modal>
-      )}
-
-      {/* Migration Modal - Fix Legacy Payments */}
-      {showMigrationModal && (
-        <Modal
-          isOpen={showMigrationModal}
-          onClose={() => {
-            setShowMigrationModal(false)
-            setMigrationMessage(null)
-          }}
-          title="Fix Legacy Payments"
-          size="lg"
-        >
-          <div style={{ padding: '1rem' }}>
-            {migrationMessage ? (
-              <>
-                <p style={{ color: '#166534', marginBottom: '1rem' }}>{migrationMessage}</p>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button
-                    variant="primary"
-                    onClick={() => {
-                      setShowMigrationModal(false)
-                      setMigrationMessage(null)
-                    }}
-                  >
-                    Done
-                  </Button>
-                </div>
-              </>
-            ) : migrationItems.length === 0 ? (
-              <>
-                <p style={{ color: '#166534', marginBottom: '1rem' }}>
-                  No duplicate transactions found that need to be voided.
-                </p>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-                  All bill payments appear to be correctly recorded. If you still see duplicates in
-                  your bank register, you may need to manually void the duplicate transaction from
-                  the Transactions page.
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button variant="primary" onClick={() => setShowMigrationModal(false)}>
-                    Close
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p style={{ marginBottom: '1rem' }}>
-                  Found <strong>{migrationItems.length}</strong> bill payment(s) with duplicate expense/check entries that should be voided:
-                </p>
-                <div style={{
-                  maxHeight: '400px',
-                  overflowY: 'auto',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '0.375rem',
-                  marginBottom: '1rem'
-                }}>
-                  {migrationItems.map((item) => (
-                    <div
-                      key={item.payment.id}
-                      style={{
-                        padding: '1rem',
-                        borderBottom: '1px solid #e5e7eb',
-                      }}
-                    >
-                      <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>
-                        Payment: {item.payment.reference || item.payment.memo || 'No Reference'}
-                        <span style={{ fontWeight: 400, color: '#6b7280', marginLeft: '0.5rem' }}>
-                          ({item.payment.date instanceof Date ? item.payment.date.toLocaleDateString() : 'Unknown date'})
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.875rem', color: '#4b006e', marginBottom: '0.5rem' }}>
-                        Expenses/Checks to void (duplicates):
-                      </div>
-                      {item.expensesToConsolidate.map((expense) => (
-                        <div
-                          key={expense.id}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '0.5rem 0.75rem',
-                            background: '#f3f4f6',
-                            borderRadius: '0.25rem',
-                            marginBottom: '0.25rem',
-                            fontSize: '0.875rem'
-                          }}
-                        >
-                          <div>
-                            <span style={{ fontWeight: 500 }}>
-                              {expense.transactionType === 'check' ? 'Check' : 'Expense'}: {expense.reference || 'No Ref'}
-                            </span>
-                            <span style={{ color: '#6b7280', marginLeft: '0.5rem' }}>
-                              {expense.memo || ''}
-                            </span>
-                          </div>
-                          <span style={{ fontWeight: 600 }}>
-                            {formatCurrency(expense.lines.reduce((sum, l) => sum + l.debit, 0))}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-                  This will VOID these expense/check transactions, removing them from your bank register.
-                  The bill payment already includes these amounts, so the original entries are duplicates.
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowMigrationModal(false)}
-                    disabled={isMigrating}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={handleApplyMigration}
-                    loading={isMigrating}
-                    disabled={isMigrating}
-                  >
-                    Void {migrationItems.reduce((sum, item) => sum + item.expensesToConsolidate.length, 0)} Transaction(s)
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
+          <BillPaidForm
+            transactions={transactions}
+            accounts={accounts}
+            vendors={vendors}
+            companyId={companyId}
+            userId={activeUserId}
+            onSave={handleSaveBillPayments}
+            onCancel={handleCancelPayment}
+            isLoading={accountsLoading}
+          />
         </Modal>
       )}
     </div>

@@ -483,11 +483,19 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
 
         if (amountDue <= 0) {
           status = 'paid'
-        } else if (dueDate > today) {
-          status = 'current'
         } else {
-          status = 'overdue'
-          daysLate = Math.floor((today.getTime() - dueDate.getTime()) / (24 * 60 * 60 * 1000))
+          // Compare dates only (not time) - overdue means due date is strictly BEFORE today
+          const todayStart = new Date(today)
+          todayStart.setHours(0, 0, 0, 0)
+          const dueDateStart = new Date(dueDate)
+          dueDateStart.setHours(0, 0, 0, 0)
+
+          if (dueDateStart >= todayStart) {
+            status = 'current'
+          } else {
+            status = 'overdue'
+            daysLate = Math.floor((todayStart.getTime() - dueDateStart.getTime()) / (24 * 60 * 60 * 1000))
+          }
         }
       } else if (txnType === 'bill-payment') {
         // Bill-payments are money out - always "paid"
@@ -715,6 +723,7 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
       let currentAmount = 0
       let overdueAmount = 0
       const today = new Date()
+      today.setHours(0, 0, 0, 0)
 
       bills.forEach((bill) => {
         const billAmount = bill.lines.reduce((sum, l) => sum + l.debit, 0)
@@ -723,7 +732,10 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
 
         if (amountDue > 0) {
           const dueDate = bill.dueDate || new Date(bill.date.getTime() + 30 * 24 * 60 * 60 * 1000)
-          if (dueDate > today) {
+          const dueDateStart = new Date(dueDate)
+          dueDateStart.setHours(0, 0, 0, 0)
+          // Due date >= today means current, due date < today means overdue
+          if (dueDateStart >= today) {
             currentAmount += amountDue
           } else {
             overdueAmount += amountDue
@@ -824,10 +836,22 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
       // Toggle direction if same field
       setTxnSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
     } else {
-      // New field, default to descending for date/amount, ascending for others
+      // New field, default to ascending
       setTxnSortField(field)
-      setTxnSortDirection(field === 'date' || field === 'amount' ? 'desc' : 'asc')
+      setTxnSortDirection('asc')
     }
+  }
+
+  // Sort indicator component
+  const SortIndicator: FC<{ field: TransactionSortField }> = ({ field }) => {
+    if (field !== txnSortField) {
+      return <span className={styles.sortIndicator}>&#8597;</span>
+    }
+    return (
+      <span className={styles.sortIndicatorActive}>
+        {txnSortDirection === 'asc' ? '▲' : '▼'}
+      </span>
+    )
   }
 
   // Toggle payment details expansion for a transaction
@@ -1615,40 +1639,40 @@ export const VendorInsights: FC<VendorInsightsProps> = ({
                   <div className={styles.transactionList}>
                     <div className={styles.transactionHeader}>
                       <button
-                        className={`${styles.sortableHeader} ${txnSortField === 'date' ? styles.sortActive : ''}`}
+                        className={styles.sortableHeader}
                         onClick={() => handleColumnSort('date')}
                       >
-                        Date {txnSortField === 'date' && (txnSortDirection === 'asc' ? '↑' : '↓')}
+                        Date <SortIndicator field="date" />
                       </button>
                       <button
-                        className={`${styles.sortableHeader} ${txnSortField === 'type' ? styles.sortActive : ''}`}
+                        className={styles.sortableHeader}
                         onClick={() => handleColumnSort('type')}
                       >
-                        Type {txnSortField === 'type' && (txnSortDirection === 'asc' ? '↑' : '↓')}
+                        Type <SortIndicator field="type" />
                       </button>
                       <button
-                        className={`${styles.sortableHeader} ${txnSortField === 'reference' ? styles.sortActive : ''}`}
+                        className={styles.sortableHeader}
                         onClick={() => handleColumnSort('reference')}
                       >
-                        Reference {txnSortField === 'reference' && (txnSortDirection === 'asc' ? '↑' : '↓')}
+                        Reference <SortIndicator field="reference" />
                       </button>
                       <button
-                        className={`${styles.sortableHeader} ${txnSortField === 'description' ? styles.sortActive : ''}`}
+                        className={styles.sortableHeader}
                         onClick={() => handleColumnSort('description')}
                       >
-                        Description {txnSortField === 'description' && (txnSortDirection === 'asc' ? '↑' : '↓')}
+                        Description <SortIndicator field="description" />
                       </button>
                       <button
-                        className={`${styles.sortableHeader} ${txnSortField === 'classification' ? styles.sortActive : ''}`}
+                        className={styles.sortableHeader}
                         onClick={() => handleColumnSort('classification')}
                       >
-                        Category {txnSortField === 'classification' && (txnSortDirection === 'asc' ? '↑' : '↓')}
+                        Category <SortIndicator field="classification" />
                       </button>
                       <button
-                        className={`${styles.sortableHeader} ${txnSortField === 'amount' ? styles.sortActive : ''}`}
+                        className={styles.sortableHeader}
                         onClick={() => handleColumnSort('amount')}
                       >
-                        Amount {txnSortField === 'amount' && (txnSortDirection === 'asc' ? '↑' : '↓')}
+                        Amount <SortIndicator field="amount" />
                       </button>
                       <span aria-hidden="true"></span>
                     </div>
