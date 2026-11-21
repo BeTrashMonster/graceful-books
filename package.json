@@ -75,7 +75,7 @@
     "jspdf-autotable": "^5.0.7",
     "jszip": "^3.10.1",
     "nanoid": "^5.0.4",
-    "nodemailer": "^8.0.7",
+    "nodemailer": "10.6.1",
     "papaparse": "^5.5.3",
     "pdf-parse": "^2.4.5",
     "pdfmake": "^0.3.2",
