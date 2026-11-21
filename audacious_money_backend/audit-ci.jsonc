@@ -4,31 +4,21 @@
   // ...in production dependencies only (what actually ships to users).
   "skip-dev": true,
   "allowlist": [
-    // TEMPORARY: known vulnerabilities already in production on 2026-11-19.
-    // Phase B removes every entry. Do not add new entries without a matching
-    // record in SECURITY_ACCEPTED_RISKS.md and an expiry of 30 days or less.
-
-    // axios (transitive via postmark) - fix by updating postmark or overriding axios
-    { "GHSA-35jp-ww65-95wh": { "active": true, "notes": "axios SSRF — fixed in Phase B4", "expiry": "2026-12-19" } },
-    { "GHSA-3g43-6gmg-66jw": { "active": true, "notes": "axios prototype pollution — fixed in Phase B4", "expiry": "2026-12-19" } },
-    { "GHSA-3pq3-5fj3-cg6v": { "active": true, "notes": "axios SSRF — fixed in Phase B4", "expiry": "2026-12-19" } },
-    { "GHSA-542g-h47m-68v8": { "active": true, "notes": "axios SSRF — fixed in Phase B4", "expiry": "2026-12-19" } },
-    { "GHSA-6chq-wfr3-2hj9": { "active": true, "notes": "axios SSRF — fixed in Phase B4", "expiry": "2026-12-19" } },
-    { "GHSA-777c-7fjr-54vf": { "active": true, "notes": "axios SSRF — fixed in Phase B4", "expiry": "2026-12-19" } },
-    { "GHSA-hfxv-24rg-xrqf": { "active": true, "notes": "axios prototype pollution — fixed in Phase B4", "expiry": "2026-12-19" } },
-    { "GHSA-j5f8-grm9-p9fc": { "active": true, "notes": "axios SSRF — fixed in Phase B4", "expiry": "2026-12-19" } },
-    { "GHSA-p92q-9vqr-4j8v": { "active": true, "notes": "axios CRLF injection — fixed in Phase B4", "expiry": "2026-12-19" } },
-    { "GHSA-pf86-5x62-jrwf": { "active": true, "notes": "axios body bypass — fixed in Phase B4", "expiry": "2026-12-19" } },
-    { "GHSA-pmwg-cvhr-8vh7": { "active": true, "notes": "axios SSRF loopback bypass — fixed in Phase B4", "expiry": "2026-12-19" } },
-    { "GHSA-q8qp-cvcw-x6jj": { "active": true, "notes": "axios content length bypass — fixed in Phase B4", "expiry": "2026-12-19" } },
-
-    // hono - fix by upgrading to hono 4.7.6+
-    { "GHSA-88fw-hqm2-52qc": { "active": true, "notes": "hono prototype pollution — fixed in Phase B3", "expiry": "2026-12-19" } },
-
-    // form-data (transitive) - fix by updating parent or override
-    { "GHSA-hmw2-7cc7-3qxx": { "active": true, "notes": "form-data ReDoS — fixed in Phase B4", "expiry": "2026-12-19" } },
-
-    // zod - fix by upgrading to zod 3.24.4+
-    { "GHSA-mrhx-c7xc-m3w5": { "active": true, "notes": "zod email regex ReDoS — fixed in Phase B4", "expiry": "2026-12-19" } }
+    // Temporary. Each entry expires; fix before the expiry date.
+    { "GHSA-35jp-ww65-95wh": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-3g43-6gmg-66jw": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-3pq3-5fj3-cg6v": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-542g-h47m-68v8": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-6chq-wfr3-2hj9": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-777c-7fjr-54vf": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-hfxv-24rg-xrqf": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-j5f8-grm9-p9fc": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-p92q-9vqr-4j8v": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-pf86-5x62-jrwf": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-pmwg-cvhr-8vh7": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-q8qp-cvcw-x6jj": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-88fw-hqm2-52qc": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-hmw2-7cc7-3qxx": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } },
+    { "GHSA-mrhx-c7xc-m3w5": { "active": true, "notes": "Tracked", "expiry": "2026-12-19" } }
   ]
 }
