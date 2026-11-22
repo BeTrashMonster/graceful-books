@@ -27,10 +27,8 @@ jobs:
         with:
           # Fail on high and critical severity vulnerabilities
           fail-on-severity: high
-          # Also check for license compatibility
+          # Block copyleft licenses that require source disclosure
           deny-licenses: GPL-3.0, AGPL-3.0
-          # Allow specific licenses commonly used in open source
-          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, CC0-1.0, Unlicense
           # Comment on PR with findings
           comment-summary-in-pr: always
           # Warn about dependencies with no license

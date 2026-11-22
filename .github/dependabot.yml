@@ -92,3 +92,33 @@ updates:
     pull-request-branch-name:
       separator: "/"
     rebase-strategy: "auto"
+
+  # Backend npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/audacious_money_backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "backend"
+    commit-message:
+      prefix: "chore(deps-backend)"
+      include: "scope"
+    ignore:
+      # Ignore major version updates (manual review required)
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      backend-dependencies:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"

@@ -26,7 +26,7 @@ on:
           - production
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
 
 permissions:
   contents: write      # Need write for pushing deployment tags

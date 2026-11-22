@@ -1,0 +1,19 @@
+{
+  // Fail on HIGH and CRITICAL vulnerabilities...
+  "high": true,
+  // ...in production dependencies only (what actually ships to users).
+  "skip-dev": true,
+  "allowlist": [
+    // Temporary. Each entry expires; fix before the expiry date.
+    // nanoid - memory exhaustion DoS
+    { "GHSA-28wg-ghj8-5hjv": { "active": true, "notes": "Tracked", "expiry": "2027-02-21" } },
+    { "GHSA-xwg4-73v4-xw9w": { "active": true, "notes": "Tracked", "expiry": "2027-02-21" } },
+    // nodemailer - file access bypass, IDN bypass
+    { "GHSA-p6gq-j5cr-w38f": { "active": true, "notes": "Tracked", "expiry": "2027-02-21" } },
+    { "GHSA-2x7j-588g-ccc2": { "active": true, "notes": "Tracked", "expiry": "2027-02-21" } },
+    { "GHSA-r7g4-qg5f-qqm2": { "active": true, "notes": "Tracked", "expiry": "2027-02-21" } },
+    { "GHSA-v53p-9fqp-m79j": { "active": true, "notes": "Tracked", "expiry": "2027-02-21" } },
+    // zod - memory exhaustion on oversized collections
+    { "GHSA-mrhx-c7xc-m3w5": { "active": true, "notes": "Tracked", "expiry": "2027-02-21" } }
+  ]
+}
